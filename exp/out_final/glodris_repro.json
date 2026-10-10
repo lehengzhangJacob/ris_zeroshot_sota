@@ -1,0 +1,111 @@
+{
+  "what": "full official-val reproduction of GLOD-RIS with the now-working GLM access (2026-10-10 operator instruction, second attempt)",
+  "implementation": "independent reimplementation at /home/msj_team/Jacob/sys/glod_ris_repro (author repo unavailable); production-grade GLM layer added: tolerant grid parsing (quoted digits, floats, category->cells dicts, nested rows, 1-based cell-index lists, all-zero grids accepted), a repair prompt stating the parse error, 8192-token escalation on finish_reason=length, 429/5xx retried with backoff, parked failures that never abort the run and are retried at the end. Pipeline hardening (found by the full-val run itself): all-zero grids use a uniform localization map; parked guidance routes the selector to a DOD-only configuration (no category/localization terms); guidance without a usable category drops only the category term",
+  "cache": "glod/../cache: existing vision cache reused where valid (keyed by image sha + settings, unaffected by the code fix); GLM responses cached per (image, expression, model, grid); 704MB vision + GLM cache carried over from the aborted first attempt (which stopped at 223/10,834); the aborted run's per-expression records were NOT reused because the implementation hash changed (new output dirs full_<tag>_v2)",
+  "protocol": "official val splits; mIoU = mean per-expression IoU; oIoU = cumulative intersection/union -- the protocol the published numbers use",
+  "datasets": {
+    "refcoco": {
+      "n": 10834,
+      "expected": 10834,
+      "mIoU": 32.6781,
+      "oIoU": 27.9194,
+      "oracle_mIoU": 82.2113,
+      "published": {
+        "mIoU": 58.42,
+        "oIoU": 50.85
+      },
+      "delta": {
+        "mIoU": -25.7419,
+        "oIoU": -22.9306
+      },
+      "coverage": 1.0,
+      "complete": true,
+      "run_hash": "5482359c1053b1a518f198e45044e3508042b18c8bf763b4f1546b813a37f7a4",
+      "glm_failures": {
+        "parked_expressions": 15,
+        "records_written": 10834,
+        "note": "parked = GLM guidance unavailable after repair retries; those expressions ran the DOD-only path and are flagged in their records (guidance_source=GLM-parked-DOD-only)"
+      },
+      "output_dir": "/home/msj_team/Jacob/sys/glod_ris_repro/outputs/full_refcoco_v3"
+    },
+    "refcocoplus": {
+      "n": 10758,
+      "expected": 10758,
+      "mIoU": 30.9572,
+      "oIoU": 26.1309,
+      "oracle_mIoU": 82.3974,
+      "published": {
+        "mIoU": 54.01,
+        "oIoU": 45.96
+      },
+      "delta": {
+        "mIoU": -23.0528,
+        "oIoU": -19.8291
+      },
+      "coverage": 1.0,
+      "complete": true,
+      "run_hash": "c36ae68b724969c3e820c950ce13f3be79adee765b0963b953ff38ffee927e1d",
+      "glm_failures": {
+        "parked_expressions": 14,
+        "records_written": 10758,
+        "note": "parked = GLM guidance unavailable after repair retries; those expressions ran the DOD-only path and are flagged in their records (guidance_source=GLM-parked-DOD-only)"
+      },
+      "output_dir": "/home/msj_team/Jacob/sys/glod_ris_repro/outputs/full_refcocop_v3"
+    },
+    "refcocog": {
+      "n": 4896,
+      "expected": 4896,
+      "mIoU": 37.2403,
+      "oIoU": 31.9795,
+      "oracle_mIoU": 79.1206,
+      "published": {
+        "mIoU": 57.85,
+        "oIoU": 50.03
+      },
+      "delta": {
+        "mIoU": -20.6097,
+        "oIoU": -18.0505
+      },
+      "coverage": 1.0,
+      "complete": true,
+      "run_hash": "f42370bb7d7babb82e4eea0555812a71343c827373238e6a7b54ed328643ffb5",
+      "glm_failures": {
+        "parked_expressions": 0,
+        "records_written": 4896,
+        "note": "parked = GLM guidance unavailable after repair retries; those expressions ran the DOD-only path and are flagged in their records (guidance_source=GLM-parked-DOD-only)"
+      },
+      "output_dir": "/home/msj_team/Jacob/sys/glod_ris_repro/outputs/full_refcocog_v3"
+    }
+  },
+  "complete": true,
+  "refcoco_component_controls": {
+    "dodonly": {
+      "label": "no GLM guidance at all (DOD-only)",
+      "n": 10834,
+      "complete": true,
+      "mIoU": 35.0892,
+      "oIoU": 27.1037
+    },
+    "nocat": {
+      "label": "GLM localization only (category term dropped)",
+      "n": 10834,
+      "complete": true,
+      "mIoU": 28.9837,
+      "oIoU": 24.3796
+    },
+    "noloc": {
+      "label": "GLM category only (localization term dropped)",
+      "n": 10834,
+      "complete": true,
+      "mIoU": 36.1082,
+      "oIoU": 28.8437
+    },
+    "nodod": {
+      "label": "no orthogonal decoupling (raw foreground features)",
+      "n": 10834,
+      "complete": true,
+      "mIoU": 31.953,
+      "oIoU": 27.3351
+    }
+  }
+}

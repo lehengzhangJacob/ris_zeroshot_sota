@@ -105,7 +105,7 @@ def main() -> int:
     repro = load(OUTF / "glodris_repro.json")
     if repro:
         lines = [r"\begin{tabular}{lcccc}", r"\toprule",
-                 r"Dataset & $n$ & mIoU & oIoU & published (mIoU / oIoU) \\", r"\midrule"]
+                 r"Dataset & $n$ & mIoU & oIoU & published \\", r"\midrule"]
         for key, nice in (("refcoco", "RefCOCO"), ("refcocoplus", "RefCOCO+"),
                           ("refcocog", "RefCOCOg")):
             e = (repro.get("datasets") or {}).get(key) or {}
@@ -113,16 +113,19 @@ def main() -> int:
                 continue
             pub = e.get("published") or {}
             lines.append(f"{nice} & {e['n']:,} & {fmt(e['mIoU'])} & {fmt(e['oIoU'])} & "
-                         f"{fmt(pub.get('mIoU'))} / {fmt(pub.get('oIoU'))} \\\\")
+                         f"{fmt(pub.get('mIoU'))} \\\\")
         ctrl = repro.get("refcoco_component_controls") or {}
         if ctrl:
             lines += [r"\midrule",
-                      r"\multicolumn{5}{l}{\emph{RefCOCO val component controls (n=10{,}834)}}\\"]
-            for tag in ("dodonly", "noloc", "nocat", "nodod"):
+                      r"\multicolumn{5}{l}{\emph{RefCOCO val controls, this run ($n{=}10{,}834$)}}\\"]
+            for tag, short in (("dodonly", "no guidance (DOD-only)"),
+                               ("noloc", "category only"),
+                               ("nocat", "localization only"),
+                               ("nodod", "no orthogonal decoupling")):
                 c = ctrl.get(tag)
                 if not c:
                     continue
-                lines.append(f"\\quad {c['label']} & {c['n']:,} & {fmt(c['mIoU'])} & "
+                lines.append(f"\\quad {short} & {c['n']:,} & {fmt(c['mIoU'])} & "
                              f"{fmt(c['oIoU'])} & -- \\\\")
         lines += [r"\bottomrule", r"\end{tabular}"]
         (TAB / "repro.tex").write_text("\n".join(lines) + "\n")

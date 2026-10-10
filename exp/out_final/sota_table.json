@@ -1,5 +1,5 @@
 {
-  "caption": "Referring image segmentation, validation splits. mIoU unless noted; gRefCOCO uses the official cIoU/gIoU protocol.",
+  "caption": "Referring image segmentation, validation splits. mIoU unless noted; gRefCOCO uses the official cIoU/gIoU protocol. The GLOD-RIS reproduction row is this run's independent reimplementation (their code is unreleased); it is reported below the published row and discussed in the reproduction audit.",
   "methods": [
     {
       "name": "Grad-CAM",
@@ -345,7 +345,44 @@
       "n": 14229,
       "setting": "training-free features; rule tuned on held-out gRefCOCO train (never val)",
       "note": "shipped: per-term box selector, single pick per box (change 16, 2026-10-10, re-selected on the held-out train frame with SAM caches present), joint config change 14 + singles-only no-target fallback (exp124); complete official val split (n=14229) under the official gRefCOCO protocol (protocol_audit.json)"
+    },
+    {
+      "name": "GLOD-RIS (our independent reproduction)",
+      "venue": "this run",
+      "measured_by_us": true,
+      "evidence": "exp/out_final/glodris_repro.json",
+      "setting": "zero-shot, SAM ViT-H + CLIP ViT-B/16, GLM-4.1V-Thinking-Flash guidance",
+      "refcoco": {
+        "mIoU": 32.6781,
+        "oIoU": 27.9194,
+        "n": 10834,
+        "published": {
+          "mIoU": 58.42,
+          "oIoU": 50.85
+        },
+        "source": "independent reproduction, full official val split"
+      },
+      "refcocoplus": {
+        "mIoU": 30.9572,
+        "oIoU": 26.1309,
+        "n": 10758,
+        "published": {
+          "mIoU": 54.01,
+          "oIoU": 45.96
+        },
+        "source": "independent reproduction, full official val split"
+      },
+      "refcocog": {
+        "mIoU": 37.2403,
+        "oIoU": 31.9795,
+        "n": 4896,
+        "published": {
+          "mIoU": 57.85,
+          "oIoU": 50.03
+        },
+        "source": "independent reproduction, full official val split"
+      }
     }
   ],
-  "metric_note": "Every RefCOCO-family row carries both mIoU and oIoU from the same source table (2026-10-09 fair-comparison instruction): published rows take the compared paper's own oIoU (GLOD-RIS Table I oIoU block, val columns); our rows take the aligned pooled re-evaluations (protocol_audit.json). oIoU = global pooled overlap sum|pred∩GT|/sum|pred∪GT|. Val columns only (testA/testB/test(u) not produced; stated in the paper)."
+  "metric_note": "Every RefCOCO-family row carries both mIoU and oIoU from the same source table (2026-10-09 fair-comparison instruction): published rows take the compared paper's own oIoU (GLOD-RIS Table I oIoU block, val columns); our rows take the aligned pooled re-evaluations (protocol_audit.json). oIoU = global pooled overlap sum|pred\u2229GT|/sum|pred\u222aGT|. Val columns only (testA/testB/test(u) not produced; stated in the paper)."
 }

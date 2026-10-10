@@ -1,0 +1,15 @@
+\begin{tabular}{lcccc}
+\toprule
+Dataset & $n$ & mIoU & oIoU & published \\
+\midrule
+RefCOCO & 10,834 & 32.68 & 27.92 & 58.42 \\
+RefCOCO+ & 10,758 & 30.96 & 26.13 & 54.01 \\
+RefCOCOg & 4,896 & 37.24 & 31.98 & 57.85 \\
+\midrule
+\multicolumn{5}{l}{\emph{RefCOCO val controls, this run ($n{=}10{,}834$)}}\\
+\quad no guidance (DOD-only) & 10,834 & 35.09 & 27.10 & -- \\
+\quad category only & 10,834 & 36.11 & 28.84 & -- \\
+\quad localization only & 10,834 & 28.98 & 24.38 & -- \\
+\quad no orthogonal decoupling & 10,834 & 31.95 & 27.34 & -- \\
+\bottomrule
+\end{tabular}

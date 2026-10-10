@@ -76,7 +76,9 @@ Columns are val-scoped: testA/testB and RefCOCOg test(u) are not evaluated,
 because the frozen components' scoring passes over the test splits are outside
 this run's shared-GPU budget; the published numbers compared against are the
 same papers' val columns. The shipped method adds a dense box prior from a
-frozen local VLM to the released HybridGL pipeline.}
+frozen local VLM to the released HybridGL pipeline. The GLOD-RIS reproduction
+row is this run's independent reimplementation (their code is unreleased); it
+is discussed in the reproduction audit (\S\ref{sec:repro}).}
 \label{tab:sota}
 \input{tables/sota}
 \end{table*}
@@ -375,3 +377,40 @@ the numbers printed in the HybridGL paper. The discrepancy is in the released
 weights/feature path, not in the guidance term; all comparisons in this paper
 are therefore internal to one reproduction, with published numbers quoted as
 published.
+
+\paragraph{Independent reproduction of GLOD-RIS.}
+GLOD-RIS's code is unreleased, so its rows in Table~\ref{tab:sota} are quoted
+across harnesses. To measure what the described method reaches under our
+harness, we reimplemented it end to end on the same frozen stack as our
+baselines (SAM ViT-H candidates, CLIP ViT-B/16 scoring) and queried its own
+MLLM, GLM-4.1V-Thinking-Flash, through the Zhipu API with our own prompt;
+every response is cached, and parsing and transport failures are parked and
+counted rather than aborting a run ($15$, $14$ and $0$ expressions of the
+three splits ran the guidance-free path). The reproduction \emph{completes}
+on all three official val splits but lands far below the published numbers
+($-25.7$, $-23.1$, $-20.6$\,mIoU; Table~\ref{tab:repro}), and two measured
+facts localize the gap. (i)~\emph{Candidate generation is not the limit}: the
+oracle mIoU over the SAM pool is $82.2$, and the largest single component loss
+is in how the selector consumes the MLLM guidance -- removing the Gaussian-grid
+localization term raises RefCOCO val from $32.68$ to $36.11$\,mIoU, while the
+category term and the orthogonal decoupling each contribute about
+$+1$\,mIoU (Table~\ref{tab:repro}), i.e., the guidance integration our
+reimplementation derives from the paper's equations degrades selection rather
+than improving it. (ii)~\emph{Feature path}: the released ancestor scores
+$44.82$ on the same split in this harness, so roughly ten mIoU points are lost
+simply when the unreleased trained feature path is replaced by frozen
+off-the-shelf components. We therefore keep the published GLOD-RIS rows as the
+comparison and report our method's margin over them as cross-harness; the
+reproduction row in Table~\ref{tab:sota} is marked as measured in this run so
+the shortfall is visible rather than hidden.
+
+\begin{table}[t]\centering\small
+\caption{Independent reproduction of GLOD-RIS, official val splits (top): our
+reimplementation's full pipeline, with the published mIoU (oIoU: $50.85$,
+$45.96$, $50.03$) for reference. Controls (bottom) remove one scoring
+component at a time on RefCOCO val; candidate generation is not the limit
+(oracle mIoU $82.2$). All rows: this run, frozen components, GLM-4.1V guidance
+at run time.}
+\label{tab:repro}
+\input{tables/repro}
+\end{table}

@@ -211,3 +211,42 @@ stays far above every published row including GLOD-RIS's own; the comparison
 is component-matched (same SAM ViT-H, same CLIP ViT-B/16, same MLLM under our prompt - caveat recorded). Cache reconciliation: 6,000 rows -> 5,960 per-dataset uniques -> 5,919 global (41 shared) -> 5,914 cached (5 persistent failures, scored box-free, never LLaVA-fallback). Review: glm-5.3 SHIP 9/10, no blocking must-fix.
 Paper §5 gained the paragraph + Table (tables/glmswap.tex); PDF rebuilt after
 the swap file; `python3 extreme_bar.py` PASS.
+
+## GLOD-RIS independent reproduction (2026-10-10 → 10-11 instruction)
+
+Full official val splits, independent reimplementation (author code unavailable;
+`/home/msj_team/Jacob/sys/glod_ris_repro`), GLM-4.1V-Thinking-Flash via the Zhipu
+API with a production guidance layer (tolerant parsing, repair prompts, 429/5xx
+backoff, park-and-continue; parked entries are decided — never re-asked inline
+during evaluation; every response cached). It COMPLETES but does not reach the
+published numbers:
+
+| dataset | n | ours mIoU / oIoU | published mIoU / oIoU | delta (mIoU) |
+|---|---|---|---|---|
+| RefCOCO | 10,834 | 32.68 / 27.92 | 58.42 / 50.85 | −25.74 |
+| RefCOCO+ | 10,758 | 30.96 / 26.13 | 54.01 / 45.96 | −23.05 |
+| RefCOCOg | 4,896 | 37.24 / 31.98 | 57.85 / 50.03 | −20.61 |
+
+Parked (DOD-only) expressions: 15 / 14 / 0. Oracle mIoU (RefCOCO val) 82.21.
+Implementation frozen across all three runs (implementation_sha256
+71cb44240ba025f6; per-dataset run hashes differ by design — the dataset manifest
+is in the spec).
+
+Where and why (measured, nothing tuned on val): candidate generation is not the
+limit. RefCOCO val component controls (full pipeline 32.68): no guidance 35.09,
+category only 36.11, localization only 28.98, no decoupling 31.95 — the
+Gaussian-grid localization term degrades our guidance integration, while the
+category term and orthogonal decoupling each contribute ≈ +1 mIoU. The released
+ancestor (HybridGL) scores 44.82 on the same split and harness vs its published
+49.48, so ≈ 10 mIoU are lost when the unreleased trained feature path is
+replaced by frozen off-the-shelf components (SAM ViT-H + CLIP ViT-B/16).
+Consequence: the GLOD-RIS rows stay published cross-harness numbers; the paper's
+reproduction audit carries the reproduction row + controls (Table 13) and says
+so explicitly. Gate PASS with the reproduction in place.
+
+Artifacts: `exp/out_final/glodris_repro.json` (complete=true; per-dataset n /
+mIoU / oIoU / published / delta / run_hash / GLM failure stats / coverage);
+`exp/exp142_glodris_repro.py` (aggregator), `exp/exp143_add_repro_row.py` (sota
+row), `exp/exp44_paper_tables.py` → `paper/tables/repro.tex`; repro drivers and
+logs in `/home/msj_team/Jacob/sys/glod_ris_repro` (`run_v3.sh`, `run_v3b.sh`,
+`run_controls.sh`). Paper build: texlive at `~/.local/texlive/bin/x86_64-linux`.
