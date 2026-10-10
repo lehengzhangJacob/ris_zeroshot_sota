@@ -1,0 +1,26 @@
+{
+  "dataset": "refcoco+",
+  "n": 10758,
+  "mIoU": {
+    "argmax_sc": 39.096,
+    "argmax_sc_noun": 34.366,
+    "argmax_sc_strip": 38.699,
+    "argmax_dod": 35.824,
+    "argmax_dod_noun": 30.663,
+    "gem_only": 1.062,
+    "sc_gem_top3": 17.284,
+    "sc_gem_top5": 8.855,
+    "sc_gem_top10": 3.3,
+    "sc_gem_top20": 1.48,
+    "dod_gem_top5": 8.331,
+    "dod_gem_top10": 3.118,
+    "dod_gem_top20": 1.382,
+    "released_final": 40.229,
+    "released_pure": 38.786,
+    "orc_single": 82.397,
+    "scxgem_top5": 27.062,
+    "scxgem_top10": 25.626,
+    "nounxgem_top5": 24.555,
+    "nounxgem_top10": 23.256
+  }
+}

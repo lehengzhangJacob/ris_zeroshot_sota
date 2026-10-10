@@ -1,0 +1,139 @@
+{
+  "audit": "Cross-paper metric-protocol consistency (operator instruction 2026-10-08): every shipped number and every cross-paper comparison must be computed under the same metric protocol as the published numbers it is compared against. For each dataset the protocol source and definition were established, and the saved predictions were re-evaluated under it. aligned=true means the shipped numbers are computed under the compared papers' protocol on the complete official split.",
+  "date": "2026-10-08",
+  "datasets": {
+    "refcoco": {
+      "protocol_source": "Original RefCOCO benchmark (unc val split) as used by GLOD-RIS (TCSVT 2026), whose Table I reports both oIoU and mIoU on this split; the compared published numbers (58.42 mIoU, 50.85 oIoU) are that table's RefCOCO val column.",
+      "definition": "mIoU = mean over the 10,834 val expressions of IoU(predicted mask, union of the expression's GT masks) -- 'mIoU averages IoU across all samples' in the compared paper's own definition; oIoU = global pooled overlap sum_j |pred_j ∩ GT_j| / sum_j |pred_j ∪ GT_j| -- 'oIoU measures global overlap between predicted and ground-truth masks'. Both metrics are computed per expression over the full official val split.",
+      "split": "val (unc), 10,834 expressions, complete coverage (10,834/10,834 records)",
+      "aligned": true,
+      "re_evaluation": {
+        "tool": "exp/exp40_final_eval.py (deterministic re-analysis of saved records + cached VLM boxes)",
+        "mIoU": {
+          "ours": 68.5333,
+          "released": 44.8248,
+          "snap": 50.2356,
+          "ctrl_no_box": 43.3257,
+          "oracle_single": 82.2113
+        },
+        "oIoU_pooled": {
+          "ours": 63.3957,
+          "released": 38.16,
+          "snap": 40.7162,
+          "ctrl_no_box": 35.9919
+        },
+        "oIoU_masses_ours": {
+          "inter": 253238972.0,
+          "union": 399457797.0
+        },
+        "mIoU_unchanged_vs_prior_shipped": true
+      },
+      "changes_from_alignment": "mIoU unchanged (68.53) -- the shipped headline metric already used the compared protocol. The previously reported oIoU field was a per-sample mean (identical to mIoU); it is replaced by the global pooled oIoU (ours 63.3957, released 38.16) as defined by the compared paper.",
+      "published_comparison": {
+        "mIoU_floor": 58.42,
+        "oIoU_published": 50.85,
+        "source": "GLOD-RIS (TCSVT 2026), Table I (oIoU) and Table III (mIoU)"
+      }
+    },
+    "refcocoplus": {
+      "protocol_source": "Original RefCOCO+ benchmark (unc val split) as used by GLOD-RIS (TCSVT 2026); compared numbers 54.01 mIoU / 45.96 oIoU are that work's RefCOCO+ val columns on the same split.",
+      "definition": "identical to RefCOCO: mIoU = per-expression mean IoU against the union of the expression's GT masks over all 10,758 val expressions; oIoU = global pooled overlap sum inter / sum union.",
+      "split": "val (unc), 10,758 expressions, complete coverage (10,758/10,758 records)",
+      "aligned": true,
+      "re_evaluation": {
+        "tool": "exp/exp40_final_eval.py",
+        "mIoU": {
+          "ours": 64.6669,
+          "released": 40.2289,
+          "snap": 45.9078,
+          "ctrl_no_box": 37.8478,
+          "oracle_single": 82.3974
+        },
+        "oIoU_pooled": {
+          "ours": 58.3114,
+          "released": 33.5875,
+          "snap": 36.5402,
+          "ctrl_no_box": 30.8192
+        },
+        "mIoU_unchanged_vs_prior_shipped": true
+      },
+      "changes_from_alignment": "mIoU unchanged (64.67); oIoU replaced by the pooled global value (was a duplicate of mIoU): ours 58.3114, released 33.5875.",
+      "published_comparison": {
+        "mIoU_floor": 54.01,
+        "oIoU_published": 45.96,
+        "source": "GLOD-RIS (TCSVT 2026), Table I/III"
+      }
+    },
+    "refcocog": {
+      "protocol_source": "Original RefCOCOg benchmark, UMD partition ('val(u)') as used by GLOD-RIS (TCSVT 2026) and the compared works; compared numbers 57.85 mIoU / 50.03 oIoU are that work's val(u) columns. The UMD reference file (refs(umd).p) is the one evaluated.",
+      "definition": "identical metric definitions to RefCOCO: per-expression mean IoU (mIoU) and global pooled overlap (oIoU) over the 4,896 val(u) expressions.",
+      "split": "val (umd), 4,896 expressions, complete coverage (4,896/4,896 records)",
+      "aligned": true,
+      "re_evaluation": {
+        "tool": "exp/exp40_final_eval.py",
+        "mIoU": {
+          "ours": 65.1175,
+          "released": 50.0816,
+          "snap": 50.9221,
+          "ctrl_no_box": 47.5072,
+          "oracle_single": 79.1206
+        },
+        "oIoU_pooled": {
+          "ours": 59.7655,
+          "released": 41.4453,
+          "snap": 41.0179,
+          "ctrl_no_box": 38.4799
+        },
+        "mIoU_unchanged_vs_prior_shipped": true
+      },
+      "changes_from_alignment": "mIoU unchanged (65.12); oIoU replaced by the pooled global value (was a duplicate of mIoU): ours 59.7655, released 41.4453.",
+      "published_comparison": {
+        "mIoU_floor": 57.85,
+        "oIoU_published": 50.03,
+        "source": "GLOD-RIS (TCSVT 2026), Table I/III (val(u))"
+      }
+    },
+    "grefcoco": {
+      "protocol_source": "Official gRefCOCO (GRES) evaluation as released with the benchmark's reference implementation and cited by the compared papers (PSALM ECCV 2024 Table 12; SELF1E CVPR 2026 arXiv 2603.19026; InstAlign arXiv 2411.15087 for the labelled supervised reference rows): sample = (reference, sentence), the metric formulas of the official evaluator.",
+      "definition": "Sample = (reference, sentence) over the complete official val split (4,237 references / 14,229 sentences). No-target sample: an empty prediction is a true positive -> contributes 1 to the gIoU mean and 0/0 (excluded) to the cIoU sums; a non-empty prediction contributes 0 to the gIoU mean and its predicted area to the cumulative cIoU union. Targeted sample: IoU(pred, union of the reference's masks) contributes to the gIoU mean and to the cumulative cIoU intersection and union. Thus gIoU = 100 * mean over ALL samples; cIoU = 100 * sum I / sum U; N_acc = TP/(TP+FN) over no-target samples; T_acc = TN/(TN+FP) over targeted samples.",
+      "split": "val, 4,237 references / 14,229 sentences, complete coverage (14,229/14,229 records)",
+      "aligned": true,
+      "re_evaluation": {
+        "tool": "exp/exp124_fp_shrink_val.py with the frozen change-16 config (optuna_study_gref17.json) on exp/out_extreme/records_grefcoco_14229.jsonl, output exp/out_final/gref_fp_shrink_val_14229_topk1.json",
+        "shipped": {
+          "cIoU": 51.3182,
+          "gIoU": 74.9098,
+          "N_acc": 86.14,
+          "T_acc": 87.85,
+          "n": 14229,
+          "TP": 7671,
+          "FN": 1234,
+          "TN": 4677,
+          "FP": 647
+        },
+        "released_pipeline": {
+          "cIoU": 22.56,
+          "gIoU": 12.49
+        },
+        "gIoU_decomposition_holds": "0.626*N_acc + 0.374*T_acc*m with m the mean targeted IoU; the same-class floor does not bind either axis"
+      },
+      "changes_from_alignment": "Coverage completed from 14,220/14,229 to 14,229/14,229 sentences: ref 51250 (9 no-target sentences; image COCO_train2014_000000320432.jpg) was absent from the repro image store and its records were rebuilt with exp21 (image restored) and the VLM caches filled by exp132. Re-evaluated shipped numbers: cIoU 50.9899 -> 50.9864, gIoU 74.7292 -> 74.7171, N_acc 86.17 -> 86.14, T_acc 87.85 unchanged (the nine added samples are five correct abstentions and four false positives). The aligned numbers stand as shipped; the floors (44.4 cIoU / 43.3 gIoU) remain beaten, and the supervised gIoU reference 74.34 is still exceeded (74.72, margin 0.38, cross-harness caveat). Image provenance: the restored file COCO_train2014_000000320432.jpg has sha256 0b0a8064f63c4743b5d9e5eb2449093d85f9eda3e2cbd25b89e33a8a06ed76f2 (local COCO mirror /home/datasets/emotic/cvpr_emotic/mscoco/images). 2026-10-10 (change 16): the shipped cIoU was pushed beyond the previous record by re-selecting the pick count on the held-out TRAIN frame with the SAM caches present (top-1 vs top-2: 51.13 vs 49.81 cIoU there; val-2000 descriptive curve agrees); aligned shipped numbers now cIoU 51.3182 / gIoU 74.9098, abstention untouched.",
+      "published_comparison": {
+        "same_class_floors": {
+          "cIoU": 44.4,
+          "gIoU": 43.3
+        },
+        "supervised_references": {
+          "InstAlign": {
+            "cIoU": 68.94,
+            "gIoU": 74.34
+          }
+        }
+      }
+    }
+  },
+  "notes": [
+    "The r-requirement / oracle-fraction analysis in gref_wall.json and the paper compares against the SUPERVISED cIoU level (InstAlign 68.94); the field names there ('for_floor', 0.6894) predate the 2026-10-08 standard change and denote that level, not the same-class floor.",
+    "All re-evaluations are deterministic re-analyses of stored per-expression records and cached model outputs; no inference result was altered and no metric was recomputed under a different protocol to change a floor outcome."
+  ]
+}

@@ -1,0 +1,601 @@
+IEEE TRANSACTIONS ON CIRCUITS AND SYSTEMS FOR VIDEO TECHNOLOGY, VOL. 35, NO. 1, JANUARY 2025                                                                  911
+
+
+
+
+             Bidirectional Mask Selection for Zero-Shot
+                   Referring Image Segmentation
+Wenhui Li , Chao Pang, Weizhi Nie , Member, IEEE, Hongshuo Tian , and An-An Liu , Senior Member, IEEE
+
+   Abstract— Zero-shot referring image segmentation (RIS) aims                   Wang et al. [14] employed CLIP’s knowledge to project tex-
+to segment a referent mask via a natural language expression,                    tual features and corresponding pixel-level visual features
+without any training. Although existing research has made some                   into a shared space. However, fully-supervised methods need
+progress, the lack of a training process in zero-shot learning
+results in insufficient information, leading to poor zero-shot                   to collect the precise referring expressions and pixel-level
+segmentation performance. We propose a Bidirectional Mask                        segmentation masks. Liu et al. [15] and Strudel et al. [16]
+Selection (BMS) framework, which is the first work to incor-                     utilized a weakly-supervised referring image segmentation
+porate the negative masks into zero-shot RIS. Our idea is based                  approach to address this challenge. e.g., Liu et al. [15]
+on leveraging the negative masks’ semantic context information                   employed text supervision to generate response maps for
+around target semantic to enhance the understanding of cross-
+modal fine-grained correlation. Further, we propose a novel                      identifying relevant regions. But weakly-supervised methods
+mask adaptive fusion strategy to combine the complementary                       also require a referring expression that closely matches the
+information from positive and negative masks without addi-                       target region. Both pixel-level segmentation masks and precise
+tional training. In the experiments, BMS has demonstrated                        text descriptions must be manually collected, which is tedious
+outstanding performance on three prominent RIS datasets, and                     and expensive. Moreover, the supervised methods require a
+it has surpassed even the most advanced weakly supervised
+methods on the RefCOCOg datasets. Code will be available at                      large amount of computing resources to process pixel-level
+https://github.com/pcc-99/BMS.                                                   annotation information, which limits the development and
+                                                                                 practical application of this field.
+  Index Terms— Bidirectional mask selection, negative mask,
+mask adaptive fusion strategy.                                                      Inspired by the powerful encoding capabilities of multi-
+                                                                                 modal pre-trained large models (e.g., CLIP), zero-shot
+                                                                                 referring image segmentation has gained significant attention
+                          I. I NTRODUCTION                                       recently due to its ability to segment the target mask without
+                                                                                 the requirement of annotation and traditional training pro-
+
+R     EFERRING Image Segmentation (RIS) [1], [2] aims
+      to segment the visual mask corresponding to an object
+based on a natural language expression query [3] and plays
+                                                                                 cesses. For example, Yu et al. [17] adopted a pre-trained mask
+                                                                                 generator to segment a series of masks and selected the most
+                                                                                 relevant mask by leveraging the vision-language model CLIP,
+a critical role in multi-modal interaction community. Con-                       which was the first to achieve zero-shot referring image seg-
+trasting with traditional single-modality visual segmentation                    mentation. Subsequently, Ni et al. [18] and Eiras et al. [19]
+tasks that rely on predefined categories [4], [5], [6], referring                also employed the pre-trained models to enhance cross-modal
+image segmentation needs contend with the complexities of                        semantic relation understanding and further improve the
+free-form language expressions [7] and achieve fine-grained                      accuracy of referring image segmentation.
+image segmentation. Thus, RIS exhibits significant potential                        Although the above methods have made certain progress
+in various applications, including text-based image editing [8],                 in zero-shot referring segmentation task, their performance
+visual navigation [9], segmentation [10] and human-computer                      improvement is still limited by complex visual scenes and the
+interaction [11], [12].                                                          significant cross-modal semantic gap. The existing zero-shot
+   Most existing RIS methods rely on the fully-supervised                        referring segmentation methods mainly design the different
+learning scheme to model the accurate relationships between                      strategies to measure the similarity between the target seg-
+dense masks and their expressions. e.g., Yang et al. [13]                        mentation and its referring text description. However, due to
+proposed a Language-Aware Vision Transformer (LAVT) net-                         the similar visual patterns existing in different segmentation,
+work, which is a hierarchical language-aware visual encoding                     this only-consider-similarity referring segmentation is easily
+scheme to align natural language with the pixel-level mask.                      susceptible to interference from visually similar instances.
+                                                                                 For example, as shown in Figure 1(a), the text “The person
+  Received 12 June 2024; revised 2 September 2024; accepted                      in light blue who shakes hands” is mismatched with the
+10 September 2024. Date of publication 16 September 2024; date of                region which contains the person in black who shakes hands.
+current version 30 January 2025. This work was supported in part by the
+National Natural Science Foundation of China under Grant 62202327, Grant         The text matches well with the salient handshake pattern,
+62425307, and Grant U21B2024. This article was recommended by Associate          but ignores the color information (light blue) of the person.
+Editor N. Xu. (Corresponding author: An-An Liu.)                                 The main reason is that the CLIP learns the overall pairing
+  The authors are with the School of Electrical and Information Engineering,
+Tianjin University, Tianjin 300072, China (e-mail: anan0422@gmail.com).          relationship between texts and images, rather than directly
+  Digital Object Identifier 10.1109/TCSVT.2024.3460874                           learning fine-grained local correspondences. Consequently,
+
+                       1051-8215 © 2024 IEEE. Personal use is permitted, but republication/redistribution requires IEEE permission.
+                                     See https://www.ieee.org/publications/rights/index.html for more information.
+
+   Authorized licensed use limited to: South China Normal University. Downloaded on September 30,2026 at 14:19:16 UTC from IEEE Xplore. Restrictions apply.
+912                                            IEEE TRANSACTIONS ON CIRCUITS AND SYSTEMS FOR VIDEO TECHNOLOGY, VOL. 35, NO. 1, JANUARY 2025
+
+
+
+                                                                                    The main contributions of our work are summarized as
+                                                                                 follows:
+                                                                                    • To the best of our knowledge, this is the first work to
+                                                                                      incorporate the negative mask into zero-shot referring
+                                                                                      image segmentation, which makes full use of the semantic
+                                                                                      context information around the target semantics to guide
+                                                                                      the referring image segmentation.
+                                                                                    • We propose a novel mask adaptive fusion strategy
+                                                                                      to combine the complementary information from pos-
+                                                                                      itive and negative masks without additional training,
+                                                                                      which enhances the robustness of zero-shot referential
+                                                                                      segmentation.
+                                                                                    • Extensive experimental results across three databases val-
+                                                                                      idate the effectiveness of our approach. Specifically, our
+                                                                                      zero-shot BMS has even surpassed the existing weakly
+                                                                                      supervised methods on the RefCOCOg dataset.
+
+                                                                                                          II. R ELATED W ORK
+                                                                                 A. Supervised Referring Image Segmentation
+Fig. 1.      Comparison between our BMS with conventional zero-shot                 Referring image segmentation (RIS) aims to segment the
+methods. (a) Traditional zero-shot methods only select the positive mask         target object according to a given natural language expression.
+with the highest similarity, and one-sided semantic information leads to wrong   Supervised RIS is divided into fully-supervised RIS using
+results. (b) We introduce negative masks, which can help to understand more
+comprehensive semantic relations and select the negative mask with the least     pixel-level annotations, and weakly-supervised RIS using
+similarity (corresponding to the positive mask with the most similarity).        coarse annotations (e.g., boxes, points, image-text pairs).
+(c) Our Bidirectional Mask Select method can dynamically combine the                1) Fully-Supervised RIS: Early works [20], [21], [22]
+positive and negative information to obtain the right segmentation.
+                                                                                 used Long Short-Term Memory (LSTM) networks to extract
+                                                                                 language features and used Convolutional Neural Networks
+when the model attempts to match a specific region with its                      (CNN) to extract visual features, and then concatenated these
+corresponding text, the lack of precise correspondence often                     features as multimodal features to decode the masks. Later
+results in incorrect matching.                                                   studies [13], [14], [23] focused on cross-modal fusion based
+   To address the above limitations, this paper proposes a novel                 on Transformer decoders, aiming to efficiently locate regions
+Bidirectional Mask Selection (BMS) framework for zero-shot                       in images corresponding to the referring expressions. Fur-
+referring image segmentation, which utilizes the complemen-                      thermore, many approaches [7], [24], [25], [26] extracted
+tarity between positive and negative masks to enhance the                        visual and language features from encoders, modeling their
+understanding of cross-modal fine-grained correlations. The                      cross-modal dependencies with cross-attention mechanisms.
+negative masks are composed of all masks except for the target                   PolyFormer [27] was unique in generating sequence poly-
+mask with respect to its textual description. Compared to a                      gons through a sequence-to-sequence framework, which can
+single positive mask, the CLIP model can capture contex-                         fuse language and visual features as the input sequence
+tual relationships with multiple instances in negative masks,                    and multi-task predictions as the output sequence. How-
+enabling it to recognize more comprehensive visual character-                    ever, fully-supervised referring image segmentation requires
+istics (i.e. color and action). Figure 1(b) shows the similarities               a large volume of meticulously paired referring expressions
+between different negative masks and referring text. Lower                       and extensive pixel-level semantic annotations, leading to a
+similarity indicates weaker associations between the negative                    time-consuming and computationally intensive process.
+masks and the text. Conversely, this implies that the removed                       2) Weakly-Supervised RIS: Due to the limitation of fully
+mask contains more relevant information corresponding to the                     supervised methods, which require vast amounts of labeled
+text. For example, when we remove the mask containing the                        data, many researchers have started to focus on weakly super-
+person in light blue (Third bar in Figure. 1(b)), the remaining                  vised methods by utilizing coarse weakly supervised signals,
+masks exhibit the lowest similarity with the referring text,                     such as bounding boxes or image-text pairs. Feng et al. [28]
+which inversely demonstrates that the removed mask shares                        proposed a two-stage and dual-network method for RIS
+high similarity with the referring text. Therefore, the positive                 with the box-level weak supervision. TSEG [16] learnt
+similarity is used for preliminary screening based on local                      the segmentation masks directly from image-level referring
+characteristics, and then the negative similarity is used for                    expressions based on transformer architecture. Subsequently,
+accurate matching based on global contextual information                         Liu et al. [15] and Kim et al. [3] also employed text super-
+around the positive mask. Then, a mask adaptive fusion                           vision for weakly supervised training, achieving notable
+strategy is proposed to dynamically balance the importance                       improvements but still falling significantly gap in performance
+of positive and negative information and achieves accurate                       compared to fully supervised algorithms. Recent work [19]
+fine-grained matching as shown in Figure 1(c).                                   introduced a three-stage framework for weakly-supervised
+
+   Authorized licensed use limited to: South China Normal University. Downloaded on September 30,2026 at 14:19:16 UTC from IEEE Xplore. Restrictions apply.
+LI et al.: BIDIRECTIONAL MASK SELECTION FOR ZERO-SHOT REFERRING IMAGE SEGMENTATION                                                                            913
+
+
+
+
+Fig. 2. The overview of the proposed Bidirectional Mask Select (BMS) framework for Zero-shot Referring Image Segmentation. Given an image
+and language expressions as inputs, we get two series of masks (Positive and Negative masks) using the existing mask generator. We calculate the positive
+similarity and negative similarity with CLIP, respectively. The final output mask is obtained by adaptively fusing the complementary information of the positive
+and the negative masks.
+
+
+
+referring image segmentation, significantly enhancing the per-                   the referring image segmentation. The overall framework is
+formance of this method. Weakly-supervised referring image                       illustrated in Fig. 2. We first describe our architecture overview
+segmentation does not require a pixel-level mask that is                         in Sec. III-A. Then, Sec.III-B explains our proposed Bidirec-
+manually labeled. However, these methods still require many                      tional Mask Visual Features in detail. Finally, we give the
+highly matched image-text pairs, bounding boxes or points,                       Mask Adaptive Fusion strategy (Sec.III-C) for bidirectional
+which continues to limit the development of the field.                           information interaction.
+
+B. Zero-Shot Referring Image Segmentation                                        A. Overview
+   Due to the relatively high training costs associated with
+                                                                                    Our framework mainly consists of two parts as shown
+both fully-supervised and weakly-supervised RIS, recent
+                                                                                 in Fig. 2: (1) Bidirectional mask generation, and (2) Mask
+approaches [17], [18], [19], [29] have begun exploring zero-                     adaptive fusion for positive-negative information interaction.
+shot RIS, aiming to align pixel-level semantics without                          Following the practice of mainstream zero-shot RIS, we first
+any supervision. Among them, Yu et al. [17] proposed the                         extract a series of mask proposals through an off-the-shelf
+zero-shot referring image segmentation method by using                           mask generator in an unsupervised manner (as shown in top
+FreeSOLO [30] to get a series of masks and selecting the                         segments in the Fig. 2). Then, the reverse masks are generated
+most relevant mask with CLIP [31]’s image-text similarity                        to provide contextual information around the target mask
+matching. Ni et al. [18] corrected the mask-text similarity                      proposal (as shown in bottom segments in the Fig. 2). The
+score of CLIP by combining the pre-trained generative model’s                    frozen textual and visual encoders of CLIP are employed to
+knowledge. The recent work [19] located all targets of a                         extract the features of referring text and mask. Finally, the
+category by open vocabulary detector GroundingDINO and                           referring segmentation result is obtained by adaptively fusing
+used reverse-blur visual prompts to enhance the visual under-                    the complementary information of the positive and the negative
+standing of CLIP. All these methods only consider a single                       masks.
+mask-text pairing, neglecting to capture more comprehen-
+sive visual features by exploiting the contextual relationship
+between individual instances. In contrast, our method defines                    B. Bidirectional Mask Generation
+bidirectional mask selection to achieve target matching with                        1) Positive Mask Generation: Following the mainstream
+bidirectional inference of positive and negative masks. Next,                    zero-shot RIS methods, we use an off-the-shelf mask gen-
+we will provide a detailed explanation of the proposed method.                   erator to generate a set of positive segmentation candidates
+                                                                                   M1 , M2 , M3 , . . . , Mg that are likely to be consistent with
+                                                                                 
+                         III. M ETHODOLOGY                                       the description category of natural language expressions. The
+  In this section, we introduce the BMS, a unified framework                     previous method mimics a camera’s shooting environment by
+designed to leverage the positive and negative masks to guide                    using reverse blurring to process the background around the
+
+   Authorized licensed use limited to: South China Normal University. Downloaded on September 30,2026 at 14:19:16 UTC from IEEE Xplore. Restrictions apply.
+914                                            IEEE TRANSACTIONS ON CIRCUITS AND SYSTEMS FOR VIDEO TECHNOLOGY, VOL. 35, NO. 1, JANUARY 2025
+
+
+
+                                                                                 in Fig. 3(b), if Mb = {M1 + M2 + M4 } is the least correlated
+                                                                                 with the referring expression T , then M3 might be the most
+                                                                                 correlated with the referring expression T .
+                                                                                    Specifically, we combine the other masks except for M j
+                                                                                 together, defining them as the negative mask, Mbj . We multi-
+                                                                                 ply the input image I with Mb , which is then fed into the CLIP
+                                                                                 visual encoder φCLIP to extract the negative visual feature Fn j .
+                                                                                 This process can be expressed as follows:
+                                                                                                        Fn j = φC L I P (I ⊙ Mbj ),                           (2)
+                                                                                 where Mbj = M1 + . . . + M j−1 + M j+1 + . . . + Mg . Mul-
+                                                                                                   
+
+                                                                                 tiple Fn j vectors together form the set Fn ∈ Rg×c .
+
+                                                                                 C. Mask Adaptive Fusion
+                                                                                    The above subsection has obtained the two types of visual
+                                                                                 features F p and Fn . Given m referring expressions T , we also
+                                                                                 utilize the pre-trained CLIP text encoder, denoted as ϕC L I P (),
+                                                                                 to extract their textual features Ft as follows:
+                                                                                                             Fti = ϕC L I P (T ),                             (3)
+Fig. 3.   Different visual prompts and Formation of negative masks.
+                                                                                    Similar to the visual feature Fn , the set Ft ∈ Rm×c is
+                                                                                 composed of the multiple Fti vectors. Then, these visual
+positive mask, thereby emphasizing the mask object while
+                                                                                 features are separately processed through the similarity cal-
+retaining background information. The reverse blur is shown
+                                                                                 culation (e.g., cosine similarity) with textual features Ft to
+in Fig. 3(a). Moreover, we also introduce Hadamard product
+                                                                                 obtain the relation between the referring texts and candidate
+to reinforce the sensitivity of the model to mask the relative
+                                                                                 masks. These similarities S p and Sn are defined as follows:
+objects, like the third column in Fig. 3(a).
+   Subsequently, after processing the image with two types of                                               S p = Sim(F p , Ft )
+mask strategies and obtaining the multiplication of the original
+                                                                                                            Sn = Sim(Fn , Ft ),                               (4)
+image with the masks, both images are separately fed into the
+CLIP visual encoder, φCLIP . This process yields two sets of                     where Sim(·, ·) is a cosine similarity. To more comprehen-
+visual features. Finally, these visual features are merged to                    sively measure the relationship between the referring text and
+obtain the positive visual feature F pj , which is expressed as                  the visual mask, we calculate the final similarity score S by
+follows:                                                                         subtracting the weighted negative similarity Sn ∈ Rg×1 from
+                                                                                 the positive similarity S p ∈ Rg×1 , as shown in the following:
+                 F pj = φCLIP (Ir ) + φCLIP (I ⊙ M j ),                  (1)
+                                                                                                             S = S p − α · Sn ,                               (5)
+ where I is a given image, ⊙ represents the Hadamard
+product operation, M j is one of positive masks in                              where α represents an adaptive parameter. The higher value
+  M1 , M2 , M3 , . . . , Mg and Ir is the image after reverse blur.              of Eq. 5 indicates a larger S p and a smaller Sn , meaning
+Multiple F pj vectors together form the set F p ∈ Rg×c .                         that the referring text is more similar to its corresponding
+Note that, Hadamard product and reverse blur are different                       positive mask, while the similarity with the corresponding
+operations applied to the same image using the same mask,                        negative mask is lower. The final similarity score is determined
+merging their features doesn’t introduce additional noise.                       by jointly considering these similarities. Specifically, the Sn
+   2) Negative Mask Generation: Existing zero-shot referring                     can be treated as the correction to reduce the impact of false
+segmentation methods typically rely only on the similarity                       positive similarity S p . Therefore, how to adaptively define the
+between the positive candidate regions and the text, ignoring                    parameter α is critical to balancing the contribution of positive
+the irrelevance cues between negative samples and the refer-                     and negative similarities.
+ring text. For instance, when a negative mask (i.e., a mask that                    As shown in Fig. 4, there are typically multiple referring
+does not contain a certain object) has the lowest similarity to                  expressions that describe the same target object (e.g.,“thumbs
+the referring text, it indicates that the excluded mask might                    up at the stop sign”, “guy on right”, “cool guy with
+be the most similar to the referring text. This information can                  sunglasses”). Different expressions may emphasize differ-
+serve as an additional clue to more comprehensively model                        ent features of the target. For example, “thumbs up at the
+the relationship between the mask and the referring text.                        stop sign” focuses on the target’s action and environment,
+Therefore, we propose a negative mask generation module to                       while “cool guy with sunglasses” emphasizes the target’s
+obtain the negative mask least correlated with the referring                     appearance. Combining this information can provide a more
+expression and deduce that the excluded mask corresponding                       comprehensive representation of the target, thereby improving
+to this negative mask is the most relevant object. As shown                      the accuracy of the segmentation results.
+
+   Authorized licensed use limited to: South China Normal University. Downloaded on September 30,2026 at 14:19:16 UTC from IEEE Xplore. Restrictions apply.
+LI et al.: BIDIRECTIONAL MASK SELECTION FOR ZERO-SHOT REFERRING IMAGE SEGMENTATION                                                                           915
+
+
+
+
+Fig. 4. Mask Adaptive Fusion Strategy. Norm represents normalization. To simplify the presentation, we scale this value by 100 within the integer matrix
+(e.g., 0.26 changes to 26).
+
+
+
+   Assume there are m referring expressions, denoted as                         row of these two matrices represents the similarities between
+ = {T1 , T2 , . . . , Tm } and g masks, denoted as M =
+T                                                                               one referring text and the corresponding positive/negative
+  M1 , M2 , . . . , Mg , we measure the similarities between T                  masks. The process can be expressed as follows:
+and M to form the positive similarity matrix and the negative                                              X
+similarity matrix. Moreover, we compute the average similarity                    Wi (Pi , Ni ) = in f          γ (Pi j , Ni j ) Pi j − Ni j (8)
+of {T1 , T2 , . . . , Tm } to each mask, forming the last row of                                    γ ∈0(Pi ,Ni ) P ,N
+                                                                                                                  ij     ij
+the matrix. Each element in these two matrices is defined as
+                                                                                where inf denotes the infimum of the expected transportation
+follows:
+                                                                                cost over all possible γ . This means we are seeking the
+                   Pi j = N or m(Sim(Fti , F pj )),                             smallest possible value of the expected cost function, repre-
+                                                                                senting the most efficient way to transform distribution P into
+                   Q i j = N or m(Sim(Fti , Fn j )),                    (6)
+                                                                                distribution N. 0(Pi , Ni ) is the set of all possible joint prob-
+where N or m represents normalization, Pi j indicates the posi-                 ability distributions between Pi and Ni . Meanwhile, in order
+tive similarity matrix, and Q i j indicates the negative similarity             to emphasize the difference relationship between the positive
+matrix. Here, i represents the i-th referring expression, j                     visual information and the negative visual information, when
+represents the j-th mask, F pj denotes the j-th positive visual                 calculating the Wasserstein distance, we assign the rank index
+feature, Fn j denotes the j-th negative visual feature, and Fti                 as the weight from large to small, e.g., n as the weight of
+represents the i-th text feature.                                               largest similarity and 1 as the weight of smallest similarity.
+   Now, the negative similarity matrix represents the mask                      The average of all W is treated as the adaptive parameter α,
+information that is least relevant to the text. So we can subtract              as follow:
+each element of the negative similarity matrix Q i j from                                                                     m+1
+                                                                                                                  1 X
+1 to convert the negative similarity matrix, which originally                                             α=          Wi                                     (9)
+indicates irrelevance, into a matrix that indicates relevance.                                                   m+1
+                                                                                                                              i=1
+Thus, it can be combined with the positive similarity matrix                       Finally, the mask with the largest similarity S is selected as
+to more comprehensively evaluate the relationship between the                   the final output mask:
+mask and text. The process is defined as follows:
+                                                                                                    Out put Mask = argmax(S).                           (10)
+                        N = N or m(1 − Q).                              (7)
+
+In the ideal circumstance, the distributions of rows correspond-
+ing to Pi j and Ni j matrices should be consistent. However, due                                 IV. E XPERIMENT AND A NALYSIS
+to limitations such as feature extraction capabilities, these two
+matrices inevitably exhibit inconsistencies. This inconsistency                 A. Experimental Setup
+can be utilized as the weight α in Eq. 5 to adjust the similarity                 1) Datasets: To evaluate the effectiveness of our method,
+assessment between them. To measure the local subtle and                        we conducted extensive experiments on three widely-used
+global structural distribution differences of these two dis-                    benchmarks for the referring image segmentation task, includ-
+tributions, we employ the Wasserstein distance to calculate                     ing RefCOCO [36], RefCOCO+ [36], and RefCOCOg [37],
+the minimum energy cost of moving from one probability                          [38]. Specifically, RefCOCO consists of 19,994 images with
+distribution to another, which can well model the similarity                    142,210 referring expressions, RefCOCO+ holds 19,992
+discrepancy between positive and negative information. Each                     images with 141,564 expressions, while RefCOCOg surpasses
+
+  Authorized licensed use limited to: South China Normal University. Downloaded on September 30,2026 at 14:19:16 UTC from IEEE Xplore. Restrictions apply.
+916                                           IEEE TRANSACTIONS ON CIRCUITS AND SYSTEMS FOR VIDEO TECHNOLOGY, VOL. 35, NO. 1, JANUARY 2025
+
+
+
+                                                                         TABLE I
+C OMPARISON W ITH Z ERO -S HOT RIS, W EAKLY-S UPERVISED RIS AND F ULLY-S UPERVISED RIS M ETHODS ON T HREE S TANDARD B ENCHMARK
+   DATASETS . U: T HE UMD PARTITION . G: T HE G OOGLE PARTITION . “-” R EPRESENTS T HAT THE R ESULT I S N OT P ROVIDED IN THE O RIGINAL
+      PAPER . E XCEPT F ORTHE W EAKLY-S UPERVISED M ETHOD , THE B EST R ESULTS A RE H IGHLIGHTED IN BOLD , AND THE S ECOND -B EST
+                                                       R ESULTS A RE UNDERLINED
+
+
+
+
+them both, comprising 26,711 images and 104,560 expres-                         Intra-Chunk and Inter-Chunk [34], and S+S+C [19]. S+S
+sions. For RefCOCOg, we evaluate the results on both of                         is the zero-shot method of [19], and S+S+C is the weakly
+its partitions: UMD and Google. Notably, compared to Ref-                       supervised method of [19]. For a fair comparison, we also
+COCO, RefCOCO+ excludes certain absolute-location words,                        conducted the results of GL CLIP with SAM [19] by replacing
+rendering it potentially more challenging. RefCOCO and                          the mask generator FreeSOLO [30].
+RefCOCO+ contain shorter expressions averaging 1.6 nouns
+and 3.6 words, whereas RefCOCOg exhibits more intricate
+                                                                                B. Main Results
+relationships with sentences averaging about 2.8 nouns and
+8.4 words.                                                                         We compare our method with the state-of-the-art methods
+                                                                                on RefCOCO, RefCOCO+ and RefCOCOg in terms of oIoU
+   2) Evaluation Metrics: Following previous works [17],                        and mIoU metrics. The results are shown in Table I and we
+[18], [19], we adopt oIoU and mIoU as the evaluation metrics                    can clearly observe that our method outperforms the existing
+to verify the effectiveness. The overall IoU is measured as the                 approaches in terms of all metrics on most subsets. Specif-
+ratio between the total intersection area of all test samples.                  ically, compared with S+S [19], which only used positive
+The mean IoU is the IoU between the prediction and ground                       mask and focused on local semantic modeling, our method
+truth averaged across all test samples.                                         obtains the gains of 1.58%, 2.22%, and 4.19% in terms of
+   3) Baselines: We compared our approach with several rep-                     oIoU, 3.79%, 3.27%, and 4.19% in terms of mIoU on Ref-
+resentative baselines. 1) Zero-shot baselines: There are three                  COCO, RefCOCO+, and RefCOCOg datasets, respectively.
+zero-shot baselines from [17]: Region Token, Cropping, and                      Although Ref-DIff [18] additionally introduced a generation
+Global-Local CLIP (GL CLIP). The other two zero-shot base-                      model (stable diffusion) to assist the zero-shot referring image
+lines are S+S [19] and Ref-Diff [18]. 2) Weakly-supervised                      segmentation, our method still achieves superior performance
+methods: TRIS [15], TSEG [24], Shatter & Gather [3],                            in terms of most metrics on the three datasets, which verifies
+
+  Authorized licensed use limited to: South China Normal University. Downloaded on September 30,2026 at 14:19:16 UTC from IEEE Xplore. Restrictions apply.
+LI et al.: BIDIRECTIONAL MASK SELECTION FOR ZERO-SHOT REFERRING IMAGE SEGMENTATION                                                                           917
+
+
+
+                                                                         TABLE II
+                 A BLATION S TUDIES ON T HREE B ENCHMARKS . RB:R EVERSE B LUR . PM:P OSITIVE M ASK . NM:N EGATIVE M ASK
+
+
+
+
+                                                                        TABLE III
+             T HE I MPACT OF A DAPTIVE PARAMETER α. W E C HANGE THE S ETTINGS OF α AND T EST THE P ERFORMANCE
+                              OF R EFERRING I MAGE S EGMENTATION U NDER O I O U AND M I O U ON T HREE B ENCHMARKS
+
+
+
+
+the effectiveness of negative masks to fully explore con-                       performance of different settings on three datasets, which
+text semantics and enhance the model’s understanding of                         verifies that the negative mask can effectively model the
+fine-grained matching. Moreover, on the most challenging                        semantic context information and enhance zero-shot referring
+RefCOCOg dataset with longer and more complex language                          image segmentation.
+expressions, our method outperforms the existing zero-shot                         2) The Impact of Different Fusion Strategies: To validate
+baselines by 3.99%, 2.52%, 3.04% in terms of oIoU and                           the effectiveness of our adaptive fusion strategy, we con-
+4.30%, 2.98%, 2.69% in terms of mIoU, respectively. Notably,                    duct an ablation study to assess the influence of different
+compared with the state-of-the-art weakly-supervised method                     parameter configurations across three datasets, and the results
+S+S+C [19], our BMS achieves the higher performance                             are reported in Table III. The α indicates the importance
+on all subsets in terms of oIoU and mIoU, which further                         of negative masks in Eq. 5 and the larger α indicates the
+demonstrates the superiority of our proposed method.                            more importance of negative masks. The traditional approach
+                                                                                to weight setting often involves defining a fixed set of
+C. Ablation Study                                                               weights, e.g., α = {0, 0.25, 0.60, 0.95, 1}, determined through
+   We conduct several ablation studies on RefCOCO,                              experiment to obtain the optimal parameter values. However,
+RefCOCO+ and RefCOCOg datasets to evaluate the                                  different datasets often require different parameter settings,
+effectiveness of our different components.                                      resulting in lower generalization of manually set parameters.
+   1) The Impact of Negative Mask: As discussed in                              For example, when α is set to 0.25, optimal performance is
+Sec. III-B, the traditional positive information lacks                          only achieved on the val and testA subsets of RefCOCO+,
+fine-grained local correspondences, which may lead to                           whereas when αis set to 0.6, optimal performance is only
+the mismatching by noise information. Hence, we introduce                       achieved on the val (G) subset of RefCOCOg. Compared
+the negative mask to capture more comprehensive visual                          to the fixed parameter design, our adaptive method achieves
+characteristics and contextual semantics. The ablation study                    optimal performance on most datasets, validating the proposed
+is conducted to verify its impact in Table II. From the                         adaptive fusion strategy’s ability to improve the model’s
+results we can observe that the negative mask boosts the RIS                    generalization capability. Furthermore, the α = 0 means
+
+  Authorized licensed use limited to: South China Normal University. Downloaded on September 30,2026 at 14:19:16 UTC from IEEE Xplore. Restrictions apply.
+918                                           IEEE TRANSACTIONS ON CIRCUITS AND SYSTEMS FOR VIDEO TECHNOLOGY, VOL. 35, NO. 1, JANUARY 2025
+
+
+
+                                TABLE IV                                        object with a single text as shown in Table V. Even with only
+      T HE I MPACT OF WASSERSTEIN D ISTANCE . C OMPARE D IFFERENT               one text, our bidirectional mask selection framework can still
+               D ISTANCES ON R EF COCO/+/ G ’ S VAL S PLIT                      incorporate the negative masks into the zero-shot RIS and
+                                                                                significantly outperforms the GL CLIP [17](with one text),
+                                                                                demonstrating its adaptability to different scenarios with either
+                                                                                single or multiple texts.
+
+                                                                                D. Qualitative Results
+                                                                                   1) Visualization: To better illustrate the effectiveness of our
+                                                                                method, we visualize and compare the results of referring
+                                TABLE V                                         image segmentation provided by different methods in Figure 5.
+                   T HE I MPACT OF D IFFERENT T EXTS                            We qualitatively compare our BMS with the representative
+                                                                                zero-shot RIS baselines, GL CLIP [17] and S+S [19]. Note
+                                                                                that the GL CLIP utilized FreeSOLO to generate mask pro-
+                                                                                posals while our BMS and S+S adopted the SAM as the mask
+                                                                                generator. For fair comparison, we also produce the GL CLIP
+                                                                                based on SAM, denoted as GL CLIP (SAM). When given
+                                                                                the expression with only positional information (e.g., “guy
+                                                                                on right”, first row in Figure 5), none of the comparative
+                                                                                methods are able to correctly segment the image. This is
+                                                                                because CLIP is trained in global pairs and lacks specific
+                                                                                correspondence between orientation and local regions. Our
+the results without the negative masks. When incorporating                      approach, utilizing negative masks to encode contextual infor-
+negative masks, i.e., α = 0.25, we can observe that the                         mation of the target semantic, captures the correct directional
+referring segmentation performance is improved across all                       information. When given the expression with only attribute
+datasets. This further demonstrates the effectiveness of our                    information (e.g., “blue truck”, second row in Figure 5),
+negative masks. However, when the weight of the negative                        existing methods erroneously match local features and segment
+masks is too large, i.e., α = 1, the referring segmentation                     similar objects as a result. In contrast, our method effectively
+performance decreases. The main reason is that the excessive                    addresses local misalignment by jointly employing positive
+attention is paid to the contextual information around the pos-                 and negative masks. When given the expression with both
+itive mask, while neglecting its own characteristics. Our mask                  positional and detailed attribute information (e.g., “person in
+adaptive fusion strategy can well combine the complementary                     tank top and shorts on far left”, third row in Figure 5), our
+nature of positive and negative masks to enhance the referring                  method accurately segments the target region in the complex
+segmentation.                                                                   scene, further demonstrating the effectiveness of our proposed
+   3) The Impact of Various Distance Measures: The Wasser-                      approach. Furthermore, to demonstrate the comprehensive
+stein distance is capable of capturing both global structural                   understanding of the relationship between images and text
+differences and subtle local variations between the distri-                     by our method, we provide an image and various referring
+butions of positive and negative information. Unlike other                      expressions to conduct the image segmentation. As shown in
+distance metrics, the Wasserstein distance measures the mini-                   Figure 6, our method is still capable of accurately segmenting
+mal energy required to “transport” one distribution to another,                 targets with diverse attributes and complex relationships in
+providing a comprehensive assessment of the similarity and                      complex scenes, verifying the robustness of the proposed
+dissimilarity between the two distributions. This makes it par-                 approach.
+ticularly effective in capturing both minor changes and overall                    2) Failure Cases: We also show the failure segmenta-
+structural differences between this information. Table IV                       tion cases in Figure 7. From the results we can find that
+shows referring image segmentation with different distances                     all the existing methods struggle to accurately segment the
+(Euclidean distance, Kullback-Leibler Divergence, Wasser-                       corresponding regions in the scenarios with dense similar
+stein distance) on RefCOCO/+/g’s val split. The results show                    objects, small target scales, and occlusions. Firstly, the small
+that the Wasserstein distance outperforms other metrics and                     visual differences between the targets make it difficult for
+is better suited for measuring both positive and negative                       the extracted features to effectively distinguish them. Sec-
+information.                                                                    ondly, the presence of occlusions may make the segment
+   4) The Impact of Different Texts: In the zero-shot RIS task,                 generator difficult in distinguishing target boundaries like
+there are m texts referring to the same object in Eq. (3). The                  GL CLIP (SAM). Furthermore, all zero-shot RIS methods rely
+current method refers to the image in two ways. GL CLIP [17]                    on CLIP for extracting cross-modal feature representations.
+uses one text at a time to refer to an object, m times in                       However, CLIP lacks constraints on fine-grained matching
+total. S+S [19] uses m texts to refer to an object at the                       relationships, which leads to inaccurate modeling of detailed
+same time. To ensure a fair comparison, we follow S+S [19]                      target information. Therefore, more refined matching infor-
+by using multiple texts to evaluate zero-shot referring image                   mation should be explored and incorporated into this task to
+segmentation. Moreover, our method also supports partitioning                   enhance the fine-grained visual-textual matching.
+
+  Authorized licensed use limited to: South China Normal University. Downloaded on September 30,2026 at 14:19:16 UTC from IEEE Xplore. Restrictions apply.
+LI et al.: BIDIRECTIONAL MASK SELECTION FOR ZERO-SHOT REFERRING IMAGE SEGMENTATION                                                                            919
+
+
+
+
+Fig. 5. Qualitative results of our method with the several zero-shot RIS baselines. Note that the GL CLIP uses FreeSOLO to generate mask proposals. Other
+methods use SAM to generate mask proposals.
+
+
+
+
+Fig. 6.   Visualizations of our predicted masks and the ground-truth masks on two examples from the RefCOCO validation set.
+
+
+
+
+Fig. 7. Qualitative examples of failure cases. Note that the GL CLIP uses FreeSOLO to generate mask proposals. Other methods use SAM to generate mask
+proposals.
+
+
+                           V. C ONCLUSION                                        masks into zero-shot referring image segmentation without
+                                                                                 any training efforts. Moreover, we propose a novel mask
+  In this paper, we propose a Bidirectional Mask Selection                       adaptive fusion strategy to combine the complementary infor-
+(BMS) framework, which firstly incorporates the negative                         mation from positive and negative masks, which enhances
+
+   Authorized licensed use limited to: South China Normal University. Downloaded on September 30,2026 at 14:19:16 UTC from IEEE Xplore. Restrictions apply.
+920                                            IEEE TRANSACTIONS ON CIRCUITS AND SYSTEMS FOR VIDEO TECHNOLOGY, VOL. 35, NO. 1, JANUARY 2025
+
+
+
+the robustness of zero-shot referring image segmentation.                        [22] D. Liu, H. Zhang, Z. Zha, and F. Wu, “Learning to assemble neural
+As a result, this approach has demonstrated state-of-the-art                          module tree networks for visual grounding,” in Proc. IEEE/CVF Int.
+                                                                                      Conf. Comput. Vis. (ICCV), Oct. 2019, pp. 4672–4681.
+performance across most of subsets within the RefCOCO,                           [23] H. Ding, C. Liu, S. Wang, and X. Jiang, “VLT: Vision-language trans-
+RefCOCO+ and RefCOCOg datasets. In future work, we will                               former and query generation for referring segmentation,” IEEE Trans.
+expand our model to multi-object zero-shot referring image                            Pattern Anal. Mach. Intell., vol. 45, no. 6, pp. 7900–7916, Jun. 2023.
+                                                                                 [24] N. Kim, D. Kim, S. Kwak, C. Lan, and W. Zeng, “ReSTR:
+segmentation.                                                                         Convolution-free referring image segmentation using transformers,”
+                                                                                      in Proc. IEEE/CVF Conf. Comput. Vis. Pattern Recognit. (CVPR),
+                              R EFERENCES                                             Jun. 2022, pp. 18124–18133.
+                                                                                 [25] J. Tang, G. Zheng, C. Shi, and S. Yang, “Contrastive grouping with
+ [1] C. Shang et al., “Cross-modal recurrent semantic comprehension for               transformer for referring image segmentation,” in Proc. IEEE/CVF Conf.
+     referring image segmentation,” IEEE Trans. Circuits Syst. Video Tech-            Comput. Vis. Pattern Recognit. (CVPR), Jun. 2023, pp. 23570–23580.
+     nol., vol. 33, no. 7, pp. 3229–3242, Dec. 2023.                             [26] H. Li, M. Sun, J. Xiao, E. G. Lim, and Y. Zhao, “Fully and weakly super-
+ [2] W. Zhang, C. Ma, Q. Wu, and X. Yang, “Language-guided navigation via             vised referring expression segmentation with end-to-end learning,” IEEE
+     cross-modal grounding and alternate adversarial learning,” IEEE Trans.           Trans. Circuits Syst. Video Technol., vol. 33, no. 10, pp. 5999–6012,
+     Circuits Syst. Video Technol., vol. 31, no. 9, pp. 3469–3481, Sep. 2021.         Jun. 2023.
+ [3] D. Kim, N. Kim, C. Lan, and S. Kwak, “Shatter and gather: Learning          [27] J. Liu et al., “PolyFormer: Referring image segmentation as sequential
+     referring image segmentation with text supervision,” in Proc. IEEE/CVF           polygon generation,” in Proc. IEEE/CVF Conf. Comput. Vis. Pattern
+     Int. Conf. Comput. Vis. (ICCV), Oct. 2023, pp. 15501–15511.                      Recognit. (CVPR), Jun. 2023, pp. 18653–18663.
+ [4] B. Zhou et al., “Semantic understanding of scenes through the ADE20K        [28] G. Feng, L. Zhang, Z. Hu, and H. Lu, “Learning from box annotations
+     dataset,” Int. J. Comput. Vis., vol. 127, no. 3, pp. 302–321, Mar. 2019.         for referring image segmentation,” IEEE Trans. Neural Netw. Learn.
+ [5] K. He, H. Fan, Y. Wu, S. Xie, and R. Girshick, “Momentum contrast for            Syst., vol. 35, no. 3, pp. 3927–3937, Jun. 2024.
+     unsupervised visual representation learning,” in Proc. IEEE/CVF Conf.       [29] P. Huang, D. Zhang, D. Cheng, L. Han, P. Zhu, and J. Han, “M-
+     Comput. Vis. Pattern Recognit. (CVPR), Jun. 2020, pp. 9726–9735.                 RRFS: A memory-based robust region feature synthesizer for zero-shot
+ [6] J. Fu et al., “Dual attention network for scene segmentation,” in Proc.          object detection,” Int. J. Comput. Vis., pp. 1–22, May 2024, doi:
+     IEEE/CVF Conf. Comput. Vis. Pattern Recognit. (CVPR), Jun. 2019,                 10.1007/s11263-024-02112-9.
+     pp. 3146–3154.                                                              [30] X. Wang et al., “FreeSOLO: Learning to segment objects without
+ [7] C. Liu, H. Ding, and X. Jiang, “GRES: Generalized referring expression           annotations,” in Proc. IEEE/CVF Conf. Comput. Vis. Pattern Recognit.
+     segmentation,” in Proc. IEEE Conf. Comput. Vis. Pattern Recognit.,               (CVPR), Jun. 2022, pp. 14156–14166.
+     Jul. 2023, pp. 23592–23601.                                                 [31] A. Radford et al., “Learning transferable visual models from natural
+ [8] J. Chen, Y. Shen, J. Gao, J. Liu, and X. Liu, “Language-based image              language supervision,” in Proc. Int. Conf. Mach. Learn., vol. 139, 2021,
+     editing with recurrent attentive models,” in Proc. IEEE/CVF Conf.                pp. 8748–8763.
+     Comput. Vis. Pattern Recognit., Jun. 2018, pp. 8721–8729.                   [32] Y. Hu et al., “Beyond one-to-one: Rethinking the referring image
+ [9] K. Nguyen, D. Dey, C. Brockett, and B. Dolan, “Vision-based navigation           segmentation,” in Proc. IEEE/CVF Int. Conf. Comput. Vis. (ICCV), Paris,
+     with language-based assistance via imitation learning with indirect              France, Oct. 2023, pp. 4044–4054.
+     intervention,” in Proc. IEEE/CVF Conf. Comput. Vis. Pattern Recognit.       [33] C. Shang, Z. Song, H. Qiu, L. Wang, F. Meng, and H. Li, “Prompt-
+     (CVPR), Jun. 2019, pp. 12519–12529.                                              driven referring image segmentation with instance contrasting,” in
+[10] W. Xue et al., “Weakly supervised point cloud segmentation via deep              Proc. IEEE/CVF Conf. Comput. Vis. Pattern Recognit., Jun. 2024,
+     morphological semantic information embedding,” CAAI Trans. Intell.               pp. 4124–4134.
+     Technol., vol. 9, no. 3, pp. 695–708, Jun. 2024.                            [34] J. Lee, S. Lee, J. Nam, S. Yu, J. Do, and T. Taghavi, “Weakly
+[11] X. Wang et al., “Reinforced cross-modal matching and self-                       supervised referring image segmentation with intra-chunk and inter-
+     supervised imitation learning for vision-language navigation,” in Proc.          chunk consistency,” in Proc. IEEE/CVF Int. Conf. Comput. Vis. (ICCV),
+     IEEE/CVF Conf. Comput. Vis. Pattern Recognit. (CVPR), Jun. 2019,                 vol. 2019, Oct. 2023, pp. 21813–21824.
+     pp. 6622–6631.                                                              [35] Z. Xu, Z. Chen, Y. Zhang, Y. Song, X. Wan, and G. Li, “Bridging vision
+[12] X. Dong, L. Han, D. Zhang, L. Liu, J. Han, and H. Zhang, “Giving text            and language encoders: Parameter-efficient tuning for referring image
+     more imagination space for image-text matching,” in Proc. 31st ACM               segmentation,” in Proc. IEEE/CVF Int. Conf. Comput. Vis. (ICCV),
+     Int. Conf. Multimedia, Oct. 2023, pp. 6359–6368.                                 vol. 34, Oct. 2023, pp. 17457–17466.
+[13] Z. Yang, J. Wang, Y. Tang, K. Chen, H. Zhao, and P. H. S. Torr, “LAVT:      [36] V. K. Nagaraja, V. I. Morariu, and L. S. Davis, “Modeling context
+     Language-aware vision transformer for referring image segmentation,”             between objects for referring expression understanding,” in Proc. Eur.
+     in Proc. IEEE/CVF Conf. Comput. Vis. Pattern Recognit. (CVPR),                   Conf. Comput. Vis., 2016, pp. 792–807.
+     Jun. 2022, pp. 18134–18144.                                                 [37] S. Kazemzadeh, V. Ordonez, M. Matten, and T. Berg, “ReferItGame:
+[14] Z. Wang et al., “CRIS: CLIP-driven referring image segmentation,”                Referring to objects in photographs of natural scenes,” in Proc.
+     in Proc. IEEE/CVF Conf. Comput. Vis. Pattern Recognit. (CVPR),                   Conf. Empirical Methods Natural Lang. Process. (EMNLP), 2014,
+     Jun. 2022, pp. 11676–11685.                                                      pp. 787–798.
+[15] F. Liu et al., “Referring image segmentation using text supervi-            [38] J. Mao, J. Huang, A. Toshev, O. Camburu, A. Yuille, and K. Murphy,
+     sion,” in Proc. IEEE/CVF Int. Conf. Comput. Vis. (ICCV), Oct. 2023,              “Generation and comprehension of unambiguous object descriptions,”
+     pp. 22067–22077.                                                                 in Proc. IEEE Conf. Comput. Vis. Pattern Recognit. (CVPR), Jun. 2016,
+[16] R. Strudel, I. Laptev, and C. Schmid, “Weakly-supervised segmentation            pp. 11–20.
+     of referring expressions,” 2022, arXiv:2205.04725.
+[17] S. Yu, P. H. Seo, and J. Son, “Zero-shot referring image segmentation
+     with global-local context features,” in Proc. IEEE/CVF Conf. Comput.
+     Vis. Pattern Recognit. (CVPR), Jun. 2023, pp. 19456–19465.
+[18] M. Ni, Y. Zhang, K. Feng, X. Li, Y. Guo, and W. Zuo, “Ref-diff:
+     Zero-shot referring image segmentation with generative models,” 2023,
+     arXiv:2308.16777.                                                                                    Wenhui Li received the M.S. and Ph.D. degrees
+[19] F. Eiras, K. Oksuz, A. Bibi, P. H. S. Torr, and P. K. Dokania,                                       from the School of Electrical and Information Engi-
+     “Segment, select, correct: A framework for weakly-supervised referring                               neering, Tianjin University. From 2014 to 2015,
+     segmentation,” 2023, arXiv:2310.13479.                                                               he was a Visiting Scholar with the SeSaMe Centre,
+[20] R. Hu, M. Rohrbach, and T. Darrell, “Segmentation from natural lan-                                  National University of Singapore. He is currently
+     guage expressions,” in Proc. Eur. Conf. Comput. Vis. Cham, Switzerland:                              an Associate Professor with the School of Electri-
+     Springer, 2016, pp. 108–124.                                                                         cal and Information Engineering, Tianjin University.
+                                                                                                          His research interests include computer vision,
+[21] S. Huang et al., “Referring image segmentation via cross-modal progres-
+                                                                                                          cross-modal learning, and 3D model understanding.
+     sive comprehension,” in Proc. IEEE/CVF Conf. Comput. Vis. Pattern
+     Recognit. (CVPR), Jun. 2020, pp. 10485–10494.
+
+
+   Authorized licensed use limited to: South China Normal University. Downloaded on September 30,2026 at 14:19:16 UTC from IEEE Xplore. Restrictions apply.
+LI et al.: BIDIRECTIONAL MASK SELECTION FOR ZERO-SHOT REFERRING IMAGE SEGMENTATION                                                                           921
+
+
+
+                        Chao Pang received the B.E. degree in optoelec-                                  Hongshuo Tian is currently a Post-Doctoral
+                        tronic information science and engineering from                                  Researcher with the School of Electrical and Infor-
+                        Changchun University of Science and Technol-                                     mation Engineering, Tianjin University, China. His
+                        ogy, Changchun, China, in 2023. He is currently                                  research interests include computer vision and
+                        pursuing the M.E. degree with the School of                                      machine learning.
+                        Electrical and Information Engineering, Tianjin
+                        University, China. His research interests include
+                        multimodal visual cognition and referring image
+                        segmentation.
+
+
+
+
+                        Weizhi Nie (Member, IEEE) received the M.S. and                                  An-An Liu (Senior Member, IEEE) received the
+                        Ph.D. degrees in electronic engineering from Tianjin                             Ph.D. degree in electronic engineering from Tianjin
+                        University, China. He was a Visitor with the School                              University, Tianjin, China. He was a Visiting Profes-
+                        of Computer, National University of Singapore, in                                sor with the SeSaMe Centre, National University of
+                        2016 and 2017. He is currently a Professor with the                              Singapore, and a Visiting Scholar with the Robotics
+                        School of Electrical and Information Engineering,                                Institute, Carnegie Mellon University, Pittsburgh,
+                        Tianjin University. His research interests include                               PA, USA. He is currently a Professor with the School
+                        multiple object tracking, computer vision, and 3D                                of Electrical and Information Engineering, Tianjin
+                        model retrieval.                                                                 University. His current research interests include
+                                                                                                         computer vision and machine learning.
+
+
+
+
+  Authorized licensed use limited to: South China Normal University. Downloaded on September 30,2026 at 14:19:16 UTC from IEEE Xplore. Restrictions apply.
+

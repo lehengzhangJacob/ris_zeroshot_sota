@@ -1,0 +1,56 @@
+\section{Related Work}
+\label{sec:related}
+
+\paragraph{Zero-shot / training-free RIS.}
+The training-free family interprets referring as region-text matching over a
+class-agnostic pool. Global-Local~\cite{yu2023global} builds both global and
+masked-region CLIP features; Grad-CAM and MaskCLIP~\cite{zhou2022maskclip}
+transfer classification activations; Ref-Diff~\cite{ni2023refdiff} uses
+diffusion priors; TAS~\cite{shu2023tas} adds BLIP2 attention supervision;
+BMS~\cite{bms2024} scores proposals with a bidirectional mask-selection
+distribution; LGD~\cite{lgd2025} adds grounded region crops; HybridGL
+\cite{hybridgl2025} is the current state among SAM+CLIP-only pipelines, adding
+a GEM attention $\times$ position-mask coherence term and relation guidance;
+GLOD-RIS~\cite{wu2026glodris} reaches the highest zero-shot numbers but
+consults an external MLLM. We build on HybridGL because it is the strongest
+zero-shot method whose official code is released and runs without external
+services --- and we audit the released code against its paper
+(\S\ref{sec:repro}). Our contribution is orthogonal to all of these: it
+replaces the \emph{selection} step given their scores, and the diagnosis
+applies to any scorer of the family (\S\ref{sec:diagnosis}).
+
+\paragraph{Mask selection and merging.}
+Merging/growing proposals is a known idiom: ProposalCLIP~\cite{proposalclip2022}
+merges graph-connected proposals for class-agnostic generation;
+MARS~\cite{mars2026} gates and unions few-shot proposals;
+E-SAM~\cite{esam2025} merges adjacent entity masks. These operate on visual
+similarity or containment alone and do not decide \emph{which instance} an
+expression denotes. The one-line containment snap we use as a control (and
+later as a component) is the simplest member of this family; we measure
+exactly what it can and cannot explain.
+
+\paragraph{Structured resolution of spatial reference.}
+Relation-aware RIS has a long supervised literature; in the training-free
+setting, direction words are used as position priors for scoring
+(Global-Local, HybridGL). Our operator goes further --- it resolves the
+relation \emph{within} a candidate set built from a spatial-stripped score,
+handles two-axis relations, and abstains on ordinals because a measured
+attempt to resolve them deterministically loses accuracy
+(\S\ref{app:evidence}).
+
+\paragraph{Generalized referring (GRES).}
+The gRefCOCO benchmark~\cite{liu2023gres} admits multi-target and no-target
+expressions; its metrics (cIoU, gIoU, N-acc/T-acc) are standard for trained
+GRES models~\cite{liu2023gres, wang2025mllm}. Zero-shot selection pipelines
+have not been extended to it, and the format is not a detail: a
+single-mask selector is structurally unable to score well when
+\gresMultiPct\,\% of references denote several objects and
+\gresNoTargetPct\,\% denote none. Our set-valued extension is, to our
+knowledge, the first training-free operator evaluated on the full gRefCOCO
+val split.
+
+\paragraph{Benchmarks.}
+RefCOCO/+/g~\cite{kazemzadeh2014refer, mao2016generation} remain the standard
+zero-shot RIS benchmark family; RefCOCO+ is collected without location words,
+which makes it a natural control for any spatial-reference mechanism
+(\S\ref{sec:diagnosis}).

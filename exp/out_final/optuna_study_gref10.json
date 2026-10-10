@@ -1,0 +1,18 @@
+{
+  "n_trials": 300,
+  "best_params": {
+    "kind": "gbm",
+    "p_inc": 0.6311620664353685,
+    "gd": 4
+  },
+  "best_calib_r": 0.5948154752567522,
+  "shipped_pair_calib_r": 0.5177022004226552,
+  "shipped_termbox_calib_r": 0.5529117954037326,
+  "margin_over_pair": 0.07711327483409691,
+  "margin_over_termbox": 0.04190367985301957,
+  "n_fit": 975,
+  "n_calib": 423,
+  "note": "hybrid = pair candidates + per-term picks + termbox-union, one selector over both feature blocks; val untouched; val pass only if both margins > 0.01",
+  "generated": "exp95_hybrid_study.py",
+  "gd_recovery": "depth recovered from the deterministic pipeline (exp95b): gd=4's calib r 0.5948154753 matches the recorded 0.5948154752567522 to 1e-10; the objective-value delta (0.619043 vs 0.619036) is the recovery script's rounded anchor (0.5529) vs the exact shipped-termbox calib r"
+}

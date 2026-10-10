@@ -1,0 +1,29 @@
+{
+  "cells": {
+    "ll__d0": {
+      "m_ge2": 0.6722871791520718,
+      "m_1term": 0.6251216666669326,
+      "mix": 0.6663914900914294
+    },
+    "ll__d0+d1": {
+      "m_ge2": 0.6793945994646221,
+      "m_1term": 0.6744485981728967,
+      "mix": 0.6787763493031564
+    },
+    "ll+d0__d0": {
+      "m_ge2": 0.6724376149811424,
+      "m_1term": 0.643244827798841,
+      "mix": 0.6687885165833548
+    },
+    "ll+d0__d0+d1": {
+      "m_ge2": 0.6795427695298306,
+      "m_1term": 0.6859216731672493,
+      "mix": 0.680340132484508
+    }
+  },
+  "main_box": 0.0023970264919254136,
+  "main_sam": 0.01238485921172705,
+  "interaction": -0.0008332433105738835,
+  "note": "factorial around the exp117 winner on the mixed held-out population; interaction = (both - box-only) - (sam-only - neither): >0 means the levers compound; ~max(main effects) means additive",
+  "generated": "exp120_factorial.py"
+}

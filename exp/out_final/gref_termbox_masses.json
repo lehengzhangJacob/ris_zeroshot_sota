@@ -1,0 +1,22 @@
+{
+  "measured_on": "full val (14220), SHIPPED termbox selector (exp89 final)",
+  "S_U": 89876921.0,
+  "FP_U": 10486685.0,
+  "A_U": 10016077.79180994,
+  "I_tot": 45210728.0,
+  "G_U": 76596855.0,
+  "P_sum": 58490794.0,
+  "r_delivered": 0.5030293371976995,
+  "cIoU_from_masses": 40.95928385269988,
+  "official_cIoU": 40.96,
+  "m_delivered": 0.5228416146185282,
+  "targeted_predicted": 4677,
+  "oracle_cap_bound_pct": 71.49818393027691,
+  "r_required_for_floor": 0.8466662315465143,
+  "dilution_cut_needed_pct": -19.389384714836112,
+  "m_required_for_floor": 0.6211562967714347,
+  "note": "operating point from exp79's frozen rule (N_acc 0.862, T_acc 0.878 as recorded there); masses accumulated with the same exp62 gt_area convention as exp76",
+  "termbox_used": 4666,
+  "fallback_used": 1241,
+  "generated": "exp90_termbox_masses.py"
+}

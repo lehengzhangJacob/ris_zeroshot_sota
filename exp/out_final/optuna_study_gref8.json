@@ -1,0 +1,29 @@
+{
+  "n_trials": 300,
+  "best_value": 0.6764266434804598,
+  "best_metrics": {
+    "cIoU": 46.632852801542896,
+    "gIoU": 79.52538870261462,
+    "N_acc": 93.75,
+    "T_acc": 90.2834008097166
+  },
+  "best_params": {
+    "K": 6,
+    "C": 0.000285483537421555,
+    "p_sel": 0.34040013160612675,
+    "use_ens": true,
+    "clf": "logreg"
+  },
+  "shipped_reference": {
+    "cIoU": 44.17866744716701,
+    "gIoU": 78.61242753151058,
+    "N_acc": 93.75,
+    "T_acc": 83.80566801619433
+  },
+  "shipped_reference_value": 0.6408277842640994,
+  "win_margin": 0.03559885921636041,
+  "split": "fit/calib by ref inside held-out train (seed 0, calib 0.30)",
+  "objective": "min(cIoU/68.94, gIoU/74.34) on calib at VAL PREVALENCE; matches the official metric's class mix",
+  "note": "pair/union selector: candidates = top-K singles + pairs of the frozen study-5 classifier; val untouched; val pass only if win_margin > 0.005",
+  "generated": "exp78_pair_selector.py"
+}

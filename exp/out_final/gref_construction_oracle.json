@@ -1,0 +1,18 @@
+{
+  "n_records": 5324,
+  "missing": 0,
+  "construction": "per-object GT box -> SAM 3 masks -> best union over 3^n combos",
+  "mean_targeted_IoU_oracle": 0.8826610991750705,
+  "r_construction_oracle": 0.8817623451399187,
+  "cIoU_construction_oracle": 71.75301114089214,
+  "floor": 68.94,
+  "r_required_measured": 0.8305,
+  "cIoU_requirement_masses": {
+    "FP_U": 10486685.0,
+    "A_U": 10016077.79180994,
+    "G_U": 76667626.35155708
+  },
+  "verdict": "construction ceiling ABOVE the floor (71.75) - cIoU flips to realization-bound for the construction too",
+  "note": "FP_U/A_U held at the shipped rule's measured values (best case: abstention unchanged); oracle uses at most 3 GT objects per record",
+  "generated": "exp114_construction_oracle_val.py"
+}

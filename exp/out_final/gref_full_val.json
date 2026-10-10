@@ -1,0 +1,27 @@
+{
+  "model": {
+    "kind": "logreg",
+    "params": {
+      "C": 0.003372099519840815
+    },
+    "p_inc": 0.77606891764233,
+    "p_abs": 0.3395872474890961,
+    "use_exists": true
+  },
+  "metrics": {
+    "n": 14220,
+    "cIoU": 35.08835477963795,
+    "gIoU": 68.37290737551365,
+    "N_acc": 86.29721223021583,
+    "T_acc": 79.15101427498122,
+    "TP": 7677,
+    "FN": 1219,
+    "TN": 4214,
+    "FP": 1110
+  },
+  "n_val_records": 14220,
+  "n_skipped": 0,
+  "records": "exp/out_extreme/records_grefcoco.jsonl",
+  "source_study": "exp/out_final/optuna_study_gref5.json",
+  "generated": "exp64_full_val.py"
+}

@@ -1,0 +1,28 @@
+{
+  "del_shipped": {
+    "row_mean": 0.5680857429088563,
+    "per_rid_mean": 0.531299831755508,
+    "n": 262
+  },
+  "del_oracle": {
+    "row_mean": 0.6376834336058702,
+    "per_rid_mean": 0.6082625288899235,
+    "n": 262
+  },
+  "gt_shipped": {
+    "row_mean": 0.8022025545585666,
+    "per_rid_mean": 0.8086171989887839,
+    "n": 262
+  },
+  "gt_oracle": {
+    "row_mean": 0.7663064716769049,
+    "per_rid_mean": 0.7612659030373078,
+    "n": 262
+  },
+  "decomposition": {
+    "box_loss_row": 0.23411681164971032,
+    "mask_loss_row": 0.06959769069701394,
+    "joint": 0.19822072876804864,
+    "note": "box_loss = GT boxes with the shipped pick; mask_loss = shipped boxes with the oracle pick; oracle pick = per-term best (pool-in-box u SAM) candidate by GT IoU"
+  }
+}

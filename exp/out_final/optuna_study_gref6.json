@@ -1,0 +1,20 @@
+{
+  "n_trials": 300,
+  "best_params": {
+    "rule": "base",
+    "p_inc": 0.776,
+    "abs_mode": "none",
+    "allno": false
+  },
+  "calib_metrics": {
+    "cIoU": 45.06,
+    "gIoU": 77.3,
+    "N_acc": 91.59,
+    "T_acc": 87.0
+  },
+  "verdict": "NEGATIVE \u2014 verification adds nothing. The 300-trial search over {verified, ver_fb, union, base} x p_inc x abstention combos selects `base` (the existing rule without any verification) on the held-out calib at val prevalence. Smoke test on the full train split agrees: base 49.55/68.66 > union 48.38/67.20 > ver_fb 44.58/64.35 > verified-only 31.27/56.03. The crop yes/no is another weak signal; the val verify extraction was stopped (train cache is complete at 6,964 queries; val reached ~11k of 57k before being killed as surplus to a rejected model).",
+  "train_verify_queries": 6964,
+  "topk": 4,
+  "split": "gRefCOCO train fit/calib (held out); val never used for selection",
+  "generated": "exp66_verify_select.py (study phase on completed train cache)"
+}

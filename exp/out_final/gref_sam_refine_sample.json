@@ -1,0 +1,16 @@
+{
+  "rows": 262,
+  "m_pool_rule": 0.5334802386201328,
+  "m_ref_global": 0.45926052767601355,
+  "m_ref_perterm": 0.46809812237880066,
+  "m_ref_hybrid": 0.5384108092061292,
+  "m_ref_perterm_oracle": 0.47582422672602637,
+  "references": {
+    "pool_rule_exp103": 0.5335,
+    "sam_llava_box_oracle": 0.4765,
+    "sam_gtbox_oracle": 0.8845,
+    "required_m": 0.6212
+  },
+  "note": "SAM box prompts from pool-pick bboxes (stride-2 boxes x2); held-out sample",
+  "generated": "exp104_sam_refine.py"
+}

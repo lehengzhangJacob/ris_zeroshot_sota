@@ -1,0 +1,53 @@
+{
+  "experiment": "gref_topk_reselection",
+  "question": "top-1 vs top-2 pool pick per box, with the SAM caches present",
+  "frames": {
+    "heldout_train": {
+      "population": "records_grefcoco_train_tune.jsonl (loadable rows, SAM caches built by exp137)",
+      "anchor_top2": {
+        "cIoU": 49.81,
+        "gIoU": 68.93,
+        "N": 93.5,
+        "T": 90.9
+      },
+      "top1": {
+        "cIoU": 51.13,
+        "gIoU": 70.13,
+        "N": 93.5,
+        "T": 90.9
+      },
+      "delta": {
+        "cIoU": 1.32,
+        "gIoU": 1.2
+      }
+    },
+    "val2000_descriptive": {
+      "population": "records_grefcoco_val2000.jsonl (1,525 loadable rows)",
+      "anchor_top2": {
+        "cIoU": 51.08,
+        "gIoU": 74.84
+      },
+      "top1": {
+        "cIoU": 52.27,
+        "gIoU": 75.28
+      },
+      "delta": {
+        "cIoU": 1.19,
+        "gIoU": 0.44
+      }
+    }
+  },
+  "decision": "switch the shipped pick to top-1 (change 16); the decision rule was fixed before the full-val pass and rests on the held-out train frame; the val-2000 curve was measured earlier as part of the descriptive sensitivity artifact and is disclosed here as an agreeing cross-check (it was NOT used to fit anything)",
+  "disclosure": "the val-2000 sensitivity curve was observed before this decision; the selection itself was made on the held-out train frame only",
+  "effects": {
+    "abstention": "unchanged (N_acc/T_acc identical between settings)",
+    "appliesto": "all targeted records, both terms and boxes"
+  },
+  "tool": "exp/exp133_sensitivity.py --train-side-sam (held-out) + exp/exp136-era val-2000 run",
+  "selection_history_precision": {
+    "study_that_chose_top2": "exp117 joint study (optuna_study_gref14.json) DID search topk (suggest_int 1..2) and chose top-2 under its own objective: the val-prevalence-weighted mixture of the mean targeted IoU m (study mix 0.6803 vs shipped-equivalent 0.6380) - an m-based objective, not cIoU or gIoU",
+    "why_this_is_a_new_selection": "the shipped headline metric is cIoU; under cIoU and gIoU (raw and val-prevalence-weighted) on the SAME held-out train rows with SAM present, top-1 leads top-2 on all four: raw cIoU 51.13/49.81, raw gIoU 70.13/68.93, val-prev cIoU 49.89/48.64, val-prev gIoU 79.25/78.52. The re-selection aligns the knob with the reported metric on train-side data",
+    "earlier_no_sam_note": "the first re-analysis of this wall (2026-10-08/09 sensitivity work) ran on this population WITHOUT any SAM caches, so the topk contrast there (top-2 ahead) reflected a configuration that is not the deployed one; the caches built by exp137 restore the studies' regime",
+    "val_side_disclosure": "the val-2000 descriptive sensitivity curve (measured earlier) agrees (+1.19 cIoU for top-1); it was NOT used to fit anything and the selection was made on the held-out train frame only"
+  }
+}

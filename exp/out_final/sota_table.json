@@ -1,0 +1,351 @@
+{
+  "caption": "Referring image segmentation, validation splits. mIoU unless noted; gRefCOCO uses the official cIoU/gIoU protocol.",
+  "methods": [
+    {
+      "name": "Grad-CAM",
+      "venue": "ICCV 2019",
+      "measured_by_us": false,
+      "refcoco": {
+        "mIoU": 30.22,
+        "oIoU": 23.44
+      },
+      "refcocoplus": {
+        "mIoU": 33.96,
+        "oIoU": 26.67
+      },
+      "refcocog": {
+        "mIoU": 33.05,
+        "oIoU": 23.0
+      },
+      "setting": "zero-shot / training-free",
+      "oIoU_source": "GLOD-RIS (TCSVT 2026) Table I, oIoU block, val columns"
+    },
+    {
+      "name": "MaskCLIP",
+      "venue": "CVPR 2023",
+      "measured_by_us": false,
+      "refcoco": {
+        "mIoU": 25.62,
+        "oIoU": 20.18
+      },
+      "refcocoplus": {
+        "mIoU": 27.49,
+        "oIoU": 22.06
+      },
+      "refcocog": {
+        "mIoU": 30.13,
+        "oIoU": 23.05
+      },
+      "setting": "zero-shot / training-free",
+      "oIoU_source": "GLOD-RIS (TCSVT 2026) Table I, oIoU block, val columns"
+    },
+    {
+      "name": "Global-Local (SAM)",
+      "venue": "CVPR 2023",
+      "measured_by_us": false,
+      "refcoco": {
+        "mIoU": 31.83,
+        "oIoU": 24.55
+      },
+      "refcocoplus": {
+        "mIoU": 34.97,
+        "oIoU": 26.62
+      },
+      "refcocog": {
+        "mIoU": 40.66,
+        "oIoU": 28.92
+      },
+      "setting": "zero-shot / training-free",
+      "oIoU_source": "GLOD-RIS (TCSVT 2026) Table I, oIoU block, val columns"
+    },
+    {
+      "name": "Ref-Diff",
+      "venue": "CoRR 2023",
+      "measured_by_us": false,
+      "refcoco": {
+        "mIoU": 37.21,
+        "oIoU": 35.16
+      },
+      "refcocoplus": {
+        "mIoU": 37.29,
+        "oIoU": 35.56
+      },
+      "refcocog": {
+        "mIoU": 44.02,
+        "oIoU": 38.62
+      },
+      "setting": "zero-shot / training-free",
+      "oIoU_source": "GLOD-RIS (TCSVT 2026) Table I, oIoU block, val columns"
+    },
+    {
+      "name": "TAS",
+      "venue": "EMNLP 2023",
+      "measured_by_us": false,
+      "refcoco": {
+        "mIoU": 39.84,
+        "oIoU": 29.53
+      },
+      "refcocoplus": {
+        "mIoU": 43.63,
+        "oIoU": 33.21
+      },
+      "refcocog": {
+        "mIoU": 46.62,
+        "oIoU": 35.84
+      },
+      "setting": "zero-shot / training-free",
+      "oIoU_source": "GLOD-RIS (TCSVT 2026) Table I, oIoU block, val columns"
+    },
+    {
+      "name": "BMS",
+      "venue": "TCSVT 2024",
+      "measured_by_us": false,
+      "refcoco": {
+        "mIoU": 40.77,
+        "oIoU": 34.94
+      },
+      "refcocoplus": {
+        "mIoU": 41.7,
+        "oIoU": 37.36
+      },
+      "refcocog": {
+        "mIoU": 48.32,
+        "oIoU": 42.61
+      },
+      "setting": "zero-shot / training-free",
+      "oIoU_source": "GLOD-RIS (TCSVT 2026) Table I, oIoU block, val columns"
+    },
+    {
+      "name": "IteRPrimE",
+      "venue": "AAAI 2025",
+      "measured_by_us": false,
+      "refcoco": {
+        "mIoU": 40.2,
+        "oIoU": null
+      },
+      "refcocoplus": {
+        "mIoU": 44.2,
+        "oIoU": null
+      },
+      "refcocog": {
+        "mIoU": 46.0,
+        "oIoU": null
+      },
+      "setting": "zero-shot / training-free",
+      "oIoU_source": "not reported: the compared paper (AAAI 2025) reports mIoU only on the RefCOCO family"
+    },
+    {
+      "name": "LGD",
+      "venue": "PR 2025",
+      "measured_by_us": false,
+      "refcoco": {
+        "mIoU": 45.41,
+        "oIoU": 34.47
+      },
+      "refcocoplus": {
+        "mIoU": 47.23,
+        "oIoU": 36.72
+      },
+      "refcocog": {
+        "mIoU": 47.31,
+        "oIoU": 36.57
+      },
+      "setting": "zero-shot / training-free",
+      "oIoU_source": "GLOD-RIS (TCSVT 2026) Table I, oIoU block, val columns"
+    },
+    {
+      "name": "HybridGL (published)",
+      "venue": "CVPR 2025",
+      "measured_by_us": false,
+      "refcoco": {
+        "mIoU": 49.48,
+        "oIoU": 41.81
+      },
+      "refcocoplus": {
+        "mIoU": 43.4,
+        "oIoU": 35.74
+      },
+      "refcocog": {
+        "mIoU": 51.25,
+        "oIoU": 42.47
+      },
+      "setting": "zero-shot / training-free",
+      "oIoU_source": "GLOD-RIS (TCSVT 2026) Table I, oIoU block, val columns"
+    },
+    {
+      "name": "GLOD-RIS (published)",
+      "venue": "TCSVT 2026",
+      "measured_by_us": false,
+      "refcoco": {
+        "mIoU": 58.42,
+        "oIoU": 50.85
+      },
+      "refcocoplus": {
+        "mIoU": 54.01,
+        "oIoU": 45.96
+      },
+      "refcocog": {
+        "mIoU": 57.85,
+        "oIoU": 50.03
+      },
+      "setting": "zero-shot / training-free",
+      "oIoU_source": "GLOD-RIS (TCSVT 2026) Table I, oIoU block, val columns"
+    },
+    {
+      "name": "PSALM (zero-shot)",
+      "venue": "ECCV 2024 (Table 12)",
+      "measured_by_us": false,
+      "grefcoco": {
+        "cIoU": 42.0,
+        "gIoU": 43.3
+      },
+      "setting": "zero-shot / generalist, no gRefCOCO training",
+      "citation": "PSALM, ECCV 2024, Table 12: gRefCOCO val cIoU 42.0 / gIoU 43.3 (zero-shot)"
+    },
+    {
+      "name": "SELF1E-8B (zero-shot)",
+      "venue": "CVPR 2026 (arXiv 2603.19026)",
+      "measured_by_us": false,
+      "grefcoco": {
+        "cIoU": 44.4,
+        "gIoU": 37.5
+      },
+      "setting": "zero-shot / generalist, no gRefCOCO training",
+      "citation": "SELF1E-8B, CVPR 2026 (arXiv 2603.19026): gRefCOCO val cIoU 44.4 / gIoU 37.5 (zero-shot); per-metric best same-class cIoU floor as of 2026-10-08"
+    },
+    {
+      "name": "LAVT (supervised)",
+      "venue": "CVPR 2022",
+      "measured_by_us": false,
+      "grefcoco": {
+        "cIoU": 57.64,
+        "gIoU": 58.4
+      },
+      "setting": "trained on gRefCOCO train"
+    },
+    {
+      "name": "ReLA (supervised)",
+      "venue": "CVPR 2024",
+      "measured_by_us": false,
+      "grefcoco": {
+        "cIoU": 62.42,
+        "gIoU": 63.6
+      },
+      "setting": "trained on gRefCOCO train"
+    },
+    {
+      "name": "SAM4MLLM (supervised)",
+      "venue": "ECCV 2024",
+      "measured_by_us": false,
+      "grefcoco": {
+        "cIoU": 67.83,
+        "gIoU": 71.86
+      },
+      "setting": "trained on gRefCOCO train"
+    },
+    {
+      "name": "InstAlign (supervised)",
+      "venue": "arXiv 2411.15087",
+      "measured_by_us": false,
+      "grefcoco": {
+        "cIoU": 68.94,
+        "gIoU": 74.34
+      },
+      "setting": "trained on gRefCOCO train"
+    },
+    {
+      "name": "HybridGL released (our reproduction)",
+      "venue": "this run",
+      "measured_by_us": true,
+      "evidence": "exp/out_final/evidence/sota_released_and_ours.json",
+      "refcoco": {
+        "mIoU": 44.8248,
+        "oIoU": 38.16
+      },
+      "refcocoplus": {
+        "mIoU": 40.2289,
+        "oIoU": 33.5875
+      },
+      "refcocog": {
+        "mIoU": 50.0816,
+        "oIoU": 41.4453
+      },
+      "setting": "zero-shot / training-free, reproduced",
+      "oIoU_source": "aligned pooled re-evaluation (exp40_final_eval.py; protocol_audit.json)"
+    },
+    {
+      "name": "+ containment growth (control)",
+      "venue": "this run",
+      "measured_by_us": true,
+      "evidence": "exp/out_final/evidence/sota_released_and_ours.json",
+      "refcoco": {
+        "mIoU": 50.2356,
+        "oIoU": 40.7162
+      },
+      "refcocoplus": {
+        "mIoU": 45.9078,
+        "oIoU": 36.5402
+      },
+      "refcocog": {
+        "mIoU": 50.9221,
+        "oIoU": 41.0179
+      },
+      "setting": "zero-shot, control",
+      "oIoU_source": "aligned pooled re-evaluation (exp40_final_eval.py; protocol_audit.json)"
+    },
+    {
+      "name": "Ours: dense VLM box prior (shipped)",
+      "venue": "this run",
+      "measured_by_us": true,
+      "evidence": "exp/out_final/evidence/sota_released_and_ours.json",
+      "refcoco": {
+        "mIoU": 68.5333,
+        "oIoU": 63.3957
+      },
+      "refcocoplus": {
+        "mIoU": 64.6669,
+        "oIoU": 58.3114
+      },
+      "refcocog": {
+        "mIoU": 65.1175,
+        "oIoU": 59.7655
+      },
+      "setting": "zero-shot / training-free (frozen SAM+CLIP+VLM)",
+      "oIoU_source": "aligned pooled re-evaluation (exp40_final_eval.py; protocol_audit.json)"
+    },
+    {
+      "name": "Ours: no-box control",
+      "venue": "this run",
+      "measured_by_us": true,
+      "evidence": "exp/out_final/evidence/sota_released_and_ours.json",
+      "refcoco": {
+        "mIoU": 43.3257,
+        "oIoU": 35.9919
+      },
+      "refcocoplus": {
+        "mIoU": 37.8478,
+        "oIoU": 30.8192
+      },
+      "refcocog": {
+        "mIoU": 47.5072,
+        "oIoU": 38.4799
+      },
+      "setting": "zero-shot, control",
+      "oIoU_source": "aligned pooled re-evaluation (exp40_final_eval.py; protocol_audit.json)"
+    },
+    {
+      "name": "Ours: joint boxes + SAM union + presence ensemble",
+      "venue": "this run",
+      "measured_by_us": true,
+      "evidence": "exp/out_final/evidence/sota_grefcoco.json",
+      "grefcoco": {
+        "cIoU": 51.3182,
+        "gIoU": 74.9098
+      },
+      "n": 14229,
+      "setting": "training-free features; rule tuned on held-out gRefCOCO train (never val)",
+      "note": "shipped: per-term box selector, single pick per box (change 16, 2026-10-10, re-selected on the held-out train frame with SAM caches present), joint config change 14 + singles-only no-target fallback (exp124); complete official val split (n=14229) under the official gRefCOCO protocol (protocol_audit.json)"
+    }
+  ],
+  "metric_note": "Every RefCOCO-family row carries both mIoU and oIoU from the same source table (2026-10-09 fair-comparison instruction): published rows take the compared paper's own oIoU (GLOD-RIS Table I oIoU block, val columns); our rows take the aligned pooled re-evaluations (protocol_audit.json). oIoU = global pooled overlap sum|pred∩GT|/sum|pred∪GT|. Val columns only (testA/testB/test(u) not produced; stated in the paper)."
+}

@@ -1,0 +1,49 @@
+\section{Conclusion}
+
+Training-free referring image segmentation has been optimised under the
+assumption that the proposal pool is the limiting factor. We tested that
+assumption by decomposing the oracle gap --- the IoU that the pool makes
+available minus the IoU the selector returns --- into attributable error
+classes, on the full RefCOCO, RefCOCO$+$ and RefCOCOg validation splits, at two
+operating points of the released HybridGL pipeline on RefCOCO, and at two
+proposal-pool densities.
+
+The pool is not the bottleneck. \emph{Wrong-instance} selection, in which the
+pipeline returns a different object of the correct category, carries 77--86\,\%
+of all recoverable IoU on all three benchmarks, while
+under-segmentation --- the granularity class that mask-merging and
+mask-refinement remedies address --- carries 5--23\,\%. Doubling the proposal
+density confirms the reading from the other direction: it buys $+1.0$ mIoU of
+oracle and costs the released pipeline $3.2$ mIoU, because more proposals means
+more distractors to select among.
+
+The mechanism is structural rather than incidental. The released guidance
+computes a spatial-relationship term and a coherence term, but evaluates them
+only on the three highest-scoring proposals under the full expression, so its
+answer cannot leave that set; on wrong-instance failures the referent is
+outside it 69.8\,\% of the time. A perfect chooser restricted to the set the
+pipeline already computes would gain $+13.3$ mIoU, and a lexical edit of the
+prompt --- removing the spatial vocabulary, which turns the expression into a
+category probe --- moves the referent into the top-8 for 70.1\,\% of those
+failures.
+
+Acting on that, a training-free operator that enlarges the candidate set and
+applies the pipeline's own coherence score subject to the parsed relation
+raises the released pipeline to 0.5029 mIoU and 0.4431 oIoU on full RefCOCO val
+($+0.0546$ mIoU, 95\,\% CI $[+0.0493,+0.0601]$), with the gain concentrated
+exactly on spatial expressions and zero on the 42.6\,\% of expressions it
+cannot parse.
+
+We have been deliberately explicit about what this does not establish. The
+mIoU gain is statistically indistinguishable from a one-line containment snap;
+the operator is neutral on RefCOCOg and RefCOCO$+$; no multimodal chooser
+baseline was run and that remains the largest open flank, bounded at $+0.227$
+mIoU by the candidate-set ceiling; and absolute rows are not comparable to the
+published table because our reproduction of the baseline is $5.09$ mIoU below
+it on the base row, a gap we localise to the frozen feature path.
+
+The durable result is the diagnosis. It reframes what a training-free RIS
+method should be measured against: not the oracle utilisation of its pool, but
+the share of the pool's recoverable IoU that its selector can actually reach.
+On the evidence here, that share is around half, and the missing half is
+overwhelmingly a matter of telling one instance from another.

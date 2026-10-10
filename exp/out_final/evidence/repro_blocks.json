@@ -1,0 +1,44 @@
+{
+  "note": "Reproduction audit: unmodified official Hybridgl_main.py vs our reimplementation, two disjoint 150-reference blocks of RefCOCO val (reference order). Official numbers from the logs in this directory; reimplementation numbers from exp/out_extreme/records_refcoco.jsonl.",
+  "blocks": {
+    "A_[0:150)": {
+      "official": {
+        "pure_mIoU": 38.91,
+        "pure_oIoU": 28.87,
+        "guided_mIoU": 46.1,
+        "guided_oIoU": 40.52
+      },
+      "ours": {
+        "pure_mIoU": 39.18,
+        "pure_oIoU": 29.29,
+        "guided_mIoU": 46.43,
+        "guided_oIoU": 40.7
+      },
+      "n_expr": 433
+    },
+    "B_[1500:1650)": {
+      "official": {
+        "pure_mIoU": 34.76,
+        "pure_oIoU": 28.54,
+        "guided_mIoU": 44.83,
+        "guided_oIoU": 37.65
+      },
+      "ours": {
+        "pure_mIoU": 34.74,
+        "pure_oIoU": 28.95,
+        "guided_mIoU": 45.45,
+        "guided_oIoU": 38.39
+      },
+      "n_expr": 424
+    }
+  },
+  "published": {
+    "HybridGL_RefCOCO_val_mIoU": 49.48,
+    "source": "HybridGL Table 1"
+  },
+  "full_val_ours": {
+    "guided_mIoU": 44.82,
+    "n": 10834
+  },
+  "generated": "this run"
+}

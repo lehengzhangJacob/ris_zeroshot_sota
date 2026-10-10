@@ -1,0 +1,96 @@
+\section{Introduction}
+
+Referring image segmentation (RIS) takes an image and a free-form referring
+expression and returns the mask of the described object. In the training-free
+or zero-shot regime, where no pixel-level supervision and no task-specific
+fine-tuning are used, essentially every published method follows the same
+template: a frozen class-agnostic segmenter --- almost always SAM
+\cite{kirillov2023sam} --- emits a pool of candidate masks, a frozen
+vision--language model --- almost always CLIP \cite{radford2021clip} --- scores
+each candidate against the expression, and the highest-scoring candidate is
+returned. Differences between methods lie in how the score is formed
+\cite{yu2023global,liu2025hybridgl,wu2026glodris}, in which additional cues are
+introduced \cite{kim2023refdiff,li2023tas}, or in whether an external
+multimodal model is consulted \cite{li2025lgd}.
+
+The organising assumption behind this body of work is that the \emph{proposal
+pool} is the limiting factor, and that progress consists of obtaining better
+masks, better features, or better auxiliary supervision. The assumption is
+rarely tested. When it is, the test is usually an oracle utilisation figure ---
+the ratio of achieved IoU to the best IoU available in the pool --- which is
+reported as evidence that the segmenter has room to improve, without asking
+which part of the discarded IoU was discarded \emph{by the selector} and why.
+GLOD-RIS \cite{wu2026glodris}, for instance, reports an oracle utilisation of
+roughly 62--65\,\% oIoU and concludes that the ceiling is mask recall; an
+oracle utilisation of 62\,\% equally means that 38\,\% of the IoU that
+\emph{was} available was thrown away at selection time.
+
+This paper asks the question in a form that can be settled by measurement:
+\emph{when a training-free RIS pipeline fails, is the failure in the pool or in
+the selector, and if it is in the selector, what kind of selection error is it
+and is it repairable without training?}
+
+We answer it by decomposing the oracle gap --- the difference between the IoU
+of the best pool member and the IoU of the returned mask --- into attributable
+classes, using only quantities that the pipeline already computes. The
+decomposition (§\ref{sec:diagnosis}) yields one dominant class. \emph{Wrong
+instance}: the selector returns a mask that is very nearly disjoint from the
+referent but belongs to the correct category. It carries 82.2\,\% of the
+recoverable IoU at the unguided operating point and 77.4\,\% at the released
+HybridGL operating point on RefCOCO val, and 86.4\,\% / 80.1\,\% at the
+released point on RefCOCOg / RefCOCO$+$ respectively. Under-segmentation ---
+the granularity class that mask-merging and mask-refinement remedies target ---
+carries 14.3\,\% and 17.6\,\% at the two full-split RefCOCO operating points
+and never exceeds 22.6\,\% in any configuration we measured. Wrong-instance is
+overwhelmingly a \emph{spatial reference} failure: 84\,\% of those
+expressions contain a spatial word, against 67\,\% of the split overall when
+probed with the same broad lexical list.
+
+The mechanism follows from the diagnosis. The released HybridGL pipeline does
+contain spatial machinery --- a relationship-guidance term and a GEM attention
+$\times$ position-mask coherence term --- but it applies both only inside
+$\mathrm{topk}(\text{score},3)$ under the full expression, so its answer is
+always one of the three highest-scoring proposals. On the wrong-instance
+failures the referent is inside that set only 30.2\,\% of the time (mean
+score-rank 9.1). Yet a perfect chooser restricted to the released top-3 would
+already reach 0.5812 mIoU against the 0.4482 achieved, and the referent does
+reach the top-8 of a \emph{category} score --- the same scorer reading the
+expression with its spatial vocabulary removed --- for 70.1\,\% of those
+failures.
+
+That is an actionable structural statement, and §\ref{sec:method} acts on it
+with a training-free operator that changes only the candidate set and the
+final selection step: score proposals with the category score, take its top
+$k$, and if the expression carries a spatial relation, return the member the
+relation selects, ranked by the pipeline's own coherence score. The operator
+adds no training, no ground truth, and no forward pass.
+
+Our contributions are:
+
+\begin{itemize}
+\item \textbf{A decomposition of the oracle gap in training-free RIS}
+(§\ref{sec:diagnosis}), showing that wrong-instance selection rather than mask
+quality carries 77--86\,\% of all recoverable IoU, measured on the full
+validation splits of RefCOCO, RefCOCO$+$ and RefCOCOg, at two operating points
+on RefCOCO and one on RefCOCO$+$/g, and surviving a doubling of proposal
+density.
+\item \textbf{A mechanism-level account of why the released guidance cannot
+repair it} (§\ref{sec:diagnosis}), in terms of a measurable confinement of the
+pipeline's answer to a top-3 candidate set, together with the ceiling that
+confinement imposes.
+\item \textbf{A training-free operator that does repair a substantial part of
+it} (§\ref{sec:method}, §\ref{sec:experiments}), raising full RefCOCO val from
+0.4482 to 0.5029 mIoU and 0.3816 to 0.4431 oIoU over the released pipeline,
+with the gain concentrated exactly where the diagnosis predicts.
+\item \textbf{A negative-result set and a measured boundary} (§\ref{sec:experiments}, §\ref{sec:limitations}): the operator's
+mIoU gain is statistically indistinguishable from a one-line containment snap;
+it is neutral on RefCOCOg and RefCOCO$+$, where spatial expressions are 3--36$\times$
+rarer; an MLLM chooser baseline was not run and is disclosed as the largest
+open flank.
+\end{itemize}
+
+We deliberately report the boundary of the repair rather than tuning it away.
+The diagnostic is the durable contribution; the operator is what the diagnostic
+buys on the benchmark where spatial reference is common, and RefCOCO+ ---
+collected with location words excluded --- is used as a \emph{pre-registered}
+test of that reading.

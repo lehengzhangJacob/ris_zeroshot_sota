@@ -1,0 +1,17 @@
+{
+  "unique_pairs": 487,
+  "pairs_with_detections": 486,
+  "gdino_top1_box_iou_mean": 0.7045550816649517,
+  "gdino_oracle_box_iou_mean": 0.8419074113025529,
+  "gdino_top1_hit50_pct": 71.60493827160494,
+  "gdino_oracle_hit50_pct": 86.21399176954732,
+  "multi_detection_share": 0.565843621399177,
+  "llava_reference": {
+    "box_iou_mean": 0.58,
+    "hit50_pct": 63.5
+  },
+  "required_box_iou_for_gIoU": "~0.73-0.88 depending on mask source (exp102/103 interpolation)",
+  "generated": "exp106_gdino_terms.py",
+  "rule_m_with_gdino_boxes": 0.5860590622885626,
+  "rule_m_rows": 262
+}

@@ -1,0 +1,13 @@
+{
+  "bxi": 0.4161,
+  "score": 0.4069,
+  "sxi": 0.5187,
+  "inb50": 0.4414,
+  "inb30": 0.4441,
+  "bxi50": 0.4161,
+  "shipped": 0.4819,
+  "_refs": {
+    "gt_box_bboxIoU_ceiling_same_rows": 0.7639,
+    "deployed_nounbox_bxi": 0.4161
+  }
+}

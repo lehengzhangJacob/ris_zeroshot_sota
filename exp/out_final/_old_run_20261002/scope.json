@@ -1,0 +1,28 @@
+{
+  "refcoco": {
+    "n": 10834,
+    "spatial_frac": 0.574118515783644,
+    "horizontal_frac": 0.43834225586117775,
+    "oracle_in_released_top3": 0.6390068303489016,
+    "oracle_in_cat_top8": 0.8466863577625993,
+    "spatial_oracle_in_top3": 0.5363344051446945,
+    "wrong_instance_frac": 0.3301642975816873,
+    "wrong_instance_gap_share": 0.7552225587409594,
+    "released_mIoU": 0.4482477756342483,
+    "oracle_mIoU": 0.8221128030361983,
+    "top3_ceiling_mIoU": 0.5811514548872324
+  },
+  "refcocog": {
+    "n": 4896,
+    "spatial_frac": 0.17708333333333334,
+    "horizontal_frac": 0.11499183006535947,
+    "oracle_in_released_top3": 0.7759395424836601,
+    "oracle_in_cat_top8": 0.897671568627451,
+    "spatial_oracle_in_top3": 0.6908881199538639,
+    "wrong_instance_frac": 0.2681781045751634,
+    "wrong_instance_gap_share": 0.7801999214223819,
+    "released_mIoU": 0.5008164029030416,
+    "oracle_mIoU": 0.7912057892897426,
+    "top3_ceiling_mIoU": 0.6666960555970147
+  }
+}

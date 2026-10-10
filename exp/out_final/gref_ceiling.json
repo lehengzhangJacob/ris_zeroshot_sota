@@ -1,0 +1,102 @@
+{
+  "n_records": 14220,
+  "n_no_target": 8896,
+  "separability": {
+    "sc": {
+      "auc_targeted_vs_not": 0.7337277341913097,
+      "oracle_threshold": {
+        "threshold": 27.887222290039062,
+        "n_acc": 0.14422212230215828,
+        "t_acc": 0.9800901577761082
+      }
+    },
+    "sc_strip": {
+      "auc_targeted_vs_not": 0.6724124738526234,
+      "oracle_threshold": {
+        "threshold": 24.684890747070312,
+        "n_acc": 0.051258992805755396,
+        "t_acc": 0.9800901577761082
+      }
+    },
+    "sc_noun": {
+      "auc_targeted_vs_not": 0.6895760392062008,
+      "oracle_threshold": {
+        "threshold": 27.468564987182617,
+        "n_acc": 0.14422212230215828,
+        "t_acc": 0.9800901577761082
+      }
+    },
+    "sc_content": {
+      "auc_targeted_vs_not": 0.6604093626864098,
+      "oracle_threshold": {
+        "threshold": 23.472660064697266,
+        "n_acc": 0.035184352517985615,
+        "t_acc": 0.9800901577761082
+      }
+    },
+    "gem": {
+      "auc_targeted_vs_not": 0.6676335467125923,
+      "oracle_threshold": {
+        "threshold": -1.5312129259109497,
+        "n_acc": 0.062387589928057555,
+        "t_acc": 0.9800901577761082
+      }
+    },
+    "gem_top1": {
+      "auc_targeted_vs_not": 0.6676335467125923,
+      "oracle_threshold": {
+        "threshold": -1.5312129259109497,
+        "n_acc": 0.062387589928057555,
+        "t_acc": 0.9800901577761082
+      }
+    }
+  },
+  "logistic_bound": {
+    "auc": 0.7674144610870282,
+    "oracle_threshold": {
+      "threshold": 0.10893733705143839,
+      "n_acc": 0.1750224820143885,
+      "t_acc": 0.9800901577761082
+    }
+  },
+  "oracle": {
+    "n_sampled": 400,
+    "mean_set_iou": 0.8774636468292971,
+    "ci": [
+      0.8667042439593052,
+      0.887612304286019
+    ],
+    "mean_chosen_masks": 4.895,
+    "frac_iou_ge_0_5": 0.9875,
+    "frac_iou_ge_0_7": 0.9525,
+    "ideal_gIoU_perfect_abstention": 95.41221136230082,
+    "ideal_cIoU_perfect_abstention": 88.63797338377634,
+    "scaling": {
+      "scale": 13.31,
+      "mean_U_toward_cumulative": 68016.035
+    },
+    "n_acc_sensitivity": {
+      "n_acc=0.5": {
+        "cIoU": 48.291912637661206,
+        "gIoU": 64.1323238798817
+      },
+      "n_acc=0.7": {
+        "cIoU": 59.041708824845514,
+        "gIoU": 76.64427887284936
+      },
+      "n_acc=0.8": {
+        "cIoU": 66.4360528065133,
+        "gIoU": 82.90025636933318
+      },
+      "n_acc=0.9": {
+        "cIoU": 75.94769059727457,
+        "gIoU": 89.156233865817
+      },
+      "n_acc=1.0": {
+        "cIoU": 88.63797338377634,
+        "gIoU": 95.41221136230082
+      }
+    }
+  },
+  "generated": "exp31_gref_ceiling.py"
+}

@@ -1,0 +1,75 @@
+{
+  "p_inc": 0.77606891764233,
+  "p_abs": 0.3395872474890961,
+  "rules": {
+    "shipped_single_probe": {
+      "train": {
+        "n": 1398,
+        "N_acc": 91.48,
+        "T_acc": 86.6,
+        "cIoU": 55.35,
+        "gIoU": 69.57,
+        "S_U": 10358471.0,
+        "FP_U": 360333.0,
+        "FP_U_over_S_U": 0.0348,
+        "r_delivered": 0.5728,
+        "r_required_for_floor": 0.6914,
+        "r_multiple_needed": 1.21,
+        "m_delivered": 64.41,
+        "m_required_for_floor": 52.77,
+        "targeted_predicted": 743
+      },
+      "val": {
+        "n": 14220,
+        "N_acc": 86.3,
+        "T_acc": 79.15,
+        "cIoU": 41.75,
+        "gIoU": 68.37,
+        "S_U": 77971289.0,
+        "FP_U": 9812851.0,
+        "FP_U_over_S_U": 0.1259,
+        "r_delivered": 0.47,
+        "r_required_for_floor": 0.7013,
+        "r_multiple_needed": 1.49,
+        "m_delivered": 48.54,
+        "m_required_for_floor": 68.68,
+        "targeted_predicted": 4214
+      }
+    },
+    "shipped_ensemble": {
+      "train": {
+        "n": 1398,
+        "N_acc": 94.44,
+        "T_acc": 84.73,
+        "cIoU": 55.88,
+        "gIoU": 70.0,
+        "S_U": 10191107.0,
+        "FP_U": 258311.0,
+        "FP_U_over_S_U": 0.0253,
+        "r_delivered": 0.5729,
+        "r_required_for_floor": 0.6904,
+        "r_multiple_needed": 1.2,
+        "m_delivered": 64.45,
+        "m_required_for_floor": 48.09,
+        "targeted_predicted": 727
+      },
+      "val": {
+        "n": 14220,
+        "N_acc": 89.11,
+        "T_acc": 77.22,
+        "cIoU": 42.55,
+        "gIoU": 69.77,
+        "S_U": 76175400.0,
+        "FP_U": 7873952.0,
+        "FP_U_over_S_U": 0.1034,
+        "r_delivered": 0.4695,
+        "r_required_for_floor": 0.6972,
+        "r_multiple_needed": 1.49,
+        "m_delivered": 48.52,
+        "m_required_for_floor": 64.32,
+        "targeted_predicted": 4111
+      }
+    }
+  },
+  "generated": "exp70_ensemble_aggregates.py"
+}

@@ -1,0 +1,16 @@
+\begin{tabular}{lcc}
+\toprule
+Method & cIoU & gIoU \\
+\midrule
+\multicolumn{3}{l}{\emph{Zero-shot / training-free class (our class); best published number = the floor}} \\
+PSALM (zero-shot) & 42.00 & 43.30 \\
+SELF1E-8B (zero-shot) & 44.40 & 37.50 \\
+Ours: joint boxes + SAM union + presence ensemble$^\dagger$ & 51.32 & 74.91 \\
+\midrule
+\multicolumn{3}{l}{\emph{Fully-supervised reference rows (trained on gRefCOCO train); never floors}} \\
+LAVT (supervised) & 57.64 & 58.40 \\
+ReLA (supervised) & 62.42 & 63.60 \\
+SAM4MLLM (supervised) & 67.83 & 71.86 \\
+InstAlign (supervised) & 68.94 & 74.34 \\
+\bottomrule
+\end{tabular}

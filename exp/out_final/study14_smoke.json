@@ -1,0 +1,26 @@
+{
+  "n_trials": 12,
+  "best_params": {
+    "src": "bs",
+    "alpha": 1.3177068983289741,
+    "beta": 1.0729632209834923,
+    "topk": 2,
+    "margin": 0.5420601600512416,
+    "cap": 0.5,
+    "pick_box": "d0",
+    "sam": "d0+d1"
+  },
+  "m_ge2": 0.6721864168396736,
+  "m_1term": 0.6664327911750294,
+  "mix": 0.6714672136315931,
+  "shipped_equiv": {
+    "m_ge2": 0.6432713458498777,
+    "m_1term": 0.6008944634265743,
+    "mix": 0.6379742355469646
+  },
+  "margin_vs_shipped": 0.03349297808462848,
+  "required_m": 0.6212,
+  "population": "262 val-matched >=2-term rows + 47 held-out 1-term rows, mixed at val prevalence 0.875/0.125",
+  "note": "val pass only if margin > 0.010 and mix > 0.6212",
+  "generated": "exp117_study_v2.py"
+}

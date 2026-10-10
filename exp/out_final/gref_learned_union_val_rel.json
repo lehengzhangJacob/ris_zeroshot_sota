@@ -1,0 +1,213 @@
+{
+  "experiment": "exp138_learned_union_selector",
+  "protocol": "part pool identical to the shipped rule plus the uncapped SAM masks; GBM fitted on 70% of the held-out TRAIN refs, threshold chosen on the remaining 30%, applied once to val",
+  "train_parts": 10350,
+  "held_out_rows": 423,
+  "tau_curve": [
+    {
+      "parameter": 0.0,
+      "cIoU": 47.087,
+      "gIoU": 69.3992,
+      "N_acc": 93.75,
+      "T_acc": 90.2834
+    },
+    {
+      "parameter": 0.05,
+      "cIoU": 47.0883,
+      "gIoU": 69.4003,
+      "N_acc": 93.75,
+      "T_acc": 90.2834
+    },
+    {
+      "parameter": 0.1,
+      "cIoU": 47.1487,
+      "gIoU": 69.4645,
+      "N_acc": 93.75,
+      "T_acc": 90.2834
+    },
+    {
+      "parameter": 0.15,
+      "cIoU": 47.1807,
+      "gIoU": 69.4709,
+      "N_acc": 93.75,
+      "T_acc": 90.2834
+    },
+    {
+      "parameter": 0.2,
+      "cIoU": 47.2436,
+      "gIoU": 69.5066,
+      "N_acc": 93.75,
+      "T_acc": 90.2834
+    },
+    {
+      "parameter": 0.25,
+      "cIoU": 47.2749,
+      "gIoU": 69.5339,
+      "N_acc": 93.75,
+      "T_acc": 90.2834
+    },
+    {
+      "parameter": 0.3,
+      "cIoU": 47.3064,
+      "gIoU": 69.5491,
+      "N_acc": 93.75,
+      "T_acc": 90.2834
+    },
+    {
+      "parameter": 0.35,
+      "cIoU": 47.8628,
+      "gIoU": 70.3567,
+      "N_acc": 93.75,
+      "T_acc": 90.2834
+    },
+    {
+      "parameter": 0.4,
+      "cIoU": 48.4076,
+      "gIoU": 70.8234,
+      "N_acc": 93.75,
+      "T_acc": 90.2834
+    },
+    {
+      "parameter": 0.45,
+      "cIoU": 48.6378,
+      "gIoU": 70.9981,
+      "N_acc": 93.75,
+      "T_acc": 90.2834
+    },
+    {
+      "parameter": 0.5,
+      "cIoU": 49.3448,
+      "gIoU": 71.5521,
+      "N_acc": 93.75,
+      "T_acc": 90.2834
+    },
+    {
+      "parameter": 0.55,
+      "cIoU": 49.598,
+      "gIoU": 71.5934,
+      "N_acc": 93.75,
+      "T_acc": 90.2834
+    },
+    {
+      "parameter": 0.6,
+      "cIoU": 50.5902,
+      "gIoU": 72.212,
+      "N_acc": 93.75,
+      "T_acc": 90.2834
+    },
+    {
+      "parameter": 0.65,
+      "cIoU": 51.4436,
+      "gIoU": 72.9266,
+      "N_acc": 93.75,
+      "T_acc": 90.2834
+    },
+    {
+      "parameter": 0.7,
+      "cIoU": 51.7656,
+      "gIoU": 73.3439,
+      "N_acc": 93.75,
+      "T_acc": 90.2834
+    },
+    {
+      "parameter": 0.75,
+      "cIoU": 52.3102,
+      "gIoU": 73.4855,
+      "N_acc": 93.75,
+      "T_acc": 90.2834
+    },
+    {
+      "parameter": 0.8,
+      "cIoU": 52.3564,
+      "gIoU": 73.2218,
+      "N_acc": 93.75,
+      "T_acc": 90.2834
+    },
+    {
+      "parameter": 0.85,
+      "cIoU": 53.21,
+      "gIoU": 73.5628,
+      "N_acc": 93.75,
+      "T_acc": 90.2834
+    },
+    {
+      "parameter": 0.9,
+      "cIoU": 53.9389,
+      "gIoU": 74.0228,
+      "N_acc": 93.75,
+      "T_acc": 90.2834
+    },
+    {
+      "parameter": 0.95,
+      "cIoU": 53.0234,
+      "gIoU": 73.8882,
+      "N_acc": 93.75,
+      "T_acc": 90.2834
+    },
+    {
+      "parameter": 1.0,
+      "cIoU": 50.8971,
+      "gIoU": 73.3641,
+      "N_acc": 93.75,
+      "T_acc": 90.2834
+    }
+  ],
+  "tau_selected": 0.9,
+  "policy": "rel",
+  "standardized": true,
+  "anchors_held_out": {
+    "shipped_inclusion": {
+      "cIoU": 47.0982,
+      "gIoU": 69.404,
+      "N_acc": 93.75,
+      "T_acc": 90.2834
+    },
+    "keep_all": {
+      "cIoU": 47.087,
+      "gIoU": 69.3992,
+      "N_acc": 93.75,
+      "T_acc": 90.2834
+    }
+  },
+  "held_out_at_tau": {
+    "cIoU": 53.9389,
+    "gIoU": 74.0228,
+    "N_acc": 93.75,
+    "T_acc": 90.2834
+  },
+  "feature_names": [
+    "is_pool",
+    "is_sam",
+    "area_frac",
+    "inbox_llava",
+    "inbox_det0",
+    "base_score",
+    "gem_score",
+    "pick_rank",
+    "det_index",
+    "sam_index",
+    "term_index",
+    "const"
+  ],
+  "model": "HistGradientBoostingRegressor(max_depth=3, max_iter=250, lr=0.08)",
+  "val_metrics": {
+    "n": 14229,
+    "cIoU": 41.6325,
+    "gIoU": 70.3477,
+    "N_acc": 86.1426,
+    "T_acc": 87.8475,
+    "TP": 7671,
+    "FN": 1234,
+    "TN": 4677,
+    "FP": 647,
+    "parts_kept": 12376,
+    "parts_total": 89705
+  },
+  "val_masses": {
+    "S_U": 64691558.0,
+    "I_tot": 44475525.0,
+    "G_U": 76667626.3515572,
+    "FP_U": 6875096.0,
+    "A_U": 10016077.791809946
+  }
+}

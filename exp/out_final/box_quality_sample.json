@@ -1,0 +1,62 @@
+{
+  "n_checked": 80,
+  "with_box": 79,
+  "none_answer": 1,
+  "coverage": 98.75,
+  "none_rate": 1.25,
+  "box_iou_mean": 53.47,
+  "box_iou_ge50": 68.35,
+  "box_selects_ge50": 62.03,
+  "miss_examples": [
+    {
+      "sent": "red shirt black jacket covering arms fully holding wiimote at face level",
+      "box": [
+        32,
+        41,
+        184,
+        249
+      ],
+      "best_iou": 0.0
+    },
+    {
+      "sent": "woman with hands by her head",
+      "box": [
+        40,
+        69,
+        184,
+        250
+      ],
+      "best_iou": 0.0
+    },
+    {
+      "sent": "tallest woman",
+      "box": [
+        77,
+        36,
+        184,
+        244
+      ],
+      "best_iou": 0.0
+    },
+    {
+      "sent": "black shirt man",
+      "box": [
+        35,
+        278,
+        109,
+        494
+      ],
+      "best_iou": 0.0
+    },
+    {
+      "sent": "man with glassees",
+      "box": [
+        36,
+        270,
+        109,
+        494
+      ],
+      "best_iou": 0.0
+    }
+  ]
+}

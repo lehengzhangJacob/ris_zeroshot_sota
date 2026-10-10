@@ -1,0 +1,44 @@
+{
+  "tag": "refcoco",
+  "n": 10834,
+  "box_coverage": 99.67694295735647,
+  "params": {
+    "dec_source": "sc_x_gem",
+    "k_dec": 15,
+    "mode": "iou",
+    "combine": "loc_only",
+    "loc_source": "llava",
+    "beta": 2.20722374350054,
+    "eps": 0.020794812033278407,
+    "gem_mix": 0.490569059596547,
+    "grow": false
+  },
+  "phrase_source": "sent",
+  "rows": {
+    "released": 44.8248,
+    "snap": 50.2356,
+    "ours": 68.5333,
+    "ctrl_no_box": 43.3257,
+    "orc_single": 82.2113
+  },
+  "oIoU": {
+    "released": 44.8248,
+    "snap": 50.2356,
+    "ours": 68.5333,
+    "ctrl_no_box": 43.3257
+  },
+  "mIoU": 68.5333,
+  "best_published": {
+    "mIoU": 58.42,
+    "oIoU": 50.85,
+    "rival": "GLOD-RIS (TCSVT 2026)"
+  },
+  "generated": "exp40_final_eval.py",
+  "shipped": {
+    "mIoU": 68.5333,
+    "best_published": {
+      "mIoU": 58.42,
+      "rival": "GLOD-RIS (TCSVT 2026)"
+    }
+  }
+}

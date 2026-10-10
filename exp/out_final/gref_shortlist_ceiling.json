@@ -1,0 +1,73 @@
+{
+  "measured_on": "held-out train targeted rows, deployable top-K by base score (oracle choice within the shortlist)",
+  "ladder": {
+    "K6": {
+      "best_single_cumulative": 0.6534,
+      "best_pair_cumulative": 0.725,
+      "best_triple_cumulative": 0.7099,
+      "best_quad_cumulative": 0.667
+    },
+    "K12": {
+      "best_single_cumulative": 0.6775,
+      "best_pair_cumulative": 0.7815,
+      "best_triple_cumulative": 0.7879,
+      "best_quad_cumulative": 0.7724
+    },
+    "K24": {
+      "best_single_cumulative": 0.6877,
+      "best_pair_cumulative": 0.7815,
+      "best_triple_cumulative": 0.7879,
+      "best_quad_cumulative": 0.7724
+    },
+    "K50": {
+      "best_single_cumulative": 0.6951,
+      "best_pair_cumulative": 0.7815,
+      "best_triple_cumulative": 0.7879,
+      "best_quad_cumulative": 0.7724
+    },
+    "Kfull": {
+      "best_single_cumulative": 0.6957,
+      "best_pair_cumulative": 0.7815,
+      "best_triple_cumulative": 0.7879,
+      "best_quad_cumulative": 0.7724
+    }
+  },
+  "oracle_ranked_reference": {
+    "best_single": 0.6957,
+    "best_pair": 0.825,
+    "note": "exp77, top-12 by GT IoU (non-deployable)"
+  },
+  "interpretation": "model change 10 (compositional greedy unions over wider shortlists) is NOT pursued: measured headroom exists only at the very top of the range and the realization demanded (97% of oracle) is 30+ points beyond anything a frozen selector delivered in ten model changes",
+  "generated": "exp81_shortlist_ceiling.py",
+  "ladder_annotated": {
+    "K6_full_exhaustive": {
+      "single": 0.6534,
+      "pair": 0.725,
+      "triple": 0.7099,
+      "quad": 0.667,
+      "note": "exhaustive over the whole K=6 shortlist; unions beyond pairs HURT"
+    },
+    "K12_exhaustive_pairs": {
+      "pair": 0.7992,
+      "note": "first run, all C(12,2) pairs"
+    },
+    "top10_exhaustive_all": {
+      "single": 0.6775,
+      "pair": 0.7815,
+      "triple": 0.7879,
+      "quad": 0.7724,
+      "note": "second run; the union search was capped at top-10 (so K>=12 rows repeat these values - a search cap, not a measurement)"
+    },
+    "oracle_ranked_top12": {
+      "single": 0.6957,
+      "pair": 0.825,
+      "note": "exp77 (non-deployable ranking)"
+    },
+    "full_pool_exhaustive_pairs": 0.8362,
+    "full_pool_greedy_subset": 0.8723
+  },
+  "ciou_requirement_context": {
+    "r_required_for_floor": 0.8473,
+    "note": "the requirement EXCEEDS the full-pool best-PAIR oracle (0.8362) and sits just below the full-pool greedy-subset oracle (0.8723): reaching cIoU needs both near-full-pool candidate reach (beyond the K=6/12 shortlists) and >97% oracle realization from a deployable selector - deployable realizations measured in this run top out at 62% (pair/K6) and 69% (perfect-box, same-k)"
+  }
+}

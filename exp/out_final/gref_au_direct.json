@@ -1,0 +1,18 @@
+{
+  "measured_on": "full val (14220), shipped ensemble rule, exp62 selector",
+  "S_U": 76175400.0,
+  "FP_U": 7873952.0,
+  "A_U": 18297623.305000544,
+  "I_tot": 35762011.0,
+  "G_U": 68322449.0,
+  "P_sum": 43614962.0,
+  "targeted_abstained": 1213,
+  "cIoU_from_masses": 34.941932473751095,
+  "official_cIoU": 34.9419,
+  "r_delivered": 0.4694692906108796,
+  "oracle_cap_bound_pct": 66.04908470881696,
+  "dilution_X_max_for_oracle_floor": 21833863.35701504,
+  "dilution_cut_needed_pct": 16.574133950418744,
+  "note": "A_U measured directly (sum of the exp62 abstained-targeted gt_area), not recovered from cIoU; the identity cIoU = I_tot/(S_U+FP_U+A_U) is now a genuine cross-check against the official 34.9419. G_U = GT union mass over the PREDICTED-targeted partition (the ceiling on any selector's intersection there); oracle_cap_bound uses the reviewer-prompted bound cIoU_orc <= G_U/(G_U/0.8842 + X), not the earlier (incorrect) r_orc*S_U/(S_U+X) which exceeded the available GT mass",
+  "generated": "exp76_measure_au.py"
+}

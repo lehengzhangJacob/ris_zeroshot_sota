@@ -1,0 +1,19 @@
+{
+  "n_trials": 300,
+  "best_params": {
+    "kind": "logreg",
+    "topk": 2,
+    "margin": 0.8153109295029856,
+    "C": 0.001072678194796712
+  },
+  "calib_r": 0.5506152968920044,
+  "shipped_calib_r": 0.42679335650830436,
+  "margin": 0.12382194038370004,
+  "proj_cIoU": 47.41196612414335,
+  "shipped_fit_r": 0.4242252943702091,
+  "n_fit": 193,
+  "n_calib": 69,
+  "population": "291 val-matched multi-target held-out train rows",
+  "note": "obj: min(proj_cIoU/68.94, 69.63/74.34); proj_cIoU anchors on the shipped 36.75 scaled by calib r ratio; val pass only if margin > 0.01 absolute calib r",
+  "generated": "exp87_termbox_study.py"
+}

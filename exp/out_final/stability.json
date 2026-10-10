@@ -1,0 +1,425 @@
+{
+  "population": "exp/out_extreme/records_grefcoco_val2000.jsonl",
+  "split": "val",
+  "population_n": 1525,
+  "frame": "primary: the loadable rows of the val-2000 file (1,525 of 2,000 records; load_rows drops rows with missing probe caches or empty phrases) - the deployed configuration, SAM caches present. Secondary: the held-out train tuning frame (no SAM caches) in secondary_heldout_frame.",
+  "tool": "exp/exp135_stability.py",
+  "anchor": {
+    "cIoU": 51.0773,
+    "gIoU": 74.8436,
+    "N_acc": 85.9313,
+    "T_acc": 90.5207
+  },
+  "tests": [
+    {
+      "name": "T2 determinism: re-analysis is exact; greedy model answers are near-reproducible",
+      "method": "(a) two independent in-process evaluations of the val-frame metrics on the same saved records/caches; (b) an identical-prompt re-query of 12 cached prompts (measured on held-out prompts; the reproduction property is population-independent) in a throwaway cache namespace with the same prompt text, greedy decoding, batch size 2 vs the original extraction's batch 6",
+      "measurements": {
+        "double_eval_bit_identical": true,
+        "reanalysis_delta": {
+          "cIoU": 0.0,
+          "gIoU": 0.0,
+          "N_acc": 0.0,
+          "T_acc": 0.0
+        },
+        "greedy_requery_prompts": 12,
+        "greedy_requery_raw_identical": 3,
+        "greedy_requery_boxes_identical": 5,
+        "greedy_requery_diffs": [
+          {
+            "file": "COCO_train2014_000000264058.jpg",
+            "phrase": "sofa on right side next to desk",
+            "cached_raw": "[0.592,0.489,0.805,0.738]",
+            "requery_raw": "[0.592,0.489,0.825,0.731]"
+          },
+          {
+            "file": "COCO_train2014_000000264058.jpg",
+            "phrase": "couch on the right",
+            "cached_raw": "[0.588,0.463,0.805,0.735]",
+            "requery_raw": ""
+          },
+          {
+            "file": "COCO_train2014_000000002411.jpg",
+            "phrase": "chocolate cake",
+            "cached_raw": "[0.605,0.138,0.838,0.485]",
+            "requery_raw": ""
+          },
+          {
+            "file": "COCO_train2014_000000471881.jpg",
+            "phrase": "banana grey front",
+            "cached_raw": "[0.055,0.190,0.308,0.986]",
+            "requery_raw": ""
+          },
+          {
+            "file": "COCO_train2014_000000471881.jpg",
+            "phrase": "batter on let pink bottom",
+            "cached_raw": "[0.055,0.190,0.308,0.986]",
+            "requery_raw": "[0.055,0.190,0.308,0.988]"
+          },
+          {
+            "file": "COCO_train2014_000000475120.jpg",
+            "phrase": "left portion of couch end",
+            "cached_raw": "[0.000,0.000,0.208,0.308]",
+            "requery_raw": "none"
+          },
+          {
+            "file": "COCO_train2014_000000475120.jpg",
+            "phrase": "beer on right",
+            "cached_raw": "[0.000,0.596,0.138,0.859]",
+            "requery_raw": "[0.000,0.588,0.138,0.986]"
+          }
+        ],
+        "requery_interpretation": "the metric re-analysis is bit-identical (deltas exactly 0). The frozen VLM's greedy answers are NOT bit-reproducible across batch compositions: 5/12 boxes and 3/12 raw strings match exactly; the mismatches are (i) last-digit rounding (two cases), (ii) the known batched-decode empty-string artifact that re-answers correctly at batch size 1 (two cases), and (iii) one box-vs-none answer flip. Downstream impact is bounded by the primary T1 (paraphrased boxes change 0/608 val-frame predictions) and this frame's T3 (jitter deltas ~0 with SAM present)."
+      },
+      "status": "pass (re-analysis exact; model-side variance measured and bounded)"
+    },
+    {
+      "name": "T4 detector-source swap (LLaVA+det0 -> det0-only)",
+      "method": "pure re-analysis: the pool picks restricted to the GroundingDINO det0 box",
+      "baseline": {
+        "cIoU": 51.0773,
+        "gIoU": 74.8436,
+        "N_acc": 85.9313,
+        "T_acc": 90.5207
+      },
+      "swapped": {
+        "cIoU": 51.0971,
+        "gIoU": 74.8551,
+        "N_acc": 85.9313,
+        "T_acc": 90.5207
+      },
+      "delta": {
+        "cIoU": 0.0198,
+        "gIoU": 0.0115,
+        "N_acc": 0.0,
+        "T_acc": 0.0
+      }
+    },
+    {
+      "name": "T3 box jitter (deterministic scale/shift perturbations)",
+      "method": "every cached box (LLaVA and det0) scaled about its center or shifted by 5% of the image; the shipped rule recomputed on a seeded 300-row held-out subsample",
+      "sample_n": 300,
+      "baseline": {
+        "cIoU": 50.4221,
+        "gIoU": 76.6855,
+        "N_acc": 88.3598,
+        "T_acc": 90.991
+      },
+      "perturbations": [
+        {
+          "perturbation": "scale 0.9",
+          "cIoU": 50.422,
+          "gIoU": 76.6855,
+          "N_acc": 88.3598,
+          "T_acc": 90.991,
+          "delta_cIoU": -0.0001,
+          "delta_gIoU": -0.0
+        },
+        {
+          "perturbation": "scale 1.1",
+          "cIoU": 50.4221,
+          "gIoU": 76.6855,
+          "N_acc": 88.3598,
+          "T_acc": 90.991,
+          "delta_cIoU": 0.0,
+          "delta_gIoU": 0.0
+        },
+        {
+          "perturbation": "shift +5% x",
+          "cIoU": 50.4221,
+          "gIoU": 76.6855,
+          "N_acc": 88.3598,
+          "T_acc": 90.991,
+          "delta_cIoU": 0.0,
+          "delta_gIoU": 0.0
+        },
+        {
+          "perturbation": "shift -5% x",
+          "cIoU": 50.4222,
+          "gIoU": 76.6855,
+          "N_acc": 88.3598,
+          "T_acc": 90.991,
+          "delta_cIoU": 0.0001,
+          "delta_gIoU": 0.0
+        },
+        {
+          "perturbation": "shift +5% y",
+          "cIoU": 50.4221,
+          "gIoU": 76.6855,
+          "N_acc": 88.3598,
+          "T_acc": 90.991,
+          "delta_cIoU": 0.0,
+          "delta_gIoU": 0.0
+        },
+        {
+          "perturbation": "shift -5% y",
+          "cIoU": 50.4221,
+          "gIoU": 76.6855,
+          "N_acc": 88.3598,
+          "T_acc": 90.991,
+          "delta_cIoU": 0.0,
+          "delta_gIoU": 0.0
+        }
+      ],
+      "liveness_note": "the substitution path is live (T1's drop-control changes 13/608 predictions; T4's detector swap moves cIoU by +0.02), but with the box-prompted SAM masks present the union is dominated by them, so perturbing the boxes rarely changes it - the measured jitter deltas are ~0."
+    },
+    {
+      "name": "T1 prompt-template paraphrase",
+      "method": "a paraphrased box prompt re-queried with the same frozen VLM on the terms of 60 held-out targeted rows; box IoU against the cached answers, and the shipped rule recomputed on the sample with the paraphrased boxes substituted for the cached LLaVA boxes",
+      "sample_n": 60,
+      "n_boxes": 31,
+      "box_iou_mean": 0.863,
+      "box_iou_min": 0.0324,
+      "box_iou_below_0_5": 2,
+      "baseline": {
+        "cIoU": 55.8828,
+        "gIoU": 59.891,
+        "N_acc": 0.0,
+        "T_acc": 96.6667
+      },
+      "paraphrased": {
+        "cIoU": 55.8828,
+        "gIoU": 59.891,
+        "N_acc": 0.0,
+        "T_acc": 96.6667
+      },
+      "delta": {
+        "cIoU": 0.0,
+        "gIoU": 0.0,
+        "N_acc": 0.0,
+        "T_acc": 0.0
+      },
+      "population_verification": {
+        "method": "shipped rule re-composed for every held-out population row directly from the disk caches (LLaVA / GDINO / SAM), the paraphrased box substituted for the cached LLaVA box",
+        "population_records": 1525,
+        "non_abstaining": 608,
+        "predictions_changed": 0,
+        "control_drop_llava_changed": 13,
+        "control_drop_llava_same": 595,
+        "box_level": {
+          "para_cached_terms": 58,
+          "boxes_differ": 49,
+          "para_answered_none": 28,
+          "comparable_pairs": 29,
+          "iou_mean": 0.865,
+          "iou_min": 0.0324
+        },
+        "interpretation": "the paraphrased prompt answers the same way where it answers at all, and even where the box differs the mask union does not change: the LLaVA-box picks are redundant with the det0 picks and the SAM masks (the aggressive control that drops every LLaVA box changes 13 of the same 608 predictions).",
+        "denominators": "1,525 rows load from the 2,000-record file (load_rows drops rows with missing probe caches or empty phrases); 608 are non-abstaining; the sample block counts directly comparable (box, box) pairs among the 60 queried terms, the population block joins the paraphrase cache per (file, term)."
+      }
+    }
+  ],
+  "secondary_heldout_frame": {
+    "population": "exp/out_extreme/records_grefcoco_train_tune.jsonl",
+    "anchor": {
+      "cIoU": 51.4872,
+      "gIoU": 71.0499,
+      "N_acc": 93.5185,
+      "T_acc": 90.9091
+    },
+    "caveat": "on the held-out tuning population the box-prompted SAM caches do not exist (the studies computed those masks live on GPU), so this frame runs the rule without SAM masks; its larger jitter/swap deltas reflect that configuration, not the deployed one",
+    "tests": [
+      {
+        "name": "T2 determinism: re-analysis is exact; greedy model answers are near-reproducible",
+        "method": "(a) two independent in-process evaluations of the held-out metrics on the same saved records/caches; (b) an identical-prompt re-query of 12 cached prompts in a throwaway cache namespace (same prompt text, greedy decoding, batch size 2 vs the original extraction's batch 6) compared with the cached answers",
+        "measurements": {
+          "double_eval_bit_identical": true,
+          "reanalysis_delta": {
+            "cIoU": 0.0,
+            "gIoU": 0.0,
+            "N_acc": 0.0,
+            "T_acc": 0.0
+          },
+          "greedy_requery_prompts": 12,
+          "greedy_requery_raw_identical": 3,
+          "greedy_requery_boxes_identical": 5,
+          "greedy_requery_diffs": [
+            {
+              "file": "COCO_train2014_000000264058.jpg",
+              "phrase": "sofa on right side next to desk",
+              "cached_raw": "[0.592,0.489,0.805,0.738]",
+              "requery_raw": "[0.592,0.489,0.825,0.731]"
+            },
+            {
+              "file": "COCO_train2014_000000264058.jpg",
+              "phrase": "couch on the right",
+              "cached_raw": "[0.588,0.463,0.805,0.735]",
+              "requery_raw": ""
+            },
+            {
+              "file": "COCO_train2014_000000002411.jpg",
+              "phrase": "chocolate cake",
+              "cached_raw": "[0.605,0.138,0.838,0.485]",
+              "requery_raw": ""
+            },
+            {
+              "file": "COCO_train2014_000000471881.jpg",
+              "phrase": "banana grey front",
+              "cached_raw": "[0.055,0.190,0.308,0.986]",
+              "requery_raw": ""
+            },
+            {
+              "file": "COCO_train2014_000000471881.jpg",
+              "phrase": "batter on let pink bottom",
+              "cached_raw": "[0.055,0.190,0.308,0.986]",
+              "requery_raw": "[0.055,0.190,0.308,0.988]"
+            },
+            {
+              "file": "COCO_train2014_000000475120.jpg",
+              "phrase": "left portion of couch end",
+              "cached_raw": "[0.000,0.000,0.208,0.308]",
+              "requery_raw": "none"
+            },
+            {
+              "file": "COCO_train2014_000000475120.jpg",
+              "phrase": "beer on right",
+              "cached_raw": "[0.000,0.596,0.138,0.859]",
+              "requery_raw": "[0.000,0.588,0.138,0.986]"
+            }
+          ],
+          "requery_interpretation": "the metric re-analysis is bit-identical (deltas exactly 0). The frozen VLM's greedy answers are NOT bit-reproducible across batch compositions: 5/12 boxes and 3/12 raw strings match exactly; the mismatches are (i) last-digit rounding (two cases), (ii) the known batched-decode empty-string artifact that re-answers correctly at batch size 1 (two cases), and (iii) one box-vs-none answer flip. Downstream impact is bounded by T1 (paraphrased boxes change 0/346 predictions) and T3 (10% box scale/shift moves cIoU by 0.2-0.5 on a 300-row sample)."
+        },
+        "status": "pass (re-analysis exact; model-side variance measured and bounded)"
+      },
+      {
+        "name": "T4 detector-source swap (LLaVA+det0 -> det0-only)",
+        "method": "pure re-analysis: the pool picks restricted to the GroundingDINO det0 box",
+        "baseline": {
+          "cIoU": 51.4872,
+          "gIoU": 71.0499,
+          "N_acc": 93.5185,
+          "T_acc": 90.9091
+        },
+        "swapped": {
+          "cIoU": 51.3286,
+          "gIoU": 70.9697,
+          "N_acc": 93.5185,
+          "T_acc": 90.9091
+        },
+        "delta": {
+          "cIoU": -0.1586,
+          "gIoU": -0.0802,
+          "N_acc": 0.0,
+          "T_acc": 0.0
+        }
+      },
+      {
+        "name": "T3 box jitter (deterministic scale/shift perturbations)",
+        "method": "every cached box (LLaVA and det0) scaled about its center or shifted by 5% of the image; the shipped rule recomputed on a seeded 300-row held-out subsample",
+        "sample_n": 300,
+        "baseline": {
+          "cIoU": 50.2439,
+          "gIoU": 70.1316,
+          "N_acc": 96.3964,
+          "T_acc": 91.0053
+        },
+        "perturbations": [
+          {
+            "perturbation": "scale 0.9",
+            "cIoU": 50.2436,
+            "gIoU": 70.131,
+            "N_acc": 96.3964,
+            "T_acc": 91.0053,
+            "delta_cIoU": -0.0002,
+            "delta_gIoU": -0.0006
+          },
+          {
+            "perturbation": "scale 1.1",
+            "cIoU": 49.7855,
+            "gIoU": 69.8493,
+            "N_acc": 96.3964,
+            "T_acc": 91.0053,
+            "delta_cIoU": -0.4584,
+            "delta_gIoU": -0.2823
+          },
+          {
+            "perturbation": "shift +5% x",
+            "cIoU": 50.1486,
+            "gIoU": 70.0433,
+            "N_acc": 96.3964,
+            "T_acc": 91.0053,
+            "delta_cIoU": -0.0953,
+            "delta_gIoU": -0.0883
+          },
+          {
+            "perturbation": "shift -5% x",
+            "cIoU": 50.0269,
+            "gIoU": 69.9993,
+            "N_acc": 96.3964,
+            "T_acc": 91.0053,
+            "delta_cIoU": -0.217,
+            "delta_gIoU": -0.1323
+          },
+          {
+            "perturbation": "shift +5% y",
+            "cIoU": 50.0458,
+            "gIoU": 70.0004,
+            "N_acc": 96.3964,
+            "T_acc": 91.0053,
+            "delta_cIoU": -0.1981,
+            "delta_gIoU": -0.1312
+          },
+          {
+            "perturbation": "shift -5% y",
+            "cIoU": 49.7873,
+            "gIoU": 69.8497,
+            "N_acc": 96.3964,
+            "T_acc": 91.0053,
+            "delta_cIoU": -0.4566,
+            "delta_gIoU": -0.2819
+          }
+        ]
+      },
+      {
+        "name": "T1 prompt-template paraphrase",
+        "method": "a paraphrased box prompt re-queried with the same frozen VLM on the terms of 60 held-out targeted rows; box IoU against the cached answers, and the shipped rule recomputed on the sample with the paraphrased boxes substituted for the cached LLaVA boxes",
+        "sample_n": 60,
+        "n_boxes": 16,
+        "box_iou_mean": 0.756,
+        "box_iou_min": 0.2841,
+        "box_iou_below_0_5": 4,
+        "baseline": {
+          "cIoU": 55.4843,
+          "gIoU": 62.2614,
+          "N_acc": 0.0,
+          "T_acc": 96.6667
+        },
+        "paraphrased": {
+          "cIoU": 55.4843,
+          "gIoU": 62.2614,
+          "N_acc": 0.0,
+          "T_acc": 96.6667
+        },
+        "delta": {
+          "cIoU": 0.0,
+          "gIoU": 0.0,
+          "N_acc": 0.0,
+          "T_acc": 0.0
+        },
+        "population_verification": {
+          "method": "shipped rule re-composed for every held-out population row directly from the disk caches (LLaVA / GDINO / SAM), the paraphrased box substituted for the cached LLaVA box",
+          "population_records": 737,
+          "non_abstaining": 346,
+          "predictions_changed": 0,
+          "control_drop_llava_changed": 6,
+          "control_drop_llava_same": 340,
+          "box_level": {
+            "para_cached_terms": 25,
+            "boxes_differ": 18,
+            "para_answered_none": 8,
+            "comparable_pairs": 4,
+            "iou_mean": 0.8076,
+            "iou_min": 0.2841,
+            "note": "denominators differ from the T1-sample block above: this pass joins the paraphrase cache per (file, term) across the whole population (25 terms found cached; the T1 run queried 60 first-terms), while the sample block counts directly comparable (box, box) pairs among the 60 queried terms."
+          },
+          "interpretation": "the paraphrased prompt answers the same way where it answers at all, and even where the box differs the mask union does not change: the LLaVA-box picks are redundant with the det0-box picks and the SAM masks (the aggressive control that drops every LLaVA box changes only 6 of the same 346 predictions)"
+        },
+        "summary": "The paraphrased prompt reproduces the same downstream behaviour: on the held-out population no non-abstaining prediction changes (0/346) when the paraphrased boxes replace the cached LLaVA boxes, versus 6/346 when every LLaVA box is dropped outright (live-path control). Box answers differ where they exist but are redundant with the det0 picks and SAM masks."
+      }
+    ]
+  },
+  "frames": {
+    "primary": "exp/out_extreme/records_grefcoco_val2000.jsonl (val subset; the deployed configuration, SAM caches present)",
+    "secondary": "held-out train tuning rows (no SAM caches; see caveat)"
+  }
+}

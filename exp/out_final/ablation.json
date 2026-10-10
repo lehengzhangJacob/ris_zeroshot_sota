@@ -1,0 +1,60 @@
+{
+  "rows": [
+    {
+      "name": "released HybridGL pipeline",
+      "evidence": "exp/out_final/evidence/ablation_val_rows.json",
+      "mIoU": {
+        "refcoco": 44.8248,
+        "refcocoplus": 40.2289,
+        "refcocog": 50.0816
+      }
+    },
+    {
+      "name": "+ containment growth",
+      "evidence": "exp/out_final/evidence/ablation_val_rows.json",
+      "mIoU": {
+        "refcoco": 50.2356,
+        "refcocoplus": 45.9078,
+        "refcocog": 50.9221
+      }
+    },
+    {
+      "name": "+ dense VLM box prior (shipped)",
+      "evidence": "exp/out_final/evidence/ablation_val_rows.json",
+      "mIoU": {
+        "refcoco": 68.5333,
+        "refcocoplus": 64.6669,
+        "refcocog": 65.1175
+      }
+    },
+    {
+      "name": "box prior removed (control)",
+      "evidence": "exp/out_final/evidence/ablation_val_rows.json",
+      "mIoU": {
+        "refcoco": 43.3257,
+        "refcocoplus": 37.8478,
+        "refcocog": 47.5072
+      }
+    },
+    {
+      "name": "box prompt: noun phrase (held-out tuning split)",
+      "evidence": "exp/out_final/evidence/ablation_study_noun.json",
+      "tuning_mIoU": {
+        "refcoco": 55.52533843228709,
+        "refcoco+": 50.12047489522696,
+        "refcocog": 50.14284396313313
+      },
+      "n_trials": 300
+    },
+    {
+      "name": "box prompt: full sentence (held-out tuning split)",
+      "evidence": "exp/out_final/evidence/ablation_study_sent.json",
+      "tuning_mIoU": {
+        "refcoco": 68.89889786048583,
+        "refcoco+": 60.73684241590644,
+        "refcocog": 61.68131503087638
+      },
+      "n_trials": 300
+    }
+  ]
+}

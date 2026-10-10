@@ -1,0 +1,20 @@
+{
+  "measured_on": "full val (14220), SHIPPED pair/union selector (exp79)",
+  "S_U": 89516167.0,
+  "FP_U": 10486685.0,
+  "A_U": 10016077.79180994,
+  "I_tot": 40426805.0,
+  "G_U": 76596855.0,
+  "P_sum": 53346117.0,
+  "r_delivered": 0.4516145670088845,
+  "cIoU_from_masses": 36.74531744355276,
+  "official_cIoU": 36.75,
+  "m_delivered": 0.47788763306443166,
+  "targeted_predicted": 4677,
+  "oracle_cap_bound_pct": 71.49818393027691,
+  "r_required_for_floor": 0.8473000212182207,
+  "dilution_cut_needed_pct": -19.389384714836112,
+  "m_required_for_floor": 0.6211562967714347,
+  "note": "operating point from exp79's frozen rule (N_acc 0.862, T_acc 0.878 as recorded there); masses accumulated with the same exp62 gt_area convention as exp76",
+  "generated": "exp80_pair_masses.py"
+}

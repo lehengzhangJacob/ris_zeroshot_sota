@@ -1,0 +1,1218 @@
+                        This article has been accepted for publication in IEEE Transactions on Circuits and Systems for Video Technology. This is the author's version which has not been fully edited and
+                                                  content may change prior to final publication. Citation information: DOI 10.1109/TCSVT.2026.3735214
+
+                                                        IEEE TRANSACTIONS ON CIRCUITS AND SYSTEMS FOR VIDEO TECHNOLOGY
+
+
+
+GLOD-RIS: Zero-Shot Referring Image Segmentation with Gaussian
+                                       Localization and Orthogonal Decoupling
+                            Jingjun Wu, Huicheng Zheng, Yun Lan, Zehua Liu, Jiawen Fang, Jisheng Dang
+
+
+
+   Abstract—Zero-shot referring image segmentation (RIS) aims
+to segment a target specified by a referring expression without
+pixel-level supervision. Recent approaches typically leverage pre-
+trained vision-language models for region-text alignment. How-
+ever, models such as CLIP are generally trained for global image-
+text alignment, causing region-level features to be dominated
+by global context and thus reducing feature discriminability.
+Moreover, current approaches for modeling referential spatial
+localization struggle to capture the flexibility and diversity
+of natural language, limiting precise target localization and
+hindering fine-grained image-text alignment. To address these
+issues, we propose GLOD-RIS, a novel zero-shot RIS framework
+consisting of a dynamic orthogonal decoupling (DOD) module
+and a grid-guided Gaussian localization (G3 L) module. DOD
+enhances feature discriminability by decoupling region-specific
+representations from global context via orthogonal projection.
+G3 L module introduces a grid-based visual prompting strategy to
+guide multi-modal large language model (MLLM) in inferring ob-
+ject locations, which are further refined with Gaussian masks to
+mitigate spatial ambiguity. Extensive experiments on RefCOCO,
+RefCOCO+, and RefCOCOg demonstrate that GLOD-RIS con-                                             Fig. 1. Visual comparisons for DOD. From left to right: Orig: original images,
+sistently outperforms state-of-the-art zero-shot RIS methods,                                     GT: ground-truth masks, Pred: masks predicted by DOD without decoupling,
+                                                                                                  Pred (Dec): masks predicted by DOD with decoupling, FF-Sim: similarity
+achieving up to about 11% improvement in both oIoU and mIoU.
+                                                                                                  of foreground features among all masks extracted by SAM from the original
+Code will be available at https://github.com/Wujj440/GLOD-RIS.                                    image (The colors transition from dark purple, indicating low similarity, to
+                                                                                                  bright yellow, indicating high similarity), FF-Sim (Dec): feature similarity
+   Index Terms—Zero-Shot referring image segmentation, or-                                        after decoupling, Sim-Diff: difference between decoupled and original feature
+                                                                                                  similarity matrices (The colors transition from dark purple, indicating small
+thogonal decoupling, Gaussian localization, multi-modal large                                     differences, to bright yellow, indicating large differences).
+language model.
+
+
+                            I. INTRODUCTION                                                       MLLMs [12]), zero-shot RIS has emerged as a paradigm that
+                                                                                                  achieves region-text alignment without additional annotations
+R      EFERRING image segmentation (RIS) [1]–[4] aims to
+       segment a target in an image with a referring expression
+(e.g., “the woman wearing a red dress”). Unlike conventional
+                                                                                                  or task-specific training. In typical zero-shot frameworks,
+                                                                                                  an off-the-shelf mask proposal network generates candidate
+semantic segmentation [5] or instance segmentation [6], which                                     object masks. These masks are then scored by a pre-trained
+are constrained to predefined categories, RIS achieves fine-                                      vision-language model such as CLIP, possibly augmented with
+grained alignment between free-form text and visual regions,                                      additional selection strategies, to identify the most relevant
+facilitating its widespread use in tasks such as text-guided                                      mask.
+image editing, visual question answering, and human-robot                                            The main challenge of this workflow is achieving accurate
+interaction [7]–[9]. Motivated by recent advances in foun-                                        region-text alignment. CLIP maps entire images and textual
+dation multimodal models (e.g., CLIP [10], SAM [11], and                                          descriptions into a shared embedding space and computes
+                                                                                                  similarity via the global class token rather than region-specific
+   This work was supported in part by the National Natural Science Foundation                     patch tokens. Thus, the global embeddings of CLIP are in-
+of China under Grants 61976231 and in part by the Guangdong Basic
+and Applied Basic Research Foundation under Grants 2023A1515012853.                               sufficient for the fine-grained region-level alignment required
+(Corresponding author: Huicheng Zheng and Jisheng Dang.)                                          by RIS. This discrepancy causes mask-proposal features to
+   Jingjun Wu, Huicheng Zheng, Yun Lan, Zehua Liu, and Jiawen                                     be overly influenced by global context, reducing foreground
+Fang are with the School of Computer Science and Engineering, the
+Key Laboratory of Machine Intelligence and Advanced Computing,                                    feature discriminability. As shown in Figure 1, high similarity
+Ministry of Education, and the Guangdong Key Laboratory                                           among foreground features can lead to inaccurate predictions.
+of Information Security Technology, Sun Yat-sen University,                                       For example, in the second row, the predicted mask in the Pred
+Guangzhou     510006,     China      (e-mail:    wujj225@mail2.sysu.edu.cn;
+zhenghch@mail.sysu.edu.cn;             lany28@mail2.sysu.edu.cn;           li-                    column covers large background regions, introducing strong
+uzh283@mail2.sysu.edu.cn; fangjw6@mail2.sysu.edu.cn;).                                            global context signals that overshadow the true object features
+   Jisheng Dang is with the School of Information Science and En-                                 and result in incorrect predictions.
+gineering, Lanzhou University, Lanzhou 730000, China (e-mail: dan-
+gjisheng@lzu.edu.cn).                                                                                Existing methods attempt to alleviate this global-local mis-
+
+  Authorized
+Copyright  ©licensed use limited
+              2026 IEEE.         to: SUN
+                            Personal         YAT-SEN
+                                           use  of thisUNIVERSITY.          Downloaded However,
+                                                           material is permitted.           on September      27,2026 atto
+                                                                                                         permission            04:03:30  UTC
+                                                                                                                                  use this      from IEEE
+                                                                                                                                             material     forXplore.  Restrictions
+                                                                                                                                                               any other    purposes apply.must
+                  © 2026 IEEE. All rights reserved, including rights for text and data mining and training of artificial intelligence and similar technologies. Personal use is permitted,
+                                 be obtained from the IEEE by sending an email to pubs-permissions@ieee.org.
+                                           but republication/redistribution requires IEEE permission. See https://www.ieee.org/publications/rights/index.html for more information.
+                   This article has been accepted for publication in IEEE Transactions on Circuits and Systems for Video Technology. This is the author's version which has not been fully edited and
+                                              content may change prior to final publication. Citation information: DOI 10.1109/TCSVT.2026.3735214
+
+IEEE TRANSACTIONS ON CIRCUITS AND SYSTEMS FOR VIDEO TECHNOLOGY                                                                                                                                2
+
+
+
+match through architectural modifications or fine-tuning. For                                         work’s potential for deployment in challenging out-of-
+example, HybridGL [13] modifies network structures for hy-                                            domain scenarios.
+brid global-local feature extraction, while Alpha-CLIP [14]                                         • We propose DOD, a plug-and-play module that decou-
+fine-tunes CLIP with an additional channel to obtain region-                                          ples region-specific features from global context and
+specific features. Although effective in improving alignment,                                         enhances feature discriminability, thereby facilitating pre-
+these approaches either lack plug-and-play flexibility or re-                                         cise region-text alignment.
+                                                                                                                       3
+quire additional training, which may impair the pre-trained                                         • We propose G L, which leverages a nine-grid visual
+generalization performance of CLIP.                                                                   prompting strategy to guide the MLLM and generates
+   To address this issue, we propose the dynamic orthogonal                                           Gaussian masks to produce explicit absolute spatial lo-
+decoupling (DOD) module, a simple, plug-and-play mecha-                                               calization cues.
+nism that decouples region-specific features from the global                                        • Extensive experiments on RefCOCO, RefCOCO+, and
+context via orthogonal projection, enhancing feature discrim-                                         RefCOCOg show that GLOD-RIS consistently outper-
+inability and facilitating precise region-text alignment. Unlike                                      forms existing zero-shot RIS approaches, achieving im-
+prior methods [13], [14], DOD does not interfere with feature                                         provements of up to about 11% in both oIoU and mIoU,
+generation or require additional training. It filters redundant                                       further validating its effectiveness.
+components from region features, preserving the pre-trained                                                          II. RELATED WORK
+generalization capability of CLIP and enabling seamless in-
+tegration into other modules that require regional feature                                      A. Supervised Referring Image Segmentation
+discriminability. Moreover, unlike conventional decoupling                                         RIS aims to localize and segment a target object in an image
+approaches, DOD dynamically tunes the decoupling strength                                       based on a referring expression, requiring fine-grained align-
+according to mask size, boosting robustness and zero-shot                                       ment between visual and textual features. Most approaches
+generalization. In the second row of Figure 1, after applying                                   [15], [16] adopt transformer-based encoder-decoder architec-
+decoupling, feature similarity of each mask with all other                                      tures, consisting of an image encoder, a text encoder, and a
+masks decreases, with that of the predicted mask in the Pred                                    mask decoder for multimodal feature fusion and segmenta-
+column exhibiting the largest drop, as indicated by the purple                                  tion. Recent work [15], [17]–[19] enhances vision-language
+cross in the second row of the FF-Sim (Dec) column. With                                        interaction by injecting textual information into the visual
+the global bias mitigated, the target is correctly predicted.                                   stream at different stages. Specifically, LAVT [17] performs
+   Another key challenge in RIS is accurately exploiting spatial                                early fusion by injecting linguistic features into the interme-
+information in referring expressions (e.g., “left,” “bottom”)                                   diate layers of the visual encoder. Liu et al. [18] employed
+for precise object localization. Existing methods typically                                     multi-modal mutual attention and a mutual decoder for bidi-
+rely on text parsing or MLLM to extract these directional                                       rectional language-vision interaction. GRES [15] explicitly
+keywords. However, different expressions are often mapped to                                    models region-region and region-language relationships to en-
+the same spatial token. For example, the spatial token “left”                                   hance relational reasoning. CMIRNet [19] leverages language-
+can correspond to various expressions, such as “left”, “farthest                                guided feature encoding, cross-graph reasoning, and attention-
+left”, “A is to the left of B” and “B is to the left of A”.                                     enhanced decoding for accurate referent segmentation. [15],
+Mapping different expressions to the same spatial token creates                                 [20] introduce novel datasets to advance RIS, enabling models
+ambiguity, making it difficult to align referring expressions                                   to handle single-object, multi-object, no-object, and part-
+with visual regions accurately.                                                                 level reasoning. Recent weakly-supervised RIS methods [21]–
+   To address this issue, we propose the grid-guided Gaussian                                   [25] achieve effective segmentation with few annotations
+localization (G3 L) module. For absolute position reasoning,                                    via cross-modal alignment, pseudo-labeling, and multi-task-
+G3 L incorporates a novel nine-grid visual prompting strat-                                     based mechanisms. Specifically, PPT [21] leverages cross-
+egy that guides the MLLM toward more accurate position                                          modal alignment between CLIP text features and SAM image
+inference. The inferred positions are then converted into                                       features. WeakMCN [22] employs a multi-task framework
+Gaussian-based localization scores, which are combined with                                     for joint learning of referring expression comprehension and
+category scores to promote high-scoring target regions while                                    segmentation. Yang et al. [23] improved segmentation under
+suppressing high-scoring non-target regions. Unlike previous                                    limited labels through pseudo-labeling refined by SAM. Lee
+approaches [13] that rely solely on textual spatial cues, G3 L                                  et al. [24] exploited cross-modal alignment by modeling
+utilizes textual and visual information to generate absolute                                    word-region relationships. SafaRi [25] combines cross-modal
+position guidance and convert it into continuous spatial prob-                                  alignment and attention consistency for accurate segmentation
+ability distributions, thereby mitigating ambiguities in textual                                with few or zero-shot annotations. With the rise of large-scale
+spatial descriptions and enhancing precise and robust object                                    VLMs and MLLMs, frameworks like ReferSAM [26], Alpha-
+localization.                                                                                   CLIP [14], and Prompt-Driven RIS [27] leverage prompt
+                                                                                                learning and fine-tuning to transfer pre-trained cross-modal
+   The main contributions of this paper are as follows:
+                                                                                                knowledge, improving generalization to unseen expressions
+  •   We propose GLOD-RIS, a simple and effective zero-shot                                     and objects. Beyond image-level tasks, fine-grained cross-
+      RIS framework that requires no additional training. The                                   modal alignment is also a core challenge in video retrieval. For
+      notable performance and plug-and-play design facilitate                                   instance, the fully supervised method Align and Tell [28] intro-
+      robust zero-shot generalization, highlighting the frame-                                  duces learnable queries to aggregate local video-text features
+
+   Authorized licensed use limited to: SUN YAT-SEN UNIVERSITY. Downloaded on September 27,2026 at 04:03:30 UTC from IEEE Xplore. Restrictions apply.
+                   © 2026 IEEE. All rights reserved, including rights for text and data mining and training of artificial intelligence and similar technologies. Personal use is permitted,
+                                      but republication/redistribution requires IEEE permission. See https://www.ieee.org/publications/rights/index.html for more information.
+                   This article has been accepted for publication in IEEE Transactions on Circuits and Systems for Video Technology. This is the author's version which has not been fully edited and
+                                              content may change prior to final publication. Citation information: DOI 10.1109/TCSVT.2026.3735214
+
+IEEE TRANSACTIONS ON CIRCUITS AND SYSTEMS FOR VIDEO TECHNOLOGY                                                                                                                                3
+
+
+
+and utilizes an auxiliary captioning head to provide word-level                                 suppression or auxiliary text generation, we introduce the
+supervision signals. Existing methods have explored a variety                                   DOD module to explicitly decouple region-specific features
+of approaches for multi-modal fusion [17], [19], [26] and                                       from the global context in the feature space. This training-free
+feature alignment [28]. In this work, we address cross-modal                                    geometric projection effectively reduces redundant background
+alignment from a feature-space perspective. Instead of learning                                 information and improves foreground discriminability. Fur-
+additional parameters, we leverage frozen pre-trained features                                  thermore, rather than using MLLMs solely for text generation,
+and eliminate redundant components from both geometric and                                      we propose the G3 L module to address spatial ambiguities.
+semantic aspects in feature space.                                                              By employing a nine-grid visual prompting strategy, G3 L
+   Current RIS methods [16], [19], [26], [27], [29]–[32]                                        leverages the reasoning ability of MLLMs to infer absolute po-
+achieve strong performance but rely on costly pixel-level                                       sitional cues, which are subsequently converted into Gaussian
+annotations. Weakly supervised approaches [21]–[25], [33]                                       spatial masks to explicitly guide and refine target localization
+alleviate this burden to some extent, yet still require substantial                             under open-vocabulary settings.
+supervision.
+   Motivated by recent advances in foundation multimodal                                                                     III. METHODOLOGY
+models such as CLIP [10], SAM [11], and MLLMs [12],                                             A. Overview
+researchers have explored zero-shot RIS [13], [34], a paradigm
+                                                                                                   As shown in Figure 2, our framework consists of two core
+that requires neither additional annotations nor task-specific
+                                                                                                modules, DOD and G3 L. The pipeline follows a coarse-to-fine
+training, which increases the task’s flexibility and broadens its
+                                                                                                mask selection strategy, DOD first selects the top-k masks
+potential applications.
+                                                                                                with the highest semantic relevance from a large candidate
+                                                                                                set, and G3 L then refines these masks to produce the final
+B. Zero-Shot Referring Image Segmentation                                                       high-confidence results.
+                                                                                                   Given an image I ∈ Rh×w×3 , where h and w denote the
+   Zero-Shot RIS does not require annotated image-text pairs
+                                                                                                height and width, and a referring expression T , a mask gener-
+or task-specific training, but demands precise cross-modal
+                                                                                                ation network produces a set of b candidate foreground masks
+alignment under complex semantics. Yu et al. [34] inte-
+                                                                                                Mf g = {m1 , m2 , . . . , mb } ⊂ {0, 1}h×w . The corresponding
+grated a pre-trained CLIP with a mask proposal network for
+                                                                                                background masks are Mbg = {1 − m | m ∈ Mf g } ⊂
+text-guided segmentation, whereas HybridGL [13] enhances
+                                                                                                {0, 1}h×w , where 1 denotes an all-ones matrix of the same size
+mask representations through a progressive fusion of global
+                                                                                                as the masks. Each background mask represents the pixel-wise
+and local features. Iterative approaches like IteRPrimE [35]
+                                                                                                complement of its corresponding foreground mask.
+and CaR [36] refine segmentation using CAM/Grad-CAM
+                                                                                                   We use a global-local image feature extractor [13], denoted
+heatmaps. Specifically, IteRPrimE progressively enhances tar-
+                                                                                                as ϕGL image (·), to obtain foreground and background features
+get regions via iterative Grad-CAM refinement and Primary
+Word Emphasis. CaR [36] employs a recurrent framework                                           Ff g , Fbg ∈ Rb×d , where b denotes the number of candidate
+to filter irrelevant texts and improve mask quality without                                     masks, d is the feature dimension. To enhance mask-level
+training. Methods such as TAS [37] and BMS [38] exploit                                         discriminability, we apply orthogonal projection (OP) for
+negative text phrases or masks to suppress irrelevant regions.                                  dynamic decoupling, yielding decoupling-aware fused features
+Specifically, TAS [37] leverages negative phrases in text-                                      Ff use ∈ Rb×d .
+augmented vision-text matching to suppress distractor regions,                                     The referring expression T is encoded by a frozen CLIP text
+BMS [38] incorporates negative masks and a mask-adaptive                                        encoder ϕtext (·) to obtain text features Ft ∈ Rd . We compute
+fusion strategy to enhance fine-grained cross-modal correlation                                 the cosine similarity between Ft and Ff use , producing a
+without additional training. Ref-Diff [39] introduces genera-                                   similarity vector Sdec ∈ Rb . The top-k masks are then selected
+                                                                                                                                           ∗
+tive models to zero-shot RIS, leveraging fine-grained multi-                                    according to these scores, resulting in Sdec  ∈ Rk for the first-
+modal information from models like Stable Diffusion [40] to                                     stage predictions.
+                                                                                                   In the second stage, G3 L is applied to the top-k candidate
+identify referent regions. Recent MLLM-based method [41],
+                                                                                                masks for refinement. The module leverages an MLLM to
+[42] generates auxiliary cues to enrich text-image alignment,
+                                                                                                extract guidance on both spatial localization and category.
+improving comprehension of complex expressions and miti-
+                                                                                                Gaussian masks are generated from the spatial localization
+gating zero-shot biases. Specifically, both methods enrich the
+                                                                                                guidance and applied to the masks to compute the localization
+semantic representation of the referring expression with addi-
+                                                                                                scores Sloc ∈ Rb . Category scores Scat ∈ Rb are computed as
+tional textual cues, e.g., MCCE-REC [41] introduces positive
+                                                                                                the cosine similarity between the category guidance and Ffuse .
+and negative descriptive cues, while LGD [42] incorporates
+                                                                                                Finally, the top-k masks are refined based on Sdec , Sloc , and
+attribute and surrounding context descriptions.
+                                                                                                Scat to generate the final target mask Mf∗g ∈ Rh×w .
+   Existing zero-shot RIS methods have investigated diverse
+strategies to achieve cross-modal alignment. For example,
+BMS [38] suppresses non-target regions via negative mask                                        B. Dynamic Orthogonal Decoupling
+similarity, while recent MLLM-based methods [41], [42] intro-                                      As shown in Figure 1, features extracted from different
+duce auxiliary textual cues to enhance semantic understanding.                                  masks exhibit high similarity, which limits the discriminability
+In contrast, we adopt a different formulation driven by our                                     and representational capacity of mask features. To mitigate
+two core modules. Instead of relying on similarity-based                                        this issue, we propose a foreground-background decoupling
+
+   Authorized licensed use limited to: SUN YAT-SEN UNIVERSITY. Downloaded on September 27,2026 at 04:03:30 UTC from IEEE Xplore. Restrictions apply.
+                   © 2026 IEEE. All rights reserved, including rights for text and data mining and training of artificial intelligence and similar technologies. Personal use is permitted,
+                                      but republication/redistribution requires IEEE permission. See https://www.ieee.org/publications/rights/index.html for more information.
+                    This article has been accepted for publication in IEEE Transactions on Circuits and Systems for Video Technology. This is the author's version which has not been fully edited and
+                                               content may change prior to final publication. Citation information: DOI 10.1109/TCSVT.2026.3735214
+
+IEEE TRANSACTIONS ON CIRCUITS AND SYSTEMS FOR VIDEO TECHNOLOGY                                                                                                                                 4
+
+
+
+
+Fig. 2. Overview of the propose GLOD-RIS framework. The pipeline consists of two core modules: dynamic orthogonal decoupling (DOD) and grid-guided
+Gaussian localization (G3 L). First, DOD decouples foreground features from background context via orthogonal projection and selects the top-k masks based
+on semantic similarity to the referring expression. Then, G3 L refines these masks using localization guidance from Gaussian localization masks and subject-
+class guidance extracted by an MLLM, producing the final high-confidence masks.
+
+
+
+method based on OP, where the decoupling strength is auto-                                       which represents the foreground component aligned with the
+matically tuned according to mask characteristics, enhancing                                     background. The orthogonal foreground feature is then ob-
+feature distinctiveness while suppressing background redun-                                      tained by:
+dancy.                                                                                                             Ffi g⊥bg = F̂fi g − Ffi g∥bg ,       (4)
+   1) Orthogonal Projection Decoupling: OP decomposes a
+vector into a component along a given direction and an                                           which represents the purified, background-free foreground.
+orthogonal component. Since Ff g and Fbg are extracted by                                           This procedure suppresses background interference and en-
+the same encoder ϕGL                                                                             hances the discriminability of mask features, providing more
+                      image (·) and are represented in the same
+feature space, we aim to remove background-aligned compo-                                        reliable representations for subsequent mask selection and
+nents from Ff g , retaining only the information specific to the                                 fusion.
+foreground, denoted as Ff g⊥bg ∈ Rb×d .                                                             2) Geometric and Semantic Analysis: We analyze the ef-
+                                                                                                 fectiveness of orthogonal projection from a geometric and
+   For the i-th mask, the corresponding foreground and back-
+                                                                                                 semantic perspective. In high-dimensional embedding spaces,
+ground feature representations are denoted as Ffi g and Fbg   i
+                                                                ,
+                                                                                                 semantic similarity is reflected by directional alignment. Since
+respectively. Both vectors are first normalized:
+                                                                                                 Ffi g and Fbg
+                                                                                                             i
+                                                                                                                originate from different regions, they are gener-
+                                                                                                 ally non-collinear, and the angle ω between them measures
+                                             Ffi g
+                              F̂fi g =                ,                                (1)       their semantic discrepancy.
+                                          ∥Ffi g ∥2                                                 When ω is small, the two vectors are closely aligned,
+                                              i                                                  indicating substantial semantic overlap. (e.g., a person in a red
+                                 i
+                                             Fbg
+                               F̂bg =       i ∥
+                                                      .                                (2)       shirt versus a crowd of people, where the concept of “person”
+                                          ∥Fbg 2
+                                                                                                 is encoded in both representations). In this case, projection
+                                                                                                 onto the background direction removes background-specific
+Normalization ensures that the subsequent projection focuses
+                                                                                                 components and facilitates foreground-background separation.
+on feature direction rather than magnitude. The projection
+                                                                                                 However, since the shared subspace also encodes part of the
+of the foreground feature onto the background direction is
+                                                                                                 foreground semantics, this process may result in a certain
+computed as:
+                                                                                                 degree of foreground information loss.
+                                                                                                  When ω is large, the vectors are weakly aligned, indicating
+                     Ffi g∥bg = F̂fi g · F̂bg
+                                           i      i
+                                                F̂bg ,                                  (3)      limited semantic overlap. (e.g., a person in a red shirt versus a
+
+   Authorized licensed use limited to: SUN YAT-SEN UNIVERSITY. Downloaded on September 27,2026 at 04:03:30 UTC from IEEE Xplore. Restrictions apply.
+                    © 2026 IEEE. All rights reserved, including rights for text and data mining and training of artificial intelligence and similar technologies. Personal use is permitted,
+                                       but republication/redistribution requires IEEE permission. See https://www.ieee.org/publications/rights/index.html for more information.
+                   This article has been accepted for publication in IEEE Transactions on Circuits and Systems for Video Technology. This is the author's version which has not been fully edited and
+                                              content may change prior to final publication. Citation information: DOI 10.1109/TCSVT.2026.3735214
+
+IEEE TRANSACTIONS ON CIRCUITS AND SYSTEMS FOR VIDEO TECHNOLOGY                                                                                                                                5
+
+
+
+grass field). The projection then primarily removes background                                  clipping operation in Eq. (6) already induces mild nonlinearity,
+components while preserving discriminative foreground infor-                                    ensuring stable behavior under extreme mask ratios. Therefore,
+mation.                                                                                         this formulation provides a practical balance between expres-
+   Overall, the effectiveness of orthogonal projection depends                                  siveness and simplicity, and is adopted as the default choice.
+on the degree of semantic overlap between foreground and
+background features. While high overlap may introduce slight
+                                                                                                C. Grid-Guided Gaussian Localization
+information loss, low overlap allows effective background
+suppression, validating its effectiveness in feature disentan-                                     Existing methods often suffer from spatial ambiguity, which
+glement.                                                                                        hinders accurate localization of the target. To overcome this,
+   3) Dynamic Fusion: The above analysis reveals that or-                                       we propose an efficient approach that directly predicts the
+thogonal projection is not robust to variations in foreground-                                  position of the target.
+background semantic overlap. To mitigate this issue, we revisit                                    1) Localization and Category Cue Extraction: Traditional
+the complementary role of the original foreground feature                                       approaches [13] typically rely on syntactic or entity-based
+Ffi g , which preserves contextual semantics but may contain                                    rules to extract spatial or directional cues from text. Despite
+background interference.                                                                        their effectiveness, these methods exhibit two major limita-
+   A balanced integration between Ffi g and Ffi g⊥bg is nec-                                    tions: (1) Directional confusion: The phrases “A to the left of
+essary to adapt to varying semantic overlap levels. A naive                                     B” and “B to the left of A” convey opposite directions, but both
+solution is to fuse the two representations with a fixed                                        yield the same directional token “left”, potentially confusing
+weight. However, this approach is suboptimal, a high weight                                     the model. (2) Missing spatial cues: When the referring ex-
+on Ff g⊥bg improves discriminability for large masks but                                        pression lacks directional words, spatial localization guidance
+overly suppresses context for small ones, whereas prioritizing                                  cannot be provided. Standard approaches often prompt MLLM
+Ff g preserves context but weakens discriminability for large                                   to output a specific direction, which can still be imprecise. For
+masks. These limitations motivate the need for an adaptive                                      example, “far left” and “slightly left” may both map to “left”.
+fusion mechanism. To this end, we propose a mask-area-                                             To address these limitations, more reliable spatial guidance
+based dynamic fusion strategy that adjusts the fusion weight                                    beyond textual cues is required. We observe that MLLMs ex-
+according to mask size, achieving a balance between global                                      hibit an implicit preference for grid-structured spatial layouts,
+context retention and foreground discriminability.                                              which can be attributed to patterns in their pretraining data.
+   For the i-th mask, let Mfi g ∈ {0, 1}h×w denote its binary                                      From the textual perspective, spatial relationships are often
+foreground mask. The foreground pixel ratio αi is defined as                                    described using coarse directional terms such as “top-left,”
+the fraction of pixels that belong to the foreground.                                           “bottom-left,” and “bottom-right,” which naturally align with
+                                 h   w
+                                                                                                a grid-based partition. From the visual perspective, structured
+                            1 X X fg                                                            layouts are also common in image data, with examples such as
+                 αi =                  M (u, v).                                       (5)
+                          h · w u=1 v=1 i                                                       CAPTCHA-style grid puzzles further reinforcing this spatial
+                                                                                                organization.
+Based on this ratio, the adaptive fusion weight is computed as                                     This cross-modal consistency induces an implicit spatial
+                  λi = min max(αi , µ), τ ,                                                     prior over grid-like structures. Based on this observation, we
+                                           
+                                                           (6)
+                                                                                                adopt a nine-grid visual prompt to better align with the model’s
+where µ sets a lower bound on the fusion weight, guaran-                                        learned spatial representation. Compared to direction-word-
+teeing effective foreground-background decoupling even for                                      based methods, this absolute-position formulation reduces
+extremely small masks. τ sets an upper bound on the fusion                                      ambiguity and improves localization accuracy.
+weight, preventing excessive reliance on the orthogonal repre-                                     Specifically, for spatial localization, the input image is
+                               i
+sentation. The fused feature Ffuse for mask i is obtained as a                                  divided into a 3 × 3 grid, G = {g1 , . . . , g9 }. The grid cell
+linear combination of Ff g and Ffi g⊥bg ,
+                        i
+                                                                                                information is encoded as a prompt and fed into the MLLM,
+                  i                                                                             which outputs a binary vector vgrid = [v1 , . . . , v9 ], where
+                Ffuse = (1 − λi )Ffi g + λi Ffi g⊥bg .                                 (7)
+                                                                                                vj = 1 indicates the presence of the target in grid cell gj ,
+This adaptive strategy allows large masks to effectively                                        and 0 otherwise.
+suppress background interference while preserving sufficient                                       To reduce ambiguity and suppress interference from non-
+global context for small masks, thereby enhancing both ro-                                      target regions, we also provide category guidance, enabling
+bustness and representational capacity of the mask features.                                    the model to reason about the category of the referent category
+   The weighting function in Eq. (6) can be viewed as a                                         before localizing it. Specifically, given a referring expression
+clipped linear mapping from the mask area ratio α to the                                        such as “the apple”, the MLLM predicts its category, e.g.,
+fusion weight λ. Such a formulation preserves a monotonic                                       “fruit”. We employ a unified prompt design that allows the
+relationship between mask size and decoupling strength, while                                   MLLM to simultaneously predict both the category and the
+remaining simple and interpretable. Although nonlinear map-                                     spatial localization of the referent. For instance, given the
+pings (e.g., quadratic or square-root functions) could also be                                  expression “the apple”, the model directly outputs both the
+considered to reshape the curvature of the weighting function,                                  category and the corresponding grid-based localization, e.g.,
+they do not change the underlying monotonic dependency and                                      {fruit : {1 : 1, 2 : 0, . . . , 9 : 0}}. This design effectively
+typically introduce additional hyperparameters. Moreover, the                                   reduces ambiguity and hallucination caused by free-form text
+
+   Authorized licensed use limited to: SUN YAT-SEN UNIVERSITY. Downloaded on September 27,2026 at 04:03:30 UTC from IEEE Xplore. Restrictions apply.
+                   © 2026 IEEE. All rights reserved, including rights for text and data mining and training of artificial intelligence and similar technologies. Personal use is permitted,
+                                      but republication/redistribution requires IEEE permission. See https://www.ieee.org/publications/rights/index.html for more information.
+                        This article has been accepted for publication in IEEE Transactions on Circuits and Systems for Video Technology. This is the author's version which has not been fully edited and
+                                                   content may change prior to final publication. Citation information: DOI 10.1109/TCSVT.2026.3735214
+
+IEEE TRANSACTIONS ON CIRCUITS AND SYSTEMS FOR VIDEO TECHNOLOGY                                                                                                                                        6
+
+
+
+                                                                   TABLE I
+  C OMPARISON WITH STATE - OF - THE - ART ZERO - SHOT APPROACHES ON THE R EF COCO, R EF COCO+, AND R EF COCO G DATASETS . U DENOTES THE
+   UMD PARTITION , G DENOTES THE G OOGLE PARTITION , AND * INDICATES THE USE OF EXTRA DATASETS FOR MODEL TRAINING . T HE BEST AND
+      SECOND - BEST RESULTS UNDER THE SAME SETTING ( WITHOUT ADDITIONAL TRAINING ) ARE HIGHLIGHTED IN BOLD AND UNDERLINED ,
+                                                                RESPECTIVELY.
+
+                                                                                                                                     RefCOCO                     RefCOCO+             RefCOCOg
+ Metrics   Methods                                     BackBones           Pre-trained Models               Venue
+                                                                                                                             Val       TestA TestB       Val       TestA TestB      Val(U) Test(U)
+           zero-shot methods w/ additional training
+           Pseudo-RIS [43]                             ViT-B               SAM, CoCa, CLIP                  ECCV 2024        37.33    43.43    31.90     40.19     46.43   33.63    41.63     43.52
+           VLM-VG [44]                                 R101                COCO*, VLM VG*                   WACV 2025        45.40    48.00    41.40     37.00     40.70   30.50    42.80     44.10
+           zero-shot methods w/o additional training
+           Grad-CAM [45]                               R50                 SAM, CLIP                        ICCV 2019        23.44    23.91    21.60     26.67     27.20   24.84    23.00     23.91
+           MaskCLIP [46]                               R50                 SAM, CLIP                        CVPR 2023        20.18    20.52    21.30     22.06     22.43   24.61    23.05     23.41
+ oIoU      Global-Local [34]                           R50                 FreeSOLO, CLIP                   CVPR 2023        24.58    23.38    24.35     25.87     24.61   25.61    30.07     29.83
+           Global-Local(SAM) [34]                      R50                 SAM, CLIP                        CVPR 2023        24.55    26.00    21.03     26.62     29.99   22.23    28.92     30.48
+           Ref-Diff [39]                               ViT-B               SAM, SD, CLIP                    CoRR 2023        35.16    37.44    34.50     35.56     38.66   31.40    38.62     37.50
+           TAS [47]                                    ViT-B               SAM, BLIP2, CLIP                 EMNLP 2023       29.53    30.26    28.24     33.21     38.77   28.01    35.84     36.16
+           BMS [38]                                    ViT-B               SAM, CLIP                        TCSVT 2024       34.94    43.34    26.27     37.36     46.96   28.57    42.61     44.62
+           HybridGL [13]                               ViT-B               SAM, CLIP                        CVPR 2025        41.81    44.52    38.50     35.74     41.43   30.90    42.47     42.97
+           LGD [42]                                    ViT-B               SAM, CLIP                        PR 2025          34.47    37.81    30.79     36.72     44.36   30.11    36.57     37.63
+           LGD+DINO [42]                               ViT-B               SAM, CLIP, GDINO, MLLM           PR 2025          42.72    48.20    36.24     47.26     50.93   34.43    45.54     47.65
+           Ours                                        ViT-B               SAM, CLIP, MLLM                  -                50.85    51.37    49.91     45.96     49.07   41.31    50.03     48.99
+           weakly-supervised methods
+           CLRL [48]                                                       -                                ICCV 2023        31.06    32.30    30.11     31.28     32.11   30.13    32.88     -
+           PPT [21]                                    ViT-B               SAM                              CVPR 2024        46.76    45.33    46.28     45.34     45.84   44.77    42.97     -
+           S+S+C [49]                                  ViT-B and ViT-L     SAM, CLIP, GDINO                 ECCV 2024        56.03    64.73    38.64     46.89     55.45   33.88    48.18     48.61
+           zero-shot methods w/ additional training
+           Pseudo-RIS [43]                                                 SAM, CoCa, CLIP                  ECCV 2024        41.05    48.19    33.48     44.33     51.42   35.08    45.99     46.67
+ mIoU      VLM-VG [44]                                                     COCO*,VLM VG*                    WACV 2025        49.90    53.10    46.70     42.70     47.30   36.20    48.00     48.50
+           zero-shot methods w/o additional training
+           Grad-CAM [45]                               R50                 SAM, CLIP                        ICCV 2019        30.22    31.90    27.17     33.96     25.66   32.29    33.05     32.50
+           MaskCLIP [46]                               R50                 SAM, CLIP                        CVPR 2023        25.62    26.66    25.17     27.49     28.49   30.47    30.13     30.15
+           Global-Local [34]                           R50                 FreeSOLO, CLIP                   CVPR 2023        26.70    24.99    26.48     28.22     26.54   27.86    33.02     33.12
+           Global-Local(SAM) [34]                      R50                 SAM, CLIP                        CVPR 2023        31.83    32.93    28.64     34.97     37.11   30.61    40.66     40.94
+           Ref-Diff [39]                               ViT-B               SAM, SD, CLIP                    CoRR 2023        37.21    38.40    37.19     37.29     40.51   33.01    44.02     44.51
+           CaR [36]                                    ViT-B and ViT-L     CLIP                             CVPR 2024        33.57    35.36    30.51     34.22     36.03   31.02    36.67     36.57
+           TAS [47]                                    ViT-B               SAM,BLIP2,CLIP                   EMNLP 2023       39.84    41.08    36.24     43.63     49.13   36.54    46.62     46.80
+           BMS [38]                                    ViT-B               SAM, CLIP                        TCSVT 2024       40.77    49.64    29.66     41.7      51.18   30.16    48.32     50.16
+           HybridGL [13]                               ViT-B               SAM, CLIP                        CVPR 2025        49.48    53.37    45.19     43.40     49.13   37.17    51.25     51.59
+           IteRPrimE [35]                              -                   Mask2Former, ALBEF               AAAI 2025        40.20    46.50    33.90     44.20     51.60   35.30    46.00     45.80
+           LGD [42]                                    ViT-B               SAM, CLIP                        PR 2025          45.41    48.81    39.28     47.23     54.64   38.10    47.31     48.18
+           LGD+DINO [42]                               ViT-B               SAM, CLIP, GDINO, MLLM           PR 2025          49.54    54.67    40.95     49.57     58.36   38.55    50.29     51.09
+           Ours                                        ViT-B               SAM,CLIP,MLLM                    -                58.42    59.36    56.23     54.01     57.33   48.73    57.85     57.03
+
+
+
+
+generation. Additionally, mask selection is based on a joint                                         as shown in Figure 3.
+score of Sdec , Sloc , and Scat , computed via a dot-product                                            To address these issues, we propose a strategy that converts
+formulation. Only candidates with high scores across all three                                       cell information into a Gaussian mask position matrix. Specif-
+components are selected, thereby reducing the impact of                                              ically, the image is divided into a 3×3 grid, and for each target
+erroneous MLLM outputs and improving overall robustness.                                             grid cell gj , a 2D Gaussian distribution is generated, centered
+                                                                                                     at the center of the cell (xj , yj ), with standard deviations
+   2) Gaussian Mask Position Matrix: Conventional
+method [13] typically create a spatial mask with values                                                                                       w                            h
+in the range [0, 1] based on directional words in the text. For                                                                σx = s ·         ,          σy = s ·          ,                     (8)
+                                                                                                                                              3                            3
+example, given the word “left”, a matrix Gpos ∈ [0, 1]h×w is
+generated where pixels on the left have values close to 1 and                                        along the horizontal and vertical directions, respectively, where
+gradually decrease to 0 toward the right, forming a smooth                                           s is a hyperparameter controlling the spread of the Gaussian
+left-to-right gradient. This mask is then used to compute a                                          within each grid cell. The 2D Gaussian response for each target
+localization score by taking the pixel-wise dot product with                                         cell is defined as
+an attention map [50] produced from both the input image                                                                                                    !
+and the referring expression. However, this approach has                                                                           (x − xj )2    (y − yj )2
+                                                                                                             Gj (x, y) = exp −                 −              ,    (9)
+two main limitations. First, there is directional ambiguity:                                                                          2σx2           2σy2
+directional words with different meanings can generate the
+same spatial mask. For instance, both “far left” and “slightly                                       and the responses from all target cells are aggregated to
+left” may produce similar masks, which can lead to imprecise                                         construct the final mask, which is then normalized to the range
+localization. Second, spatial leakage occurs because spatial                                         [0, 1]. This procedure ensures that the Gaussian response peaks
+masks generated from directional words are continuous                                                at the target cell while smoothly extending to neighboring re-
+and smooth, causing non-target regions to receive non-zero                                           gions, thereby preventing spatial leakage, reducing directional
+responses. For example, even if the target is located in the                                         ambiguity and false responses, and providing precise and
+bottom-left cell, the top-left cell may still obtain a non-zero                                      robust spatial priors for referring segmentation, as illustrated
+score, potentially misleading the selection of the final mask,                                       in Figure 3.
+
+   Authorized licensed use limited to: SUN YAT-SEN UNIVERSITY. Downloaded on September 27,2026 at 04:03:30 UTC from IEEE Xplore. Restrictions apply.
+                        © 2026 IEEE. All rights reserved, including rights for text and data mining and training of artificial intelligence and similar technologies. Personal use is permitted,
+                                           but republication/redistribution requires IEEE permission. See https://www.ieee.org/publications/rights/index.html for more information.
+                    This article has been accepted for publication in IEEE Transactions on Circuits and Systems for Video Technology. This is the author's version which has not been fully edited and
+                                               content may change prior to final publication. Citation information: DOI 10.1109/TCSVT.2026.3735214
+
+IEEE TRANSACTIONS ON CIRCUITS AND SYSTEMS FOR VIDEO TECHNOLOGY                                                                                                                                     7
+
+
+
+
+Fig. 3. Visual comparison of different position matrices. From left to right:                    Fig. 4. Ablation on s and top-k selection. The first row of figures illustrates
+Orig: original images, GT: ground-truth masks, HybridGL: position matrix                         how oIoU and mIoU vary across different k values (for the number of top-k
+produced by [13], Ours: Gaussian position matrix. Red underlines indicate                        masks selected) under different s settings, while the second row depicts the
+directional words in the referring expression.                                                   changes in oIoU and mIoU across different s values for different k settings.
+
+
+
+                        IV. EXPERIMENTS                                                          segmentation methods on most datasets and even outperform-
+A. Datasets and Evaluation Metrics                                                               ing several weakly supervised approaches. Notably, even when
+                                                                                                 compared with LGD+GDINO [42], which builds upon an
+   Experiments are conducted on three standard RIS datasets,                                     MLLM-based pipeline and incorporates a Grounding DINO
+RefCOCO [51], RefCOCO+ [51], and RefCOCOg [52]. All                                              detector, our method still consistently achieves state-of-the-
+three are derived from MSCOCO [53], where each image                                             art performance across most benchmarks. Specifically, for
+contains multiple instances of the same class, making them                                       the oIoU metric, our approach outperforms the current best-
+suitable for testing fine-grained object discrimination. Ref-                                    performing models by an average improvement of 4.03%.
+COCO features concise expressions (3.61 words on average)                                        For the mIoU metric, our model also demonstrates consistent
+that may include spatial terms; RefCOCO+ removes location                                        accuracy gains, with an average improvement of 6.28%.
+words and relies purely on appearance cues (3.53 words on                                           Notably, most existing methods struggle to achieve sub-
+average); and RefCOCOg contains longer, more descriptive                                         stantial improvements on the TestB splits of RefCOCO and
+sentences (8.43 words on average) with richer contextual                                         RefCOCO+. These subsets contain a higher proportion of
+relations.                                                                                       non-person object categories and more diverse, unconstrained
+   Segmentation performance is evaluated using overall Inter-                                    referring expressions, which are underrepresented in main-
+section over Union (oIoU) and mean Intersection over Union                                       stream vision-language pretraining datasets, making these sub-
+(mIoU). The oIoU measures global overlap between predicted                                       sets particularly challenging. In contrast, our model achieves
+and ground-truth masks, while the mIoU averages IoU across                                       significant gains in oIoU and mIoU on these complex semantic
+all samples to balance objects of different scales. Together,                                    scenarios, with an improvement of approximately 11% on
+these metrics provide a comprehensive view of both dataset-                                      TestB over the current best-performing methods, demonstrat-
+level consistency and instance-level accuracy.                                                   ing superior robustness and generalization.
+
+B. Experimental Settings                                                                                                        TABLE II
+   Following previous work [13], we adopt ViT-H SAM as                                               A BLATION STUDY ON THE EFFECT OF OP IN FOREGROUND FEATURE
+                                                                                                        EXTRACTION . T HE BEST PERFORMANCE FOR EACH DATASET IS
+the mask generation backbone. For visual features, we adopt                                                               HIGHLIGHTED IN BOLD .
+the visual encoder from [13], which builds on CLIP with a
+                                                                                                                                     RefCOCO                   RefCOCO+             RefCOCOg
+ViT-B/16 backbone and integrates hybrid feature extraction                                         Metrics     Methods
+                                                                                                                              val      testA testB      val       testA testB     val(u) test(u)
+for richer visual representations.                                                                  oIoU
+                                                                                                              FF w/o OP      31.13     34.91 26.92     34.05      39.23 28.76     38.76   39.28
+                                                                                                              FF w/ OP       32.76     36.83 27.52     35.80      41.51 29.36     39.11   40.70
+   To enhance text-image interaction and spatial reasoning,                                                   FF w/o OP      40.01     44.66 34.09     43.21      48.86 36.51     48.33   48.68
+                                                                                                    mIoU
+we employ the open-source GLM-4.1V-Thinking-Flash model                                                       FF w/ OP       42.01     47.12 34.96     45.10      51.55 37.35     48.28   48.93
+
+from ZhipuAI [54] as the MLLM via its API. All experiments
+are performed on a single NVIDIA TITAN X (Pascal) GPU.
+Despite limited hardware, the framework remains operational                                                                 TABLE III
+and achieves stable segmentation results, demonstrating strong                                   A BLATION STUDY ON THE EFFECT OF OP ON THE OVERALL FRAMEWORK .
+                                                                                                 T HE BEST PERFORMANCE FOR EACH DATASET IS HIGHLIGHTED IN BOLD .
+potential for low-cost scenarios.
+                                                                                                                                   RefCOCO                    RefCOCO+              RefCOCOg
+                                                                                                   Metrics    Methods
+                                                                                                                            val      testA testB       val       testA testB      val(u) test(u)
+C. Main Results                                                                                     oIoU
+                                                                                                               w/o OP      48.90     48.93 49.08      44.29      46.63 40.79      49.62   47.80
+                                                                                                               w/ OP       50.85     51.37 49.92      45.96      49.07 41.31      50.03   48.99
+  As shown in Table I, our method achieves state-of-the-art                                                    w/o OP      56.30     56.71 55.17      52.24      54.69 47.79      57.32   56.46
+                                                                                                    mIoU
+performance on the RefCOCO, RefCOCO+, and RefCOCOg                                                             w/ OP       58.42     59.36 56.23      54.01      57.33 48.73      57.85   57.03
+
+benchmarks, surpassing all existing zero-shot referring image
+
+   Authorized licensed use limited to: SUN YAT-SEN UNIVERSITY. Downloaded on September 27,2026 at 04:03:30 UTC from IEEE Xplore. Restrictions apply.
+                    © 2026 IEEE. All rights reserved, including rights for text and data mining and training of artificial intelligence and similar technologies. Personal use is permitted,
+                                       but republication/redistribution requires IEEE permission. See https://www.ieee.org/publications/rights/index.html for more information.
+                                       This article has been accepted for publication in IEEE Transactions on Circuits and Systems for Video Technology. This is the author's version which has not been fully edited and
+                                                                       content may change prior to final publication. Citation information: DOI 10.1109/TCSVT.2026.3735214
+
+IEEE TRANSACTIONS ON CIRCUITS AND SYSTEMS FOR VIDEO TECHNOLOGY                                                                                                                                                    8
+
+
+
+                            TABLE IV                                                                                           the OP module effectively suppresses redundant background
+  A BLATION STUDY ON THE EFFECT OF λ ON THE OVERALL FRAMEWORK .                                                                information, thereby substantially improving mask prediction
+  T HE BEST PERFORMANCE FOR EACH DATASET IS HIGHLIGHTED IN BOLD .
+                                                                                                                               accuracies.
+                                                        RefCOCO                                     RefCOCO+                      Table III further illustrates the effect of the OP module on
+           Metric               λ
+                                              val         testA testB                        val       testA testB             the overall framework. Here, “w/o OP” and “w/ OP” denote
+                                0.1          49.46        49.50 48.34                       44.80      47.84 40.81             results obtained from the framework without and with the OP
+                                0.3          50.40        51.02 48.48                       45.62      49.41 40.94
+                                                                                                                               module, respectively. Incorporating OP consistently improves
+                                0.5          42.36        52.41 48.04                       45.89      49.86 41.23
+            oIoU
+                                0.7          42.21        52.02 47.75                       45.77      49.61 40.73
+                                                                                                                               the ranking of the true target mask based on similarity scores,
+                                0.9          40.83        48.60 46.27                       44.13      47.06 39.61             increasing its likelihood of being selected for further refine-
+                              Dynamic        50.80        52.52 48.63                       45.99      49.92 41.40             ment.
+                                                                                                                                     b) Effect of dynamic λ: To evaluate the effectiveness of
+                                                          Ablation on τ (OIoU)                                                 the proposed adaptive fusion strategy, we conduct ablation
+           54
+                                           τ = 0.6         τ = 0.7                τ = 0.8            τ = 0.9         τ = 1.0
+           52                                                                                                                  experiments on the RefCOCO and RefCOCO+ datasets, as
+           50
+                                                                                                                               shown in Table IV. Here, λ denotes the fusion weight assigned
+OIoU (%)
+
+
+
+
+           48
+
+           46                                                                                                                  to Ff g⊥bg , controlling its relative contribution in the final
+           44
+
+           42
+                                                                                                                               fused representation. Larger values of λ increase the influence
+           40                                                                                                                  of the foreground feature, while smaller values place greater
+           38
+                    refcoco
+                     testA
+                                 refcoco
+                                  testB
+                                              refcoco
+                                                val
+                                                         refcocog
+                                                            val
+                                                                       refcocog
+                                                                          test
+                                                                                       refcoco+
+                                                                                         testA
+                                                                                                     refcoco+
+                                                                                                       testB
+                                                                                                                refcoco+
+                                                                                                                   val
+                                                                                                                               emphasis on the global context. We compare fixed, pre-
+           62
+                                                          Ablation on τ (MIoU)                                                 set weights with a dynamic strategy that adjusts the fusion
+                                           τ = 0.6         τ = 0.7                τ = 0.8            τ = 0.9         τ = 1.0
+           60
+
+           58
+                                                                                                                               weight according to mask area. The results demonstrate that
+           56                                                                                                                  the adaptive, dynamic strategy consistently outperforms fixed-
+MIoU (%)
+
+
+
+
+           54
+
+           52
+                                                                                                                               weight settings across most datasets, enhancing overall model
+           50
+                                                                                                                               generalization.
+           48
+
+           46                                                                                                                        c) Effect of µ: To ensure effective decoupling for small-
+                    refcoco      refcoco      refcoco    refcocog      refcocog        refcoco+      refcoco+   refcoco+
+                     testA        testB         val         val           test           testA         testB       val         area target masks, we introduce a minimum decoupling weight
+                                                                                                                               hyperparameter µ and perform sensitivity analysis. As shown
+Fig. 5. Ablation study on the effect of τ on the overall framework.                                                            in Table V, the results indicate that µ = 0.5 achieves the best
+                                                                                                                               overall performance.
+                                                                                                                                     d) Effect of τ : We analyze the distribution of α across
+   This robustness arises from our core design principle:
+                                                                                                                               all evaluation datasets. The cumulative proportions of masks
+mainstream VLMs (e.g., CLIP) are primarily trained on short
+                                                                                                                               with α ≤ 0.6, 0.7, 0.8, and 0.9 are 99.84%, 99.91%, 99.96%,
+image-text pairs and thus lack the capacity to comprehend
+                                                                                                                               and 99.99%. Based on this distribution, we set τ = 0.8 to
+complex semantics or perform precise object localization. In
+                                                                                                                               constrain the maximum decoupling strength, avoiding the risk
+contrast, the MLLM possess strong capabilities in large-scale
+                                                                                                                               of severe feature loss caused by over-decoupling when the
+semantic reasoning and contextual understanding. Leveraging
+                                                                                                                               mask area is excessively large. Ablation over τ shows minimal
+this, G3 L assigns the task of converting complex semantic
+                                                                                                                               performance variation across different settings, as shown in
+descriptions into target localization cues to the MLLM, while
+                                                                                                                               Figure 5, indicating that the framework is largely insensitive
+the CLIP module focuses on image-text alignment and feature
+                                                                                                                               to τ . Accordingly, τ = 0.8 is adopted as a principled and
+extraction, and the DOD module further enhances the dis-
+                                                                                                                               robust threshold.
+criminability of region-specific features. This clear division of
+responsibilities enables our model to achieve superior semantic                                                                                           TABLE V
+comprehension and target localization in referring expression                                                                  A BLATION STUDY ON THE EFFECT OF µ ON THE OVERALL FRAMEWORK .
+segmentation under open-vocabulary settings, as validated by                                                                   T HE BEST PERFORMANCE FOR EACH DATASET IS HIGHLIGHTED IN BOLD .
+our experiments.
+                                                                                                                                                        RefCOCO                            RefCOCO+
+                                                                                                                                Metric    µ
+                                                                                                                                                 val      testA testB               val       testA testB
+D. Ablation Studies                                                                                                                       0.1   47.83     46.44 47.60              43.55      44.71 40.04
+   To evaluate the effectiveness of our proposed components,                                                                              0.3   50.85     51.37 49.91              45.96      49.07 41.31
+                                                                                                                                 oIoU
+we conduct extensive ablation studies on the RefCOCO,                                                                                     0.5   50.80     52.52 48.63              45.99      49.92 41.40
+RefCOCO+, and RefCOCOg datasets.                                                                                                          0.7   50.22     52.28 47.84              45.76      49.90 40.85
+   1) Ablation on DOD:
+     a) Effect of OP: Table II presents the ablation results                                                                      2) Ablation on G3 L:
+for the OP module. Here, “FF w/o OP” denotes foreground                                                                              a) Effect of localization score and category score: As
+features extracted directly via the Global-Local Image Feature                                                                 shown in Table VI, incorporating localization scores consis-
+Extractor, while “FF w/ OP” represents features further refined                                                                tently improves performance across all datasets compared with
+by the OP module. For both settings, similarity scores are com-                                                                state-of-the-art methods. This demonstrates that the effective-
+puted between the foreground features and the corresponding                                                                    ness of the module is not limited to expressions with explicit
+text embeddings, and the top-1 mask is selected based on the                                                                   spatial localization cues, as shown in Figure 3. In the last row,
+highest similarity. The results demonstrate that incorporating                                                                 which lacks predefined directional words, our method can still
+
+                Authorized licensed use limited to: SUN YAT-SEN UNIVERSITY. Downloaded on September 27,2026 at 04:03:30 UTC from IEEE Xplore. Restrictions apply.
+                                       © 2026 IEEE. All rights reserved, including rights for text and data mining and training of artificial intelligence and similar technologies. Personal use is permitted,
+                                                             but republication/redistribution requires IEEE permission. See https://www.ieee.org/publications/rights/index.html for more information.
+                          This article has been accepted for publication in IEEE Transactions on Circuits and Systems for Video Technology. This is the author's version which has not been fully edited and
+                                                       content may change prior to final publication. Citation information: DOI 10.1109/TCSVT.2026.3735214
+
+IEEE TRANSACTIONS ON CIRCUITS AND SYSTEMS FOR VIDEO TECHNOLOGY                                                                                                                                                9
+
+
+
+accurately localize the target, highlighting its strong cross-                                                                        TABLE VIII
+dataset robustness. However, relying solely on localization                                                  A BLATION STUDY ON SPATIAL REASONING . T HE BEST PERFORMANCE
+                                                                                                                        FOR EACH METRIC IS HIGHLIGHTED IN BOLD .
+scores may still lead to incorrect selection of non-target masks
+that share similar spatial relations or exhibit higher localization                                         Metrics   Methods
+                                                                                                                                                   RefCOCO                  RefCOCO+           RefCOCOg
+                                                                                                                                            val      testA testB     val       testA testB   val(u) test(u)
+scores. To address this issue, we introduce a category score                                                          Keyword-Gradient     46.99     51.27 41.42    43.48      49.28 37.39   47.80   48.02
+                                                                                                             oIoU
+that selectively enhances masks belonging to the target cate-                                                         GLOD-RIS             50.85     51.37 49.92    45.96      49.07 41.31   50.03   48.99
+                                                                                                                      Keyword-Gradient     55.59     59.79 49.40    52.29      57.22 45.50   56.45   56.31
+                                                                                                            mIoU
+gory while satisfying spatial constraints. Experimental results                                                       GLOD-RIS             58.42     59.36 56.23    54.01      57.33 48.73   57.85   57.03
+show that although the category score alone yields limited
+improvement, its combination with localization scores further                                                                         TABLE IX
+enhances overall model accuracies, as shown in Table VI.                                                     A BLATION STUDY ON SPATIAL WEIGHTING . T HE BEST PERFORMANCE
+                                                                                                                        FOR EACH METRIC IS HIGHLIGHTED IN BOLD .
+
+                           TABLE VI                                                                                                                RefCOCO                  RefCOCO+           RefCOCOg
+                                                                                                            Metrics   Methods
+  A BLATION STUDY ON THE EFFECT OF LOCALIZATION AND CATEGORY                                                                                val      testA testB     val       testA testB   val(u) test(u)
+ SCORES ON THE OVERALL FRAMEWORK . T HE CHECKMARKS INDICATE                                                  oIoU
+                                                                                                                      Hard-coded Mask      45.71     45.45 46.84    41.72      43.59 38.01   46.61   46.29
+ THE PRESENCE OF EACH MODULE . T HE BEST PERFORMANCE FOR EACH                                                         Gaussian Mask        50.85     51.37 49.92    45.96      49.07 41.31   50.03   48.99
+                                                                                                                      Hard-coded Mask      52.99     52.89 53.39    49.30      51.39 46.25   54.26   54.33
+                         DATASET IS HIGHLIGHTED IN BOLD                                                     mIoU
+                                                                                                                      Gaussian Mask        58.42     59.36 56.23    54.01      57.33 48.73   57.85   57.03
+                                             RefCOCO                   RefCOCO+             RefCOCOg
+ Metrics   Category   Localization
+                                      val      testA testB      val       testA testB     val(u) test(u)
+              ✓                      32.31     36.08 27.64     34.83      39.51 29.18     37.39   37.24                              TABLE X
+  oIoU                     ✓         46.12     45.54 47.83     41.67      43.16 39.74     48.51   48.32    A BLATION STUDY ON CATEGORY INFERENCE . T HE BEST PERFORMANCE
+              ✓            ✓         50.85     51.37 49.92     45.96      49.07 41.31     50.03   48.99
+                                                                                                                       FOR EACH METRIC IS HIGHLIGHTED IN BOLD .
+              ✓                      41.27     45.87 34.81     43.83      49.38 36.77     46.33   46.24
+ mIoU                      ✓         53.42     52.70 53.85     49.32      50.93 46.48     55.83   55.81
+              ✓            ✓         58.42     59.36 56.23     54.01      57.33 48.73     57.85   57.03                                          RefCOCO                   RefCOCO+            RefCOCOg
+                                                                                                            Metrics   Methods
+                                                                                                                                          val      testA testB      val       testA testB    val(u) test(u)
+                                                                                                                      w/o Category       46.12     45.54 47.83     41.67      43.16 39.74    48.51   48.32
+     b) Effect of nine-grid visual prompting: As shown in                                                    oIoU     NLP-based          48.63     50.09 48.19     43.97      47.10 39.93    48.91   48.95
+                                                                                                                      MLLM-based         50.85     51.37 49.92     45.96      49.07 41.31    50.03   48.99
+Table XI, we compare two prompting strategies: “original”                                                             w/o Category       53.42     52.70 53.85     49.32      50.93 46.48    55.83   55.81
+refers to directly feeding the raw image into the model, while                                              mIoU      NLP-based          56.66     58.09 54.72     52.37      55.47 47.45    56.99   57.01
+                                                                                                                      MLLM-based         58.42     59.36 56.23     54.01      57.33 48.73    57.85   57.03
+“grid-prompts” divides the image into a 3×3 grid to introduce
+explicit spatial structure. Results show that using nine-grid
+visual prompts to generate spatial information significantly
+                                                                                                              3) Ablation on the Contribution of MLLM in G3 L: Al-
+improves accuracy compared to using the original image as
+                                                                                                           though our G3 L module incorporates a pretrained MLLM, the
+the prompt. This demonstrates that the grid-based prompting
+                                                                                                           model is kept frozen and is not fine-tuned or adapted on any
+mechanism more effectively guides the model to locate the
+                                                                                                           referring image segmentation datasets, strictly following the
+target, thereby enhancing the precision of spatial reasoning.
+     c) Effect of grid granularities: As shown in Table VII,                                               standard zero-shot setting, where no task-specific supervision
+we evaluate the sensitivity of our method to different grid                                                from the target datasets is used.
+granularities, including 2 × 2, 3 × 3, and 4 × 4. The results                                                 To further clarify the role of the MLLM, we conduct abla-
+indicate that grid granularity significantly affects performance.                                          tion studies to disentangle its contribution from our proposed
+The 2 × 2 setting consistently underperforms, suggesting                                                   G3 L design. Specifically, we analyze three key components
+that overly coarse partitioning provides limited spatial cues                                              of G3 L: spatial reasoning, spatial weighting, and category
+for accurate localization. The 4 × 4 setting also degrades                                                 inference.
+performance, attributed to excessive spatial fragmentation that                                                 a) Effect of spatial reasoning: To evaluate whether the
+weakens object-level semantics, and our experimental observa-                                              observed spatial reasoning gain is primarily driven by the
+tions confirm that it significantly increases hallucinated spatial                                         MLLM, we replace our grid-based prompting and Gaussian-
+predictions in MLLMs.                                                                                      weighted masks with a baseline strategy from HybridGL [13],
+   Overall, the 3 × 3 grid consistently achieves the best per-                                             denoted as the Keyword-Gradient baseline. In this setting, the
+formance in both oIoU and mIoU across all benchmarks. This                                                 MLLM predicts directional keywords (e.g., “left,” “right”),
+demonstrates that a moderate granularity provides the optimal                                              which are converted into a linear gradient mask for spatial
+balance between spatial resolution and semantic coherence,                                                 modeling. This baseline reflects the inherent spatial reason-
+enabling more reliable grounding.                                                                          ing capability of the MLLM, allowing us to disentangle its
+                                                                                                           contribution from the structured design in G3 L.
+                          TABLE VII                                                                           As shown in Table VIII, our method achieves consistent
+ A BLATION STUDY ON GRID GRANULARITIES . T HE BEST PERFORMANCE                                             performance gains across most datasets, particularly in more
+            FOR EACH METRIC IS HIGHLIGHTED IN BOLD .                                                       challenging scenarios (e.g., RefCOCO testB, where oIoU and
+                                  RefCOCO                      RefCOCO+                   RefCOCOg         mIoU are improved by 8.50% and 6.83%, respectively). While
+ Metrics    Grid Size
+                           val      testA testB         val       testA testB           val(u) test(u)     the MLLM contributes to performance improvements, our
+              2×2         19.35     19.29 20.50        21.05      21.06 21.58           24.33   26.77
+  oIoU        3×3         50.85     51.37 49.92        45.96      49.07 41.31           50.03   48.99      module is essential for improving robustness.
+              4×4         25.13     27.49 24.30        27.68      30.39 26.21           31.00   32.08         We also observe that the Keyword-Gradient baseline
+              2×2         26.41     27.23 26.22        28.59      29.46 27.80           32.02   34.37
+  mIoU        3×3         58.42     59.36 56.23        54.01      57.33 48.73           57.85   57.03
+                                                                                                           achieves a marginal advantage on the testA split, which can
+              4×4         32.47     35.13 29.90        34.91      38.78 32.48           38.56   39.78      be attributed to dataset characteristics. Specifically, the higher
+                                                                                                           proportion of elongated ground-truth masks in testA (median
+
+    Authorized licensed use limited to: SUN YAT-SEN UNIVERSITY. Downloaded on September 27,2026 at 04:03:30 UTC from IEEE Xplore. Restrictions apply.
+                          © 2026 IEEE. All rights reserved, including rights for text and data mining and training of artificial intelligence and similar technologies. Personal use is permitted,
+                                                but republication/redistribution requires IEEE permission. See https://www.ieee.org/publications/rights/index.html for more information.
+                   This article has been accepted for publication in IEEE Transactions on Circuits and Systems for Video Technology. This is the author's version which has not been fully edited and
+                                              content may change prior to final publication. Citation information: DOI 10.1109/TCSVT.2026.3735214
+
+IEEE TRANSACTIONS ON CIRCUITS AND SYSTEMS FOR VIDEO TECHNOLOGY                                                                                                                                10
+
+
+
+aspect ratio, defined as height-to-width ratio: 1.90 for Ref-
+COCO testA and 1.18 for RefCOCO testB), aligns well with
+the baseline’s linear gradient mask, which emphasizes smooth
+directional transitions. However, in complex scenes such as
+testB with more diverse object shapes, the performance of
+the Keyword-Gradient baseline drops significantly. In contrast,
+our G3 L approach is less constrained by object shape priors,
+demonstrating substantially stronger robustness.
+
+                           TABLE XI
+ A BLATION STUDY ON THE EFFECT OF NINE - GRID VISUAL PROMPTS ON
+SPATIAL LOCALIZATION GUIDANCE . T HE BEST PERFORMANCE FOR EACH
+                   DATASET IS HIGHLIGHTED IN BOLD
+
+                                        RefCOCO                      RefCOCOg
+ Metrics      Methods
+                                val       testA testB              val(u) test(u)
+               original        50.06      51.69 48.48              49.58   48.92
+  oIoU                                                                                          Fig. 6. Sensitivity to Mask Proposal Quality. Solid bars denote the actual oIoU
+            grid-prompts       50.85      51.37 49.92              50.03   48.99
+                                                                                                and mIoU of GLOD-RIS across various SAM backbones. Dashed lines with
+               original        57.88      59.62 55.04              57.52   56.90                top markers represent the oracle upper bound, simulating ideal performance
+  mIoU
+            grid-prompts       58.42      59.36 56.23              57.85   57.03                by selecting the proposal with the maximum IoU against the ground truth.
+
+      b) Effect of spatial weighting: As shown in Table IX,
+replacing our Gaussian Mask with a Hard-coded Mask defined                                      is primarily limited by the quality of the proposal pool.
+as a one-hot spatial assignment, where only the predicted grid                                  Notably, despite varying proposal qualities across different
+cell is assigned a value of 1 and all others are set to 0, leads                                backbones, our method maintains a stable oracle utilization
+to significantly worse performance across all datasets. This                                    rate, around 62%–65% for oIoU and 70%–73% for mIoU. In
+observation suggests that the spatial cues derived from the                                     summary, while the system’s performance ceiling is primarily
+MLLM do not directly translate into performance gains, and                                      restricted by SAM’s mask recall, our method remains robust
+their effectiveness critically depends on the design of spatial                                 and consistently exploits a large portion of the theoretical
+weighting. Our Gaussian Mask provides a more effective way                                      potential.
+to leverage such information.
+      c) Effect of category inference: To evaluate this com-                                    E. Inference Time Analysis
+ponent, we introduce an NLP-based baseline that performs                                           To evaluate the computational efficiency of the proposed
+category inference by directly extracting the subject noun from                                 method, we conduct a runtime analysis comparing GLOD-
+the referring expression using traditional syntactic parsing.                                   RIS with the baseline HybridGL [13] on 100 images sampled
+As shown in Table X, both NLP-based and MLLM-based                                              from the RefCOCO testB dataset.
+category inference outperform the variant without category                                         When focusing on the local visual processing pipeline,
+inference, demonstrating the effectiveness of the proposed                                      GLOD-RIS achieves lower computational cost. The DOD
+design. Quantitative analysis shows that the performance gains                                  module introduces negligible overhead of 0.001 seconds. In
+are not solely attributed to the MLLM, i.e., the proposed                                       addition, a streamlined post-processing stage further reduces
+category inference design contributes substantially.                                            runtime (0.069s vs. 0.580s of the baseline method). As a result,
+   4) Ablation on s and top-k selection: We conduct a grid-
+                                                                                                the total local computation time is reduced by approximately
+search ablation study to investigate the impact of two key
+                                                                                                19.5%, from 2.62s to 2.11s per image.
+hyperparameters: the steepness of the Gaussian mask and
+                                                                                                   To evaluate the overall runtime, our framework adopts a
+the top-k value selected in the first stage. As shown in
+                                                                                                dual-thread parallel design, executing the external no-cost
+Figure 4, the first row of figures illustrates how oIoU and
+                                                                                                API request concurrently with the visual processing pipeline.
+mIoU vary across different k values for different s settings,
+                                                                                                The external API introduces additional latency of 4.3s. This
+while the second row depicts the changes in oIoU and mIoU
+                                                                                                latency is associated with the use of a publicly accessible API
+across different s values for different k settings. The results
+                                                                                                service and may be affected by shared resource constraints. In
+indicate that the model achieves optimal performance when
+                                                                                                practical deployments, it can be further reduced by deploying
+the Gaussian mask sharpness is set to 0.7 and top-k is set to
+                                                                                                distilled lightweight MLLMs locally. Due to the parallel exe-
+10, which are therefore adopted as the final values.
+                                                                                                cution strategy, local computation is largely overlapped with
+   5) Sensitivity to Mask Proposal Quality: We analyze the
+                                                                                                API processing.
+sensitivity of GLOD-RIS to mask proposal quality using
+different SAM backbones (ViT-B, ViT-L, ViT-H) and con-
+trolled settings (e.g., removing the best proposal or injecting                                 F. Qualitative Results
+ground-truth masks), as shown in Figure 6. Removing the                                            1) Visualization: To qualitatively validate the effectiveness
+best proposal leads to a drastic performance drop (e.g., oIoU                                   of DOD, we visualize the feature similarity matrices before
+falling to around 15%), whereas injecting ground-truth masks                                    and after decoupling, along with the prediction masks gener-
+yields substantial gains, indicating that the overall performance                               ated solely by DOD, as shown in Figure 1. As indicated in the
+
+   Authorized licensed use limited to: SUN YAT-SEN UNIVERSITY. Downloaded on September 27,2026 at 04:03:30 UTC from IEEE Xplore. Restrictions apply.
+                   © 2026 IEEE. All rights reserved, including rights for text and data mining and training of artificial intelligence and similar technologies. Personal use is permitted,
+                                      but republication/redistribution requires IEEE permission. See https://www.ieee.org/publications/rights/index.html for more information.
+                   This article has been accepted for publication in IEEE Transactions on Circuits and Systems for Video Technology. This is the author's version which has not been fully edited and
+                                              content may change prior to final publication. Citation information: DOI 10.1109/TCSVT.2026.3735214
+
+IEEE TRANSACTIONS ON CIRCUITS AND SYSTEMS FOR VIDEO TECHNOLOGY                                                                                                                                11
+
+
+
+ Referring Text: The right last bird in the                  Referring Text: The zebra on the left in the                        Referring Text: A man in a hood and mask has
+ right hand picture.                                         right hand picture.                                                 his hands in front of his face on a laptop video.
+
+
+
+ Referring Text: A male skier wearing a                      Referring Text: Left black chicken.                                Referring Text: A women wearing a blue jean
+ grey jacket and black trousers.                                                                                                jacket sitting behind a man eating a sandwich.
+
+
+
+ Referring Text: The foremost donut.                         Referring Text: The bus in the middle.                             Referring Text: Can’t see his face but he is
+                                                                                                                                leading.
+
+
+
+     Orig         GT        HybridGL            Ours              Orig              GT         HybridGL            Ours              Orig              GT          HybridGL            Ours
+
+
+Fig. 7. Qualitative results of our method compared with the state-of-the-art zero-shot RIS baseline [13]. From left to right: Orig: original images, GT:
+ground-truth masks, HybridGL: predicted masks from [13], Ours: predicted masks from our method.
+
+
+  Referring Text: Darkest colored horse.                      All white horse.                            Brown and white horse.                      The female rider with blonde
+                                                                                                                                                      curly hair and a hat.
+
+
+
+
+  Referring Text: Llittle boy standing behind                  The man in black who is                    Girl looking at laptop screen.              A chair with a boy sitting in
+                  chair.                                       typing on the laptop.                                                                  it and a boy leaning on it.
+
+
+
+
+  Referring Text: 18:19.                                       Clock 10:19.                               Screen behind lowest number. Blurry white screen.
+
+
+
+
+  Referring Text: Brown and white horse.                       Brown horse in full view.                  Brown horse with white legs.                The horse closest to us.
+
+
+
+
+      Orig                GT                  Ours                    GT                   Ours                    GT                  Ours                   GT                   Ours
+
+
+Fig. 8. Visualizations of the ground-truth masks and our predicted masks on four examples from the RefCOCOg validation set. From left to right: Orig:
+original images, GT: ground-truth masks, Ours: predicted masks from our method.
+
+
+
+FF-Sim column, the features of different masks exhibit high                                     exhibiting the spatial leakage phenomenon described earlier.
+pairwise similarity prior to decoupling, which leads the model                                  Without spatial localization cues, the baseline mask fails to
+to incorrectly attend to non-referred regions. After applying                                   provide reliable localization, as shown in the last row. In
+DOD, the FF-Sim (Dec) and Sim-Diff columns show a con-                                          contrast, the Gaussian mask consistently focuses on the target
+sistent decrease in feature similarity. Notably, the magnitude                                  region regardless of directional information, demonstrating
+of this reduction varies across samples, demonstrating that                                     superior zero-shot generalization and enhanced robustness.
+DOD adaptively adjusts the decoupling strength according to                                        To qualitatively validate GLOD-RIS, Figure 7 compares
+the characteristics of each instance. By reducing inter-mask                                    its performance with the current state-of-the-art method Hy-
+similarity, DOD enhances the discriminability of regional                                       bridGL [13] on RIS. In columns 1–4, HybridGL [13] can
+features, enabling the model to more accurately localize the                                    segment the target but suffers from over-segmentation and
+referred target.                                                                                fails to produce clean masks, whereas our decoupling mecha-
+   To qualitatively validate the effectiveness of G3 L, Figure 3                                nism enhances mask discriminability, yielding accurate target
+compares pixel-wise score distributions under different spatial                                 masks. In columns 5–8, when directional cues in the referring
+matrices. We overlay both the baseline position matrix and                                      expression are ambiguous (e.g., the first row, “The zebra on the
+our G3 L-generated Gaussian position matrix on the baseline                                     left in the right-hand picture,” where both “left” and “right”
+GEM attention maps [50]. Results indicate that when the                                         appear), HybridGL [13] often selects the wrong target relying
+referring expression includes directional cues, the baseline’s                                  solely on text, while our method jointly leverages text and
+unidirectional decay mask often highlights non-target regions,                                  image to localize the absolute position of the target, resolving
+
+   Authorized licensed use limited to: SUN YAT-SEN UNIVERSITY. Downloaded on September 27,2026 at 04:03:30 UTC from IEEE Xplore. Restrictions apply.
+                   © 2026 IEEE. All rights reserved, including rights for text and data mining and training of artificial intelligence and similar technologies. Personal use is permitted,
+                                      but republication/redistribution requires IEEE permission. See https://www.ieee.org/publications/rights/index.html for more information.
+                    This article has been accepted for publication in IEEE Transactions on Circuits and Systems for Video Technology. This is the author's version which has not been fully edited and
+                                               content may change prior to final publication. Citation information: DOI 10.1109/TCSVT.2026.3735214
+
+IEEE TRANSACTIONS ON CIRCUITS AND SYSTEMS FOR VIDEO TECHNOLOGY                                                                                                                                 12
+
+
+
+ (a) Over-decoupling
+ Referring Text: Section bottom far left.                                                         Referring Text: 3rd bear from right.
+
+
+
+
+ (b) Proposal Over-Segmentation
+ Referring Text: The plate of food that contains broccoli and others .                            Referring Text: Person sitting on right in black shirt.
+
+
+
+
+ (c) Expression Ambiguity
+ Referring Text: A pigeon flying second position with another one.                                Referring Text: A small boat with an umbrella.
+
+
+
+
+ (d) G3L Mislocalization
+ Referring Text: 4th from left stall.                                                             Referring Text: A white motorcycle with the letters nypd.
+
+
+
+
+     Orig           GT                  Pred               Grid              Best_SAM                 Orig                   GT                Pred                Grid             Best_SAM
+
+
+Fig. 9. Visualizations of typical failure cases of the proposed framework. From left to right: Orig: original images, GT: images with ground-truth masks,
+Pred: images with predicted masks from our method, Grid: nine-grid spatial localization guidance, and Best SAM: the optimal mask proposal selected by
+maximizing the IoU against the ground truth.
+
+
+
+spatial ambiguities. In columns 9–12, under increased textual                                    proposal over-segmentation, ambiguous referring expressions
+and visual complexity, our method consistently segments tar-                                     with limited discriminative cues, and spatial mislocalization
+gets accurately, demonstrating robustness and effectiveness.                                     in dense layouts (e.g., “4th from the left”), all of which may
+   To further illustrate its comprehensive understanding of                                      affect final prediction quality.
+image-text relationships, we conduct segmentation tests across
+different targets (rows 1–3) and the same target with multiple                                                                    V. CONCLUSION
+expressions (last row), as shown in Figure 8. Even in scenes                                        We introduce GLOD-RIS, a zero-shot RIS framework that
+with diverse attributes and complex relationships, GLOD-                                         addresses both semantic and spatial alignment challenges
+RIS consistently produces accurate segmentation, validating                                      through two complementary components. The dynamic or-
+its robustness and generalization.                                                               thogonal decoupling (DOD) module enhances feature discrim-
+   2) Failure Cases: We analyze model limitations by vi-                                         inability by explicitly disentangling region-specific represen-
+sualizing four representative failure cases in Figure 9. As                                      tations from global context, enabling more robust region-text
+shown in Figure 9(a), one failure mode is caused by over-                                        alignment. The grid-guided Gaussian localization (G3 L) mod-
+decoupling, when the foreground and background exhibit high                                      ule further improves spatial reasoning by leveraging grid-based
+semantic similarity, overly aggressive separation may lead to                                    visual prompts and Gaussian masks to infer and refine object
+the degradation of feature information. Specifically, during the                                 locations with high precision. By jointly optimizing seman-
+feature transformation from Ff g to Ff g⊥bg and subsequently                                     tic decoupling and spatial localization, GLOD-RIS achieves
+to Ff use , the text-image feature similarity ranking of the Best                                accurate and interpretable segmentation without any task-
+SAM mask (assumed to be the best predicted mask) exhibits                                        specific training. Experiments on benchmark datasets validate
+instability. In the left example, the rank decreases from 11                                     the effectiveness and generality of our framework over existing
+to 20 when Ff g is replaced by Ff g⊥bg , and then increases                                      zero-shot RIS methods.
+to 4 after feature fusion yields Ff use . A consistent pattern is                                   Beyond Zero-Shot RIS, our approach shows potential for
+observed in the right example, where the rank drops from 4 to                                    other fine-grained vision understanding tasks. Group activity
+57 after Ff g is replaced by Ff g⊥bg , and subsequently recovers                                 recognition [55] and action recognition [56] achieve behav-
+to 2 after Ff use is introduced. While the subsequent DOD                                        ior understanding by modeling spatio-temporal relationships
+fusion partially restores the ranking, it fails to fully compensate                              among entities, which depend on discriminative visual rep-
+for the degraded intermediate representations, yielding incor-                                   resentations. However, redundant contextual information in
+rect top-1 predictions. This indicates that excessive orthogonal                                 complex scenarios can degrade behavior-related features. Sim-
+decoupling may degrade feature representations when the                                          ilarly, when extending from vision-language understanding to
+semantic boundary between the foreground and background                                          audio-visual understanding tasks, such as audio-visual event
+is highly entangled.                                                                             localization [57], temporal features across multiple frames may
+   In addition, the method may encounter limitations due to                                      still contain redundant contextual information, limiting the
+
+   Authorized licensed use limited to: SUN YAT-SEN UNIVERSITY. Downloaded on September 27,2026 at 04:03:30 UTC from IEEE Xplore. Restrictions apply.
+                    © 2026 IEEE. All rights reserved, including rights for text and data mining and training of artificial intelligence and similar technologies. Personal use is permitted,
+                                       but republication/redistribution requires IEEE permission. See https://www.ieee.org/publications/rights/index.html for more information.
+                     This article has been accepted for publication in IEEE Transactions on Circuits and Systems for Video Technology. This is the author's version which has not been fully edited and
+                                                content may change prior to final publication. Citation information: DOI 10.1109/TCSVT.2026.3735214
+
+IEEE TRANSACTIONS ON CIRCUITS AND SYSTEMS FOR VIDEO TECHNOLOGY                                                                                                                                  13
+
+
+
+learning of discriminative event representations. To this end,                                    [19] M. Xu, T. Xiao, Y. Liu, H. Tang, Y. Hu, and L. Nie, “Cmirnet: Cross-
+our feature decoupling strategy enhances feature discriminabil-                                        modal interactive reasoning network for referring image segmentation,”
+                                                                                                       IEEE Trans. Circuits Syst. Video Technol., vol. 35, no. 4, pp. 3234–3249,
+ity by separating task-relevant representations from redundant                                         Apr. 2025.
+contexts. Moreover, in few-shot action recognition [58], [59],                                    [20] W. Wang et al., “Unveiling parts beyond objects: Towards finer-
+limited supervision hinders action-related region localization.                                        granularity referring expression segmentation,” in Proc. IEEE/CVF Conf.
+                                                                                                       Comput. Vis. Pattern Recognit., 2024, pp. 12 998–13 008.
+The proposed semantic-guided localization provides spatial                                        [21] Q. Dai and S. Yang, “Curriculum point prompting for weakly-supervised
+priors to enhance action-related visual perception.                                                    referring image segmentation,” in Proc. IEEE/CVF Conf. Comput. Vis.
+   Despite these strengths, our framework has limitations. Its                                         Pattern Recognit., 2024, pp. 13 711–13 722.
+performance depends on the quality of mask proposals and                                          [22] S. Cheng, Y. Liu, X. He, S. Ourselin, L. Tan, and G. Luo, “Weakmcn:
+                                                                                                       Multi-task collaborative network for weakly supervised referring ex-
+may suffer from over-segmentation. It is also limited to single-                                       pression comprehension and segmentation,” in Proc. IEEE/CVF Conf.
+target scenarios, and the fixed 3 × 3 grid may be insufficient                                         Comput. Vis. Pattern Recognit., 2025, pp. 9175–9185.
+for dense scenes. Future work will investigate adaptive mask                                      [23] D. Yang et al., “Sam as the guide: Mastering pseudo-label refinement
+                                                                                                       in semi-supervised referring expression segmentation,” arXiv preprint
+merging for over-segmentation mitigation, multi-target exten-                                          arXiv:2406.01451, 2024.
+sions, and hierarchical grid refinement to better handle dense                                    [24] J. Lee, S. Lee, J. Nam, S. Yu, J. Do, and T. Taghavi, “Weakly
+scenes.                                                                                                supervised referring image segmentation with intra-chunk and inter-
+                                                                                                       chunk consistency,” in Proc. IEEE/CVF Int. Conf. Comput. Vis., 2023,
+                                                                                                       pp. 21 870–21 881.
+                                 R EFERENCES                                                      [25] S. Nag, K. Goswami, and S. Karanam, “Safari: Adaptive sequence
+                                                                                                       transformer for weakly supervised referring expression segmentation,”
+ [1] R. Hu, M. Rohrbach, and T. Darrell, “Segmentation from natural
+                                                                                                       in Proc. Eur. Conf. Comput. Vis., 2024, pp. 485–503.
+     language expressions,” in Proc. Eur. Conf. Comput. Vis., 2016, pp. 108–
+     124.                                                                                         [26] S.-A. Liu, H. Xie, J. Ge, and Y. Zhang, “ReferSAM: Unleashing segment
+ [2] C. Shang et al., “Cross-modal recurrent semantic comprehension for re-                            anything model for referring image segmentation,” IEEE Trans. Circuits
+     ferring image segmentation,” IEEE Trans. Circuits Syst. Video Technol.,                           Syst. Video Technol., vol. 35, no. 5, pp. 4910–4922, May 2025.
+     vol. 33, no. 7, pp. 3229–3242, Jul. 2022.                                                    [27] C. Shang, Z. Song, H. Qiu, L. Wang, F. Meng, and H. Li, “Prompt-
+ [3] W. Zhang, C. Ma, Q. Wu, and X. Yang, “Language-guided navigation via                              driven referring image segmentation with instance contrasting,” in Proc.
+     cross-modal grounding and alternate adversarial learning,” IEEE Trans.                            IEEE/CVF Conf. Comput. Vis. Pattern Recognit., 2024, pp. 4124–4134.
+     Circuits Syst. Video Technol., vol. 31, no. 9, pp. 3469–3481, Sep. 2021.                     [28] X. Wang, L. Zhu, Z. Zheng, M. Xu, and Y. Yang, “Align and tell:
+ [4] L. Yu, P. Poirson, S. Yang, A. C. Berg, and T. L. Berg, “Modeling                                 Boosting text-video retrieval with local alignment and fine-grained
+     context in referring expressions,” in Proc. Eur. Conf. Comput. Vis., 2016,                        supervision,” IEEE Trans. Multim., vol. 25, pp. 6079–6089, 2023.
+     pp. 69–85.                                                                                   [29] Y.-C. Chen, W.-H. Li, C. Sun, Y.-C. F. Wang, and C.-S. Chen,
+ [5] R. Strudel, R. Garcia, I. Laptev, and C. Schmid, “Segmenter: Trans-                               “Sam4mllm: Enhance multi-modal large language model for referring
+     former for semantic segmentation,” in Proc. IEEE/CVF Int. Conf.                                   expression segmentation,” in Proc. Eur. Conf. Comput. Vis., 2024, pp.
+     Comput. Vis., 2021, pp. 7262–7272.                                                                323–340.
+ [6] D. Bolya, C. Zhou, F. Xiao, and Y. J. Lee, “YOLACT: Real-time instance                       [30] W. Su, P. Miao, H. Dou, and X. Li, “Scanformer: Referring expression
+     segmentation,” in Proc. IEEE/CVF Int. Conf. Comput. Vis., 2019, pp.                               comprehension by iteratively scanning,” in Proc. IEEE/CVF Conf.
+     9157–9166.                                                                                        Comput. Vis. Pattern Recognit., 2024, pp. 13 449–13 458.
+ [7] J. Chen, Y. Shen, J. Gao, J. Liu, and X. Liu, “Language-based image                          [31] Y. X. Chng, H. Zheng, Y. Han, X. Qiu, and G. Huang, “Mask grounding
+     editing with recurrent attentive models,” in Proc. IEEE/CVF Conf.                                 for referring image segmentation,” in Proc. IEEE/CVF Conf. Comput.
+     Comput. Vis. Pattern Recognit., 2018, pp. 8721–8729.                                              Vis. Pattern Recognit., 2024, pp. 26 573–26 583.
+ [8] X. Wang et al., “Reinforced cross-modal matching and self-supervised                         [32] Z. Wei et al., “Stronger fewer & superior: Harnessing vision founda-
+     imitation learning for vision-language navigation,” in Proc. IEEE/CVF                             tion models for domain generalized semantic segmentation,” in Proc.
+     Conf. Comput. Vis. Pattern Recognit., 2019, pp. 6629–6638.                                        IEEE/CVF Conf. Comput. Vis. Pattern Recognit., 2024, pp. 28 619–
+ [9] X. Dong, L. Han, D. Zhang, L. Liu, J. Han, and H. Zhang, “Giving text                             28 630.
+     more imagination space for image-text matching,” in Proc. ACM Int.                           [33] R. Strudel, I. Laptev, and C. Schmid, “Weakly-supervised segmentation
+     Conf. Multimedia, 2023, pp. 6359–6368.                                                            of referring expressions,” arXiv preprint arXiv:2205.04725, 2022.
+[10] A. Radford et al., “Learning transferable visual models from natural                         [34] S. Yu, P. H. Seo, and J. Son, “Zero-shot referring image segmentation
+     language supervision,” in Proc. Int. Conf. Mach. Learn., 2021, pp. 8748–                          with global-local context features,” in Proc. IEEE/CVF Conf. Comput.
+     8763.                                                                                             Vis. Pattern Recognit., 2023, pp. 19 456–19 465.
+[11] A. Kirillov et al., “Segment anything,” in Proc. IEEE/CVF Conf.
+                                                                                                  [35] Y. Wang, J. Ni, Y. Liu, C. Yuan, and Y. Tang, “Iterprime: Zero-shot
+     Comput. Vis. Pattern Recognit., 2023, pp. 4015–4026.
+                                                                                                       referring image segmentation with iterative grad-cam refinement and
+[12] H. Liu, C. Li, Q. Wu, and Y. J. Lee, “Visual instruction tuning,” in Proc.
+                                                                                                       primary word emphasis,” in Proc. AAAI Conf. Artif. Intell., no. 8, 2025,
+     Adv. Neural Inf. Process. Syst., vol. 36, 2023, pp. 34 892–34 916.
+                                                                                                       pp. 8159–8168.
+[13] T. Liu and S. Li, “Hybrid global-local representation with augmented
+                                                                                                  [36] S. Sun, R. Li, P. Torr, X. Gu, and S. Li, “Clip as rnn: Segment countless
+     spatial guidance for zero-shot referring image segmentation,” in Proc.
+                                                                                                       visual concepts without training endeavor,” in Proc. IEEE/CVF Conf.
+     IEEE/CVF Conf. Comput. Vis. Pattern Recognit., 2025, pp. 29 634–
+                                                                                                       Comput. Vis. Pattern Recognit., 2024, pp. 13 171–13 182.
+     29 643.
+[14] Z. Sun et al., “Alpha-clip: A clip model focusing on wherever you want,”                     [37] Y. Suo, L. Zhu, and Y. Yang, “Text augmented spatial-aware zero-shot
+     in Proc. IEEE/CVF Conf. Comput. Vis. Pattern Recognit., 2024, pp.                                 referring image segmentation,” arXiv preprint arXiv:2310.18049, 2023.
+     13 019–13 029.                                                                               [38] W. Li, C. Pang, W. Nie, H. Tian, and A.-A. Liu, “Bidirectional mask
+[15] C. Liu, H. Ding, and X. Jiang, “Gres: Generalized referring expression                            selection for zero-shot referring image segmentation,” IEEE Trans.
+     segmentation,” in Proc. IEEE/CVF Conf. Comput. Vis. Pattern Recognit.,                            Circuits Syst. Video Technol., vol. 35, no. 1, pp. 911–921, Jan. 2025.
+     2023, pp. 23 592–23 601.                                                                     [39] M. Ni, Y. Zhang, K. Feng, X. Li, Y. Guo, and W. Zuo, “Ref-diff:
+[16] N. A. Shah, V. VS, and V. M. Patel, “Lqmformer: Language-aware query                              Zero-shot referring image segmentation with generative models,” arXiv
+     mask transformer for referring image segmentation,” in Proc. IEEE/CVF                             preprint arXiv:2308.16777, 2023.
+     Conf. Comput. Vis. Pattern Recognit., 2024, pp. 12 903–12 913.                               [40] R. Rombach, A. Blattmann, D. Lorenz, P. Esser, and B. Ommer,
+[17] Z. Yang, J. Wang, Y. Tang, K. Chen, H. Zhao, and P. H. Torr, “Lavt:                               “High-resolution image synthesis with latent diffusion models,” in Proc.
+     Language-aware vision transformer for referring image segmentation,”                              IEEE/CVF Conf. Comput. Vis. Pattern Recognit., 2022, pp. 10 684–
+     in Proc. IEEE/CVF Conf. Comput. Vis. Pattern Recognit., 2022, pp.                                 10 695.
+     18 155–18 165.                                                                               [41] H. Qiu, L. Wang, T. Zhao, F. Meng, Q. Wu, and H. Li, “MCCE-
+[18] C. Liu, H. Ding, Y. Zhang, and X. Jiang, “Multi-modal mutual attention                            REC: MLLM-driven cross-modal contrastive entropy model for zero-
+     and iterative interaction for referring image segmentation,” IEEE Trans.                          shot referring expression comprehension,” IEEE Trans. Circuits Syst.
+     Image Process., vol. 32, pp. 3054–3065, May 2023.                                                 Video Technol., vol. 35, no. 1, pp. 754–768, Jan. 2025.
+
+
+   Authorized licensed use limited to: SUN YAT-SEN UNIVERSITY. Downloaded on September 27,2026 at 04:03:30 UTC from IEEE Xplore. Restrictions apply.
+                     © 2026 IEEE. All rights reserved, including rights for text and data mining and training of artificial intelligence and similar technologies. Personal use is permitted,
+                                        but republication/redistribution requires IEEE permission. See https://www.ieee.org/publications/rights/index.html for more information.
+                    This article has been accepted for publication in IEEE Transactions on Circuits and Systems for Video Technology. This is the author's version which has not been fully edited and
+                                               content may change prior to final publication. Citation information: DOI 10.1109/TCSVT.2026.3735214
+
+IEEE TRANSACTIONS ON CIRCUITS AND SYSTEMS FOR VIDEO TECHNOLOGY                                                                                                                                 14
+
+
+
+[42] J. Li, Q. Xie, R. Gu, J. Xu, Y. Liu, and X. Yu, “LGD: Leveraging                                                            Huicheng Zheng received the B.S. and M.E. de-
+     generative descriptions for zero-shot referring image segmentation,”                                                        grees from Sun Yat-sen University, Guangzhou,
+     Pattern Recognition, p. 112549, 2025.                                                                                       China, in 1996 and 1999, respectively, and the Ph.D.
+[43] S. Yu, P. H. Seo, and J. Son, “Pseudo-ris: Distinctive pseudo-supervision                                                   degree in computer science from the University
+     generation for referring image segmentation,” in Proc. Eur. Conf. Com-                                                      of Lille 1, Villeneuve-d’Ascq, France, in 2004. In
+     put. Vis., 2024, pp. 18–36.                                                                                                 2007, he joined Sun Yat-sen University, where he is
+[44] S. Wang, D. Kim, A. Taalimi, C. Sun, and W. Kuo, “Learning visual                                                           currently a Professor with the School of Computer
+     grounding from generative vision and language model,” in Proc. IEEE                                                         Science and Engineering. His current research inter-
+     Winter Conf. Appl. Comput. Vis., 2025, pp. 8057–8067.                                                                       ests include image understanding, computer vision,
+[45] R. R. Selvaraju, M. Cogswell, A. Das, R. Vedantam, D. Parikh, and                                                           neural networks, and machine learning.
+     D. Batra, “Grad-cam: Visual explanations from deep networks via
+     gradient-based localization,” in Proc. IEEE/CVF Int. Conf. Comput. Vis.,
+     Oct. 2017, pp. 618–626.
+[46] C. Zhou, C. C. Loy, and B. Dai, “Extract free dense labels from CLIP,”
+     in Proc. Eur. Conf. Comput. Vis., 2022, pp. 696–712.
+[47] Y. Suo, L. Zhu, and Y. Yang, “Text augmented spatial aware zero-                                                            Yun Lan received the B.S. degree from the School
+     shot referring image segmentation,” in Proc. Conf. Empirical Methods                                                        of Information Science and Engineering, Hunan Uni-
+     Natural Lang. Process., 2014, pp. 787–798.                                                                                  versity, Changsha, China, and the M.S. degree from
+[48] J. Lee, S. Lee, J. Nam, S. Yu, J. Do, and T. Taghavi, “Weakly                                                               the School of Computer Science, Wuhan University,
+     supervised referring image segmentation with intra-chunk and inter-                                                         Wuhan, China. She is currently pursuing a Ph.D.
+     chunk consistency,” in Proc. IEEE/CVF Int. Conf. Comput. Vis., 2023,                                                        degree with the School of Computer Science, Sun
+     pp. 21 813–21 824.                                                                                                          Yat-sen University, Guangzhou, China. Her research
+[49] F. Eiras, K. Oksuz, A. Bibi, P. H. S. Torr, and P. K. Dokania,                                                              interests include computer vision, machine learning,
+     “Segment, select, correct: A framework for weakly-supervised referring                                                      and neural networks.
+     segmentation,” in Proc. Eur. Conf. Comput. Vis., 2024, pp. 326–342.
+[50] W. Bousselham, F. Petersen, V. Ferrari, and H. Kuehne, “Grounding
+     everything: Emerging localization properties in vision-language trans-
+     formers,” in Proc. IEEE/CVF Conf. Comput. Vis. Pattern Recognit.,
+     2024, pp. 3828–3837.
+[51] V. K. Nagaraja, V. I. Morariu, and L. S. Davis, “Modeling context                                                           Zehua Liu received the B.S. and M.E. degrees from
+     between objects for referring expression understanding,” in Proc. Eur.                                                      the School of Information Engineering, Zhengzhou
+     Conf. Comput. Vis., 2016, pp. 792–807.                                                                                      University, Zhengzhou, China. He is currently pur-
+[52] J. Mao, J. Huang, A. Toshev, O. Camburu, A. L. Yuille, and K. Murphy,                                                       suing a Ph.D. degree with the School of Computer
+     “Generation and comprehension of unambiguous object descriptions,” in                                                       Science and Engineering, Sun Yat-sen University,
+     Proc. IEEE/CVF Conf. Comput. Vis. Pattern Recognit., 2016, pp. 11–20.                                                       Guangzhou, China. His current research interests in-
+[53] T.-Y. Lin et al., “Microsoft coco: Common objects in context,” in Proc.                                                     clude computer vision, machine learning, and neural
+     Eur. Conf. Comput. Vis., 2014, pp. 740–755.                                                                                 networks.
+[54] W. Hong et al., “Glm-4.1v-thinking: Towards versatile multimodal
+     reasoning with scalable reinforcement learning,” arXiv e-prints, pp.
+     arXiv–2507, 2025.
+[55] R. Yan, L. Xie, J. Tang, X. Shu, and Q. Tian, “HiGCIN: Hierarchical
+     graph-based cross inference network for group activity recognition,”
+     IEEE Trans. Circuits Syst. Video Technol., vol. 45, no. 6, pp. 6955–
+     6968, Jun. 2023.                                                                                                            Jiawen Fang is currently pursuing a B.S. degree
+[56] R. Yan, L. Xie, X. Shu, L. Zhang, and J. Tang, “Progressive instance-                                                       with the School of Computer Science and Engineer-
+     aware feature learning for compositional action recognition,” IEEE                                                          ing, Sun Yat-sen University, Guangzhou, China. Her
+     Trans. Pattern Anal. Mach. Intell., vol. 45, no. 8, pp. 10 317–10 330,                                                      current research interests include computer vision
+     Aug. 2023.                                                                                                                  and multimodal learning.
+[57] L. Xing, H. Qu, R. Yan, X. Shu, and J. Tang, “Locality-aware cross-
+     modal correspondence learning for dense audio-visual events detection,”
+     IEEE Trans. Circuits Syst. Video Technol., vol. 36, no. 5, pp. 6838–6851,
+     May 2026.
+[58] H. Qu, X. Shu, R. Yan, H. Gao, W. Wang, and J. Tang, “Spatio-temporal
+     decoupled knowledge compensator for few-shot action recognition,”
+     IEEE Trans. Pattern Anal. Mach. Intell., vol. 48, no. 7, pp. 7954–7968,
+     Jul. 2026.
+[59] H. Qu, R. Yan, X. Shu, H. Gao, P. Huang, and G. Xie, “MVP-Shot:
+     Multi-velocity progressive-alignment framework for few-shot action                                                  Jisheng Dang received the Ph.D. degree from Sun
+     recognition,” IEEE Trans. Multimedia, vol. 27, pp. 6593–6605, Nov.                                                  Yat-sen University, China, in 2025. He worked as
+     2025.                                                                                                               a research fellow at the NExT++ laboratory of
+                                                                                                                         the NationalT University of Singapore advised by
+                                                                                                                         prof. Tat-Seng Chua. He is now a tenured asso-
+                                                                                                                         ciate professor at the School of Information Sci-
+                                                                                                                         ence and Engineering, Lanzhou University. His re-
+                                                                                                                         search interests include multimodal learning, video
+                         Jingjun Wu received the B.S. degree from the                                                    understanding, and embodied intelligence. He has
+                         School of Economics and Statistics, Guangzhou Uni-                                              published several papers as the first author in
+                         versity, Guangzhou, China. She is currently pursu-                                              major journals and conferences including IEEE
+                         ing the M.S. degree with the School of Computer                         TIP/TNNLS/TITS/IJCAI/AAAI. He served as a reviewer at some major
+                         Science, Sun Yat-sen University, Guangzhou, China.                      journals and conferences like IEEE TPAMI, ICML, NIPS, ICLR, IEEE TIP,
+                         Her research interests include computer vision, ma-                     CVPR, IJCAI, ACM MM, AAAI, IEEE TMM, IEEE TCSVT, ACM TOMM.
+                         chine learning, and neural networks.
+
+
+
+
+   Authorized licensed use limited to: SUN YAT-SEN UNIVERSITY. Downloaded on September 27,2026 at 04:03:30 UTC from IEEE Xplore. Restrictions apply.
+                    © 2026 IEEE. All rights reserved, including rights for text and data mining and training of artificial intelligence and similar technologies. Personal use is permitted,
+                                       but republication/redistribution requires IEEE permission. See https://www.ieee.org/publications/rights/index.html for more information.
+

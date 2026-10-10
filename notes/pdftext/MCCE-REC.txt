@@ -1,0 +1,1025 @@
+754                                           IEEE TRANSACTIONS ON CIRCUITS AND SYSTEMS FOR VIDEO TECHNOLOGY, VOL. 35, NO. 1, JANUARY 2025
+
+
+
+
+              MCCE-REC: MLLM-Driven Cross-Modal
+              Contrastive Entropy Model for Zero-Shot
+               Referring Expression Comprehension
+           Heqian Qiu , Member, IEEE, Lanxiao Wang , Graduate Student Member, IEEE, Taijin Zhao,
+      Fanman Meng , Member, IEEE, Qingbo Wu , Member, IEEE, and Hongliang Li , Senior Member, IEEE
+
+
+
+   Abstract— Zero-shot referring expression comprehension                       content of the real world, thereby enabling broad applications
+(zero-shot REC) is a crucial yet challenging task in the                        of artificial intelligence [1], [2], [3], [4], [5], such as human-
+field of multi-modal understanding, which aims to locate an                     robot interaction, intelligent navigation, target search and so
+object described by a referring expression without training
+on task-specific datasets. Existing methods take advantage of                   on. To achieve this REC task, previous models [6], [7],
+a pre-trained CLIP model to align cropped proposal regions                      [8], [9], [10] are trained via supervised learning using task-
+with referring expressions. However, our analysis reveals that                  specific datasets. However, collecting annotation of datasets is
+this aligning way heavily biases toward certain salient visual                  a time-consuming and labor-intensive process, which requires
+regions due to CLIP focusing on global-level image-text matching.               annotators to carefully understand various object information
+To mitigate this bias, we propose MCCE-REC, an MLLM-driven
+cross-modal contrastive entropy model for training-free zero-shot               within the image and provide discriminative and precise
+REC. Benefiting from the remarkable in-context comprehension                    descriptions for objects.
+ability of the multi-modal large language model (MLLM),                            In contrast, zero-shot REC eliminates the need for training
+we design a set of referring prompts for MLLM to generate                       on specific datasets and referring expression annotations,
+diverse detailed informative, and contrastive cues related to                   which makes it more flexible to adapt for various real-
+referring objects. Based on these cues, on the one hand,
+we propose a multi-cues cross-modal interaction network, which                  world scenarios and domains. Nevertheless, zero-shot learning
+associates the visual features and referring object textual features            in REC poses more challenges, as it necessitates stronger
+from multiple perspectives and perceives surrounding context                    generality ability and deeper comprehension of the alignment
+object information in a parameter-free manner, avoiding bias                    between text and visual regions in images. Without task-
+towards salient features. On the other hand, we introduce a                     specific training data, the model struggles to capture subtle
+contrastive similarity entropy selection mechanism that compares
+the positive and negative cues to suppress biased regions                       differences and implicit information in referring expressions.
+with high similarity scores and emphasizes accurate regions                     Additionally, the complexity and diversity of visual scenes
+correlating with referring descriptions. Extensive experiments                  may lead to misalignments or misunderstandings between text
+demonstrate our MCCE-REC outperforms existing zero-shot                         and visual regions, which is worthy of further exploration to
+methods by a significant margin on various REC datasets.                        overcome these challenges.
+  Index Terms— Zero-shot referring expression comprehension,                       Recently, multi-modal pre-trained models [11], [12], [13],
+multi-cues cross-modal fusion, contrastive similarity entropy.                  [14] have exhibited impressive capability for visual-linguistic
+                                                                                alignment. As the most representative method among them,
+                         I. I NTRODUCTION                                       CLIP [11] is trained on image-text pairs, and has achieved
+                                                                                significant improvements in many downstream zero-shot
+R     EFERRING expression comprehension (REC) aims to
+      locate a specific object or region in an image referred by
+the natural language expression. It serves as a fundamental task
+                                                                                learning tasks, such as image recognition [15], object
+                                                                                detection [16], [17], and segmentation [18], [19]. However,
+that builds a bridge between human language and the visual                      it cannot be directly applied in the zero-shot REC task,
+                                                                                as it primarily focuses on global-level image-text similarity
+  Received 23 May 2024; revised 22 August 2024; accepted 6 September            while not specializing in handling fine-grained region-text
+2024. Date of publication 16 September 2024; date of current version
+30 January 2025. This work was supported in part by the National Natural        matching. To bridge this gap, existing methods [20], [21]
+Science Foundation of China under Grant 62301121 and Grant U23A20286,           firstly use off-the-shelf object detectors like Mask R-CNN [22]
+in part by China Postdoctoral Science Foundation under Grant 2023M740529
+and Grant 2023TQ0046, and in part by Sichuan Province Innovative Talent
+                                                                                to generate a set of proposal regions, then crop or mark
+Funding Project for Postdoctoral Fellows under Grant BX202212. This article     them with circles or color-filled boxes, and feed into CLIP
+was recommended by Associate Editor M. Teutsch. (Corresponding authors:         to calculate the similarity score between each proposal and
+Hongliang Li; Lanxiao Wang.)
+  The authors are with the School of Information and Communication
+                                                                                the input referring expression, finally selecting the proposal
+Engineering, University of Electronic Science and Technology of China,          with the highest score as the matching result, as shown in
+Chengdu 611731, China (e-mail: hqqiu@uestc.edu.cn; lanxiaowang@                 Figure 1(a).
+uestc.edu.cn; zhtjww@std.uestc.edu.cn; fmmeng@uestc.edu.cn; qbwu@
+uestc.edu.cn; hlli@uestc.edu.cn).
+                                                                                   Although these methods have achieved improvements in
+  Digital Object Identifier 10.1109/TCSVT.2024.3462100                          zero-shot REC, there exist severe bias problems. We observe
+                      1051-8215 © 2024 IEEE. Personal use is permitted, but republication/redistribution requires IEEE permission.
+                                    See https://www.ieee.org/publications/rights/index.html for more information.
+
+  Authorized licensed use limited to: South China Normal University. Downloaded on September 30,2026 at 15:39:10 UTC from IEEE Xplore. Restrictions apply.
+QIU et al.: MCCE-REC: MLLM-DRIVEN CROSS-MODAL CONTRASTIVE ENTROPY MODEL FOR ZERO-SHOT REC                                                                     755
+
+
+
+                                                                                    one hand, positive cues can help establish dynamic cross-
+                                                                                    modal fusion between the input referring expression and the
+                                                                                    whole image contents under the parameter-free condition to
+                                                                                    facilitate deeper cross-modal interactions, and focus on the
+                                                                                    visual region related to the referred target. On the other hand,
+                                                                                    negative cues provide some interfering information, which
+                                                                                    helps the model eliminate some proposal regions that are prone
+                                                                                    to confusion, thereby maximizing the potential of CLIP for
+                                                                                    fine-grained zero-shot REC. It can be observed that our method
+                                                                                    can accurately locate the target described by the input referring
+                                                                                    expressions.
+                                                                                       Specifically, we first design a set of referring prompts to
+                                                                                    flexibly utilize the large MLLM to generate diverse contrastive
+                                                                                    description cues and detailed informative description cues.
+Fig. 1. Comparison of existing zero-shot REC method and our proposed
+                                                                                    These cues are tailored to provide a profound understanding
+MCCE-REC method. (a) Existing method directly matches the global feature            of the referring target based on the input image and referring
+vectors of isolated regions and text, resulting in the incorrect result.            expression. Within these contrastive cues, we incorporate
+(b) Our MCCE-REC method introduces multi-cues cross-modal interaction
+and contrastive similarity entropy based on richer cues generated by MLLM,
+                                                                                    various positive cues related to target attributes, such as entity,
+ultimately achieving accurate prediction. Sim r , Sim pi and Sim n i are the        color, and action, while also incorporating their corresponding
+similarity scores between the regions and referring expression, the i-th positive   negative cues to offer a comprehensive perspective. Based
+cues, the i-th negative cues, respectively. C S represents the contrastive
+similarity entropy.
+                                                                                    on these positive cues and detailed cues, we creatively
+                                                                                    propose a multi-cue cross-modal interaction network without
+                                                                                    any additional parameters. By decomposing the CLIP visual
+that these methods based on CLIP tend to bias toward                                encoder into a feature extractor and an attention pooling
+salient proposal regions, which often achieve consistently                          block, we calculate the attention map between the multiple
+high similarity scores even when matched with negative                              positive cues and global image visual features and then extract
+descriptions Sim ni . As shown in Figure 1(b), the white                            visual features related to the input textual cues, which enables
+ball obtains a higher score (i.e., 0.55) than the correct                           CLIP to dynamically focus on visual regions that are closely
+region “man in white” (i.e., 0.17). We analyze some                                 related to the referring target. This method not only eliminates
+main reasons that contribute to this issue. Generally, REC                          the previous fixed bias towards salient object regions, but
+requires sufficiently cross-modal interaction to establish the                      also takes into full account the rich contextual information
+relationships between different visual regions and text content,                    embedded in the textual descriptions, thereby enhancing the
+but these methods separately use independent visual and                             relevance and accuracy of the overall region-text matching.
+textual branches to extract the global feature vectors from                            Moreover, unlike traditional similarity measures in simple
+isolated objects for matching. Firstly, this may consequently                       summation or subtraction, we introduce a contrastive similarity
+result in fail to establish some associative cross-modal                            entropy, which not only considers the similarity between
+information and transmit contextual relationship information                        positive cues and visual region features from different
+from the surrounding objects and valuable object attribute                          attributes for enhancing the discriminability, but also considers
+information (“ball” or “man”) involved in the referring                             the similarity between negative cues and visual region features
+expression, especially the spatial information due to only                          for repelling distracting objects in the image. A proposal
+performing based on one-dimensional vectors and independent                         region will only be selected as the one that best matches the
+feature extraction. Secondly, there often exist some proposal                       input referring expression, if all positive similarities are high
+regions in the image that share the same subtle attributes with                     while all negative similarities are low.
+the target object. For example, “white ball” and “white t-                             In summary, our main contributions are as follows:
+shirt” share the same color attribute “white” in Figure 1 (a).                         • We analyze the bias problem in existing methods, and
+However, the coarse global-level feature matching leads to                          propose a training-free MLLM-driven cross-modal contrastive
+confusion among these object regions. Moreover, the referring                       entropy model, named MCCE-REC, which effectively adapts
+expression only contains some specific local attributes, making                     the pre-trained large model CLIP for more fine-grained zero-
+it difficult to fully represent the comprehensive information of                    shot REC without additional parameters or further fine-tuning.
+the entire target region, thus prone to bias issues.                                   • We leverage MLLM to generate a set of contrastive
+   To address the above problems, we propose a novel MLLM-                          cues and detailed cues for the referred object. On this basis,
+driven cross-modal contrastive entropy model (MCCE-REC)                             we propose a multi-cue cross-modal interaction network and
+for training-free zero-shot referring expression comprehension                      contrast similarity entropy selection mechanism to build cross-
+task, as shown in Figure 1(b). Compared with existing                               modal interaction and eliminate the bias towards salient visual
+methods, our method leverages the strong understanding and                          regions.
+reasoning capabilities of the latest multi-modal large language                        • We conduct extensive experiments on three typical REC
+models (MLLM) to generate diverse contrastive object cues                           benchmark datasets, including RefCOCO [23], RefCOCO+
+and richer detailed textual cues for the referred targets. On the                   [23], and RefCOCOg [24]. Experimental results demonstrate
+
+   Authorized licensed use limited to: South China Normal University. Downloaded on September 30,2026 at 15:39:10 UTC from IEEE Xplore. Restrictions apply.
+756                                           IEEE TRANSACTIONS ON CIRCUITS AND SYSTEMS FOR VIDEO TECHNOLOGY, VOL. 35, NO. 1, JANUARY 2025
+
+
+
+the proposed method consistently outperforms existing SOTA                      modulated refinement network to adjust the feature maps of
+methods.                                                                        a visual backbone with the guidance of the query language
+                                                                                feature. Although these methods have achieved significant
+                       II. R ELATED W ORKS                                      progress in REC, both of them are limited to the annotations
+                                                                                in training data, which is time-consuming and labor-intensive.
+A. Referring Expression Comprehension
+   The advances in referring expression comprehension (REC)                     B. Zero-Shot Referring Expression Comprehension
+can be generally divided into two categories: two-stage
+                                                                                   In order to save labor costs, zero-shot referring expression
+methods and one-stage methods. Two-stage methods [6], [25],
+                                                                                comprehension has attracted growing research interests.
+[26], [27], [28], [29], [30], [31], [32] first generate a set
+                                                                                An early work [45] proposed a sing-stage model ZSGNet,
+of proposal regions based on object detectors [22], [33],
+                                                                                which combines the language query features and visual
+[34] and then select the target region that best matches
+                                                                                features of the detector network for predicting unseen
+the natural language expression. Early methods [25], [26],
+                                                                                classes in the training stage. Based on external knowledge,
+[27], [28], [29] only considered the similarity between the
+                                                                                Shi et al. [46] constructed multi-modal knowledge graphs
+whole expression and regions. To flexibly deal with the
+                                                                                and performed graph reasoning and spatial relation reasoning
+expressions with different types of information, Yu et al. [6]
+                                                                                to capture context information for novel object localization.
+proposed a popular modular attention network to decompose
+                                                                                However, these methods only are correctly localized when
+the language expression into three modular components. The
+                                                                                the training and test data belong to the same visual domain,
+overall matching score is then comprehensively computed
+                                                                                whereas they perform incorrectly in a new domain.
+from all three modules related to subject, localization, and
+                                                                                   Benefiting from the promising generalization ability on
+relationship. On this basis, Liu et al. [30] designed a novel
+                                                                                pre-trained vision and language model like CLIP [11] in
+cross-modal attention-guided erasing approach to fully explore
+                                                                                visual recognition task, some researchers have made several
+richer textual-visual correspondences, which discards the most
+                                                                                attempts to achieve zero-shot REC across visual domains.
+dominant information to redirect the attention of the model
+                                                                                To mitigate the gap between image-level CLIP and more
+towards other complementary evidence. To further learn the
+                                                                                complex object-level REC task, CPT [47] introduced a colorful
+complex language relationships, Yang et al. [31] proposed
+                                                                                cross-modal prompt tuning framework, which reformulates
+a dynamic graph attention network to perform step-wise
+                                                                                REC into a fill-in-the-bank problem by shading proposals
+reasoning on the multi-modal object relation graph following
+                                                                                with different colors and referencing the color in the text
+the differential language analyzer. Liu et al. [32] developed
+                                                                                prompt to score proposals, but it is still not enough for
+a neural module tree network to ground the target regions
+                                                                                alignment with CLIP. ReCLIP [20] repurposed CLIP and
+by accumulating the grounding score along the dependency
+                                                                                proposed a simple and strong new baseline for zero-shot
+parsing tree of natural language. However, these two-stage
+                                                                                REC, which first feeds cropped or blurred isolated object
+methods heavily rely on the quality of proposals extracted from
+                                                                                proposals into CLIP for region-expression matching scores
+pre-trained object detectors in the first stage, which will fail to
+                                                                                and then combines a spatial relation resolver to handle spatial
+locate the target region if the referred object is not correctly
+                                                                                object relations. Considering the global context information,
+detected.
+                                                                                RedCircle [48] drew the red circles enclosing objects on the
+   To overcome the limitations, one-stage methods [7], [35],
+                                                                                entire image to effectively distinguish the targets. FGVP [49]
+[36], [37], [38], [39] directly fuse dense visual and language
+                                                                                leveraged a segmentation anything model (SAM) [50] to
+features to predict the object with the highest confidence score.
+                                                                                generate fine-grained mask prompts for precise focus on
+Yang et al. [7] were the first to embed the language feature
+                                                                                related instance regions while retaining spatial coherence
+into the YOLOv3 object detector [40] for end-to-end visual
+                                                                                between the target and the surrounding background. In order
+grounding. To deal with the long and complex expressions,
+                                                                                to equip CLIP with the relationship understanding, RelVLA
+they further proposed a recursive sub-query construction
+                                                                                [21] decomposed the image and text into triplets based on large
+framework [35] to query the detailed descriptions step by step.
+                                                                                foundation model (e.g. ChatGPT [51]), and explicitly modeled
+Huang et al. [36] designed a landmark feature convolution
+                                                                                the structural similarity between entities to assist in complex
+module to model spatial positional relations between objects
+                                                                                relation reasoning. However, these methods rely on global
+from different directions. Liao et al. [37] treated the language
+                                                                                feature vectors and ignore the interaction between visual and
+as a convolution kernel, and performed correlation filtering on
+                                                                                textual features, which tends to result in biases toward certain
+the image feature map from the anchor-free CenterNet object
+                                                                                salient regions. In our work, we introduce a multi-cues cross-
+detector [38]. Recently, the success of transformers [41], [42]
+                                                                                modal interaction and contrastive similarity entropy to address
+has attracted much attention from researchers in the vision
+                                                                                this issue.
+and language fields. Deng et al. [8] developed a transformer-
+based framework for visual grounding, which establishes
+the multi-modal token-level interaction by leveraging stacked                   C. Multi-Modality Large Language Model for Visual
+attention layers of transformers. Li and Sigal [43] leveraged                   Understanding
+the contextualized lingual queries and multi-modal embedding                       Large language models (LLM) have ushered in a new
+to directly decode into the corresponding bounding boxes and                    era, demonstrating remarkable capabilities in natural language
+segments. In addition, Ye et al. [44] further designed a query-                 understanding and reasoning. This breakthrough has sparked
+
+  Authorized licensed use limited to: South China Normal University. Downloaded on September 30,2026 at 15:39:10 UTC from IEEE Xplore. Restrictions apply.
+QIU et al.: MCCE-REC: MLLM-DRIVEN CROSS-MODAL CONTRASTIVE ENTROPY MODEL FOR ZERO-SHOT REC                                                                    757
+
+
+
+                                                                                training. Recently, existing methods [20], [47], [48], [49] have
+                                                                                applied CLIP to zero-shot referring expression comprehension
+                                                                                (REC) task, which crop all proposal regions in the input image,
+                                                                                and treat the task as a region-text matching by utilizing the
+                                                                                maximum similarity score to select the target region described
+                                                                                by the input referring expression. This process can be defined
+                                                                                as follows:
+                                                                                                   b̂ pr ed = argmax Sim(Fb , Frt ),                         (1)
+                                                                                                                 b∈B
+
+                                                                                where b̂ pr ed denotes the predicted proposal region. B is the
+                                                                                set of proposal regions generated by the pre-trained object
+                                                                                detector or the ground-truth boxes. Fb and Frt are the visual
+                                                                                feature of the b-th region and the textual feature of the
+                                                                                referring expression. Sim(·, ·) represents the similarity score.
+                                                                                   However, these methods usually extract image and text
+Fig. 2. Some examples and analyses of bias in CLIP on zero-shot REC task.       features independently, we observe that a bias issue in
+The region number in the image corresponds to the region number in the line
+chart.                                                                          region-text matching. CLIP is biased toward matching certain
+                                                                                proposal regions, even when different textual descriptions
+interest in exploring multi-modality large language models                      are provided. The bias issue harms the matching process
+(MLLM) by extending LLM. Existing methods mainly include                        in REC. As shown in Figure 2, even when we replace the
+two types for integrating LLM into visual understanding. The                    input referring expression with other negative descriptions for
+first is to learn additional connection layers between pre-                     matching, the scores remain high compared with other regions,
+trained visual encoder and LLM for language generation.                         leading to incorrect prediction results. For example, in the first
+Flamingo [52] introduced a perceiver resampler with gated                       image, Region 1 has the highest score when matched against
+cross attention to bridge powerful pre-trained image and                        all negative text descriptions, compared to other regions.
+language models based on few-shot learning. BLIP-2 [13]                         We analyze the main reason is that the visual features are fixed
+proposed a compute-efficient method by pretraining a                            global vectors that are prone to focus on salient regions, which
+lightweight Q-former with a two-stage strategy. MiniGPT-                        may be unrelated to the input referring expression with specific
+4 [53] used a single linear projection layer to align the                       object attributes. This makes CLIP inadequate for REC task
+                                                                                that requires fine-grained multi-modal alignment. Therefore,
+visual features with the advanced LLM (Vicuna) [54] for
+                                                                                we propose a MLLM-driven cross-modal contrastive entropy
+promising visual-language capabilities. Based on pre-trained
+                                                                                model (MCCE-REC) to overcome the limitations of applying
+BLIP-2, InstructBLIP [55] studied vision-language instruction
+                                                                                CLIP to zero-shot referring expression comprehension, which
+tuning for flexible visual feature extraction. In addition,
+                                                                                consistently decreased the incorrect bias regions on the three
+LLaVA [56] fine-tuned end-to-end on generated multi-modal
+                                                                                typical REC datasets. We next introduce our MCCE-REC
+instruction-following data for general-purpose visual and
+                                                                                method based on these observations and analysis.
+language understanding. Another line of work explores the
+in-context capability of LLM for diverse visual tasks. They
+query LLM with carefully designed prompts to obtain valuable                                          IV. P ROPOSED M ETHOD
+information. LISA [57] combined the text output from LLM                           Figure 3 illustrates the overall architecture of our MCCE-
+with SAM [50] to produce segmentation masks. Our method                         REC method. Given an image and an input referring
+employs the pre-trained LLaVA to generate diverse contrastive                   expression, we first feed them into the MLLM model
+cues and detailed cues.                                                         according to the designed prompts to generate a set of
+                                                                                contrastive cues and detailed cues for referring objects.
+       III. CLIP B IAS A NALYSIS A DAPTING FOR REC                              Based on these cues, we then use a multi-cues cross-
+                                                                                modal interaction network to capture the visual regions
+   In this section, we analyze in detail the bias issue of                      related to referring objects according to diverse positive
+CLIP [11] for fine-grained zero-shot REC task. In CLIP,                         cues and detailed cues from different attributes. Furthermore,
+it simultaneously takes in text and image as input, and                         we calculate the contrastive similar entropy between extracted
+separately feeds them into a textual encoder and a visual                       visual features and positive and negative cues for mitigating
+encoder, which learns the association between text and image                    the bias towards the salient visual region and distractive
+by pre-training on large-scale image-text pairs. This unique                    information, and finally select the most matching region.
+approach equips CLIP with robust matching and generalization
+capabilities, which is frequently used in various multi-modal
+learning and zero-shot tasks to determine whether an image                      A. MLLM-Based Referring Object Cues Generation
+aligns with the given text description, without the need                          In referring expression comprehension, it often involves
+to retrain the model for each new category. Therefore,                          understanding both the input flexible referring expression
+it significantly reduces the difficulty and cost of model                       content and complex visual scene information. Unlike previous
+
+  Authorized licensed use limited to: South China Normal University. Downloaded on September 30,2026 at 15:39:10 UTC from IEEE Xplore. Restrictions apply.
+758                                            IEEE TRANSACTIONS ON CIRCUITS AND SYSTEMS FOR VIDEO TECHNOLOGY, VOL. 35, NO. 1, JANUARY 2025
+
+
+
+
+Fig. 3. The overall architecture of our proposed MCCE-REC method. It consists of three main parts. The referring object cues generation uses MLLM to
+obtain detailed cues and contrastive cues based on a set of prompts. The multi-cues cross-modal interaction network associates the visual regions and multiple
+textual cues based on the decomposed CLIP visual encoder. The contrastive similarity entropy selects the final output by comparing the scores of positive
+and negative cues.
+
+
+
+
+Fig. 4.   Illustration of leveraging MLLM (e.g., LLaVA) to generate a set of detailed cues and contrastive cues based on the user instructions.
+
+
+large language models (LLMs) [51] that were confined to                          image and language prompts, as shown in Figure 4. Our
+processing natural language alone, the latest multi-modal large                  referring prompts include two types of functions: one is
+language models (MLLM) have extended the capabilities of                         a referring object detailed prompt, which asks to generate
+LLMs to encompass multi-modal input, exhibiting remarkable                       more detailed cues about the target in the input image;
+capabilities in both image and language understanding and                        another one is a contrastive description prompt, which aims
+in-context reasoning. This is crucial for providing more                         to generate a set of the positive cues with discriminative
+object cues for zero-shot REC. In this paper, we adopt the                       attribute information present in the target and the negative
+representative LLaVA [56] as our multi-modal large language                      cues with negative description for the attributes of other
+model, which aligns the visual and language features with                        objects.
+instruction tuning for comprehensively fulfilling the diverse                       1) Referring Object Detailed Cues Generation: Since each
+instructions and requirements posed by users. Specifically,                      referring expression in existing REC datasets typically only
+we design a set of referring prompts to explicitly ask LLaVA                     covers a specific partial attribute information of a target,
+to generate more referring object cues according to the input                    and some ambiguous or unclear words or phrases like
+
+   Authorized licensed use limited to: South China Normal University. Downloaded on September 30,2026 at 15:39:10 UTC from IEEE Xplore. Restrictions apply.
+QIU et al.: MCCE-REC: MLLM-DRIVEN CROSS-MODAL CONTRASTIVE ENTROPY MODEL FOR ZERO-SHOT REC                                                                    759
+
+
+
+“man in white”, it is hard to accurately identify the target
+region. To address this shortcoming, we devise the following
+referring object detailed prompt that aims to generate more
+referring object details for enhancing the understanding of
+original referring expressions, which includes two parts: detail
+instruction “Please provide more details about the input
+expression” and task instruction that is the input referring
+expression comprehension, as shown in the upper part of
+Figure 4.
+   2) Referring Contrastive Cues Generation: Referring                          Fig. 5. The network architecture of multi-cues cross-modal interaction for
+contrastive cues are generated by the prompt including                          ResNet and ViT visual encoders, respectively.
+positive instruction, negative instruction, format rule, in-
+context learning examples, and task instruction, as shown in                    salient regions, and incorrect localization results. Therefore,
+the bottom part of Figure 4. For positive instruction, it guides                we propose a multi-cues cross-modal interaction network to
+the model in perceiving the target from multiple perspectives,                  adapt CLIP for zero-shot REC, which builds a multi-modal
+enabling the generation of multiple positive descriptions about                 association between multiple positive cues and the entire
+the referred target. Different from the detailed prompt, the                    image without training and additional parameters.
+positive instruction expects to generate multiple sentences                        1) Visual and Language Feature Extraction: Given an
+resembling referring expressions, which describes the main                      input image I, a set of natural language sentences including
+components of the referring expression and capture additional                   an input referring expression Tr , its corresponding detailed
+attribute information (e.g., entity, color, relative position,                  cues Td and multiple referring positive cues T p =
+relationships) of the target from the input image. Generally,                      p P
+                                                                                {Ti }i=1 , P is the number of positive cues generated by
+each sentence obtained by positive prompts contains a                           MLLM, where the number of cues is flexible for different
+significant component or discriminative attribute information                   input referring expression. For the input natural language
+that directs the model to concentrate on a corresponding region                 sentences, we separately adopt the pre-trained text encoder
+without other noise interference. By providing multiple such                    with transformer TC L I P of CLIP to extract their features,
+sentences or cues, the model is encouraged to attend to various                 as follows:
+aspects of the target, thus enabling the capturing of more                                                   p
+comprehensive and distinguishable object information.                                           {Frt ; Fdt ; Ft } = TC L I P (Tr ; Td ; T p ),               (2)
+   For negative cues instruction, it further expects to generate                                                               p
+                                                                                where Frt ∈ R1×C , Fdt ∈ R1×C and Ft ∈ R P×C represent the
+the negative or opposing descriptions for the referring object
+                                                                                textual features of the referring expression, detailed cue, and
+based on the above obtained referring positive cues. For
+                                                                                P positive cues, respectively. C is the channel dimension.
+example, it can replace the color “white uniform” of positive
+                                                                                   For the input image, we adopt two different visual encoder
+cues with other colors (e.g., “red”). To ensure the convenience
+                                                                                architectures in CLIP: ResNet [59] and Vision Transformer
+of subsequent processing, we require the output format of
+                                                                                (ViT) [60]. For the ResNet architecture, we divide it into
+LLaVA [56] to be in JSON format with format rule, and
+                                                                                a visual feature extractor Ve and an attention pooling block
+the positive cues and negative cues should be in list format
+                                                                                Vatt , where Ve consists of five residual stages and two linear
+within the JSON. In addition, we also provide an in-context
+                                                                                mapping layers from the original attention pooling block. For
+learning example as a template to guide LLaVA in following
+                                                                                the ViT architecture with multiple multi-head attention layers,
+our instructions and returning an accurate output. The task
+                                                                                we adopt the first k layers as the Ve , the rest layers as Vatt .
+instruction is also described by the referring expression.
+                                                                                The visual features of the visual encoder VC L I P in CLIP can
+By feeding these instructions into LLaVA, we can prompt it
+                                                                                be represented as follows:
+to generate the referring positive cues and negative cues.
+                                                                                                   Fv = VC L I P (I) = Vatt (Ve (I)),                        (3)
+B. Multi-Cues Cross-Modal Interaction Network
+   To address the REC task, cross-modal interaction is essential                where Fv ∈ R H W ×C denotes the visual features, H and W are
+to enhance the multi-modal alignment between text and                           the height and width of the visual features. Similar to [20],
+visual regions. However, as analysis in Section III, CLIP                       we also extract the local proposal region features by cropping
+typically extracts text and visual features independently                       the image, which can be processed as follows:
+without interaction, and only the final global features are                                             Fb = VC L I P (Bcr op (I)),                          (4)
+matched by the cosine similarity calculation, which is not
+well-suited for the complex fine-grained REC task. Although                     where Fb ∈ R Nb ×C denotes the region features extracted by
+some methods [8], [58] attempt to establish cross-modal                         the proposal regions, and Nb is the number of the proposal
+fusion, they often require fine-tuning CLIP using specific                      regions in the input image. Bcr op crops the image according
+datasets, violating the original intention of zero-shot learning.               to the bounding box coordinates.
+Moreover, these methods only associate the image with the                          2) Multi-Cues Cross-Modal Interaction: We observe that
+input referring language including local attribute description,                 directly using the original CLIP visual encoder only generates
+leading to the visual features being biased toward local                        a single feature vector to describe the whole image, resulting in
+
+  Authorized licensed use limited to: South China Normal University. Downloaded on September 30,2026 at 15:39:10 UTC from IEEE Xplore. Restrictions apply.
+760                                           IEEE TRANSACTIONS ON CIRCUITS AND SYSTEMS FOR VIDEO TECHNOLOGY, VOL. 35, NO. 1, JANUARY 2025
+
+
+
+the loss of spatial information that might harm the fine-grained                also introduce some positive and negative referring cues
+cross-modal fusion and understanding. Therefore, to inherit                     for contrastive study to ensure that the selected proposal
+the powerful capability of CLIP for training-free zero-                         region does not receive high scores for all text descriptions.
+shot learning, we perform multi-cues cross-modal interaction                    On the contrary, it should be scored high for positive cue
+between the multiple language cues and intermediate visual                      descriptions and low for negative ones, the bias problem could
+spatial feature maps based on the CLIP visual encoder, which                    be mitigated. Therefore, we design a contrastive similarity
+not only encompasses referred visual object region features but                 entropy mechanism to select the object region described by
+also perceives the surrounding objects and their relationships                  the input referring expression.
+described in the referring language. Specifically, we first                        Specifically, for each referring expression, we first extract
+aggregate the input referring expression, detailed cues, and                    the textual features of its corresponding positive cues and
+multiple positive cues to enrich the textual representation of                  negative cues by CLIP textual encoder. Then, we calculate the
+the referred object, guiding the model to thoroughly represent                  cosine similarity between the cross-modal interacted feature
+the target from multiple perspectives:                                          of each proposal region and the textual feature of these cues:
+                                                                                                                                           p
+                             1
+                                            P
+                                                                                                              p             Fibm · Ft j
+                                                   p                                                     Simbij =                                   ,
+                                            X
+                   Ft = Frt + (Fdt +              Ft i ),               (5)                                                                p
+                                 P                                                                                        ||Fibm ||||Ft j ||
+                                            i=1
+                                                                                                                                           n
+                                                     p                                                        n             Fibm · Ft j
+where Ft ∈ R1×C denotes aggregated textual feature. Ft i                  is                             Simbij =                          n        ,                (8)
+the i-th positive cue feature.                                                                                            ||Fibm ||||Ft j ||
+   Then, we use an L2-normalization layer to map the                                          p                   n
+                                                                                where Simbij and Simbij denote the positive and negative
+aggregated textual feature Ft and the visual feature map Fsv
+                                                                                similarity entropy score between the bi -th proposal region and
+extracted by the visual feature extractor Ve without pooling
+                                                                                the p j -th positive cue and the n j -th negative cue, respectively.
+layer into the same value space, and calculate the cosine
+                                                                                In addition, we also measure the importance of each cue based
+similarity between them to capture cross-modal attention map:                                                   p         n
+                                                                                on the textual similarity Simr j , Simr j between the positive,
+                   Sx,y = ||Fsv ||x,y · ||Ft ||T ,                              negative cues and the original referring expression Frt as their
+                                  ex p(Sx,y )                                   weights:
+                   Ax,y = P H,W                    ,                    (6)                                                                    p
+                              x=1,y=1 ex p(Sx,y )                                                   p        p                     Frt · Ft j
+                                                                                                   Wr j = Simr j =                              p           ,
+where · is the dot product operator, ||Fsv ||x y ∈ R1×C denotes                                                                 ||Frt ||||Ft j ||
+                                                                                                                                               n
+the x-th row, y-th column visual feature vector in Fsv . Sx,y                                             j           n            Frt · Ft j
+                                                                                                       Wrn = Simr j =                           n           .        (9)
+and Ax,y ∈ [0, 1] represent the similarity and attention score                                                                  ||Frt ||||Ft j ||
+between the x-th row, y-th column visual feature vector and
+the textual feature vector, respectively. A higher score Ax,y                      Next, we weight similarity scores using their corresponding
+means that the x-th row, y-th column visual feature is more                     weight values and calculate the contrast similarity entropy Ei
+relevant to the textual feature.                                                for the proposal bi between each positive cue and all negative
+   Based on the above obtained attention map, we can weight                     cues similar to [61], and then compute their weighted average
+the visual feature map at each position, and then extract the                   sum as follows:
+                                                                                          P                                            p                p
+cross-modal interacted features Fm using the attention pooling                          1 X pj             Wr j Simbij
+block Vatt for ResNet architecture. Similarly, the cross-modal                     Ei =     Wr      p      p            n      n ,
+                                                                                        P      log(Wr j Simb j + nN =1 Wr j Simb j )
+                                                                                                                P
+interacted feature is extracted using the rest layers. Fm can be                              p j =1                               i                    j       i
+
+expressed as follows:                                                                                                                                               (10)
+                       Fm = Vatt (A ⊙ Fsv ),                                    where P and N denote the number of positive and negative
+                     Fbm = αFb + (1 − α)Fm                              (7)     cues generated by LLaVA with the referring expression and
+                                                                                the input image. It expects the selected proposal region to
+where ⊙ is the hadamard product, α ∈ [0, 1] is a constant                       have higher similarity scores with all positive cues and lower
+parameter. A = {Ax,y } ∈ R H ×W is the attention map of                         similarity scores with all negative cues. Meanwhile, we also
+Ax,y . Fm ∈ R1×C and Fbm ∈ R Nb ×C represent the cross-                         introduce the similarity score Simrbi between the referring
+modal interacted visual feature vector and region feature                       expression Tr and the bi -th proposal region, and then combine
+vectors respectively, which can effectively capture richer visual               the similarity score with its contrastive similarity entropy.
+semantic features related to the object described by multiple                   Finally, we select the best matched one bˆi ∈ B as the output
+cues.                                                                           result:
+                                                                                                                           Fibm · Frt
+C. Contrastive Similarity Entropy Selection                                                              Simrbi =                   ,
+                                                                                                                  ||Fibm ||||Frt ||
+   Based on the analysis in Section III, some proposal regions
+                                                                                                            bi = Simbi + Ei ,
+                                                                                                         Simcr         r
+are easy to achieve high similarity scores with referring
+texts, even when the text descriptions are different. Intuitively,                                          bˆi = argmax Simcr ,               bi                   (11)
+apart from enhancing visual features in Section IV-B, we can                                                               bi ∈B
+
+
+  Authorized licensed use limited to: South China Normal University. Downloaded on September 30,2026 at 15:39:10 UTC from IEEE Xplore. Restrictions apply.
+QIU et al.: MCCE-REC: MLLM-DRIVEN CROSS-MODAL CONTRASTIVE ENTROPY MODEL FOR ZERO-SHOT REC                                                                    761
+
+
+
+where B is all proposal regions obtained by a pre-trained                       with 141,564 referring expressions referencing 49,856 object
+object detector [6] or the ground-truth boxes. Therefore,                       instances, which also follows a similar split into 120,191
+without additional parameters and training, the multi-cues                      expression-referent pairs for training, 10,758 for validation,
+cross-interaction network and contrastive similarity entropy                    5,726 for test A, and 4,889 for test B sets.
+adapt the image-text matching of CLIP to the fine-grained                          RefCOCOg [24] is collected in an interactive game-
+region-text matching for REC task.                                              like setting, characterized by its descriptive and relatively
+   In addition, some existing methods use the contrastive                       long expressions, with an average length of 8.4 words per
+optimization mechanism. For example, [62] proposed a                            expression (3.6 and 3.5 words for RefCOCO and RefCOCO+
+memory-based robust region feature synthesizer for zero-                        respectively). The dataset comprises 25,799 images, containing
+shot object detection, which firstly learns a robust feature                    95,010 referring expressions with 48,822 object instances.
+synthesizer based on seen visual features for obtaining the                     Following the UNC partition [65], RefCOCOg is typically
+synthesized unseen region features, and then utilizes a cross-                  split into training, validation and test with 80,512, 4,896, 9,602
+domain contrast enhancing mechanism to distinguish different                    expression-referent pairs, respectively.
+categories between seen and unseen domains based on an
+asynchronous memory container. Reference [63] developed                         B. Evaluation Metric
+a knowledge replay for the continual all-in-one adverse
+weather removal task, which also adopts contrast regular                           In our experiments, we adopt a common accuracy (ACC)
+loss for new and old models to minimize the discrepancy                         metric to evaluate the performance of our method in zero-
+between the positive dehazed image and its corresponding                        shot REC task. It calculates the Intersection over Union (IoU)
+ground-truth clean image and push anchor point far away                         between the predicted object bounding box and the ground
+from multi-level negative hazy images for adverse weather                       truth box. If the IoU is greater than a specific use-defined
+removal. In summary, both of these methods enhance visual                       threshold (usually 0.5), the predicted object is deemed correct.
+feature expressiveness based on designing contrastive losses.                   Otherwise, it is considered an incorrect result if it falls below
+Unlike these methods, our proposed method utilizes MLLM                         the threshold.
+to generate a series of positive/negative cues related to the
+referring expression and directly compares the similarity score                 C. Implementation Details
+between these cues and visual regions to suppress biased                           Following ReCLIP [20], we adopt ResNet-50 and ViT-B/32
+regions with high similarity scores. Our method focuses                         as our visual encoder trained in CLIP by OpenAI as our vision-
+more on correcting localization results due to the training-                    language model. The input image size is set to 384 × 384 for
+free mechanism, which is the first to introduce contrastive                     ResNet architecture, and 224 × 224 for ViT architecture. The
+similarity entropy to measure the quality of the selected                       channel dimension of the visual feature and textual feature is
+region, and not limited by test data and domain, but cannot                     set to C = 768. In Section IV-B1, we divide the first k =
+optimize the network learning. However, existing methods                        9 layers as the Ve for the cross-modal feature extraction. The
+focus more on guiding the learning of network features, which                   proposal regions are generated by typical MAttNet [6], which
+requires additional training to optimize the network, making                    are processed by cropping or blurring before being fed into
+it susceptible to the influence of current data.                                the network in isolation. For referring object cues generation,
+                                                                                we employ LLaVA-v1.6 [66] with Vicuna-13B LLM weights.
+                          V. E XPERIMENTS                                       Considering spatial relations in the input referring expression,
+   To verify the effectiveness of our proposed method for the                   we use spatial relation resolver with heuristic rules similar
+zero-shot REC task, we conducted extensive experiments on                       to [20]. In this paper, the constant parameter α and the layer
+three public datasets, including RefCOCO [23], RefCOCO+                         k are set to 0.95 and 9, respectively.
+[23] and RefCOCOg [24].
+                                                                                D. Ablation Studies
+A. Datasets                                                                        In this section, we perform a series of ablation studies
+   Table I shows the dataset details of RefCOCO [23],                           on the RefCOCO dataset to verify the effectiveness of
+RefCOCO+ [23] and RefCOCOg [24].                                                main components in our proposed MCCE-REC method with
+   RefCOCO [23] consists of 19,994 images collected from                        ground-truth boxes.
+MS-COCO [64], along with 142,210 referring expressions and                         1) Effects of Main Components: In our method, it mainly
+50,000 referred object bounding box annotations in the images.                  consists of referring object cues generation (ROC), multi-
+It is commonly split into 120,624 expression-referent pairs for                 cues cross-modal interaction network (MCI) and contrastive
+training, 10,834 for validation, 5,657 for test A, and 5,095 for                similarity entropy selection (CSE). Table II verifies the
+test B sets to evaluate the performance of models on different                  effectiveness of the main components. We reimplement the
+portions of the data. The test A primarily involves the target                  classic zero-shot REC method ReCLIP as our baseline.
+category of person, while testB includes other categories.                      Compared with the baseline, we directly introduce multi-
+   RefCOCO+ [23] is an extension of the RefCOCO dataset,                        cues generated by ROC. It can be observed that ROC
+which excludes spatial locations and instead focuses more on                    significantly improves 7.91%, 11.58% and 4.24% accuracy,
+fine-grained object appearances. It contains 19,994 images,                     which demonstrates the importance of richer referring object
+
+  Authorized licensed use limited to: South China Normal University. Downloaded on September 30,2026 at 15:39:10 UTC from IEEE Xplore. Restrictions apply.
+762                                           IEEE TRANSACTIONS ON CIRCUITS AND SYSTEMS FOR VIDEO TECHNOLOGY, VOL. 35, NO. 1, JANUARY 2025
+
+
+
+                                                                         TABLE I
+      T HE D ETAILS OF T HREE P UBLIC DATASETS FOR THE REC TASK , I NCLUDING R EF COCO [23], R EF COCO+ [23] AND R EF COCO G [24]
+
+
+
+
+                                TABLE II                                                                         TABLE IV
+       T HE E FFECTS OF M AIN C OMPONENTS IN THE P ROPOSED                         T HE E FFECTS OF D IFFERENT MLLM M ODELS AND I NSTRUCTIONS
+                    M ETHOD ON THE R EF COCO                                                 IN THE P ROPOSED M ETHOD ON THE R EF COCO
+
+
+
+
+                                                                                                               TABLE V
+                              TABLE III
+                                                                                      T HE E FFECTS OF M ULTI -C UES C ROSS -M ODAL I NTERACTION
+               T HE E FFECTS OF D IFFERENT C UES IN THE                                              N ETWORK ON THE R EF COCO
+                P ROPOSED M ETHOD ON THE R EF COCO
+
+
+
+
+                                                                                64.87%, 70.67% and 61.14% performance on the RefCOCO
+                                                                                sets, which are significantly higher than using the input
+cues. Based on ROC, we introduce MCI to perform cross-                          referring expression annotated by experts, indicating that our
+modal interaction for feature extraction, MCI further brings                    generated cues involve key and discriminative information for
+3.81%, 8.49% and 3.81% accuracy. Meanwhile, the CSE also                        accurately locating the target region. When integrating all
+yields comparable improvements on different sets. These prove                   cues simultaneously, it can be observed that it achieves higher
+that it is necessary to build multi-modal fusion and select the                 performance in Table III.
+target region according to contrastive similarity entropy. The                     In Table IV, we compare the effects of different MLLM
+last row shows our overall method (MCCE-REC) achieves                           models and instructions. It can be observed that the proposed
+remarkable performance improvements on val, testA, and testB                    model with LLaVA outperforms the model with InstructBLIP
+sets, which verifies the effectiveness of our main components.                  by 2.41%, 2.24%, and 2.49% on val, testA, and testB sets of
+It indicates the proposed method can better apply CLIP for                      RefCOCO, respectively. We analyze that the possible reason
+fine-grained zero-shot REC task.                                                may be that InstructBLIP focuses more on the generalization
+   2) Effects of Different Cues Generation: In ROC, we lever-                   capabilities of the multi-modal model, while LLaVA performs
+age LLaVA to generate three cues based on different referring                   better visual reasoning and visual conversation with an
+prompts, which include detailed cues, positive cues and                         improved visual instruction tuning data mixture, which is
+negative cues. In Table III, we analyze the effects of different                important to the referring object cues generation in the
+cues. The first row shows the performance only using the input                  proposed method. Therefore, we adopt LLaVA as our
+referring expression. Compared with referring expression,                       multi-modal large language model (MLLM) in this paper.
+the detailed cues significantly improve the performance by                      In addition, we refine the roughly detailed instruction “Please
+12.32%, 18% and 5.26% on val, testA, testB of RefCOCO                           provide more details about the input expression” into more
+dataset, respectively, and the positive cues bring consistent                   directive instruction “Please provide more object details
+improvements. These demonstrate the importance of more                          described by the input expression that can discriminate the
+referring object details. In addition, we separately introduce                  object from the image. The object details can include color,
+negative cues, the performance improvement is slightly                          shape, location, appearance, relative position to other related
+lower than both positive and negative cues simultaneously,                      objects in images, category, and so on.”. It can be observed
+which implies the effectiveness of contrastive cues that can                    that the model with directive detailed instruction slightly
+collaborate to select the correct object region. It is worth                    improves the performance of the rough instruction by 0.33%
+noting that we did not introduce referring expressions and                      and 0.12% on the val and testB sets, respectively, while there is
+only used the generated cues from LLaVA, but achieved                           a marginal decrease in performance by 0.03% on the testA set.
+
+  Authorized licensed use limited to: South China Normal University. Downloaded on September 30,2026 at 15:39:10 UTC from IEEE Xplore. Restrictions apply.
+QIU et al.: MCCE-REC: MLLM-DRIVEN CROSS-MODAL CONTRASTIVE ENTROPY MODEL FOR ZERO-SHOT REC                                                                    763
+
+
+
+                                                                        TABLE VI
+                        C OMPARISON W ITH I MAGE -T EXT R ETRIEVAL M ETHODS ON F LICKR 30 K [67] AND MSCOCO5K [64]
+
+
+
+
+These results indicate that some simple instructions can also                                                   TABLE VII
+guide the model to achieve comparable performance, perhaps                                     T HE E FFECTS OF C ONTRASTIVE S IMILARITY
+                                                                                                      E NTROPY ON THE R EF COCO G
+because these instructions are enough and effective in guiding
+the model to generate the detailed object information.
+   3) Effects of Multi-Cues Cross-Modal Interaction Network:
+In MCI, we build cross-modal interaction fusion on the
+intermediate spatial visual features from a visual encoder
+based on cross-modal attention. To verify the effectiveness,
+we compare different cross-modal interaction methods in
+Table V. Unlike MCI on the spatial features, we directly
+fuse the global visual feature vectors from the final output
+of the visual encoder with the textual features. It can be
+observed that the global feature sum and production both bring
+improvements compared to not performing cross-modal fusion
+(w/o MCI), indicating the importance of cross-modal feature
+fusion for REC task. Compared to the global feature sum,
+our proposed MCI significantly improves the accuracy, further
+demonstrating that cross-modal attention can more effectively
+assist in the interaction between vision and text. Additionally,                Fig. 6. The effects of hyper-parameters in the proposed method on the
+compared to single-cue cross-modal interaction, MCI performs                    RefCOCO val set, including the weight α and the interaction layer k in ViT.
+more comprehensive interaction, including more attributes and
+contextual information. Figure 6 (a) and (b) analyze the effects                   4) Effects of Contrastive Similarity Entropy Selection: In
+of the hyper-parameter α and the first k layers in the ViT. It can              CSE, we calculate contrastive similarity entropy as the object
+be observed that when we adjust the hyper-parameter from                        score to select the object region. Table VII shows the effects
+0.5 to 0.95, the performance reaches its peak at 0.95. Similarly,               of contrastive similarity entropy selection. Compared with
+when we adjust the number of layers from 1 to 11, the                           the baseline using maximum similarity entropy, we simply
+performance peaks at the 9th layer. However, to sum up, the                     aggregate the similarity scores between all positive cues and
+influence of hyper-parameter variations on the performance is                   proposal regions, improving the performance by 2.37%, 1.59%
+relatively minor, which indicates the robustness of the method.                 on val and testA of RefCOCO, respectively. When only fusing
+   To further explore the potential of the proposed multi-                      the scores of all negative cues, the performance is naturally
+cues cross-modal interaction network in other multi-modal                       decreased. Furthermore, both the subtraction and division
+tasks (e.g., image-text matching), we conduct the experimental                  between the positive scores and negative scores achieve
+results on popular Flickr30k [67] and MSCOCO5K [64]                             consistent improvement compared to maximum similarity
+following [68] in Table VI. In Table VI, we modify typical                      entropy. They essentially both require that proposal regions
+CLIP [11] by introducing multi-cues cross-modal interaction                     with higher scores for positive cues and lower scores for
+as MCI-CLIP and evaluate the performance based on training-                     negative cues be prioritized for selection. When using the
+free and zero-shot learning mechanism. Because I-CLIP [68]                      contrastive similarity entropy, the performance reached its
+specifically designs an imagination network with an action                      peak, surpassing the baseline by 5.5%, 6.48% and 1.13% on
+refinement strategy to train the model on image-text retrieval                  val, testA and testB of RefCOCO, respectively. These results
+datasets, which achieve better performance compared to CLIP                     demonstrate that the proposed contrastive similarity entropy
+and Our MCI-CLIP. For a fair comparison between CLIP and                        can better select the correct target region from all proposal
+our MCI-CLIP, it can be observed that the proposed MCI-CLIP                     regions.
+method consistently outperforms the baseline CLIP for image-
+text retrieval on Flickr30k and MSCOCO5K datasets, which
+demonstrates the effectiveness and potential of the proposed                    E. Comparison With State-of-the-Art Methods
+multi-cues cross-modal interaction network in image-text                          We compare the proposed method with existing zero-
+retrieval task.                                                                 shot referring expression comprehension methods on the
+
+  Authorized licensed use limited to: South China Normal University. Downloaded on September 30,2026 at 15:39:10 UTC from IEEE Xplore. Restrictions apply.
+764                                           IEEE TRANSACTIONS ON CIRCUITS AND SYSTEMS FOR VIDEO TECHNOLOGY, VOL. 35, NO. 1, JANUARY 2025
+
+
+
+                                                                       TABLE VIII
+      C OMPARISON W ITH S TATE - OF - THE -A RT M ETHODS ON THE R EF COCO, R EF COCO+ AND R EF COCO G DATASETS . T HE I NFERENCE T IME
+                                      D ENOTES THE T IME (S) S PENT RUNNING E ACH R EFERRING E XPRESSION
+
+
+
+
+RefCOCO, RefCOCO+ and RefCOCOg datasets, as shown in
+Table VIII. Based on proposal regions extracted by pre-trained
+object detector [6], compared to the same CLIP-based training-
+free methods [20], [48], [49], [70], our approach consistently
+outperforms all competitors across all splits. Specifically, our
+method significantly surpasses the milestone ReCLIP [20] by
+up to 22.89%, with an average performance enhancement of
+10.33%. In addition, RelVLA [21] fine-tunes the CLIP model
+using a combination of datasets rich in relational knowledge,
+our method still exhibits a performance improvement of
+up to 5.25%. Furthermore, when using ground-truth objects
+from REC datasets, our method also consistently improves
+the performance of existing methods across all datasets. For
+a fair comparison, we also evaluate the inference time of
+the proposed method and other methods under the same                            Fig. 7.   Visualization of the cross-modal attention map in the proposed
+experimental environment in Table VIII. It can be observed                      multi-cues cross-modal interaction network. The closer the color to red, the
+that the inference time per referring expression of the proposed                higher correlation calculates. Otherwise,the closer the color is to blue, the
+                                                                                lower correlation obtains. The green box represents the predicted result.
+method achieves comparable inference speed and significantly
+outperforms the performance of other methods. These results
+demonstrate the effectiveness and superiority of our proposed                   the understanding of vision and text, as well as improving the
+approach in better adapting CLIP to zero-shot REC tasks.                        discriminative ability of referring objects.
+                                                                                   Figure 8 shows visualization comparison of different
+                                                                                modules in our method. We gradually add the ROC, MCI,
+F. Visualization Results                                                        CSE, MCI+CSE modules on the basis of the baseline, it can
+   Figure 7 visualizes the cross-modal attention map in the                     be observed that our final method (ROC+MCI+CSE) can
+proposed multi-cues cross-modal interaction network. It can                     accurately locate the target area described by the referring
+be observed that the visual regions are adaptively highlighted                  expression. In Figure 8(a), when introducing the ROC, the
+related to the referring expression for fine-grained cross-modal                “red truck” is accurately located, which demonstrates the
+fusion. For example, based on the simple referring expression                   importance of richer referring object cues. In Figure 8(b),
+“batter”, the attention map focuses on the entire object region.                the baseline and the ROC module incorrectly locate the
+For the input referring expression “pink couch with pink pillow                 salient object with similar attribute “blue hat” involved by
+on it”, it not only attends on the pink couch but also highlights               the referring expression. When introducing MCI and CSE
+the surrounding contextual regions related to the pink color in                 modules, the referred target is correctly located due to cross
+the table. These attended regions all contribute to enhancing                   modal interactions in MCI and contrastive similarity entropy
+
+  Authorized licensed use limited to: South China Normal University. Downloaded on September 30,2026 at 15:39:10 UTC from IEEE Xplore. Restrictions apply.
+QIU et al.: MCCE-REC: MLLM-DRIVEN CROSS-MODAL CONTRASTIVE ENTROPY MODEL FOR ZERO-SHOT REC                                                                     765
+
+
+
+
+Fig. 8.   Visualization comparison of different modules in our method. The red and green boxes represent failure results and successful results, respectively.
+
+
+
+
+Fig. 9. Visualization of prediction results on the RefCOCO dataset. The red and green boxes are the predicted results of baseline method [20] and our
+method, respectively.
+
+
+                                                                                     Figure 9 shows some successful examples on the RefCOCO
+                                                                                  val set. The red boxes and the green boxes represent the
+                                                                                  prediction results of the baseline ReCLIP method [20] and our
+                                                                                  method, respectively. It can be discovered that the baseline
+                                                                                  method produces some incorrect results, possibly due to its
+Fig. 10. Visualization of failure cases based on the proposed method. The red     insufficient understanding of text and vision, which tends
+and green boxes represent failure results and successful results, respectively.   to focus only on regions related to local text. For example,
+                                                                                  it wrongly locates the “green bottle” for the “table with green
+in CSE, which provides more cues to address the bias                              bottle”. Compared to the baseline method, our method can
+issue. In Figure 8(c), the baseline mistakenly locates the                        effectively mitigate this bias and accurately locate the target
+region including the arm and the mouse on the table. When                         region described by the input referring expression.
+adding the ROC module, although the region location is still                         Figure 10 shows some failure cases. In Figure 10 (a) and (c),
+wrong, it has shifted to a “guy” involved in the referring                        it is difficult to provide more referring object cues to help
+expression. With the increase of the MCI module, due to                           distinguish the same category objects (e.g., orange, sheep)
+cross modal interaction and context information, the regional                     based on the spatial relationship description (e.g., right,
+location further approaches the correct region. Finally, the                      middle), when they have similar appearance and shape.
+target described by the referring expression is accurately                        In addition, the appearance of the referred object is not clear
+located when the CSE module was introduced, which further                         and visible enough in the input image, which can easily lead
+verifies the effectiveness of contrastive similarity entropy for                  to locating the wrong object region. For instance, only a
+distinguishing confused object regions.                                           small part of the back of the person in the image can be
+
+   Authorized licensed use limited to: South China Normal University. Downloaded on September 30,2026 at 15:39:10 UTC from IEEE Xplore. Restrictions apply.
+766                                            IEEE TRANSACTIONS ON CIRCUITS AND SYSTEMS FOR VIDEO TECHNOLOGY, VOL. 35, NO. 1, JANUARY 2025
+
+
+
+seen in Figure 10 (b). In Figure 10 (d), due to the similar                      [10] S. Liu et al., “Grounding DINO: Marrying DINO with grounded pre-
+appearance of the objects in the image and rough referring                            training for open-set object detection,” 2023, arXiv:2303.05499.
+                                                                                 [11] A. Radford et al., “Learning transferable visual models from natural
+description “old man”, the incorrect location result may occur.                       language supervision,” in Proc. Int. Conf. Mach. Learn., 2021,
+Based on the above analysis, in the future, we will attempt                           pp. 8748–8763.
+to introduce some spatial relationships and complex context                      [12] J. Li, D. Li, C. Xiong, and S. Hoi, “BLIP: Bootstrapping language-image
+reasoning to further address the above limitations for more                           pre-training for unified vision-language understanding and generation,”
+                                                                                      in Proc. Int. Conf. Mach. Learn., 2022, pp. 12888–12900.
+accurate referring expression comprehension.                                     [13] J. Li, D. Li, S. Savarese, and S. Hoi, “BLIP-2: Bootstrapping language-
+                                                                                      image pre-training with frozen image encoders and large language
+                                                                                      models,” in Proc. Int. Conf. Mach. Learn., 2023, pp. 19730–19742.
+                          VI. C ONCLUSION
+                                                                                 [14] J. Li, R. Selvaraju, A. Gotmare, S. Joty, C. Xiong, and S. C. H. Hoi,
+   In this paper, we propose MCCE-REC, a training-                                    “Align before fuse: Vision and language representation learning with
+                                                                                      momentum distillation,” in Proc. Adv. Neural Inf. Process. Syst., vol. 34,
+free MLLM-driven cross-modal contrastive entropy model                                2021, pp. 9694–9705.
+to achieve zero-shot referring expression comprehension.                         [15] X. Chen, J. Liu, Z. Liu, L. Wan, X. Lan, and N. Zheng,
+To better adapt global-level CLIP to fine-grained zero-                               “Knowledge graph enhancement for fine-grained zero-shot learning on
+shot REC, we analyze that the CLIP often biases toward                                ImageNet21K,” IEEE Trans. Circuits Syst. Video Technol., early access,
+                                                                                      May 2, 2024, doi: 10.1109/TCSVT.2024.3396215.
+some salient regions with higher matching similarity scores.                     [16] C. Ma, Y. Liu, J. Deng, L. Xie, W. Dong, and C. Xu, “Understanding
+According, we first leverage MLLM to generate diverse                                 and mitigating overfitting in prompt tuning for vision-language models,”
+detailed informative cues and contrastive cues referring to                           IEEE Trans. Circuits Syst. Video Technol., vol. 33, no. 9, pp. 4616–4629,
+                                                                                      Sep. 2023.
+an object. Then, a multi-cues cross-modal fusion module is
+                                                                                 [17] H. Shi, M. Hayat, Y. Wu, and J. Cai, “ProposalCLIP: Unsupervised
+designed to decompose the CLIP encoder in a parameter-free                            open-category object proposal generation via exploiting CLIP cues,”
+manner, which can effectively capture more comprehensive                              in Proc. IEEE/CVF Conf. Comput. Vis. Pattern Recognit. (CVPR),
+visual region features related to referring descriptions with                         Jun. 2022, pp. 9601–9610.
+                                                                                 [18] F. Liang et al., “Open-vocabulary semantic segmentation with mask-
+multiple cues. Furthermore, a contrastive similarity entropy                          adapted CLIP,” in Proc. IEEE/CVF Conf. Comput. Vis. Pattern Recognit.
+selection mechanism is introduced to consider both the                                (CVPR), Jun. 2023, pp. 7061–7070.
+similarity difference between positive and negative cues                         [19] H. Shi, H. Li, F. Meng, and Q. Wu, “Key-word-aware network for
+with proposal regions, enabling repelling distracting object                          referring expression image segmentation,” in Proc. Eur. Conf. Comput.
+                                                                                      Vis., Oct. 2018, pp. 38–54.
+regions in this image. Experimental results verify our                           [20] S. Subramanian, W. Merrill, T. Darrell, M. Gardner, S. Singh, and
+proposed method achieves superior performance on common                               A. Rohrbach, “ReCLIP: A strong zero-shot baseline for referring
+RefCOCO, RefCOCO+ and RefCOCOg datasets, which also                                   expression comprehension,” in Proc. 60th Annu. Meeting Assoc. Comput.
+                                                                                      Linguistics, Dublin, Ireland, 2022, pp. 5198–5215.
+demonstrates our method possesses excellent capabilities in
+                                                                                 [21] Z. Han, F. Zhu, Q. Lao, and H. Jiang, “Zero-shot referring expression
+adapting CLIP for fine-grained and challenging zero-shot REC                          comprehension via structural similarity between images and captions,”
+task.                                                                                 2023, arXiv:2311.17048.
+                                                                                 [22] K. He, G. Gkioxari, P. Dollár, and R. Girshick, “Mask R-CNN,” in Proc.
+                                                                                      IEEE Int. Conf. Comput. Vis. (ICCV), Oct. 2017, pp. 2961–2969.
+                              R EFERENCES                                        [23] S. Kazemzadeh, V. Ordonez, M. Matten, and T. Berg, “ReferItGame:
+                                                                                      Referring to objects in photographs of natural scenes,” in Proc.
+ [1] L. Wang, Z. He, R. Dang, H. Chen, C. Liu, and Q. Chen, “RES-StS:                 Conf. Empirical Methods Natural Lang. Process. (EMNLP), 2014,
+     Referring expression speaker via self-training with scorer for goal-             pp. 787–798.
+     oriented vision-language navigation,” IEEE Trans. Circuits Syst. Video
+     Technol., vol. 33, no. 7, pp. 3441–3454, Jul. 2023.                         [24] J. Mao, J. Huang, A. Toshev, O. Camburu, A. Yuille, and K. Murphy,
+                                                                                      “Generation and comprehension of unambiguous object descriptions,”
+ [2] M. Lu, R. Li, F. Feng, Z. Ma, and X. Wang, “LGR-NET: Language
+                                                                                      in Proc. IEEE Conf. Comput. Vis. Pattern Recognit. (CVPR), Jun. 2016,
+     guided reasoning network for referring expression comprehension,”
+                                                                                      pp. 11–20.
+     IEEE Trans. Circuits Syst. Video Technol., vol. 34, no. 8, pp. 7771–7784,
+     Aug. 2024.                                                                  [25] L. Yu, H. Tan, M. Bansal, and T. L. Berg, “A joint speaker-listener-
+                                                                                      reinforcer model for referring expressions,” in Proc. IEEE Conf. Comput.
+ [3] Y. Zheng, B. Zhong, Q. Liang, G. Li, R. Ji, and X. Li, “Toward unified
+                                                                                      Vis. Pattern Recognit. (CVPR), Jul. 2017, pp. 7282–7290.
+     token learning for vision-language tracking,” IEEE Trans. Circuits Syst.
+     Video Technol., vol. 34, no. 4, pp. 2125–2135, Apr. 2024.                   [26] P. Wang, Q. Wu, J. Cao, C. Shen, L. Gao, and A. V. D. Hengel,
+ [4] Z. Zhan, J. Qin, W. Zhuo, and G. Tan, “Enhancing vision and                      “Neighbourhood watch: Referring expression comprehension via
+     language navigation with prompt-based scene knowledge,” IEEE Trans.              language-guided graph attention networks,” in Proc. IEEE/CVF Conf.
+     Circuits Syst. Video Technol., early access, May 15, 2024, doi:                  Comput. Vis. Pattern Recognit. (CVPR), Jun. 2019, pp. 1960–1968.
+     10.1109/TCSVT.2024.3401451.                                                 [27] B. Zhuang, Q. Wu, C. Shen, I. Reid, and A. van den Hengel, “Parallel
+ [5] M. Gao, J. Yang, J. Han, K. Lu, F. Zheng, and G. Montana, “Decoupling            attention: A unified framework for visual object discovery through
+     multimodal transformers for referring video object segmentation,” IEEE           dialogs and queries,” in Proc. IEEE/CVF Conf. Comput. Vis. Pattern
+     Trans. Circuits Syst. Video Technol., vol. 33, no. 9, pp. 4518–4528,             Recognit., Jun. 2018, pp. 4252–4261.
+     Sep. 2023.                                                                  [28] C. Deng, Q. Wu, Q. Wu, F. Hu, F. Lyu, and M. Tan, “Visual grounding
+ [6] L. Yu et al., “MAttNet: Modular attention network for referring                  via accumulated attention,” in Proc. IEEE/CVF Conf. Comput. Vis.
+     expression comprehension,” in Proc. IEEE/CVF Conf. Comput. Vis.                  Pattern Recognit., Jun. 2018, pp. 7746–7755.
+     Pattern Recognit., Jun. 2018, pp. 1307–1315.                                [29] Y. Niu, H. Zhang, Z. Lu, and S.-F. Chang, “Variational context: Exploit-
+ [7] Z. Yang, B. Gong, L. Wang, W. Huang, D. Yu, and J. Luo, “A fast and              ing visual and textual context for grounding referring expressions,” IEEE
+     accurate one-stage approach to visual grounding,” in Proc. IEEE Int.             Trans. Pattern Anal. Mach. Intell., vol. 43, no. 1, pp. 347–359, Jan. 2021.
+     Conf. Comput. Vis., Oct. 2019, pp. 4683–4693.                               [30] X. Liu, Z. Wang, J. Shao, X. Wang, and H. Li, “Improving referring
+ [8] J. Deng, Z. Yang, T. Chen, W. Zhou, and H. Li, “TransVG: End-to-                 expression grounding with cross-modal attention-guided erasing,”
+     end visual grounding with transformers,” in Proc. IEEE/CVF Int. Conf.            in Proc. IEEE Conf. Comput. Vis. Pattern Recognit., Jun. 2019,
+     Comput. Vis. (ICCV), Oct. 2021, pp. 1749–1759.                                   pp. 1950–1959.
+ [9] H. Qiu et al., “Language-aware fine-grained object representation for       [31] S. Yang, G. Li, and Y. Yu, “Dynamic graph attention for referring
+     referring expression comprehension,” in Proc. 28th ACM Int. Conf.                expression comprehension,” in Proc. IEEE/CVF Int. Conf. Comput. Vis.
+     Multimedia, Oct. 2020, pp. 4171–4180.                                            (ICCV), Oct. 2019, pp. 4644–4653.
+
+  Authorized licensed use limited to: South China Normal University. Downloaded on September 30,2026 at 15:39:10 UTC from IEEE Xplore. Restrictions apply.
+QIU et al.: MCCE-REC: MLLM-DRIVEN CROSS-MODAL CONTRASTIVE ENTROPY MODEL FOR ZERO-SHOT REC                                                                     767
+
+
+
+[32] D. Liu, H. Zhang, Z.-J. Zha, and F. Wu, “Learning to assemble neural         [58] L. Yang, Y. Xu, C. Yuan, W. Liu, B. Li, and W. Hu, “Improving visual
+     module tree networks for visual grounding,” in Proc. IEEE/CVF Int.                grounding with visual-linguistic verification and iterative reasoning,”
+     Conf. Comput. Vis. (ICCV), Oct. 2019, pp. 4672–4681.                              in Proc. IEEE/CVF Conf. Comput. Vis. Pattern Recognit. (CVPR),
+[33] S. Ren, K. He, R. Girshick, and J. Sun, “Faster R-CNN: Towards real-              Jun. 2022, pp. 9489–9498.
+     time object detection with region proposal networks,” in Proc. Adv.          [59] K. He, X. Zhang, S. Ren, and J. Sun, “Deep residual learning for
+     Neural Inf. Process. Syst., vol. 28, 2015, pp. 91–99.                             image recognition,” in Proc. IEEE Conf. Comput. Vis. Pattern Recognit.
+[34] H. Qiu, H. Li, Q. Wu, and H. Shi, “Offset bin classification network              (CVPR), Jun. 2016, pp. 770–778.
+     for accurate object detection,” in Proc. IEEE/CVF Conf. Comput. Vis.         [60] A. Dosovitskiy et al., “An image is worth 16×16 words: Transformers
+     Pattern Recognit. (CVPR), Jun. 2020, pp. 13185–13194.                             for image recognition at scale,” 2020, arXiv:2010.11929.
+[35] Z. Yang, T. Chen, L. Wang, and J. Luo, “Improving one-stage visual           [61] K. He, H. Fan, Y. Wu, S. Xie, and R. Girshick, “Momentum contrast for
+     grounding by recursive sub-query construction,” in Proc. Eur. Conf.               unsupervised visual representation learning,” in Proc. IEEE/CVF Conf.
+     Comput. Vis. (ECCV). Springer, 2020, pp. 387–404.                                 Comput. Vis. Pattern Recognit. (CVPR), Jun. 2020, pp. 9729–9738.
+[36] B. Huang, D. Lian, W. Luo, and S. Gao, “Look before you leap:                [62] P. Huang, D. Zhang, D. Cheng, L. Han, P. Zhu, and J. Han, “M-RRFS:
+     Learning landmark features for one-stage visual grounding,” in Proc.              A memory-based robust region feature synthesizer for zero-shot object
+     IEEE/CVF Conf. Comput. Vis. Pattern Recognit. (CVPR), Jun. 2021,                  detection,” Int. J. Comput. Vis., vol. 132, pp. 1–22, May 2024.
+     pp. 16883–16892.                                                             [63] D. Cheng et al., “Continual all-in-one adverse weather removal
+[37] Y. Liao et al., “A real-time cross-modality correlation filtering method          with knowledge replay on a unified network structure,” IEEE Trans.
+     for referring expression comprehension,” in Proc. IEEE/CVF Conf.                  Multimedia, vol. 26, pp. 8184–8196, 2024.
+     Comput. Vis. Pattern Recognit. (CVPR), Jun. 2020, pp. 10877–10886.           [64] T. Lin et al., “Microsoft COCO: Common objects in context,” in Proc.
+[38] K. Duan, S. Bai, L. Xie, H. Qi, Q. Huang, and Q. Tian, “CenterNet:                Eur. Conf. Comput. Vis. (ECCV). Springer, 2014, pp. 740–755.
+     Keypoint triplets for object detection,” in Proc. IEEE/CVF Int. Conf.        [65] V. K. Nagaraja, V. I. Morariu, and L. S. Davis, “Modeling context
+     Comput. Vis. (ICCV), Oct. 2019, pp. 6569–6578.                                    between objects for referring expression understanding,” in Proc. 14th
+[39] H. Qiu, H. Li, T. Zhao, L. Wang, Q. Wu, and F. Meng, “RefCrowd:                   Eur. Conf. (ECCV). Amsterdam, The Netherlands: Springer, 2016,
+     Grounding the target in crowd with referring expressions,” in Proc. 30th          pp. 792–807.
+     ACM Int. Conf. Multimedia, Oct. 2022, pp. 4435–4444.                         [66] H. Liu, C. Li, Y. Li, and Y. J. Lee, “Improved baselines with visual
+[40] J. Redmon and A. Farhadi, “YOLOv3: An incremental improvement,”                   instruction tuning,” in Proc. IEEE/CVF Conf. Comput. Vis. Pattern
+     2018, arXiv:1804.02767.                                                           Recognit., Jun. 2023, pp. 26296–26306.
+[41] N. Carion, F. Massa, G. Synnaeve, N. Usunier, A. Kirillov, and               [67] B. A. Plummer et al., “Flickr30k entities: Collecting region-to-phrase
+     S. Zagoruyko, “End-to-end object detection with transformers,” in Proc.           correspondences for richer image-to-sentence models,” in Proc. IEEE
+     Eur. Conf. Comput. Vis. (ECCV). Springer, 2020, pp. 213–229.                      Int. Conf. Comput. Vis. (ICCV), Dec. 2015, pp. 2641–2649.
+                                                                                  [68] X. Dong, L. Han, D. Zhang, L. Liu, J. Han, and H. Zhang, “Giving text
+[42] A. Vaswani et al., “Attention is all you need,” in Proc. Adv. Neural Inf.
+                                                                                       more imagination space for image-text matching,” in Proc. 31st ACM
+     Process. Syst., vol. 30, 2017, pp. 1–11.
+                                                                                       Int. Conf. Multimedia, Oct. 2023, pp. 6359–6368.
+[43] M. Li and L. Sigal, “Referring former: A one-step approach to multi-
+                                                                                  [69] F. Lin, J. Yuan, S. Wu, F. Wang, and Z. Wang, “UniNeXt: Exploring
+     task visual grounding,” in Proc. Adv. Neural Inf. Process. Syst., vol. 34,
+                                                                                       a unified architecture for vision recognition,” in Proc. 31st ACM Int.
+     2021, pp. 19652–19664.
+                                                                                       Conf. Multimedia, Oct. 2023, pp. 3200–3208.
+[44] J. Ye et al., “Shifting more attention to visual backbone: Query-            [70] R. R. Selvaraju, M. Cogswell, A. Das, R. Vedantam, D. Parikh, and
+     modulated refinement networks for end-to-end visual grounding,”                   D. Batra, “Grad-CAM: Visual explanations from deep networks via
+     in Proc. IEEE/CVF Conf. Comput. Vis. Pattern Recognit. (CVPR),                    gradient-based localization,” in Proc. IEEE Int. Conf. Comput. Vis.
+     Jun. 2022, pp. 15481–15491.                                                       (ICCV), Oct. 2017, pp. 618–626.
+[45] A. Sadhu, K. Chen, and R. Nevatia, “Zero-shot grounding of objects
+     from natural language queries,” in Proc. IEEE/CVF Int. Conf. Comput.
+     Vis. (ICCV), Oct. 2019, pp. 4693–4702.
+[46] Z. Shi, Y. Shen, H. Jin, and X. Zhu, “Improving zero-shot phrase
+     grounding via reasoning on external knowledge and spatial relations,”
+     in Proc. AAAI Conf. Artif. Intell., 2022, vol. 36, no. 2, pp. 2253–2261.
+[47] Y. Yao, A. Zhang, Z. Zhang, Z. Liu, T.-S. Chua, and M. Sun, “CPT:                                   Heqian Qiu (Member, IEEE) received the Ph.D.
+     Colorful prompt tuning for pre-trained vision-language models,” 2021,                               degree in signal and information processing from
+     arXiv:2109.11797.                                                                                   the University of Electronic Science and Technology
+[48] A. Shtedritski, C. Rupprecht, and A. Vedaldi, “What does CLIP know                                  of China in 2022. She is currently a Post-
+     about a red circle? Visual prompt engineering for VLMs,” in Proc.                                   Doctoral Researcher with the School of Information
+     IEEE/CVF Int. Conf. Comput. Vis. (ICCV), Oct. 2023, pp. 11987–11997.                                and Communication Engineering, University of
+                                                                                                         Electronic Science and Technology of China. Her
+[49] L. Yang, Y. Wang, X. Li, X. Wang, and J. Yang, “Fine-grained visual
+                                                                                                         research interests include object detection, multi-
+     prompting,” in Proc. Adv. Neural Inf. Process. Syst., vol. 36, 2024,
+                                                                                                         modal representative learning, computer vision, and
+     pp. 1–14.
+                                                                                                         machine learning. She served as a reviewer for IEEE
+[50] A. Kirillov et al., “Segment anything,” in Proc. IEEE/CVF Int. Conf.                                T RANSACTIONS ON C IRCUITS AND S YSTEMS FOR
+     Comput. Vis., Oct. 2023, pp. 4015–4026.                                      V IDEO T ECHNOLOGY, Journal of Visual Communication and Image
+[51] T. Brown et al., “Language models are few-shot learners,” in Proc. Adv.      Representation, CVPR, ICCV, ECCV, and AAAI.
+     Neural Inf. Process. Syst., vol. 33, 2020, pp. 1877–1901.
+[52] J.-B. Alayrac et al., “Flamingo: A visual language model for few-
+     shot learning,” in Proc. Adv. Neural Inf. Process. Syst., vol. 35, 2022,
+     pp. 23716–23736.
+[53] D. Zhu, J. Chen, X. Shen, X. Li, and M. Elhoseiny, “MiniGPT-4:
+     Enhancing vision-language understanding with advanced large language
+                                                                                                          Lanxiao Wang (Graduate Student Member, IEEE)
+     models,” 2023, arXiv:2304.10592.
+                                                                                                          received the B.E. degree in electronics information
+[54] W.-L. Chiang et al. (2023). Vicuna: An Open-source Chatbot                                           engineering and the Ph.D. degree in information
+     Impressing Gpt-4 With 90%∗ Chatgpt Quality. [Online]. Available:                                     and communication engineering from the University
+     https://lmsys.org/blog/2023-03-30-vicuna/                                                            of Electronic Science and Technology of China
+[55] W. Dai et al., “Instructblip: Towards general-purpose vision-language                                (UESTC) in 2019 and June 2024, respectively. She is
+     models with instruction tuning,” in Proc. Adv. Neural Inf. Process. Syst.,                           currently a Post-Doctoral Researcher with UESTC.
+     vol. 36, 2024, pp. 49250–49267.                                                                      Her research interests include computer vision,
+[56] H. Liu, C. Li, Q. Wu, and Y. J. Lee, “Visual instruction tuning,” in Proc.                           machine learning, scene analysis, and multimodal
+     Adv. Neural Inf. Process. Syst., vol. 36, 2024, pp. 34892–34916.                                     representation learning. She served as a reviewer
+[57] X. Lai et al., “LISA: Reasoning segmentation via large language model,”                              for IEEE T RANSACTIONS ON M ULTIMEDIA,
+     2023, arXiv:2308.00692.                                                                              ACM MM, and ChinaMM.
+
+   Authorized licensed use limited to: South China Normal University. Downloaded on September 30,2026 at 15:39:10 UTC from IEEE Xplore. Restrictions apply.
+768                                            IEEE TRANSACTIONS ON CIRCUITS AND SYSTEMS FOR VIDEO TECHNOLOGY, VOL. 35, NO. 1, JANUARY 2025
+
+
+
+                         Taijin Zhao received the B.E. degree from the                                     Qingbo Wu (Member, IEEE) received the Ph.D.
+                         School of Information Science and Technology,                                     degree in signal and information processing from the
+                         University of Electronic Science and Technology                                   University of Electronic Science and Technology of
+                         of China, Chengdu, China, in 2019, where he                                       China in 2015. From February 2014 to May 2014,
+                         is currently pursuing the Ph.D. degree under the                                  he was a Research Assistant with the Image and
+                         supervision of Prof. Hongliang Li. His research                                   Video Processing (IVP) Laboratory, Chinese Univer-
+                         interests include few-shot learning, multi-modal                                  sity of Hong Kong. From October 2014 to October
+                         learning, and object detection.                                                   2015, he was a Visiting Scholar with the Image
+                                                                                                           and Vision Computing (IVC) Laboratory, University
+                                                                                                           of Waterloo. He is currently an Associate Professor
+                                                                                                           with the School of Information and Communication
+                                                                                 Engineering, University of Electronic Science and Technology of China. His
+                                                                                 research interests include image/video coding, quality evaluation, perceptual
+                                                                                 modeling, and processing. He served as the Area Chair for VCIP 2016, the
+                                                                                 Session Chair for ACM MM 2021 and ICMCT 2022, and a TPC/PC Member
+                                                                                 for AAAI 2021–2023, APSIPA ASC 2020–2021, and CICAI 2021–2023.
+                                                                                 He is also the Guest Editor of Remote Sensing and Frontiers in Neuroscience.
+
+
+
+
+                                                                                                          Hongliang Li (Senior Member, IEEE) received
+                                                                                                          the Ph.D. degree in electronics and information
+                                                                                                          engineering from Xi’an Jiaotong University, China,
+                                                                                                          in 2005.
+                                                                                                            From 2005 to 2006, he was with the Visual Signal
+                                                                                                          Processing and Communication Laboratory (VSPC),
+                                                                                                          Chinese University of Hong Kong (CUHK), as a
+                                                                                                          Research Associate. From 2006 to 2008, he was
+                                                                                                          a Post-Doctoral Fellow with VSPC, CUHK. He is
+                                                                                                          currently a Professor with the School of Information
+                                                                                                          and Communication Engineering, University of
+                                                                                 Electronic Science and Technology of China. He has authored or co-
+                          Fanman Meng (Member, IEEE) received the Ph.D.          authored numerous technical papers in well-known international journals and
+                          degree in signal and information processing from the   conferences. He is the Co-Editor of a Springer book titled “Video segmentation
+                          University of Electronic Science and Technology of     and its applications.” His research interests include image segmentation,
+                          China, Chengdu, China, in 2014.                        object detection, image and video coding, visual attention, and multimedia
+                            From 2013 to 2014, he was a Research Assistant       processing. He is involved in many professional activities. He received the
+                          with the Division of Visual and Interactive Comput-    2019 and 2020 Best Associate Editor Award for IEEE T RANSACTIONS
+                          ing, Nanyang Technological University, Singapore.      ON C IRCUITS AND S YSTEMS FOR V IDEO T ECHNOLOGY (TCSVT) and
+                          He is currently a Professor with the School            the 2021 Best Editor Award for Journal of Visual Communication and Image
+                          of Information and Communication Engineering,          Representation. He served as the Technical Program Chair for VCIP 2016 and
+                          University of Electronic Science and Technology of     PCM 2017, the General Chair for ISPACS 2017 and ISPACS 2010, the
+                          China. He has authored or co-authored numerous         Publicity Chair for IEEE VCIP 2013, the Local Chair for the IEEE ICME
+technical papers in well-known international journals and conferences. His       2014, the Area Chair for VCIP 2022 and 2021, and a Reviewer Committee
+current research interests include image segmentation and object detection.      Member for IEEE ISCAS from 2018 to 2022. He served as an Associate Editor
+He is a member of the IEEE Circuits and Systems Society. He was a                for IEEE TCSVT (2018–2021). He is also an Associate Editor of Journal of
+recipient of the Best Student Paper Honorable Mention Award at the 12th          Visual Communication and Image Representation and IEEE O PEN J OURNAL
+Asian Conference on Computer Vision, Singapore, in 2014, and the Top 10%         OF C IRCUITS AND S YSTEMS and an Area Editor of Signal Processing: Image
+Paper Award at the IEEE International Conference on Image Processing, Paris,     Communication (Elsevier Science). He was selected as the IEEE Circuits and
+France, in 2014.                                                                 Systems Society Distinguished Lecturer for 2022–2023.
+
+
+
+
+   Authorized licensed use limited to: South China Normal University. Downloaded on September 30,2026 at 15:39:10 UTC from IEEE Xplore. Restrictions apply.
+

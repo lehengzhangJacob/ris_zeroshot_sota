@@ -1,0 +1,30 @@
+{
+  "oracle_single": 0.8265234345345501,
+  "argmax_dod": 0.3532211297607804,
+  "argmax_cosfg": 0.3455573476720032,
+  "best_global_weighting": 0.3645843811452253,
+  "best_global_weights": {
+    "appearance": 1.0,
+    "bg": 0.0,
+    "dod": 0.0,
+    "logarea": 0.1,
+    "spatial": 0.0
+  },
+  "agreement_weighted_zsum": 0.326333323598018,
+  "equal_weight_zsum": 0.2875334217629951,
+  "agree_weighted_borda": 0.21475958540381945,
+  "equal_borda": 0.1676895112809808,
+  "spatial_only_on_spatial_expr": 0.06746681860007876,
+  "frac_expressions_with_spatial_cue": 0.36,
+  "mean_c1_on_spatial_expr": 0.3847167813721134,
+  "oracle_recovery": {
+    "argmax_dod": 0.42735767069894876,
+    "argmax_cosfg": 0.41808535999538954,
+    "best_global_weighting": 0.4411059213953661,
+    "best_global_weights": null,
+    "agreement_weighted_zsum": 0.39482646221856965,
+    "equal_weight_zsum": 0.3478829634454554,
+    "equal_borda": 0.20288536812681393,
+    "spatial_only_on_spatial_expr": 0.08162723013180158
+  }
+}

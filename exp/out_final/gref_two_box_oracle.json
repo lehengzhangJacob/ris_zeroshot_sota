@@ -1,0 +1,10 @@
+{
+  "measured_on": "held-out train targeted rows, pool = full selector pool",
+  "two_box_oracle_r": 0.8145046725984761,
+  "two_box_boxiou_pick_r": 0.7151086743056319,
+  "two_box_inboxmass_pick_r": 0.5541509732828588,
+  "shipped_pair_calib_r": 0.5538,
+  "single_box_oracle_note": "exp81/exp77: best-single 0.696, best-pair 0.825 (oracle-ranked)",
+  "interpretation": "oracle ceiling of the per-object-box construction vs the shipped calib r 0.5538; the deployable-pick variants show what the current box features would reach GIVEN perfect per-object boxes",
+  "generated": "exp83_two_box_oracle.py"
+}

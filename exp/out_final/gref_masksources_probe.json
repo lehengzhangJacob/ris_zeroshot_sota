@@ -1,0 +1,34 @@
+{
+  "results": {
+    "base": {
+      "sample_m": 0.6432751953646464,
+      "sample_n": 262,
+      "oneterm_m": 0.6684216817387337,
+      "oneterm_n": 47
+    },
+    "sam_llava": {
+      "sample_m": 0.6080869702520575,
+      "sample_n": 262,
+      "oneterm_m": 0.6684216817387337,
+      "oneterm_n": 47
+    },
+    "sam_det1": {
+      "sample_m": 0.6451438635973127,
+      "sample_n": 262,
+      "oneterm_m": 0.6684216817387337,
+      "oneterm_n": 47
+    },
+    "sam_both": {
+      "sample_m": 0.6265479798049055,
+      "sample_n": 262,
+      "oneterm_m": 0.6684216817387337,
+      "oneterm_n": 47
+    }
+  },
+  "reference": {
+    "sample_base_m": 0.6433,
+    "val_gIoU_floor_gap": 0.39,
+    "val_m": 0.609
+  },
+  "generated": "exp112_masksources_probe.py"
+}

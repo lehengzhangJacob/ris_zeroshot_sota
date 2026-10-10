@@ -1,0 +1,90 @@
+\section{Limitations}
+\label{sec:limitations}
+
+\paragraph{The same-class floors are cleared; the supervised cIoU level is the measured boundary.}
+The training-free rule clears every same-class (zero-shot) published number
+on both metrics (\grefCIoU{}/\grefGIoU{} vs.\ the best published zero-shot
+\grefZeroShotCIoU{}/\grefZeroShotGIoU{}), exceeds the strongest supervised
+gIoU reference (\grefPubGIoU), and makes the no-target decision above the
+trained state of the art ($N_{\mathrm{acc}}=\wallCombN$ vs.\
+\wallTrainedNAcc). The \emph{supervised} cIoU level
+(\grefPubCIoU, our labelled reference rows) is where the class stops.
+\emph{Grounder}:
+\wallTwoTarget\,\% of gRefCOCO's targeted samples union exactly two objects,
+and the VLM's single box overlaps that union at IoU \wallBoxIoU.
+\emph{Selector}: at the shipped operating point the supervised cIoU level
+needs the deployable-oracle realization at \wallRealNeedCIoU\,\% while the
+rule realizes \wallRealMeas\,\%; both oracles agree at $\approx0.88$ --- pool
+selection and the construction itself under per-object GT boxes and SAM
+(reaching $r=\wallConstructionOrc$, cIoU \wallConstructionCap) --- so the
+axis is realization-bound, not foreclosed, and the held-out 2$\times$2 shows
+the loss concentrates in \emph{which box to ask} ($+0.23$ mean targeted IoU
+with GT boxes against $+0.07$ for perfect mask choice). The gap is not
+perceptual-only: a forced-choice probe of the localizer between two candidate
+crops picks GT-best at $29.8\%$ against $25\%$ chance on the held-out grid, and
+on the two-object slice the same protocol reaches $59.3\%$ --- below the
+trivial largest-candidate heuristic ($85.4\%$), so the preference carries less
+referent information than crop size. Published cIoU numbers
+come from models trained to select at that quality. We report our
+training-free numbers honestly and do not tune around the gap.
+
+\paragraph{The gRefCOCO wall is measured on val, and part of it is transfer.}
+On gIoU the held-out train population reaches $\grefSelHeldOutGIoU$ at val
+prevalence while val gives $\grefGIoU$ --- the same transfer component
+documented throughout this paper (val's no-target expressions are 92\,\%
+transplanted phrases; the shipped rule's $N_{\mathrm{acc}}$ drops from
+$\wallHeldOutNAcc$ to $\wallCombN$). The cIoU boundary inherits this: the
+$r$-requirement is measured on val and the held-out realization is higher,
+so the val gap understates what the rule achieves on train-distributed data
+and overstates nothing --- we state the transfer component separately so the
+boundary is not read as more absolute than the measurement supports.
+
+\paragraph{One VLM, one prompt template.}
+The prior comes from a single frozen 7B checkpoint (LLaVA-OneVision-7B) with
+one prompt template, chosen on the held-out split between two prompt
+variants. We did not sweep models, templates, few-shot examples, or decoding
+parameters; the reported prompt effect ($+13.4$/$+10.6$/$+11.6$ mIoU for
+sentence over noun phrase) suggests the choice matters a great deal and may
+not be optimal. On gRefCOCO the localizer's \emph{discrimination} is the
+measured limit, not the question format: asked for a box it overlaps a
+two-object union at IoU \wallBoxIoU; asked yes/no about a candidate crop it
+confirms but cannot reject; asked to choose between two candidate crops it
+picks the GT-best at $29.8\%$ against $25\%$ chance on the held-out grid
+(20{,}301 queries), reaching $59.3\%$ on the two-object slice --- below the
+$85.4\%$ of the trivial largest-candidate heuristic. The one additional strong
+VLM we could obtain and verify (Qwen2.5-VL-7B, 2026-10-07) improved on this
+checkpoint's boxes ($0.580\to0.6325$ term-box IoU) but stayed below the
+detector already in the configuration ($0.7046$) and its forced-choice
+discrimination was below the incumbent's, so a stronger grounder would
+plausibly help every number, but not trivially.
+
+\paragraph{The VLM is pretrained on COCO images.}
+LLaVA-OneVision's pretraining data includes COCO (the source of the
+benchmark images), as is true for the MLLM that GLOD-RIS queries through its
+API; no referring annotations are used by either. This is the standard
+training-free setting in this literature, but it is a weaker notion of
+``zero-shot'' than a model that has never seen the image pool.
+
+\paragraph{One proposal generator, one backbone.}
+All results use SAM ViT-H and CLIP ViT-B/16, the released configuration. The
+pool-density axis was varied (\textsc{points\_per\_side} $8\to16$,
+\ppsProposalDelta\,\% more proposals) and the diagnosis survives
+(\ppsWiEight\,$\to$\,\ppsWiSixteen); other generators and backbones were not
+varied. The box prior should be less sensitive to pool density than the
+score-only selector, because the box fixes \emph{where} to look --- an
+untested prediction.
+
+\paragraph{Reproduction gap.}
+Absolute rows are not comparable to the published HybridGL table: the
+released code scores \reproGap\,mIoU below its own published number
+(\S\ref{sec:repro}), verified against the unmodified official
+implementation. All our comparisons are internal to one reproduction. This
+constrains the paper: we can claim controlled improvements over the released
+pipeline and against published numbers quoted as published, but the two are
+not directly commensurable.
+
+\paragraph{VLM latency.}
+The box pass costs $0.6$--$1.8$\,s per expression on one RTX 4090, which is
+$3$--$10\times$ the released pipeline's per-expression cost. The cost is
+cacheable (one box per unique expression) but not free, and the paper does
+not report a wall-clock comparison against the MLLM-based prior it replaces.

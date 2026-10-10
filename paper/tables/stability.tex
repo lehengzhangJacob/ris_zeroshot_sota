@@ -1,0 +1,12 @@
+\begin{tabular}{llr}
+\toprule
+test & measurement & value \\
+\midrule
+T1 paraphrase & predictions changed by paraphrased boxes & 0/608 \\
+T1 control & predictions changed when ALL LLaVA boxes are dropped & 13/608 \\
+T2 determinism & metric re-analysis, bit-identical & yes \\
+T2 model & identical-prompt boxes reproduced & 5/12 \\
+T3 box jitter & max $|\Delta|$ cIoU over 6 perturbations & 0.00 \\
+T4 detector swap & $\Delta$ cIoU, det0-only boxes & +0.02 \\
+\bottomrule
+\end{tabular}

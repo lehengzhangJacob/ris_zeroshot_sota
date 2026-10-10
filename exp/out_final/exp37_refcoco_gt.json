@@ -1,0 +1,18 @@
+{
+  "dataset": "refcoco",
+  "n": 10834,
+  "box_source": "gt",
+  "mode": "cover",
+  "mIoU": {
+    "loc_only": 75.066,
+    "loc_cover_x_sc_top3": 56.054,
+    "loc_cover_x_sc_top5": 63.072,
+    "loc_cover_x_sc_top10": 69.44,
+    "loc_cover_x_cat_top5": 63.939,
+    "loc_cover_x_cat_top10": 70.092,
+    "released_final": 44.825,
+    "released_snap": 50.236,
+    "loc_cover_x_sc_top5+grow": 63.445,
+    "loc_cover_x_cat_top10+grow": 70.41
+  }
+}

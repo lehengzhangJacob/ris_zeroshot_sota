@@ -1,0 +1,21 @@
+{
+  "dataset": "refcoco",
+  "split": "val",
+  "limit": 250,
+  "seed": 101,
+  "n_expressions": 250,
+  "n_images": 237,
+  "elapsed_s": 1353.6,
+  "mIoU_argmax": 0.3532211297607804,
+  "mIoU_oracle_single": 0.8265234345345501,
+  "mIoU_oracle_pair": 0.8511198609205205,
+  "mIoU_oracle_triple": 0.8550772730780898,
+  "mIoU_union_top2": 0.3608864158417436,
+  "mIoU_union_top3": 0.35974584229542816,
+  "mIoU_union_top5": 0.3048295740710996,
+  "frac_pair_beats_single": 0.78,
+  "frac_pair_improves_gt2pts": 0.18,
+  "mean_gap_pair_minus_single": 0.02459642638597028,
+  "mean_gap_triple_minus_single": 0.028553838543539642,
+  "mean_argmax_rank": 9.676
+}

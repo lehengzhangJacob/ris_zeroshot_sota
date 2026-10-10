@@ -1,0 +1,22 @@
+\begin{tabular}{llcccccc}
+\toprule
+ & & \multicolumn{2}{c}{RefCOCO} & \multicolumn{2}{c}{RefCOCO+} & \multicolumn{2}{c}{RefCOCOg} \\
+\cmidrule(lr){3-4}\cmidrule(lr){5-6}\cmidrule(lr){7-8}
+Method & Venue & mIoU & oIoU & mIoU & oIoU & mIoU & oIoU \\
+\midrule
+Grad-CAM & ICCV 2019 & 30.22 & 23.44 & 33.96 & 26.67 & 33.05 & 23.00 \\
+MaskCLIP & CVPR 2023 & 25.62 & 20.18 & 27.49 & 22.06 & 30.13 & 23.05 \\
+Global-Local (SAM) & CVPR 2023 & 31.83 & 24.55 & 34.97 & 26.62 & 40.66 & 28.92 \\
+Ref-Diff & CoRR 2023 & 37.21 & 35.16 & 37.29 & 35.56 & 44.02 & 38.62 \\
+TAS & EMNLP 2023 & 39.84 & 29.53 & 43.63 & 33.21 & 46.62 & 35.84 \\
+BMS & TCSVT 2024 & 40.77 & 34.94 & 41.70 & 37.36 & 48.32 & 42.61 \\
+IteRPrimE & AAAI 2025 & 40.20 & -- & 44.20 & -- & 46.00 & -- \\
+LGD & PR 2025 & 45.41 & 34.47 & 47.23 & 36.72 & 47.31 & 36.57 \\
+HybridGL (published) & CVPR 2025 & 49.48 & 41.81 & 43.40 & 35.74 & 51.25 & 42.47 \\
+GLOD-RIS (published) & TCSVT 2026 & 58.42 & 50.85 & 54.01 & 45.96 & 57.85 & 50.03 \\
+HybridGL released (our reproduction)$^\dagger$ & this run & 44.82 & 38.16 & 40.23 & 33.59 & 50.08 & 41.45 \\
++ containment growth (control)$^\dagger$ & this run & 50.24 & 40.72 & 45.91 & 36.54 & 50.92 & 41.02 \\
+Ours: dense VLM box prior (shipped)$^\dagger$ & this run & 68.53 & 63.40 & 64.67 & 58.31 & 65.12 & 59.77 \\
+Ours: no-box control$^\dagger$ & this run & 43.33 & 35.99 & 37.85 & 30.82 & 47.51 & 38.48 \\
+\bottomrule
+\end{tabular}

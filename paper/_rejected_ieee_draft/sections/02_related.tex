@@ -1,0 +1,73 @@
+\section{Related Work}
+
+\subsection{Training-free referring image segmentation}
+
+Zero-shot RIS was established by Global-Local CLIP \cite{yu2023global}, which
+scores mask proposals with CLIP and fuses local (masked-region) and global
+(context) representations. Ref-Diff \cite{kim2023refdiff} uses diffusion
+attention with SAM; TAS \cite{li2023tas} adds BLIP-2 captions and negative
+prompts; LGD \cite{li2025lgd} obtains attribute and surround descriptions from
+LLaVA; GLOD-RIS \cite{wu2026glodris} adds orthogonal decoupling of the
+foreground and background CLIP directions and a grid localization prompt to an
+external multimodal model. HybridGL \cite{liu2025hybridgl}, our baseline,
+fuses global features into the local branch (G2L) and adds three guidance
+modules --- spatial relationship, GEM attention coherence, and a position
+prior.
+
+Two properties are common to all of these. First, the final answer is an
+argmax over one candidate mask. Second, the weights that combine sub-scores are
+global constants rather than functions of the candidate pool being scored. No
+published method in this family calibrates its score against the other
+candidates of the image it is scoring. Our diagnosis is about precisely that
+stage, and our operator is the first, to our knowledge, to report a
+pool-level decomposition of where the discarded IoU goes.
+
+\subsection{Diagnostic and oracle analyses}
+
+Oracle and ceiling analyses are standard in proposal-based detection
+\cite{ren2015faster,he2017maskrcnn} but have not been applied to training-free
+RIS. The word \emph{oracle} does not appear in the recent multimodal referring
+segmentation survey, nor in the GRES/gRefCOCO \cite{liu2023gres} or GREx
+\cite{liu2025grex} benchmarks, which instead document that no training-free
+method has been evaluated on their generalized setting. What the field reports
+is oracle utilisation --- achieved IoU over best-available IoU --- which
+aggregates pool quality and selection quality into one number and therefore
+cannot say which is binding. We separate the two, and find the selector
+binding.
+
+\subsection{Spatial and relational reasoning in RIS}
+
+Spatial language is a long-standing sub-problem of referring expression
+comprehension and segmentation: modular spatial relations
+\cite{hu2016natural}, speaker-listener-reinforcer architectures
+\cite{yu2017slr}, and, in the training-free regime, keyword-based proposal
+pruning in ProposalCLIP \cite{zhou2022proposalclip} and the relationship
+module of HybridGL itself. ProposalCLIP is the closest prior art on the text
+side: it also removes or exploits locative words when scoring proposals, but it
+prunes with hand-specified colour, position and direction heuristics on top of
+a class-name-driven score and does not diagnose selection failure. HybridGL's
+relationship module is closer to ours structurally, and our experiments treat
+it as the baseline rather than as an alternative: our operator acts on top of
+the released pipeline at its own operating point, and we report the
+decomposition of the gain between candidate-set enlargement and the relation
+gate (§\ref{sec:controls}).
+
+\subsection{Mask merging and granularity remedies}
+
+A separate family targets SAM over- and under-segmentation by merging masks:
+E-SAM \cite{esam2025} merges adjacent similar SAM masks, GF-SAM
+\cite{gfsam2024} groups masks by connectivity under coverage gating, and
+ProposalCLIP merges proposals by IoU and CLIP similarity. MARS
+\cite{mars2026} gates proposals within a tolerance of the maximum score and
+unions them. These target the granularity class that our decomposition measures
+at 2--18\,\% of the recoverable IoU. We include one such operator --- a
+containment snap --- as a required baseline, and find that it and our selector
+are complementary rather than competing.
+
+\subsection{Selection over proposal sets}
+
+Selecting an arbitrary subset of frozen proposals has been studied as a learned
+problem (RAS \cite{ras2025} trains a selection head on roughly two million mask
+groups with a fine-tuned LLaVA). We work in the training-free regime by
+construction: the operator we report adds no parameters and no forward pass,
+and its inputs are quantities the baseline pipeline already computes.

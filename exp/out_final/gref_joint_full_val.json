@@ -1,0 +1,59 @@
+{
+  "model": {
+    "kind": "GDINO-box + SAM-mask + pool-pick termbox union",
+    "study_params": {
+      "src": "bs",
+      "alpha": 1.8111644301883565,
+      "beta": 0.23434019563238434,
+      "topk": 2,
+      "margin": 0.6312676830144586,
+      "pick_box": "ll+d0",
+      "sam": "d0+d1",
+      "sam_area_cap": 0.5,
+      "gd_thresh": 0.25,
+      "box_src": "llava",
+      "pool_rule": "sxi"
+    },
+    "source_study": "exp/out_final/optuna_study_gref14.json"
+  },
+  "metrics": {
+    "n": 14220,
+    "cIoU": 49.59304539734297,
+    "gIoU": 74.72924602631088,
+    "N_acc": 86.17356115107914,
+    "T_acc": 87.84748309541698,
+    "TP": 7666,
+    "FN": 1230,
+    "TN": 4677,
+    "FP": 647,
+    "gdino_used": 4677,
+    "fallback_used": 1230,
+    "masses": {
+      "S_U_union_mass": 111829294.00000003,
+      "P_sum_pred_areas": 111346621.0,
+      "I_tot": 65627497.0,
+      "G_U": 76667626.35155708,
+      "FP_U": 10486685.0,
+      "A_U": 10016077.79180994,
+      "note": "S_U = union(pred,GT) mass (exp90 convention); the pass's S_U accumulator is pred-area mass",
+      "r_delivered": 0.5868542548431003,
+      "r_required_for_floor": 0.8157944728889532,
+      "ceiling_at_pool_oracle_r08842": 71.51081713902373,
+      "ceiling_at_r1": 78.90019483038213,
+      "cIoU_identity_check": 49.59304539734297
+    },
+    "cIoU_val_prevalence": 49.593007638996106,
+    "gIoU_val_prevalence": 74.72931481257717
+  },
+  "history": {
+    "gdino_sam_v13": {
+      "cIoU": 47.1442,
+      "gIoU": 73.9518
+    },
+    "termbox_llava": {
+      "cIoU": 40.9593,
+      "gIoU": 71.1064
+    }
+  },
+  "generated": "exp118_joint_full_val.py"
+}

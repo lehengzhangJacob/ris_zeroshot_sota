@@ -1,0 +1,15 @@
+{
+  "dataset": "refcoco+",
+  "n": 1042,
+  "text": "noun",
+  "mIoU": {
+    "sig_local": 36.451,
+    "sig_global": 24.832,
+    "sig_fused": 34.255,
+    "sig_x_clip_rank": 39.173,
+    "sig_x_sc_noun_rank": 37.182,
+    "released_final": 40.591,
+    "released_pure": 40.419,
+    "orc_single": 82.93
+  }
+}

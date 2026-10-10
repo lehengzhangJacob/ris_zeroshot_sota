@@ -1,0 +1,705 @@
+                                             Ref-Diff: Zero-shot Referring Image Segmentation
+                                                          with Generative Models
+
+
+                                            Minheng Ni1 Yabo Zhang1 Kailai Feng1 Xiaoming Li1 Yiwen Guo3 Wangmeng Zuo1,2 B
+                                                1
+                                                  Harbin Institute of Technology 2 Pengcheng Laboratory 3 Independent Researcher
+                                              mhni@stu.hit.edu.cn hitzhangyabo2017@gmail.com klfeng@stu.hit.edu.cn
+                                                      csxmli@gmail.com guoyiwen89@gmail.com wmzuo@hit.edu.cn
+arXiv:2308.16777v2 [cs.CV] 1 Sep 2023
+
+
+
+
+                                                                                       Abstract
+
+                                                  Zero-shot referring image segmentation is a challenging task because it aims to find
+                                                  an instance segmentation mask based on the given referring descriptions, without
+                                                  training on this type of paired data. Current zero-shot methods mainly focus on
+                                                  using pre-trained discriminative models (e.g., CLIP). However, we have observed
+                                                  that generative models (e.g., S TABLE D IFFUSION) have potentially understood
+                                                  the relationships between various visual elements and text descriptions, which
+                                                  are rarely investigated in this task. In this work, we introduce a novel Referring
+                                                  Diffusional segmentor (R EF -D IFF) for this task, which leverages the fine-grained
+                                                  multi-modal information from generative models. We demonstrate that without a
+                                                  proposal generator, a generative model alone can achieve comparable performance
+                                                  to existing SOTA weakly-supervised models. When we combine both generative
+                                                  and discriminative models, our R EF -D IFF outperforms these competing methods
+                                                  by a significant margin. This indicates that generative models are also beneficial
+                                                  for this task and can complement discriminative models for better referring seg-
+                                                  mentation. Our code is publicly available at https://github.com/kodenii/Ref-Diff.
+
+
+                                        1     Introduction
+                                        Referring Image Segmentation (RIS) aims to identify the referring instance region that is semantically
+                                        consistent with the given text description. Different from semantic segmentation, this task often
+                                        requires distinguishing instances of the same class, e.g., the tallest boy among these four children.
+                                        Annotation of precise pairs (i.e., image, text description, and ground-truth instance mask) is costly and
+                                        time-consuming. A recent weakly-supervised RIS approach [23] endeavors to alleviate the annotation
+                                        difficulties, but it still needs specific pairs of images and referring texts for training. Conversely,
+                                        a zero-shot solution is more valuable but may exacerbate the challenges further. On the one hand,
+                                        it is training-free, and no referring annotation is required. On the other hand, it needs a deeper
+                                        comprehension of the relationship between text and the visual elements in the images.
+                                        Recent multi-modal pre-training models have shown impressive capabilities in vision and language
+                                        understanding. As one of the most representative discriminative models among them, CLIP [17]
+                                        (which explicitly learns the global similarity between image and text through contrastive learning)
+                                        has demonstrated significant improvements to various tasks, including object detection [34], image
+                                        retrieval [17], and semantic segmentation [8]. However, directly applying a model like CLIP to
+                                        zero-shot RIS is impractical, as it is trained to capture the global similarity of text and images, which
+                                        cannot well learn the specific visual elements relating to a referring text. To address this, Yu et al. [31]
+                                        propose a global and local CLIP to bridge the gap between discriminative models and pixel-level
+                                        dense prediction. Nevertheless, we observe that discriminative models themselves struggle to localize
+                                        visual elements accurately. In recent years, generative models such as S TABLE D IFFUSION [19],
+                                        DALL-E 2 [18], and I MAGEN [21] have also attracted great attention due to their ability in generating
+                                        the realistic or imaginative images. The semantic alignment in generated images demonstrates that
+these generative models have implicitly captured the relationships between various visual elements
+and texts. However, unlike discriminative models, they are rarely exploited in zero-shot referring
+image segmentation tasks.
+In this work, we attempt to investigate whether the generative models can benefit the zero-shot RIS
+task. To this end, we propose a novel Referring Diffusional segmentor (R EF -D IFF). It leverages
+fine-grained multi-modal information from generative models to exploit the relationship between
+referring expressions and different visual elements in the image. Previous works usually adopt
+CLIP to rank the proposals from an offline proposal generator [11]. In contrast, our R EF -D IFF can
+inherently provide these instance proposals using the generative models. This indicates that our
+R EF -D IFF does not necessarily depend on third-party proposal generators.
+Experiments on three datasets show that without the use of an offline proposal generator, only the
+generative model in our R EF -D IFF achieves comparable performance against the SOTA weakly-
+supervised methods. Additionally, when incorporating an offline proposal generator and discrim-
+inative model, our Ref-Diff significantly outperforms the competing methods. Both quantitative
+and qualitative analyses demonstrate that the generative model is beneficial for this task, and the
+combination with discriminative models can lead to better referring segmentation results.
+The main contributions can be summarized as follows:
+       • We demonstrate that the generative models can be leveraged to improve the zero-shot RIS
+         task by exploiting the implicit relationships between visual elements and text descriptions.
+       • We show that the generative model can intrinsically perform proposal generation, thereby
+         making our R EF -D IFF independent of third-party proposal generators.
+       • We propose a feasible manner to combine the generative and discriminative models for the
+         zero-shot RIS task, which complement each other and achieve better referring segmentation.
+
+
+2     Related Work
+Zero-shot Referring Segmentation. Referring image segmentation is one of the most fundamental
+and challenging tasks, as it involves a fine-grained understanding of both vision and language.
+Following a fully-supervised formulation, previous works [27; 28; 30; 13; 7; 29; 33] require labor-
+intensive training annotations, i.e., referring expressions and pixel-level masks. However, due to the
+absence of large-scale training annotations, these methods are often limited in their scalability and
+out-of-domain samples [23]. With the remarkable progress of discriminative vision-language pre-
+training [17], recent works [23; 31] explore their open-vocabulary recognition in weakly or zero-shot
+referring segmentation. Despite their considerable performance, the pre-trained discriminative models
+that learn the global similarity of text and image have inherent limitations in deeply understanding
+the object delineation or the fine-grained relationships between visual elements and text description.
+In contrast, our R EF -D IFF utilizes the fine-grained understanding through generative models and
+thereby obtains more accurate predictions.
+
+Visual Generative Models for Non-Synthesized Tasks. Large-scale text-to-image generative
+models [19; 18; 21] have achieved tremendous progress in imaginary generation and creative ap-
+plications [25; 20; 9; 32; 15]. Apart from generation-related tasks, these generative models also
+demonstrate preeminent capabilities in fine-grained image understanding, e.g., semantic segmen-
+tation [33; 26; 2; 3; 1], object detection [5; 4], dense prediction [10; 22], and classification [12; 6].
+Therefore, most existing research focuses on transfer learning or constructing synthetic data for
+specific tasks. Although a few studies have explored the application of using generative mod-
+els in zero-shot image classification, the performance of generative models in zero-shot referring
+segmentation has not been well investigated and deserves to attract attention.
+
+3     Methodology
+3.1   Problem Formulation and Inference Pipeline
+
+Given an image x ∈ RW ×H×C and a referring text T , Referring Segmentation aims to output a
+segmenting mask m ∈ {0, 1}W ×H indicating the referring regions of the text T in image x, where
+
+
+                                                   2
+                                            DDIM steps
+                                                                                                      Pre-trained
+                                                                                                      Segmentor                                                                      Positional Bias
+                                                                                                           or
+
+
+
+
+                                                                                                                                                             Attention
+                  !
+
+
+
+
+                                                                                                                                                                         Vision
+                                                                                                      Weight-free
+
+
+
+
+                                      Attention
+
+                                      Attention
+
+
+                                                  Attention
+
+
+
+
+                                                                                                                                                                         Layer
+                                                  Attention
+
+
+
+
+                                                                                                                                                                Self
+                                        Cross
+
+                                        Cross
+
+
+                                                    Cross
+
+                                                    Cross
+                                                                                                     Proposal Filter
+
+
+                                                                                                                                                                            CLIP
+                                                                                                                                                                                                       Input Image
+ Input Image                      Stable Diffusion                                              "!                     ""                            [CLS]
+
+
+
+
+                                                                      Generative Matching
+                                                                                                                                             [CLS]
+
+
+                                         [CLS]
+
+
+
+
+                                                                                                                            Discriminative
+                                            A
+
+
+
+
+                                                                                                                              Matching
+             Text Encoder                                                                                                                                                                     Text Encoder
+                                         black
+ [CLS]   A      black horse jumping                                                                                                                                               [CLS]   A      black horse jumping
+                                         horse
+                       ROOT            jumping                                                                                                                                SPECIAL                   ROOT
+ Referring Text                                                                                                                                                                                        Referring Text
+
+                                      Generative Process                                         Segmented Results                                                 Discriminative Process
+
+
+Figure 1: Overview of our R EF -D IFF. Our proposed Generative Process (left) generates a correlation matrix
+between the referring text and the input image. This matrix serves as an alternative weight-free proposal generator
+and generative segmentation candidates sG . The Discriminative Process (right) is alternatively integrated into our
+framework and generates the discriminative candidates sD . The final referring segmentation result is obtained
+either from the generative candidates or a combination of both generative and discriminative candidates.
+
+
+W , H, and C represent the width, height, and channel of the image, respectively. In the Zero-shot
+Referring Segmentation settings, the model cannot access any training data of Referring Segmentation,
+including images, referring texts, and instance mask annotations.
+Our proposed framework is depicted in Figure. 1. Given an image and the referring text, our
+R EF -D IFF generates a correlation matrix using the Generative Process, which can be used as 1)
+an alternative weight-free proposal generator and 2) a set of referring segmentation candidates.
+Optionally, our R EF -D IFF can integrate the discriminative model with our proposed generative model
+within a unified framework. The final similarity for each mask proposal is obtained as follows:
+                                                              si = αsG           D
+                                                                     i + (1 − α)si ,                                                                                                                            (1)
+where α is a hyper-parameter. sG      D
+                               i and si are the generative and discriminative scores between the
+referring text and i-th proposal, respectively. When α is set to 1, only the generative model is adopted
+for this task. The final referring segmentation result is determined by selecting the proposal with the
+highest similarity score:
+                                            m̂ = arg max si .                                        (2)
+                                                                                            Mi
+In the following sections, we provide a detailed introduction to each module of our framework.
+
+3.2      Generative Process
+
+S TABLE D IFFUSION [19] is an effective generative model that consists of a series of inverse diffusion
+steps to gradually transform random Gaussian noise into an image. Therefore, it cannot directly
+operate on a real image to obtain its latent representations. Fortunately, as the diffusion process is
+computable, we can take the real image as one intermediate state generated by a diffusion model and
+run it backward to any step of the generation. In this work, we add a specific amount of Gaussian
+noise to obtain xt and then continue this process without compromising information:
+                                                                   xt = σt (x),                                                                                                                                 (3)
+where σt is the function to obtain the noised image in step t and t is a hyper-parameter.
+During the inverse diffusion process, let Ψlan and Ψvis be the text and image encoder of the generative
+model, respectively. In the generative model, the referring text T is encoded into text features
+using K = Ψlan (T ) ∈ Rl×d , where l is the token number and d is the dimension size for latent
+projection. Similarly, for the i-th step, the visual image xi is projected to image features using
+Q = Ψvis (xi ) ∈ Rw×h×d . Here, w and h are the width and height of encoded image features. The
+cross-attention between the text and image features can be formulated as:
+                                                                          QK⊤
+                                                              a = Softmax( √ ) ,                                                                                                                                (4)
+                                                                            d
+where a ∈ Rw×h×l×N , and N is the number of attention heads. Following [26], we obtain the overall
+cross-attentions by averaging the value of each attention head to ā ∈ Rw×h×l . The cross-attention
+
+
+                                                                                            3
+matrix ā represents the correlation detected between each token in the referring text and each region
+feature in the image. In general, a higher value in ā indicates a better correlation between the token
+and region features, which can be used to locate the related referring regions.
+In the inverse diffusion process, the generative model captures the overall semantics of the language
+condition. However, the corresponding attention region for each token is not necessarily the same as
+they have different semantic representations (see Sec. 4.6). Without loss of generality, a referring text
+T is a sentence that describes the characteristics of a specific instance. To obtain the preferred token
+from the whole text description, we use syntax analysis to obtain its root token (i.e., the ROOT element
+in the syntax tree). Generally, the ROOT token in the latent space captures the contextual correlations
+(e.g., the token ’horse’ in Figure 1 contains contextural representations from ’black’ and ’jumping’).
+Then, the attention region projected for this root token has a higher probability of being the referring
+region. Let k be the index of the root token, and let āk ∈ Rw×h denote the cross-attention matrix of
+the root token. We normalize and resize this cross-attention matrix by:
+                                                                          
+                                                     āk − min(āk )
+                           c = ϕw×h→W ×H                                      ,                       (5)
+                                                max(āk ) − min(āk ) + ϵ
+where ϵ is a small constant value. Here, ϕw×h→W ×H is a bi-linear interpolation function used to
+resize the attention map to the same resolution as the given image.
+
+3.3   Discriminative Process
+
+During the image encoding process by the discriminative model CLIP, the spatial position is inevitably
+attenuated. We observe that referring text descriptions usually contain explicit direction clues (e.g.,
+left, right, top, and bottom), which are valuable but have been ignored in previous works. To
+emphasize such types of positional information, we propose a positional bias to explicitly encode the
+image with the given direction clues. This is achieved through element-wise multiplication:
+                                             x′ = x ⊙ P ,                                            (6)
+              W ×H×C
+where P ∈ R             is a positional bias matrix. Specifically, if the text, after syntactic analysis,
+contains explicit direction clues, P will be a soft mask with values ranging from 1 to 0 along the
+given direction axis. Lower values indicate regions that should receive less attention. Conversely, if
+no direction clue is detected, P will be a matrix filled with 1.
+Finally, the ultimate representation vi ∈ Rd for each proposal Mi in discriminative process is:
+                            vi = βfMi (x ⊙ P) + (1 − β)f (x ⊙ Mi ),                                  (7)
+where f and fMi is the vanilla CLIP image encoder and CLIP image encoder with modified self-
+attention based on mask proposal Mi . Since the discriminative model (i.e., CLIP) is expected to
+encode the instance within each proposal region Mi while disregarding other regions for reducing
+disturbances. To achieve this, we assign a weight of 0 to the attention values between the [CLS]
+token and the patch tokens outside the current proposal Mi . In this work, we utilize the output
+of the penultimate layer as the final representation, which is motivated by the observation that
+the representation in the last layer tends to encompass the entire image rather than focus on the
+corresponding proposal region.
+
+3.4   Proposals Extracting and Matching
+
+Weight-free Proposal Filter. Since the generative models inherently encode instance representations,
+we can derive proposals from their cross-attention matrix c. In this work, we introduce a weight-free
+proposal filter to generate a series of mask proposals. This is formulated as:
+                            M = {ψ(c ≥ µ)|µ ∈ {5%, 10%, ..., 95%}} ,                                 (8)
+where ψ is a binarization function with a given predefined threshold value µ. Different from other
+works [31] which rely on external proposal generators and CLIP filters, the generative models in
+this work can efficiently and effectively produce the expected proposals. This approach offers a
+streamlined and integrated solution for obtaining high-quality proposals without additional tools.
+Pre-trained Segmentor. If a reliable segmentor is available, we can also obtain proposals from it in
+a flexible manner. By leveraging the capability of generative and discriminative models for semantic
+
+
+                                                   4
+        Input Image                      Ground Truth                  REF-DIFF/G              REF-DIFF/GS
+
+
+
+
+    Referring Text: there is a large elephant standing outside
+
+
+
+
+    Referring Text: the little girl with a black dress
+
+Figure 2: Effectiveness of generative model in segmentation capability. R EF -D IFF / G is capable of segmenting
+the right content even without the assistance of the pre-trained segmentor and CLIP. Combing with the pre-trained
+segmentor, R EF -D IFF / GS achieves precise segmentation of the correct regions.
+
+
+understanding, we can refine the proposals and prioritize those that align closely with the given
+referring description. This combined approach of using a segmentor for initial proposal generation
+ensures that the resulting proposals are coherent and better aligned with the given referring expression.
+
+Generative Matching. After obtaining proposals either from the weight-free proposal filter or the
+pre-trained segmentor, the next step is to find the most similar proposal based on the cross-attention
+matrix. In this work, we quantify the similarity between the given referring text and all the proposals
+by measuring the distance on cross-attention matrix c and Mi :
+                                                 |c ⊙ Mi | |c ⊙ (1 − Mi )|
+                                         sG
+                                          i =             −                .                                  (9)
+                                                   |Mi |      |1 − Mi |
+
+Discriminative Matching. Given a referring text, we obtain the mean representation r ∈ Rd of the
+global text and the local subject token using the CLIP text encoder, which serves as the features of
+the referring text. To find out the most probable proposal from the perspective of the discriminative
+model, we calculate the similarity between the features of referring text r and visual representation
+vi of each mask proposal Mi , which is defined as:
+                                                                  ⊤
+                                                         sD
+                                                          i = vi r .                                         (10)
+This similarity allows us to identify the proposal that best aligns with the referring text. Higher
+similarity scores indicate a stronger correspondence between the proposal and the text, indicating a
+higher likelihood of being the correct segmentation result.
+
+4      Experiments
+4.1     Implemention Details
+
+Our R EF -D IFF is a zero-shot solution, so we only need an inference process, without any training
+images and annotations. All experiments are conducted on a Tesla A100 GPU. We use the pre-trained
+S TABLE D IFFUSION [19] (V1.5) as our generative model. All test images are resized and padded to
+the resolution of 1024 × 1024. Since existing works mainly focus on using pre-trained segmentor
+and discriminative model [17], for a fair comparison, we select SAM [11] as the segmentor and CLIP
+of ViT-B/16 as the discriminative model. We set t, α, and β to 2, 0.1, and 0.3, respectively.
+
+4.2     Experimental Setup
+
+Following [31; 23], we adopt mIoU and oIoU as the evaluation metrics and apply them to three
+widely-used benchmarks, including RefCOCO [16], RefCOCO+ [16], and RefCOCOg [14]. For
+
+
+                                                             5
+fairly comparing with existing works, we conduct the experiments under two settings: a) Zero-shot
+RIS using a pre-trained segmentor and CLIP; b) Zero-shot RIS without a pre-trained segmentor and
+CLIP. The latter setting allows us to analyze the effectiveness of the generative model in this task.
+For setting a), we select five competing baselines. 1) A weakly-supervised method TSEG [23]. It is
+not open-sourced and only provides the validation results of mIoU. So we did not report its results on
+other settings and test sets. 2)∼4) Three zero-shot baselines from [31], including R EGION T OKEN,
+C ROPPING, and G LOBAL -L OCAL CLIP. 5) A zero-shot baseline SAM-CLIP proposed by us. Note
+that Yu et al. [31] adopt F REE SOLO [24] as their segmentor. However, considering the remarkable
+performance of SAM [11] in segmentation, we propose SAM-CLIP as a new discriminative baseline.
+Specifically, we first use SAM to extract all candidate proposals from the image and then leverage
+CLIP to identify the most relevant proposal using Eqn. 10. In this setting, our R EF -D IFF combines
+both generative and discriminative models, and uses the same proposal segmentor as other methods.
+
+Table 1: The oIoU comparison on settings of using a pre-trained segmentor and CLIP. The improvement is
+statistically significant with p < 0.01 under t-test.
+                                      RefCOCO                      RefCOCO+                RefCOCOg
+ Methods
+                                val     test A test B        val     test A test B    val(U) test(U) val(G)
+ Weakly-supervised Method
+ TSEG [23]                       -        -       -           -         -       -       -       -       -
+ Zero-shot Method
+ R EGION T OKEN [31]          21.71     20.31   22.63       22.61     20.91   23.46   25.52   25.38   25.29
+ C ROPPING [31]               22.73     21.11   23.08       24.09     22.42   23.93   28.69   27.51   27.70
+ G LOBAL -L OCAL CLIP [31]    24.88     23.61   24.66       26.16     24.90   25.83   31.11   30.96   30.69
+ SAM-CLIP                     25.23     25.86   24.75       25.64     27.76   26.06   33.75   34.80   33.65
+ R EF -D IFF                  35.16     37.44   34.50       35.56     38.66   31.40   38.62   37.50   37.82
+Table 2: The mIoU comparison on settings of using a pre-trained segmentor and CLIP. The improvement is
+statistically significant with p < 0.01 under t-test.
+                                      RefCOCO                      RefCOCO+                RefCOCOg
+ Methods
+                                val     test A test B        val     test A test B    val(U) test(U) val(G)
+ Weakly-supervised Method
+ TSEG [23]                    25.95       -       -         22.62       -       -     23.41     -       -
+ Zero-shot Method
+ R EGION TOKEN [31]           23.43     22.07   24.62       24.51     22.64   25.37   27.57   27.34   27.69
+ C ROPPING [31]               24.83     22.58   25.72       26.33     24.06   26.46   31.88   30.94   31.06
+ G LOBAL -L OCAL CLIP [31]    26.20     24.94   26.56       27.80     25.64   27.84   33.52   33.67   33.61
+ SAM-CLIP                     26.33     25.82   26.40       25.70     28.02   26.84   38.75   38.91   38.27
+ R EF -D IFF                  37.21     38.40   37.19       37.29     40.51   33.01   44.02   44.51   44.26
+
+The mIoU and oIoU comparisons are shown in Tables 1 and 2, respectively. We can observe that R EF -
+D IFF exhibits significantly superior performance compared to the competing methods and baselines.
+Benefiting from the combination of both generative and discriminative models, our R EF -D IFF
+achieves an improvement of approximately 10 mIoU on RefCOCO, RefCOCO+, and RefCOCOg
+datasets. From the comparison between SAM-CLIP and other methods, only a slight improvement
+is observed. We analyze that segmentation from SAM is highly detailed (e.g., it may split a single
+object into multiple small parts), which easily increases the possibility of CLIP filtering out erroneous
+proposals by only using the discriminative model CLIP. These types of erroneous proposals have
+almost no overlap with the correct solution, resulting in only marginal improvement. By incorporating
+the generative model, the filtering of erroneous proposals is further mitigated, contributing to our
+superior performance. This also demonstrates that our improvement over SAM-CLIP stems from a
+deeper understanding facilitated by both our generative and discriminative models.
+Furthermore, we conduct additional experiments on PhraseCut dataset in Table 3. We can see that
+our R EF -D IFF also outperforms the competing method G LOBAL -L OCAL by a large margin on OIoU.
+This further validates the great generalization of our R EF -D IFF on other datasets.
+
+4.3   Ablation Study
+
+We conduct an ablation study in Table 4 and Table 5, which show the effectiveness of different
+components. Notably, our R EF -D IFF / G achieves comparable performance to the weakly supervised
+
+
+                                                        6
+      Table 3: Results on PraseCut. Ref-Diff outperforms the prior model with a significant improvement.
+                                     Methods               oIoU    mIoU
+                                     G LOBAL - LOCAL       23.64     -
+                                     R EF -D IFF           29.42   41.75
+
+
+model TSEG [23] on R EF COCO+, and outperforms it on R EF COCO G when using the generative
+model alone. When combined with the segmentor, R EF -D IFF / GS consistently exhibits superior
+performance across all test sets to the weakly supervised model. These observations collectively show
+that the generative model can not only perform proposal generation but also benefit the RIS task.
+
+                                    Table 4: The ablation study on oIoU.
+ Methods            Segmentor    Generative    Discriminative      RefCOCO    RefCOCO+       RefCOCOg
+ R EF -D IFF / G                    ✓                                16.18       17.23          20.39
+ R EF -D IFF / GS       ✓           ✓                                26.04       26.68          26.84
+ R EF -D IFF / DS       ✓                             ✓              33.64       34.43          34.83
+ R EF -D IFF            ✓             ✓               ✓              35.16       35.56          38.62
+
+
+                                    Table 5: The ablation study on mIoU.
+ Methods          Segmentor      Generative    Discriminative      RefCOCO    RefCOCO+       RefCOCOg
+ Weakly-supervised Method
+ TSEG [23]                                                          25.95         22.62          23.41
+ Zero-shot Method
+ R EF -D IFF / G                      ✓                             21.53         22.50          27.03
+ R EF -D IFF / GS    ✓                ✓                             29.82         30.06          30.73
+ R EF -D IFF / DS    ✓                                ✓             35.27         35.72          41.84
+ R EF -D IFF         ✓                ✓               ✓             37.21         37.29          44.02
+
+
+4.4    Effect of Generative Model
+
+Segmentation Capability. From Figure 2 it can be observed that even without the assistance of
+the segmentor and CLIP, our R EF -D IFF / G is able to accurately segment the corresponding content.
+This is primarily attributed to the attention projection of the generative model onto the relevant visual
+content (kindly refer to Sec. 4.6). In the second example, despite the presence of two instances of
+the same object (person) in the image, our R EF -D IFF / G is still capable of performing reasonably
+accurate segmentation. This highlights the significant potential of the generative model, as it exhibits
+1) segmentation capabilities comparable to segmentation models and 2) categorization capabilities
+comparable to discriminative models.
+
+Localization Capability. From the first example shown in Figure 3, it can be observed that the
+discriminative model fails to accurately locate the leftmost broccoli. Similarly, in the second example,
+CLIP fails to eliminate the redundant region of the plate. We analyze this issue may arise due to the
+inherent limitation of the discriminative model, which is trained to identify whether the given text and
+image are well aligned. So it lacks the capability of localizing objects within the image. Consequently,
+relying solely on the discriminative model to discern whether a region contains redundant content
+becomes challenging. However, when we combine the generative and discriminative models, we are
+able to achieve the best results.
+
+4.5    Effect of Discriminative Model
+
+In the first example depicted in Figure 4, we observe that the generative model incorrectly segments
+the screen as a separate object due to its prominence as a significant visual feature of a laptop,
+attracting more attention from the generative model. Similarly, in the second example, the generative
+model places greater emphasis on the person’s face, resulting in incomplete segmentation. However,
+these errors can be effectively mitigated in our full model R EF -D IFF, due to the robust categorization
+capability of the discriminative model.
+
+
+                                                       7
+      Input Image                 Ground Truth        REF-DIFF/GS                  REF-DIFF/DS                          REF-DIFF
+
+
+
+
+ Referring Text: broccoli furthest to the left
+
+
+
+
+ Referring Text: right pizza
+
+Figure 3: Effectiveness of generative model in localization capability. The discriminative model focuses more
+on whether the image contains text-related content, which may result in mistakenly selecting larger regions.
+
+      Input Image                 Ground Truth        REF-DIFF/GS                 REF-DIFF/DS                           REF-DIFF
+
+
+
+
+ Referring Text: laptop on left
+
+
+
+
+ Referring Text: girl eating
+
+Figure 4: Effectiveness of discriminative model. The generative model exhibits higher sensitivity to salient
+visual features, which can result in partial segmentation when solely relying on the generative model. By
+integrating the discriminative model, we can effectively mitigate such errors and achieve more accurate results.
+
+
+4.6    Attention from Generative Model
+
+To investigate the region that the generative model focuses on, we provide visualizations of sample
+images along with the attention weights assigned to each token in the generative model, as depicted
+in Figure 5. We find that: 1) Generative models exhibit contextual understanding capabilities, as
+they effectively allocate attention to the relevant regions in the image, thereby accomplishing both
+
+
+                          [CLS]              a             woman            playing                  tennis                 [EOS]
+
+
+
+
+                  [CLS]           group          of        three         teddy          bears                 sitting         [EOS]
+
+
+
+
+                [CLS]             a        man        in           tux           next           to             woman          [EOS]
+
+
+
+
+Figure 5: Attention from generative model. Generative model projects attention to different regions of the
+image based on different tokens, which is the key reason for the effectiveness of Ref-Diff. The dashed box
+highlights the root token and its corresponding attention map.
+
+
+                                                            8
+                                           Wine glass in front next to
+       Military guy green beret                                                   Second arm from left
+                                                 water carafe
+
+Figure 6: Case studies. Blue indicates the predicted regions. The third case is a failure example, where green
+denotes ground-truth regions. R EF -D IFF demonstrates its ability to accurately segment objects based on the
+provided referring texts, even in the presence of complex spatial relationships within the image.
+
+localization and segmentation tasks. Notably, the attention assigned to the subject token closely aligns
+with the final segmentation results. This finding elucidates why generative models can perform well
+in Zero-shot referring segmentation tasks without relying on a separate segmentor or a discriminative
+model. 2) In contrast to classification models, where the first token often represents the entirety of the
+text, we observe that the information associated with the first token in our generative model does not
+capture the complete textual context. However, as discussed earlier, the subject token successfully
+captures the comprehensive information from the entire text, enabling accurate segmentation results.
+
+4.7   Case Study
+
+We presented three examples of varying difficulty in Figure 6 to showcase the effectiveness of our
+R EF -D IFF. In the first example, we observed that R EF -D IFF demonstrates the capability to accurately
+identify and segment the correct object within similar objects. In the second example, despite
+the presence of numerous objects in the image and the complex spatial relationships, R EF -D IFF
+successfully identifies the correct objects through the accurate understanding of the generative and
+discriminative models. In the final example, we encountered a segmentation failure of R EF -D IFF
+due to the presence of some degree of ambiguity in the referring expression. R EF -D IFF incorrectly
+identifies the leftmost hand as the first arm, resulting in a segmentation error. Enhancing the robustness
+of R EF -D IFF is an area of future work that deserves further investigation.
+
+
+5     Broader Impact and Limitations
+
+Zero-shot Referring Segmentation has broad applications in industrial and real-world domains,
+such as image editing, robot control, and human-machine interaction. our R EF -D IFF, through the
+combination of generative and discriminative models, has successfully demonstrated the feasibility
+of Training-free yet high-quality Referring Segmentation in various data-scarce scenarios. This
+significantly reduces the deployment cost of artificial intelligence in related fields. However, due to
+the existence of pre-trained modules, the inference stage still incurs high computational overhead.
+Moreover, Referring Expression texts are sensitive to ambiguity (see Sec. 4.7), which currently results
+in noticeable segmentation errors. In the future, we will further investigate Zero-shot Referring
+Segmentation with lower computational costs and higher robustness.
+
+
+6     Conclusion
+
+In this work, we proposed a novel Referring Diffusional segmentor (R EF -D IFF) for Zero-shot
+Referring Image Segmentation, which effectively leverages the fine-grained multi-modal information
+from generative models. We demonstrated that a generative model alone can achieve comparable
+performance to existing SOTA weakly-supervised models without requiring a proposal generator.
+Moreover, by combining both generative and discriminative models, R EF -D IFF outperformed these
+competing methods by a significant margin. Overall, our work presented a simple yet promising
+direction for zero-shot referring image segmentation by exploiting the potential of generative models,
+which brought new insights for addressing the challenges of this task.
+
+
+                                                      9
+References
+ [1] Tomer Amit, Tal Shaharbany, Eliya Nachmani, and Lior Wolf. SegDiff: Image segmentation
+     with diffusion probabilistic models. arXiv preprint arXiv:2112.00390, 2021.
+ [2] Emmanuel Brempong Asiedu, Simon Kornblith, Ting Chen, Niki Parmar, Matthias Minderer,
+     and Mohammad Norouzi. Decoder denoising pretraining for semantic segmentation. arXiv
+     preprint arXiv:2205.11423, 2022.
+ [3] Dmitry Baranchuk, Ivan Rubachev, Andrey Voynov, Valentin Khrulkov, and Artem Babenko.
+     Label-efficient semantic segmentation with diffusion models. International Conference on
+     Learning Representations, 2022.
+ [4] Shoufa Chen, Peize Sun, Yibing Song, and Ping Luo. DiffusionDet: Diffusion model for object
+     detection. arXiv preprint arXiv:2211.09788, 2022.
+ [5] Zesen Cheng, Kehan Li, Peng Jin, Xiangyang Ji, Li Yuan, Chang Liu, and Jie Chen. Parallel
+     vertex diffusion for unified visual grounding. arXiv preprint arXiv:2303.07216, 2023.
+ [6] Kevin Clark and Priyank Jaini. Text-to-image diffusion models are zero-shot classifiers. arXiv
+     preprint arXiv:2303.15233, 2023.
+ [7] Henghui Ding, Chang Liu, Suchen Wang, and Xudong Jiang. VLT: Vision-language transformer
+     and query generation for referring segmentation. IEEE Transactions on Pattern Analysis and
+     Machine Intelligence, 2022.
+ [8] Xiaoyi Dong, Jianmin Bao, Yinglin Zheng, Ting Zhang, Dongdong Chen, Hao Yang, Ming Zeng,
+     Weiming Zhang, Lu Yuan, Dong Chen, Fang Wen, and Nenghai Yu. MaskCLIP: Masked self-
+     distillation advances contrastive language-image pretraining. IEEE Conference on Computer
+     Vision and Pattern Recognition, 2023.
+ [9] Rinon Gal, Yuval Alaluf, Yuval Atzmon, Or Patashnik, Amit H Bermano, Gal Chechik, and
+     Daniel Cohen-Or. An image is worth one word: Personalizing text-to-image generation using
+     textual inversion. International Conference on Learning Representations, 2023.
+[10] Yuanfeng Ji, Zhe Chen, Enze Xie, Lanqing Hong, Xihui Liu, Zhaoqiang Liu, Tong Lu, Zhen-
+     guo Li, and Ping Luo. DDP: Diffusion model for dense visual prediction. arXiv preprint
+     arXiv:2303.17559, 2023.
+[11] Alexander Kirillov, Eric Mintun, Nikhila Ravi, Hanzi Mao, Chloe Rolland, Laura Gustafson,
+     Tete Xiao, Spencer Whitehead, Alexander C. Berg, Wan-Yen Lo, Piotr Dollár, and Ross Girshick.
+     Segment anything. arXiv preprint arXiv:2304.02643, 2023.
+[12] Alexander C Li, Mihir Prabhudesai, Shivam Duggal, Ellis Brown, and Deepak Pathak. Your
+     diffusion model is secretly a zero-shot classifier. arXiv preprint arXiv:2303.16203, 2023.
+[13] Jiang Liu, Hui Ding, Zhaowei Cai, Yuting Zhang, Ravi Kumar Satzoda, Vijay Mahadevan, and
+     R Manmatha. PolyFormer: Referring image segmentation as sequential polygon generation.
+     IEEE Conference on Computer Vision and Pattern Recognition, 2023.
+[14] Junhua Mao, Jonathan Huang, Alexander Toshev, Oana Camburu, Alan Yuille, and Kevin
+     Murphy. Generation and comprehension of unambiguous object descriptions. IEEE Conference
+     on Computer Vision and Pattern Recognition, 2016.
+[15] Chong Mou, Xintao Wang, Liangbin Xie, Jian Zhang, Zhongang Qi, Ying Shan, and Xiaohu
+     Qie. T2I-Adapter: Learning adapters to dig out more controllable ability for text-to-image
+     diffusion models. arXiv preprint arXiv:2302.08453, 2023.
+[16] Varun K. Nagaraja, Vlad I. Morariu, and Larry S. Davis. Modeling context between objects for
+     referring expression understanding. European Conference on Computer Vision, 2016.
+[17] Alec Radford, Jong Wook Kim, Chris Hallacy, Aditya Ramesh, Gabriel Goh, Sandhini Agar-
+     wal, Girish Sastry, Amanda Askell, Pamela Mishkin, Jack Clark, Gretchen Krueger, and Ilya
+     Sutskever. Learning transferable visual models from natural language supervision. International
+     conference on machine learning, 2021.
+
+
+                                                10
+[18] Aditya Ramesh, Prafulla Dhariwal, Alex Nichol, Casey Chu, and Mark Chen. Hierarchical
+     text-conditional image generation with clip latents. arXiv preprint arXiv:2204.06125, 2022.
+[19] Robin Rombach, Andreas Blattmann, Dominik Lorenz, Patrick Esser, and Björn Ommer. High-
+     resolution image synthesis with latent diffusion models. IEEE Conference on Computer Vision
+     and Pattern Recognition, 2022.
+[20] Nataniel Ruiz, Yuanzhen Li, Varun Jampani, Yael Pritch, Michael Rubinstein, and Kfir Aberman.
+     DreamBooth: Fine tuning text-to-image diffusion models for subject-driven generation. IEEE
+     Conference on Computer Vision and Pattern Recognition, 2023.
+[21] Chitwan Saharia, William Chan, Saurabh Saxena, Lala Li, Jay Whang, Emily Denton, Seyed
+     Kamyar Seyed Ghasemipour, Burcu Karagol Ayan, S. Sara Mahdavi, Rapha Gontijo Lopes,
+     Tim Salimans, Jonathan Ho, David J. Fleet, and Mohammad Norouzi. Photorealistic text-to-
+     image diffusion models with deep language understanding. Advances in Neural Information
+     Processing Systems, 35:36479–36494, 2022.
+[22] Saurabh Saxena, Abhishek Kar, Mohammad Norouzi, and David J Fleet. Monocular depth
+     estimation using diffusion models. arXiv preprint arXiv:2302.14816, 2023.
+[23] Robin Strudel, Ivan Laptev, and Cordelia Schmid. Weakly-supervised segmentation of referring
+     expressions. arXiv preprint arXiv:2205.04725, 2022.
+[24] Xinlong Wang, Zhiding Yu, Shalini De Mello, Jan Kautz, Anima Anandkumar, Chunhua Shen,
+     and Jose M. Alvarez. FreeSOLO: Learning to segment objects without annotations. IEEE
+     Conference on Computer Vision and Pattern Recognition, 2022.
+[25] Yuxiang Wei, Yabo Zhang, Zhilong Ji, Jinfeng Bai, Lei Zhang, and Wangmeng Zuo. ELITE:
+     Encoding visual concepts into textual embeddings for customized text-to-image generation.
+     arXiv preprint arXiv:2302.13848, 2023.
+[26] Weijia Wu, Yuzhong Zhao, Mike Zheng Shou, Hong Zhou, and Chunhua Shen. DiffuMask:
+     Synthesizing images with pixel-level annotations for semantic segmentation using diffusion
+     models. arXiv preprint arXiv:2303.11681, 2023.
+[27] Li Xu, Mark He Huang, Xindi Shang, Zehuan Yuan, Ying Sun, and Jun Liu. Meta composi-
+     tional referring expression segmentation. IEEE Conference on Computer Vision and Pattern
+     Recognition, 2023.
+[28] Bin Yan, Yi Jiang, Jiannan Wu, Dong Wang, Ping Luo, Zehuan Yuan, and Huchuan Lu.
+     Universal instance perception as object discovery and retrieval. IEEE Conference on Computer
+     Vision and Pattern Recognition, 2023.
+[29] Zhao Yang, Jiaqi Wang, Yansong Tang, Kai Chen, Hengshuang Zhao, and Philip HS Torr.
+     LAVT: Language-aware vision transformer for referring image segmentation. IEEE Conference
+     on Computer Vision and Pattern Recognition, 2022.
+[30] Zhao Yang, Jiaqi Wang, Yansong Tang, Kai Chen, Hengshuang Zhao, and Philip HS Torr.
+     Semantics-aware dynamic localization and refinement for referring image segmentation. AAAI
+     Conference on Artificial Intelligence, 2023.
+[31] Seonghoon Yu, Paul Hongsuch Seo, and Jeany Son. Zero-shot referring image segmentation with
+     global-local context features. IEEE Conference on Computer Vision and Pattern Recognition,
+     2023.
+[32] Lvmin Zhang and Maneesh Agrawala. Adding conditional control to text-to-image diffusion
+     models. arXiv preprint arXiv:2302.05543, 2023.
+[33] Wenliang Zhao, Yongming Rao, Zuyan Liu, Benlin Liu, Jie Zhou, and Jiwen Lu. Unleashing
+     text-to-image diffusion models for visual perception. arXiv preprint arXiv:2303.02153, 2023.
+[34] Yiwu Zhong, Jianwei Yang, Pengchuan Zhang, Chunyuan Li, Noel Codella, Liunian Harold Li,
+     Luowei Zhou, Xiyang Dai, Lu Yuan, Yin Li, and Jianfeng Gao. RegionCLIP: Region-based
+     language-image pretraining. IEEE Conference on Computer Vision and Pattern Recognition,
+     2022.
+
+
+                                               11
+

@@ -1,0 +1,37 @@
+{
+  "model": {
+    "kind": "pair/union selector",
+    "K": 6,
+    "C": 0.000285483537421555,
+    "p_sel": 0.34040013160612675,
+    "use_ens": true,
+    "base_classifier": "study-5 logreg C=0.0033721",
+    "source_study": "exp/out_final/optuna_study_gref8.json"
+  },
+  "metrics": {
+    "n": 14220,
+    "cIoU": 36.74531744355274,
+    "gIoU": 69.6278513350376,
+    "N_acc": 86.17356115107914,
+    "T_acc": 87.84748309541698,
+    "TP": 7666,
+    "FN": 1230,
+    "TN": 4677,
+    "FP": 647,
+    "targeted_abstained": 647
+  },
+  "n_val_records": 14220,
+  "history": {
+    "ensemble_threshold_union": {
+      "cIoU": 34.9419,
+      "gIoU": 69.7711,
+      "N_acc": 89.11,
+      "T_acc": 77.22
+    },
+    "single_probe": {
+      "cIoU": 35.0884,
+      "gIoU": 68.3729
+    }
+  },
+  "generated": "exp79_pair_full_val.py"
+}

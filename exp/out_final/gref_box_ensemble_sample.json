@@ -1,0 +1,21 @@
+{
+  "unique_terms_measured": 16,
+  "unique_images": 4,
+  "p1_box_iou_mean": 0.508986769618432,
+  "p2_box_iou_mean": 0.5281849649071026,
+  "p2_delta": 0.019198195288670616,
+  "best_of_2_oracle_mean": 0.54765671193612,
+  "best_of_2_oracle_gain": 0.038669942317687944,
+  "mean_pairwise_box_iou": 0.8381865374440163,
+  "hit50": {
+    "p1": 0.625,
+    "p2": 0.625,
+    "orc": 0.625
+  },
+  "box_to_m_conversion": "~0.29 m per box-IoU unit (exp102 endpoints: 0.580->0.5335, 1.000->0.6552)",
+  "projected_gIoU_effect_of_oracle_ensemble": 0.0036884943967494237,
+  "required_gIoU_gap": 3.23,
+  "run_cost": "35 s/query under GPU contention (all 4 GPUs busy; GPU1 shared); 487 terms x 2 prompts projected ~9.5 h",
+  "verdict": "BOX-ENSEMBLE ROUTE CLOSED BY SCALE: prompt paraphrases agree (mean pairwise box IoU 0.838), the best-of-2 oracle gains +0.0387 box IoU, and via the measured box->m conversion that is ~+0.004 gIoU against a 3.23-point gap. The requirement needs box quality ~72% of the way from the incumbent to GT (box IoU ~0.88 vs 0.58) - a +0.30 change no prompt-level intervention reaches. Measured on a partial sample (15 unique terms, 1-3 images); the scaling argument is the decision.",
+  "generated": "exp105_box_ensemble.py (partial; stopped)"
+}

@@ -1,0 +1,60 @@
+\section{Method: Category-Set Relation Guidance}
+\label{sec:method}
+
+The diagnosis says the binding constraint is the candidate set the released
+guidance is allowed to act on, and that the category score generates a better
+set than the full expression. The operator follows directly. It replaces the
+final selection step and nothing else; it introduces no parameters, performs no
+training, uses no ground truth, and adds no forward pass --- every quantity it
+consumes is already computed by the pipeline it is applied to.
+
+\subsection{The operator}
+
+Given an image $x$, an expression $e$, the proposal pool $M$ with per-proposal
+semantic scores, the released coherence score $c_i$, and mask geometry:
+
+\begin{enumerate}
+\item \textbf{Category score.} Evaluate the frozen text encoder on $e$ with its
+spatial vocabulary removed, and score every proposal against it. This is one
+text encoding per expression, not one per proposal.
+\item \textbf{Candidate set.} Let $\mathcal{C}$ be the top-$k$ proposals under
+the category score ($k=8$ throughout).
+\item \textbf{Relation parse.} Parse $e$ deterministically for a spatial
+relation: a horizontal direction (\emph{left}/\emph{right}), a vertical
+direction (\emph{top}/\emph{bottom}/\emph{above}/\emph{below}), a centrality
+term (\emph{middle}/\emph{centre}), or an ordinal with an axis (\emph{second
+from the left}).
+\item \textbf{Selection.} If a relation was parsed and $|\mathcal{C}|\ge 2$,
+return the member of $\mathcal{C}$ the relation selects: for an ordinal, the
+$n$-th proposal along the relation axis by mask centroid; otherwise the
+proposal with the highest released coherence score $c_i$ among those in the
+half of $\mathcal{C}$ lying on the relation's side, split at the median along
+the relation axis. If no relation was parsed, or $\mathcal{C}$ is a singleton,
+return the pipeline's own selection unchanged.
+\end{enumerate}
+
+Two design choices carry the mechanism and are ablated in
+§\ref{sec:controls}. Ranking is by the \emph{released coherence score}, not by
+the semantic score and not by geometry: the coherence term already encodes the
+pipeline's own spatial prior, and §\ref{sec:controls} shows that replacing it
+with the semantic score removes the gain entirely. The side constraint is
+taken relative to the candidate set's own median rather than the image centre,
+so the operator asks ``which of these candidates is the left one'', not ``which
+candidate is in the left half of the image''.
+
+\subsection{Ordinal expressions abstain}
+
+A deterministic ordinal resolver was implemented and measured: it returns the
+$n$-th candidate along the relation axis. On its stratum ($n=444$ on RefCOCO
+val) it \emph{loses} 0.153 mIoU relative to the released selection, so the
+shipped operator abstains on ordinal expressions and the stratum is reported as
+an open problem rather than silently absorbed. Ordinal reference is 4.1\,\% of
+the split.
+
+\subsection{Cost}
+
+The operator adds one text encoding per expression, an $O(N\log k)$ partial
+sort, an $O(k)$ split, and $O(k)$ lookups. It is $O(k)$ per expression after
+the encoding the pipeline already performs, and it is a pure post-processing
+step: it can be applied to a stored score matrix without re-running any model,
+which is how all results below are produced.

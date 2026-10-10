@@ -1,0 +1,40 @@
+{
+  "model": {
+    "kind": "per-term box picker + pair fallback",
+    "study_params": {
+      "kind": "logreg",
+      "topk": 2,
+      "margin": 0.8153109295029856,
+      "C": 0.001072678194796712
+    },
+    "source_study": "optuna_study_gref9.json"
+  },
+  "metrics": {
+    "n": 14220,
+    "cIoU": 39.252758023458796,
+    "gIoU": 70.51091919779822,
+    "N_acc": 86.17356115107914,
+    "T_acc": 87.84748309541698,
+    "TP": 7666,
+    "FN": 1230,
+    "TN": 4677,
+    "FP": 647,
+    "termbox_used": 3572,
+    "fallback_used": 2335
+  },
+  "history": {
+    "pair_union": {
+      "cIoU": 36.7453,
+      "gIoU": 69.6279
+    },
+    "ensemble": {
+      "cIoU": 34.9419,
+      "gIoU": 69.7711
+    },
+    "single_probe": {
+      "cIoU": 35.0884,
+      "gIoU": 68.3729
+    }
+  },
+  "generated": "exp89_termbox_full_val.py"
+}

@@ -1,0 +1,27 @@
+{
+  "mIoU": 0.4938595861165053,
+  "oIoU": 0.4090314283327373,
+  "delta_vs_released": -0.006956816786536297,
+  "ci_vs_released": [
+    -0.011158000985046846,
+    -0.0028194508024721636
+  ],
+  "p_vs_released": 0.0005,
+  "delta_vs_argmax": 0.029089433389107286,
+  "ci_vs_argmax": [
+    0.020687473897012372,
+    0.03739259378681506
+  ],
+  "p_vs_argmax": 0.0,
+  "fired": 351,
+  "win": 126,
+  "loss": 182,
+  "oracle_hit": 0.5318627450980392,
+  "tag": "refcocog",
+  "row": "ours_rank_sc",
+  "n": 4896,
+  "records": "exp/out_extreme/records_refcocog.jsonl",
+  "script": "exp/exp23_final.py",
+  "records_mtime": "2026-10-03 01:36:15",
+  "generated_at": "2026-10-03 01:42:06"
+}

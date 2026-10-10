@@ -1,0 +1,14 @@
+{
+  "n_no_target_rows": 540,
+  "pair_share_of_argmax": 99.81481481481481,
+  "mean_pred_area_shipped": 8079.475925925926,
+  "mean_pred_area_singles": 4006.7444444444445,
+  "ratio": 0.49591637888137685,
+  "fp_val": 10486685.0,
+  "projected_fp": 5200518.851669651,
+  "cIoU_now": 49.58655274378479,
+  "cIoU_projected": 51.64948457715037,
+  "gain": 2.0629318333655746,
+  "note": "singles-only fallback affects ONLY predicted-no-target records; targeted records never use the fallback in the shipped rule (fallback_used==fn on val)",
+  "generated": "exp123_fp_shrink.py"
+}

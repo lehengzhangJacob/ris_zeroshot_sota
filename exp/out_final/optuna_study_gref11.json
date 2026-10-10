@@ -1,0 +1,16 @@
+{
+  "n_trials": 300,
+  "best_params": {
+    "kind": "gbm",
+    "gd": 3
+  },
+  "best_calib_r": 0.40184576366195296,
+  "shipped_pair_calib_r": 0.5177022004226552,
+  "shipped_termbox_calib_r": 0.5529117954037326,
+  "margin_over_pair": -0.11585643676070229,
+  "margin_over_termbox": -0.15106603174177963,
+  "n_fit": 975,
+  "n_calib": 423,
+  "note": "hybrid = pair candidates + per-term picks + termbox-union, one selector over both feature blocks; val untouched; val pass only if both margins > 0.01",
+  "generated": "exp97_hybrid_study_v2.py"
+}

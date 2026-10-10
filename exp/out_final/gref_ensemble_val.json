@@ -1,0 +1,34 @@
+{
+  "winner": "ens_empty",
+  "train": {
+    "ens_only": {
+      "n": 1398,
+      "cIoU": 49.56428439416459,
+      "gIoU": 69.49515716729131,
+      "N_acc": 93.14814814814815,
+      "T_acc": 91.37529137529137
+    },
+    "ens_empty": {
+      "n": 1398,
+      "cIoU": 49.56166773846137,
+      "gIoU": 69.99587247487356,
+      "N_acc": 94.44444444444444,
+      "T_acc": 84.73193473193473
+    }
+  },
+  "val_transfer": {
+    "n": 14220,
+    "cIoU": 34.941932473751095,
+    "gIoU": 69.77114716783322,
+    "N_acc": 89.10746402877697,
+    "T_acc": 77.21637866265965
+  },
+  "p_inc": 0.77606891764233,
+  "n_val": 14220,
+  "official_floors": {
+    "cIoU": 68.94,
+    "gIoU": 74.34
+  },
+  "note": "three yes/no existence probes ensemble; rule chosen on held-out train by gIoU; single val pass after freezing",
+  "generated": "exp67_ensemble_eval.py"
+}

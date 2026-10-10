@@ -1,0 +1,486 @@
+{
+ "n": 14220,
+ "n_refs": 4236,
+ "n_refs_no_target": 1498,
+ "n_refs_multi": 2738,
+ "n_no_target": 8896,
+ "source_refs": 4237,
+ "abstain_threshold": 26.328123931884765,
+ "calibration": "p1",
+ "rows": {
+  "released": {
+   "n": 14220,
+   "cIoU": 22.560087761957774,
+   "gIoU": 12.49297049181666,
+   "N_acc": 0.0,
+   "T_acc": 100.0,
+   "TP": 0,
+   "FN": 8896,
+   "TN": 5324,
+   "FP": 0
+  },
+  "argmax_g2l": {
+   "n": 14220,
+   "cIoU": 19.876067201906363,
+   "gIoU": 11.330738629075457,
+   "N_acc": 0.0,
+   "T_acc": 100.0,
+   "TP": 0,
+   "FN": 8896,
+   "TN": 5324,
+   "FP": 0
+  },
+  "snap": {
+   "n": 14220,
+   "cIoU": 22.11123069304071,
+   "gIoU": 14.264011434793005,
+   "N_acc": 0.0,
+   "T_acc": 100.0,
+   "TP": 0,
+   "FN": 8896,
+   "TN": 5324,
+   "FP": 0
+  },
+  "ours_single": {
+   "n": 14220,
+   "cIoU": 20.234574121835593,
+   "gIoU": 11.143734534802727,
+   "N_acc": 0.0,
+   "T_acc": 100.0,
+   "TP": 0,
+   "FN": 8896,
+   "TN": 5324,
+   "FP": 0
+  },
+  "ours_single+snap": {
+   "n": 14220,
+   "cIoU": 20.451483497324343,
+   "gIoU": 13.168797932939308,
+   "N_acc": 0.0,
+   "T_acc": 100.0,
+   "TP": 0,
+   "FN": 8896,
+   "TN": 5324,
+   "FP": 0
+  },
+  "clause_only": {
+   "n": 14220,
+   "cIoU": 22.550427101785317,
+   "gIoU": 17.994303663515293,
+   "N_acc": 3.181205035971223,
+   "T_acc": 99.79338842975206,
+   "TP": 283,
+   "FN": 8613,
+   "TN": 5313,
+   "FP": 11
+  },
+  "clause+plural m0.3": {
+   "n": 14220,
+   "cIoU": 22.34009885613806,
+   "gIoU": 18.06969061804799,
+   "N_acc": 3.181205035971223,
+   "T_acc": 99.79338842975206,
+   "TP": 283,
+   "FN": 8613,
+   "TN": 5313,
+   "FP": 11
+  },
+  "clause+plural m0.6": {
+   "n": 14220,
+   "cIoU": 21.865443430394507,
+   "gIoU": 18.093872357081292,
+   "N_acc": 3.181205035971223,
+   "T_acc": 99.79338842975206,
+   "TP": 283,
+   "FN": 8613,
+   "TN": 5313,
+   "FP": 11
+  },
+  "clause+plural m1.0": {
+   "n": 14220,
+   "cIoU": 20.97198363598809,
+   "gIoU": 17.970577444285915,
+   "N_acc": 3.181205035971223,
+   "T_acc": 99.79338842975206,
+   "TP": 283,
+   "FN": 8613,
+   "TN": 5313,
+   "FP": 11
+  },
+  "clause+plural m1.5": {
+   "n": 14220,
+   "cIoU": 20.206802682578907,
+   "gIoU": 17.827806704178712,
+   "N_acc": 3.181205035971223,
+   "T_acc": 99.79338842975206,
+   "TP": 283,
+   "FN": 8613,
+   "TN": 5313,
+   "FP": 11
+  },
+  "full m1.0 + abstain": {
+   "n": 14220,
+   "cIoU": 21.61279818809995,
+   "gIoU": 20.658511094990665,
+   "N_acc": 7.587679856115108,
+   "T_acc": 99.69947407963937,
+   "TP": 675,
+   "FN": 8221,
+   "TN": 5308,
+   "FP": 16
+  },
+  "clause+abstain": {
+   "n": 14220,
+   "cIoU": 23.107351628779565,
+   "gIoU": 20.669345246872183,
+   "N_acc": 7.587679856115108,
+   "T_acc": 99.69947407963937,
+   "TP": 675,
+   "FN": 8221,
+   "TN": 5308,
+   "FP": 16
+  },
+  "clause+abstain p0.5": {
+   "n": 14220,
+   "cIoU": 22.848964885847078,
+   "gIoU": 19.4224549716843,
+   "N_acc": 5.530575539568345,
+   "T_acc": 99.7182569496619,
+   "TP": 492,
+   "FN": 8404,
+   "TN": 5309,
+   "FP": 15
+  },
+  "clause+abstain p2": {
+   "n": 14220,
+   "cIoU": 23.46698251390838,
+   "gIoU": 22.880649499438277,
+   "N_acc": 11.20728417266187,
+   "T_acc": 99.58677685950413,
+   "TP": 997,
+   "FN": 7899,
+   "TN": 5302,
+   "FP": 22
+  },
+  "clause+abstain p5": {
+   "n": 14220,
+   "cIoU": 24.30724188033169,
+   "gIoU": 26.78541274341722,
+   "N_acc": 17.64838129496403,
+   "T_acc": 99.02329075882795,
+   "TP": 1570,
+   "FN": 7326,
+   "TN": 5272,
+   "FP": 52
+  },
+  "clause+plural m0.3 + abstain": {
+   "n": 14220,
+   "cIoU": 22.92509476934483,
+   "gIoU": 20.740665548435867,
+   "N_acc": 7.587679856115108,
+   "T_acc": 99.69947407963937,
+   "TP": 675,
+   "FN": 8221,
+   "TN": 5308,
+   "FP": 16
+  },
+  "ctrl: no relation": {
+   "n": 14220,
+   "cIoU": 20.61455850400063,
+   "gIoU": 17.955668627789134,
+   "N_acc": 3.181205035971223,
+   "T_acc": 99.79338842975206,
+   "TP": 283,
+   "FN": 8613,
+   "TN": 5313,
+   "FP": 11
+  },
+  "ctrl: no snap": {
+   "n": 14220,
+   "cIoU": 21.527827295146714,
+   "gIoU": 15.937388726925944,
+   "N_acc": 3.181205035971223,
+   "T_acc": 99.79338842975206,
+   "TP": 283,
+   "FN": 8613,
+   "TN": 5313,
+   "FP": 11
+  }
+ },
+ "targeted_only": {
+  "released": {
+   "n": 5324,
+   "mean_iou": 0.3336777618212487
+  },
+  "argmax_g2l": {
+   "n": 5324,
+   "mean_iou": 0.30263543070145305
+  },
+  "snap": {
+   "n": 5324,
+   "mean_iou": 0.3809809214927805
+  },
+  "ours_single": {
+   "n": 5324,
+   "mean_iou": 0.2976406932473616
+  },
+  "ours_single+snap": {
+   "n": 5324,
+   "mean_iou": 0.3517285999368839
+  },
+  "clause_only": {
+   "n": 5324,
+   "mean_iou": 0.42745867410816774
+  },
+  "clause+plural m0.3": {
+   "n": 5324,
+   "mean_iou": 0.42947220245800816
+  },
+  "clause+plural m0.6": {
+   "n": 5324,
+   "mean_iou": 0.4301180783578085
+  },
+  "clause+plural m1.0": {
+   "n": 5324,
+   "mean_iou": 0.42682496479666954
+  },
+  "clause+plural m1.5": {
+   "n": 5324,
+   "mean_iou": 0.42301166666683376
+  },
+  "full m1.0 + abstain": {
+   "n": 5324,
+   "mean_iou": 0.4249887824394609
+  },
+  "clause+abstain": {
+   "n": 5324,
+   "mean_iou": 0.4252781544149586
+  },
+  "clause+abstain p0.5": {
+   "n": 5324,
+   "mean_iou": 0.4263473134811263
+  },
+  "clause+abstain p2": {
+   "n": 5324,
+   "mean_iou": 0.4238595715289514
+  },
+  "clause+abstain p5": {
+   "n": 5324,
+   "mean_iou": 0.4205269895029923
+  },
+  "clause+plural m0.3 + abstain": {
+   "n": 5324,
+   "mean_iou": 0.42718306554988705
+  },
+  "ctrl: no relation": {
+   "n": 5324,
+   "mean_iou": 0.42642676162126725
+  },
+  "ctrl: no snap": {
+   "n": 5324,
+   "mean_iou": 0.3725200369964086
+  }
+ },
+ "shipped": {
+  "cIoU": 40.9593,
+  "gIoU": 71.1064,
+  "N_acc": 86.17,
+  "T_acc": 87.85,
+  "n": 14220,
+  "rule": "per-term box selection: one LLaVA box per parsed term (noun_phrase + nouns, max 3), a learned per-term picker (logreg, top-2 margin 0.815) selects a mask inside each box, output = union of picks; abstention unchanged (pair-rule gate + 3-probe ensemble); pair/union selector as fallback when term boxes are absent. Selected by exp87's 300-trial held-out study on the val-matched population, frozen before one full-val pass (exp89)",
+  "history": {
+   "ensemble_threshold_union": {
+    "cIoU": 34.9419,
+    "gIoU": 69.7711,
+    "rule": "three-probe existence ensemble (exists/exists2/exists3, abstain when any answers"
+   },
+   "single_probe": {
+    "cIoU": 35.0884,
+    "gIoU": 68.3729
+   },
+   "pair_union": {
+    "cIoU": 36.7453,
+    "gIoU": 69.6279,
+    "rule": "learned pair/union selector: candidates are singles+pairs of the top-6 proposals by the fr"
+   }
+  },
+  "best_published": {
+   "cIoU": 68.94,
+   "gIoU": 74.34,
+   "rival": "InstAlign (trained, arXiv 2411.15087)"
+  }
+ },
+ "class_wall": {
+  "statement": "Published gRefCOCO val numbers are from models TRAINED on gRefCOCO train. The training-free wall binds on three independently measured axes: (1) grounder - the VLM box overlaps the 2-object GT union at IoU 0.329; (2) selector - under a PERFECT (GT) box the best deployable rule reaches only r=0.507 cumulative, below the r>0.689 the cIoU floor needs even at perfect abstention, so it fails at ANY N_acc (oracle on the same candidates: r=0.740, needing N_acc>=0.912; perfect single-mask oracle: r=0.581); (3) abstention - the VLM's own `none` answer reaches N_acc=0.413 (T_acc 1.000), while even the oracle-with-perfect-box ceiling needs N_acc>=0.74 for gIoU - above the 0.797 the trained state of the art reports. Note 92% of val no-target sentences are transplanted from other images, so the absences are genuine but the phrases stay generic, which is why image-grounded existence tops out near 0.41.",
+  "frontier": {
+   "formula": "r > 0.6894 * (1 + (FP_U/S_U)(1 - N_acc))",
+   "fp_u_over_s_u": 0.8345,
+   "need_r_at": {
+    "N_acc=0.00": 1.2647,
+    "N_acc=0.41": 1.0271,
+    "N_acc=0.50": 0.9771,
+    "N_acc=0.70": 0.862,
+    "N_acc=0.90": 0.7469,
+    "N_acc=1.00": 0.6894
+   },
+   "need_nacc_at": {
+    "r=0.392": null,
+    "r=0.415": null,
+    "r=0.581": null,
+    "r=0.886": 0.6576
+   }
+  },
+  "decomposition": {
+   "axis1_grounder": {
+    "vlm_box_iou": 0.32869701613955377,
+    "perfect_box_iou": 1.0,
+    "note": "VLM box vs 2-object GT union"
+   },
+   "axis2_selector": {
+    "box_cover|k15|gt": {
+     "mean_iou": 0.5474184443884968,
+     "r": 0.5073218462840471,
+     "frac_of_perfect_box_oracle": 0.686
+    },
+    "box_cover|k50|gt": {
+     "mean_iou": 0.5024056410409097,
+     "r": 0.45302667204601255,
+     "frac_of_perfect_box_oracle": 0.612
+    },
+    "greedy_novel|k15|gt": {
+     "mean_iou": 0.4674211917674211,
+     "r": 0.44260055296200357,
+     "frac_of_perfect_box_oracle": 0.598
+    },
+    "greedy_novel|k50|gt": {
+     "mean_iou": 0.46344876794862166,
+     "r": 0.43544618247825556,
+     "frac_of_perfect_box_oracle": 0.589
+    },
+    "top2_disjoint|k15|gt": {
+     "mean_iou": 0.4376366619467041,
+     "r": 0.415447571814527,
+     "frac_of_perfect_box_oracle": 0.561
+    },
+    "top2_disjoint|k50|gt": {
+     "mean_iou": 0.4376366619467041,
+     "r": 0.415447571814527,
+     "frac_of_perfect_box_oracle": 0.561
+    },
+    "top2_plain|k15|gt": {
+     "mean_iou": 0.42308878396430005,
+     "r": 0.40446630922974824,
+     "frac_of_perfect_box_oracle": 0.547
+    },
+    "top2_plain|k50|gt": {
+     "mean_iou": 0.42308878396430005,
+     "r": 0.40446630922974824,
+     "frac_of_perfect_box_oracle": 0.547
+    }
+   },
+   "axis2_ceilings": {
+    "oracle_perfect_box_k15": 0.7399,
+    "oracle_perfect_box_k50": 0.8832,
+    "oracle_no_box_k50": 0.8813,
+    "note": "oracle = GT-guided greedy union over the same shortlist"
+   },
+   "axis3_abstention": {
+    "achieved_N_acc": 0.413,
+    "best_score_threshold": 0.1750224820143885,
+    "trained_sota_N_acc": 0.797,
+    "note": "InstAlign N-acc on gRefCOCO val (published)"
+   },
+   "requirements": {
+    "cIoU_at_realizable_stack": {
+     "r": 0.39199476230424257,
+     "need_N_acc": null
+    },
+    "cIoU_at_perfect_box_realizable_rule": {
+     "r": 0.5073218462840471,
+     "need_N_acc": null
+    },
+    "cIoU_at_oracle_perfect_box": {
+     "r": 0.7399,
+     "need_N_acc": 0.912
+    },
+    "gIoU_at_oracle_perfect_box": {
+     "mean_iou": 0.7345388888241683,
+     "need_N_acc": 0.749
+    }
+   },
+   "verdict": "Three independent axes, all measured, all short. (1) Grounder: the VLM box overlaps the 2-object union at 0.329. (2) Selector: even given a PERFECT box the best deployable rule reaches r=0.507 vs the oracle's 0.740 - and r=0.507 cannot clear cIoU at ANY N_acc. (3) Abstention: the cIoU floor at the oracle-with-perfect-box ceiling still needs N_acc>=0.91, and gIoU needs >=0.74; the best training-free existence signal measures 0.413 and the trained state of the art is 0.797. No realizable combination clears either line, and the only configurations that could would require simultaneously a perfect grounder, an oracle selector, and a trained-level abstention rate."
+  },
+  "measured": {
+   "rules": {
+    "boxcover": {
+     "targeted_cumulative": 0.39199476230424257,
+     "S_I": 4107278.0,
+     "S_U": 10477890.0,
+     "s_u_val_scaled": 371895242.4,
+     "mean_fp_union": 34886.09859154929,
+     "fp_u": 310346733.07042253,
+     "fp_u_over_s_u": 0.8345004121795739,
+     "frac_nt_predicted": 0.47333333333333333
+    },
+    "top2disjoint": {
+     "targeted_cumulative": 0.415447571814527,
+     "S_I": 4559685.0,
+     "S_U": 10975356.0,
+     "s_u_val_scaled": 389551968.96,
+     "mean_fp_union": 28600.586666666666,
+     "fp_u": 254430818.98666665,
+     "fp_u_over_s_u": 0.6531370375714675,
+     "frac_nt_predicted": 1.0
+    }
+   },
+   "two_target_frac": 0.994740796393689,
+   "box_iou_vlm_vs_gtunion": 0.32869701613955377,
+   "orc_inbox_ceiling": 0.401568168568833,
+   "orc_pool_ceiling": 0.7345564359977677,
+   "oracle_single_cumulative": 0.581,
+   "oracle_union_cumulative": 0.8863797338377634,
+   "N_acc_vlm_box_or_none": 0.413,
+   "T_acc_vlm_box_or_none": 1.0,
+   "N_acc_best_score_threshold": 0.1750224820143885
+  },
+  "evidence": {
+   "wall": "exp/out_final/gref_wall.json (exp50/exp52)",
+   "rules": "exp/out_final/gref_rules.json (exp51_shortlist_rules.py)",
+   "estimate": "exp/out_final/gref_estimate.json (exp48_estimate.py)",
+   "box_ceiling": "exp/out_final/gref_box_ceiling.json (exp49_box_ceiling.py)",
+   "oracle": "exp/out_final/gref_ceiling.json (exp31_gref_ceiling.py)",
+   "existence_pilot": "exp/pilot_gref_exists.py (600 VLM queries, 300 val records)"
+  }
+ },
+ "tuned_model": {
+  "rows": {
+   "cIoU": 40.9593,
+   "gIoU": 71.1064,
+   "N_acc": 86.17,
+   "T_acc": 87.85
+  },
+  "model": "learned per-proposal selector over 17 features (4 released scores + ranks + geometry + 5 per-noun clause-grounding features) + existence branch",
+  "params": {
+   "clf": "logreg",
+   "C": 0.003372099519840815,
+   "p_inc": 0.77606891764233,
+   "p_abs": 0.3395872474890961,
+   "use_exists": true
+  },
+  "n": 14220,
+  "records": "exp/out_extreme/records_grefcoco.jsonl (full val, 14,220 expressions)",
+  "held_out": {
+   "calib_cIoU": 46.18,
+   "calib_gIoU": 69.74,
+   "n_trials": 300
+  },
+  "subset_check": {
+   "cIoU": 36.5,
+   "gIoU": 68.96,
+   "n": 2000,
+   "records": "records_grefcoco_val2000.jsonl (seed 20261004)"
+  },
+  "provenance": "sixth 300-trial held-out study (optuna_study_gref5.json); frozen and evaluated once over the complete val split (exp64_full_val.py)"
+ },
+ "synced_from": "exp/out_final/main_grefcoco.json (exp71 ship promotion)"
+}

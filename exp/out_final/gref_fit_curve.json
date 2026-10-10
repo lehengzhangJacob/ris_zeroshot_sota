@@ -1,0 +1,48 @@
+{
+  "measured_on": "exp78 calib split (423 rows, val prevalence), frozen shipped rule",
+  "curve": {
+    "fit_frac_0.10": {
+      "n_refs": 51,
+      "cIoU": 46.20465440778091,
+      "gIoU": 79.12744848506829,
+      "N_acc": 93.75,
+      "T_acc": 90.2834008097166,
+      "targeted_r_cumulative": 0.5519179625685284
+    },
+    "fit_frac_0.25": {
+      "n_refs": 128,
+      "cIoU": 45.247276472177084,
+      "gIoU": 78.89878854910222,
+      "N_acc": 93.75,
+      "T_acc": 90.2834008097166,
+      "targeted_r_cumulative": 0.5365480384714904
+    },
+    "fit_frac_0.50": {
+      "n_refs": 257,
+      "cIoU": 46.72624790490537,
+      "gIoU": 79.27833723912063,
+      "N_acc": 93.75,
+      "T_acc": 90.2834008097166,
+      "targeted_r_cumulative": 0.5584237582203223
+    },
+    "fit_frac_0.75": {
+      "n_refs": 386,
+      "cIoU": 47.072575026429085,
+      "gIoU": 79.36797127945574,
+      "N_acc": 93.75,
+      "T_acc": 90.2834008097166,
+      "targeted_r_cumulative": 0.5626489545592943
+    },
+    "fit_frac_1.00": {
+      "n_refs": 515,
+      "cIoU": 46.41664048926644,
+      "gIoU": 79.35979881689569,
+      "N_acc": 93.75,
+      "T_acc": 90.2834008097166,
+      "targeted_r_cumulative": 0.5538473159627038
+    }
+  },
+  "realization_slope_per_100pct_r": 0.0231,
+  "interpretation": "slope over 25%->100% fit refs; a large positive slope means more fit data is the lever (launch the train-split extraction); a flat curve means features/model capacity is the cap",
+  "generated": "exp82_fit_curve.py"
+}

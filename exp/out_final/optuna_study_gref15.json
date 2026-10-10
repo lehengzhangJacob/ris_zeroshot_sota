@@ -1,0 +1,30 @@
+{
+  "n_trials": 300,
+  "best_params": {
+    "src": "bs",
+    "alpha": 1.3265977118178076,
+    "beta": 0.6899601939343636,
+    "topk": 2,
+    "margin": 0.6271458202775859,
+    "cap": 0.5,
+    "pick_box": "ll+d0",
+    "sam": "d0"
+  },
+  "r_mix": 0.6383919211143138,
+  "m_mix": 0.6739124326979715,
+  "required_m": 0.6212,
+  "population": "262 val-matched >=2-term rows + 47 held-out 1-term rows, mixed at val prevalence 0.875/0.125",
+  "note": "objective = mixture cumulative r (cIoU side) with m >= 0.6212 floor; the winner gains +0.0053 r_mix over the v14 config for -0.0064 m_mix: the 300-trial r-search confirms the v14 configuration is essentially r-optimal in this space; the cIoU requirement needs +0.23 r (r_delivered 0.5869 vs 0.8158 on val) - NOT tunable",
+  "generated": "exp121_ciou_study.py",
+  "v13_equivalent_in_output_block": {
+    "r_mix": 0.5811231557251587,
+    "m_mix": 0.6379742355469646
+  },
+  "v14_baseline": {
+    "r_mix": 0.6331,
+    "m_mix": 0.6803,
+    "note": "exp117 winner, measured as trial 0's objective value in this study"
+  },
+  "r_gain_vs_v14": 0.005291921114313758,
+  "m_change_vs_v14": -0.006387567302028496
+}

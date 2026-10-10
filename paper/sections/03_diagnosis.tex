@@ -1,0 +1,87 @@
+\section{Diagnosis: the bottleneck is selection}
+\label{sec:diagnosis}
+
+\paragraph{Setup.}
+All measurements in this paper are re-analyses of one stored scoring pass per
+dataset: for every expression we keep every per-proposal quantity the
+released scorer computes (semantic scores under four text variants, the GEM
+coherence score, mask geometry, pairwise mask IoU, and IoU against ground
+truth), so every table, control and ablation below is computed from the same
+pass without re-running the encoders. Pools are SAM ViT-H with
+$\text{points\_per\_side}=8$ (mean \meanPoolSize{} proposals/image);
+features are the released G2L masked-region features; the scorer is the
+released HybridGL guidance reimplemented faithfully
+(\S\ref{sec:repro}). ``Oracle'' is the pool member with highest IoU against
+ground truth.
+
+\paragraph{The pool is not the bottleneck.}
+The oracle mask reaches \oracleMIoU\,mIoU on RefCOCO val
+(\oracleG/\oracleP\,on RefCOCOg / RefCOCO+), i.e.\ the pool contains a good
+mask for \oracleHitPct\,\% of expressions. The released pipeline achieves
+\relMIoU. The recoverable mass --- the \emph{oracle gap} --- is thus
+\gapMIoU\,mIoU, and the question is what composes it.
+
+\paragraph{Taxonomy of the oracle gap.}
+We classify every expression by the relation between the selected and the
+oracle mask into correct, under-segmentation, over-segmentation,
+wrong-instance (near-disjoint from the referent) and boundary. Table
+\ref{tab:taxonomy} shows the result on the four benchmarks. Wrong-instance
+selection carries the overwhelming majority of the recoverable IoU
+(\wiSharePct\,\% on RefCOCO, \wiShareGPct\,\% on RefCOCOg,
+\wiSharePPct\,\% on RefCOCO+, and the same ordering on gRefCOCO), while
+under-segmentation --- the failure that mask merging and granularity
+remedies exist to fix --- carries \usSharePct\,\%. Wrong-instance failures are
+not a near-miss: the selected mask has mean IoU \wrongInstIoU{} against the
+referent, while the oracle reaches \oracleWhenWrong. They are
+disproportionately spatial references, though modestly so:
+\wiSpatialPct\,\% of wrong-instance failures carry a spatial word from the
+operator's vocabulary against \spatialWordOverallPct\,\% of all expressions
+(\wiParserPct\,\% vs \spatialFracPct\,\% under the stricter relation
+grammar the operator actually parses). The distinction matters for what
+follows: the operator can act only on the parsed subset, and its gain is
+exactly there --- \operatorOnSpatial\,mIoU over the \strataSpatialN{}
+parsed-spatial expressions on RefCOCO val, and zero elsewhere by
+construction --- which is why the cross-benchmark pattern below is the
+diagnostic's decisive test.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\linewidth]{figures/taxonomy.pdf}
+\caption{Share of the oracle-gap mass by error class at the released
+operating point, full val splits. Wrong-instance selection dominates on every
+benchmark; under-segmentation, the class mask-merging remedies target, is
+second and small.}
+\label{fig:taxonomy}
+\end{figure}
+
+\input{tables/taxonomy}
+
+\paragraph{Why the released guidance cannot repair them.}
+HybridGL's guidance computes relation and coherence terms but ranks only
+$\mathrm{topk}(\text{full-expression score}, 3)$; its answer is always one of
+those three. On the wrong-instance failures the referent is inside this set
+only \oracleInTopThreePct\,\% of the time (mean rank of the oracle:
+\meanOracleRank). The same expression scored with its spatial vocabulary
+removed --- the \emph{category score} --- puts the referent in its top-8
+\goodSetPct\,\% of the time. Candidate-set construction, not the guidance
+machinery, is the binding constraint; a perfect chooser restricted to the
+released top-3 still reaches \topThreeCeiling\,mIoU, \topThreeCeilingRatio$\times$
+the gain the released pipeline actually realizes over argmax
+(\relMIoU\,vs \argmaxMIoU) --- almost all of the released gain is the one
+structural widening of the candidate set that its top-3 confinement allows.
+
+\paragraph{Where proposal quality \emph{does} matter.}
+The residual gap not explained by selection is granularity:
+\usSharePct\,\% of the recoverable IoU sits in masks of the correct instance
+that stop short of the referent, plus a small boundary class. This is the
+second error class our second repair targets.
+
+\paragraph{Pool density does not explain the diagnosis.}
+Re-running the released pipeline with SAM at $\text{points\_per\_side}=16$ on
+a fixed \ppsN-expression sample (\ppsProposalDelta\,\% more proposals) raises
+the oracle by only \ppsOracleDelta\,mIoU while the released pipeline loses
+\ppsGuidedDelta\,mIoU --- a denser pool adds distractors and concentrates
+selection failure rather than repairing it. The wrong-instance share of the
+gap is stable (\ppsWiEight\,$\to$\,\ppsWiSixteen) and the operator's gain is
+stable too (\ppsOursEight\,$\to$\,\ppsOursSixteen). Evidence:
+\texttt{pool\_robustness.json}.

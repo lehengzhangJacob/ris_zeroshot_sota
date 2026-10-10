@@ -1,0 +1,75 @@
+\documentclass[journal]{IEEEtran}
+\usepackage{cite}
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{url}
+\usepackage[hidelinks]{hyperref}
+\usepackage{array}
+
+\newcommand{\best}[1]{\textbf{#1}}
+\newcommand{\dD}{\Delta}
+
+\begin{document}
+
+\title{Selection Is the Bottleneck: A Diagnostic for Training-Free Referring
+Image Segmentation and a Training-Free Repair}
+
+\author{Anonymous Authors%
+\thanks{Manuscript prepared \today. All numbers reported here are produced by
+the artifacts listed in the supplementary experiment log.}}
+
+\maketitle
+
+\begin{abstract}
+Training-free referring image segmentation (RIS) is universally implemented as
+propose-then-select: a frozen class-agnostic segmenter emits a mask pool, a
+frozen vision--language model scores each candidate against the expression, and
+the highest-scoring candidate is returned. Work in the area concentrates on the
+proposal pool, on feature fusion, or on adding larger external models, on the
+assumption that the pool is what limits accuracy. We test that assumption
+directly by decomposing the \emph{oracle gap} --- the IoU available in the pool
+minus the IoU the selector returns --- into attributable error classes, on the
+full RefCOCO, RefCOCO$+$ and RefCOCOg validation splits and at two operating
+points of the released HybridGL pipeline. The decomposition is decisive:
+\emph{wrong-instance} selection, in which the returned mask is a different
+object of the right category, carries \textbf{77--86\,\%} of all recoverable
+IoU on all three benchmarks and at both operating points tested, while
+under-segmentation --- the class that mask-granularity remedies address ---
+carries 5--23\,\%. We then
+show \emph{why} the released guidance cannot repair this: its answer is
+structurally confined to the three highest-scoring proposals under the full
+expression, and on wrong-instance failures the referent lies outside that set
+69.8\,\% of the time (mean score-rank 9.1), while it lies inside the top-8 of a
+\emph{category} score --- the same scorer reading the expression with its
+spatial vocabulary removed --- 70.1\,\% of the time. Acting on that finding, we
+give a training-free operator that enlarges the candidate set to the category
+score and applies the pipeline's own coherence score subject to the
+expression's spatial relation. On full RefCOCO val it raises the released
+pipeline from 0.4482 to \best{0.5029} mIoU and from 0.3816 to \best{0.4431}
+oIoU ($\dD$\,$=$\,$+0.0546$ mIoU, 95\,\% CI $[+0.0493,+0.0601]$, paired
+bootstrap $p<0.0001$; $+0.1510$ over the unguided argmax), with no training, no
+ground truth and no additional forward pass. We report the operator's limits as
+carefully as its gains: its mIoU improvement is statistically
+indistinguishable from a one-line containment snap, it is neutral on RefCOCOg
+and RefCOCO$+$, and doubling the proposal density makes the released pipeline
+\emph{worse} while leaving the diagnosis intact.
+\end{abstract}
+
+\begin{IEEEkeywords}
+Referring image segmentation, zero-shot segmentation, training-free methods,
+CLIP, SAM, model diagnosis.
+\end{IEEEkeywords}
+
+\input{sections/01_introduction}
+\input{sections/02_related}
+\input{sections/03_diagnosis}
+\input{sections/04_method}
+\input{sections/05_experiments}
+\input{sections/06_limitations}
+\input{sections/07_conclusion}
+
+\bibliographystyle{IEEEtran}
+\bibliography{references}
+
+\end{document}

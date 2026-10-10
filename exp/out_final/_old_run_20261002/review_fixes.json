@@ -1,0 +1,102 @@
+{
+  "refcoco": {
+    "published": {
+      "g2l": {
+        "oIoU": 0.3171,
+        "mIoU": 0.4027
+      },
+      "full": {
+        "oIoU": 0.4181,
+        "mIoU": 0.4948
+      },
+      "guidance_increment_oIoU": 0.10100000000000003,
+      "guidance_increment_mIoU": 0.09210000000000002
+    },
+    "reproduced": {
+      "g2l": {
+        "mIoU": 0.3518132335749516,
+        "oIoU": 0.276768971759621
+      },
+      "full": {
+        "mIoU": 0.4482477756342483,
+        "oIoU": 0.38159975599833107
+      },
+      "guidance_increment_oIoU": 0.10483078423871006,
+      "guidance_increment_mIoU": 0.09643454205929669
+    },
+    "base_gap_oIoU": -0.040331028240378985,
+    "base_gap_mIoU": -0.05088676642504841,
+    "increment_gap_oIoU": 0.0038307842387100277,
+    "increment_gap_mIoU": 0.0043345420592966755
+  },
+  "refcocog": {
+    "published": {
+      "g2l": {
+        "oIoU": 0.3912,
+        "mIoU": 0.4864
+      },
+      "full": {
+        "oIoU": 0.4247,
+        "mIoU": 0.5125
+      },
+      "guidance_increment_oIoU": 0.03350000000000003,
+      "guidance_increment_mIoU": 0.026099999999999957
+    },
+    "reproduced": {
+      "g2l": {
+        "mIoU": 0.464770152727398,
+        "oIoU": 0.3680043370970537
+      },
+      "full": {
+        "mIoU": 0.5008164029030416,
+        "oIoU": 0.414452630151242
+      },
+      "guidance_increment_oIoU": 0.046448293054188294,
+      "guidance_increment_mIoU": 0.03604625017564361
+    },
+    "base_gap_oIoU": -0.02319566290294628,
+    "base_gap_mIoU": -0.021629847272601976,
+    "increment_gap_oIoU": 0.012948293054188265,
+    "increment_gap_mIoU": 0.009946250175643656
+  },
+  "selector_vs_snap": {
+    "delta": 0.000493799431409261,
+    "ci": [
+      -0.005542134670267933,
+      0.006599063519655534
+    ],
+    "p": 0.8737,
+    "ours_better": 1324,
+    "snap_better": 1323,
+    "ours_gains_where_snap_hurts": 45,
+    "snap_gains_where_ours_hurts": 119,
+    "tie": 7314,
+    "n": 10834
+  },
+  "refcocoplus": {
+    "n": 5194,
+    "spatial_frac": 0.015402387370042356,
+    "released_mIoU": 0.41217051440300867,
+    "ours_mIoU": 0.4129947166939231,
+    "ours_delta": 0.000824202290914518,
+    "ci": [
+      -0.00015479648961582996,
+      0.0018401122045662408
+    ],
+    "p": 0.1143,
+    "snap_delta": 0.05008768075114617,
+    "ours_delta_spatial": 0.05351133373762508,
+    "n_spatial": 80,
+    "ours_delta_spatial_h": 1.329691248721364e-05,
+    "n_horizontal": 4
+  },
+  "ceilings": {
+    "released_top3 (what the guidance may choose from)": 0.5811514548872324,
+    "method candidate set (top-8 category score)": 0.7303311425349683,
+    "method set, relation-consistent half": 0.7303311425349683,
+    "whole pool (algorithmic ceiling)": 0.8221128030361983,
+    "released_achieved": 0.4482477756342483,
+    "ours_achieved": 0.5028500713410367,
+    "assumption": "relation-consistent-half ceiling uses the same set as the candidate set; the side filter is only meaningful per expression"
+  }
+}

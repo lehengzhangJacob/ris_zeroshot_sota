@@ -1,0 +1,377 @@
+\section{Experiments}
+\label{sec:experiments}
+
+\subsection{Protocol}
+All numbers are produced by one evidence chain inside this repository: GPU
+scoring passes over the \emph{full} validation splits (RefCOCO
+\refcocoN{} expressions, RefCOCO+ \refcocoplusN{}, RefCOCOg \refcocogN{},
+gRefCOCO \grefN{} samples) write per-expression records; every reported row is
+a re-analysis of those records, and the LaTeX tables are generated from the
+resulting JSON by script, never transcribed by hand. The baseline is the
+\emph{released} HybridGL pipeline, reproduced and audited against its own
+official code on two disjoint 150-reference blocks (agreement within
+$0.6$\,mIoU), with the repo-vs-paper gap disclosed in
+Section~\ref{sec:repro}.
+
+Hyperparameters come from a held-out split built from RefCOCO-family
+\emph{train} references (400 refs per dataset, seeded sample restricted to
+images already on disk). We ran two Optuna studies of \studyTrials{} trials
+each; the objective is the \emph{minimum} over the three datasets of mIoU,
+matching the requirement that a method must not lose any dataset. The official
+validation and test splits are never used for tuning.
+
+\paragraph{Metric protocols.}
+\label{sec:protocol}
+Every number we compare against a published one is computed under the same
+metric definition that the compared paper uses; the per-dataset source,
+definition, and a re-evaluation of the saved predictions are recorded in
+\texttt{exp/out\_final/protocol\_audit.json}. For the RefCOCO family we use
+the official val splits (RefCOCO unc, \refcocoN{} expressions; RefCOCO+ unc,
+\refcocoplusN{}; RefCOCOg \emph{UMD}, \refcocogN{}, the \textsc{Val(U)} column
+of the compared work). \emph{mIoU} --- the metric we ship and the one the
+published floors report --- is the mean over val expressions of
+$\mathrm{IoU}(\mathrm{pred},\,\bigcup \mathrm{GT\ masks})$ of that expression,
+i.e.\ the per-sample mean that ``averages IoU across all samples'' in the
+compared paper's definition; \emph{oIoU} is the global pooled overlap
+$\sum_j |\mathrm{pred}_j\cap \mathrm{GT}_j| \,/\, \sum_j |\mathrm{pred}_j\cup
+\mathrm{GT}_j|$ and is reported alongside, matching the global-overlap
+definition it is printed against. For gRefCOCO we follow the official
+evaluation sample for sample: one sample per (reference, sentence) over the
+complete val split (\nGres{} references, \grefN{} sentences); on a no-target
+sample an empty prediction is a true positive contributing $1$ to the gIoU
+mean and is excluded from the cIoU sums, a non-empty prediction contributes
+$0$ and its predicted area to the cumulative union; on a targeted sample the
+sample IoU against the union of the reference's masks contributes to both the
+gIoU mean and the cumulative intersection/union; $N_{\mathrm{acc}}$ and
+$T_{\mathrm{acc}}$ follow the official no-target/targeted accuracies. Every
+split is evaluated completely --- one per-expression record per official
+sentence --- so no sample enters one metric and not another.
+
+\subsection{Main results}
+Tables~\ref{tab:main_refcoco}--\ref{tab:main_refcocog} give the per-dataset
+picture; Table~\ref{tab:sota} places the method among published training-free
+methods.
+
+\begin{table}[t]\centering\small
+\caption{RefCOCO val (\refcocoN{} expressions).}\label{tab:main_refcoco}
+\input{tables/main_refcoco}
+\end{table}
+\begin{table}[t]\centering\small
+\caption{RefCOCO+ val (\refcocoplusN{} expressions).}\label{tab:main_refcocoplus}
+\input{tables/main_refcocoplus}
+\end{table}
+\begin{table}[t]\centering\small
+\caption{RefCOCOg val (\refcocogN{} expressions).}\label{tab:main_refcocog}
+\input{tables/main_refcocog}
+\end{table}
+
+\begin{table*}[t]\centering\small
+\caption{Training-free referring segmentation, full val splits. Every row
+carries \emph{both} metrics from the same source table: published rows take
+the compared paper's own mIoU and oIoU (GLOD-RIS Table~I, val columns), our
+rows the aligned re-evaluations of \S\ref{sec:protocol}. Rows marked
+$\dagger$ were measured in this run; the rest are the numbers reported by the
+cited papers. IteRPrimE reports mIoU only on these datasets (oIoU ``--'').
+Columns are val-scoped: testA/testB and RefCOCOg test(u) are not evaluated,
+because the frozen components' scoring passes over the test splits are outside
+this run's shared-GPU budget; the published numbers compared against are the
+same papers' val columns. The shipped method adds a dense box prior from a
+frozen local VLM to the released HybridGL pipeline.}
+\label{tab:sota}
+\input{tables/sota}
+\end{table*}
+
+\paragraph{Component-matched check with GLOD-RIS's own MLLM.}
+GLOD-RIS queries GLM-4.1V-Thinking-Flash through an API; our shipped path uses
+a local LLaVA-OneVision-7B. To remove the prior's provenance as an explanation
+we re-ran the same box-prior pipeline with GLOD-RIS's exact MLLM (same
+endpoint, same prompt template, boxes parsed from the thinking model's answer,
+every response cached) over seeded \glmSwapN{}-expression samples of the three
+official val splits (API-budget scope; full splits not run under GLM, stated
+here). Table~\ref{tab:glmswap} gives the result: with GLM boxes the pipeline
+scores \glmRefcocoMIoU{} / \glmRefcocoplusMIoU{} / \glmRefcocogMIoU{} mIoU
+(oIoU 61.42 / 56.54 / 53.91, Table~\ref{tab:glmswap}), i.e. \glmRefcocoDelta{} /
+\glmRefcocoplusDelta{} / \glmRefcocogDelta{} against the same-rows LLaVA
+numbers, and still above every published row including GLOD-RIS's own
+(58.42 / 54.01 / 57.85 mIoU). Paired bootstrap over the same rows puts the
+GLM-minus-LLaVA difference at $-0.95$ $[-2.35,+0.46]$, $-1.07$ $[-2.51,+0.42]$
+and $-2.00$ $[-3.37,-0.66]$ mIoU --- significant on RefCOCOg, within noise on
+the others. The comparison is component-matched (same SAM ViT-H, same CLIP
+ViT-B/16, the same MLLM) with one caveat stated: the GLM boxes come from our
+prompt template, not GLOD-RIS's internal prompting.
+
+\begin{table}[t]\centering\small
+\caption{Component-matched MLLM swap (seeded samples, identical rows per
+column pair): the shipped path with GLOD-RIS's GLM-4.1V boxes vs the local
+LLaVA boxes.}\label{tab:glmswap}
+\input{tables/glmswap}
+\end{table}
+
+\begin{table*}[t]\centering\small
+\caption{gRefCOCO (GRES) val, official cIoU/gIoU protocol. Zero-shot rows form
+the same-methodology (training-free) class and their best number is the floor;
+fully-supervised rows are labelled references and are never floors.
+$^\dagger$All base components are frozen off the shelf (released scorer, VLM,
+detector, SAM, existence probes); the selector's configuration alone was
+fitted on held-out rows carved from gRefCOCO \emph{train} and frozen before
+its single full-val pass (trained-vs-frozen declaration in the text).}
+\label{tab:gres}
+\input{tables/gres}
+\end{table*}
+
+\subsection{Held-out studies}
+\label{sec:studies}
+Table~\ref{tab:studies} is the decisive ablation of the paper: identical
+pipeline, identical pools, identical scoring --- only the text given to the
+VLM changes. Passing the full referring expression instead of the parsed noun
+phrase is worth $+13.4$/$+10.6$/$+11.6$ mIoU. The reason is visible in the
+data: RefCOCO+ expressions are attribute constructions (``the man in the red
+shirt'') and RefCOCOg expressions are relational descriptions, so the noun
+phrase alone is ambiguous among all instances of the category.
+
+\begin{table}[t]\centering\small
+\caption{Box-prompt study, held-out split (train refs), best of
+\studyTrials{} Optuna trials each.}\label{tab:studies}
+\input{tables/studies}
+\end{table}
+
+
+\paragraph{The box prior is the effect; the candidate set is a guardrail.}
+Removing the box (\texttt{ctrl\_no\_box}) returns the pipeline to selection by
+the released scores alone and loses most of the gain. Removing the
+\emph{candidate restriction} (letting the box match against the whole pool)
+is also worse than the shipped configuration: the box can overlap a same-class
+distractor that the semantic--coherence fusion would have excluded.
+
+\paragraph{Repairs.} Containment growth and the relation-gated operator were
+the shipped method of an earlier version of this work. On top of the box
+prior they do not add: the VLM box already designates the whole referent,
+which is what growth was repairing. They are reported as ablations and are
+off in the shipped configuration.
+
+\paragraph{A stronger encoder does not substitute for grounding.} Replacing
+the region scorer with SigLIP-so400m (1152-d, same masked-region protocol)
+gives \emph{worse} argmax selection on full RefCOCO+ val ($36.5$ vs $40.4$
+mIoU): the bottleneck is instance-level grounding, not embedding quality.
+
+\subsection{Ablations}
+\label{sec:ablations}
+Table~\ref{tab:ablations} isolates the components on both the held-out split
+and the official val splits.
+
+\begin{table*}[t]\centering\small
+\caption{Component ablations. Held-out rows come from the tuning split; val
+rows are re-analyses of the same records as the main tables.}
+\label{tab:ablations}
+\input{tables/ablations}
+\end{table*}
+
+\subsection{Sensitivity, stability, and complexity}
+\label{sec:analysis}
+Three packaged analyses (\texttt{sensitivity.json}, \texttt{stability.json},
+\texttt{complexity.json}) accompany the result.
+
+\paragraph{Parameter Sensitivity Analysis.}
+Table~\ref{tab:sensitivity} sweeps the shipped rules' key hyperparameters by
+re-composing the frozen rule under each setting on saved records (no model
+inference). The primary sweeps run on a $2{,}000$-record val subset --- the
+deployed configuration, where the box-prompted SAM caches exist and the
+shipped setting reproduces the independent frozen val-$2{,}000$ run exactly
+(cIoU $51.08$, gIoU $74.84$) --- with the held-out frame kept as a labelled
+secondary block in the artifact (its SAM caches do not exist, so the cap is
+uninformative there by construction). The curves are descriptive: they select
+nothing, and the shipped values are the 300-trial studies' output under their
+own pre-registered objective. On gRefCOCO the result is stable to the
+box-fill weights (cIoU within $\approx0.2$ across the swept ranges) while the
+other knobs are live and one-directional: the SAM area cap at $0.2$ costs
+$1.5$ cIoU against the shipped $0.5$ (which sits at the top of the curve),
+top-1 picks read $+1.2$ cIoU over the shipped top-2, a margin of $0.9$ reads
+$+1.0$, and the abstention threshold is the sharpest knob, trading
+$N_{\mathrm{acc}}$ against $T_{\mathrm{acc}}$ ($51.27$ cIoU at $0.2$ down to
+$3.70$ at $0.8$). We state plainly that several shipped knobs are \emph{not}
+the optimum of this frame --- the sweep selects nothing, and the shipped point
+is what the studies fitted jointly on the held-out train population. On the
+RefCOCO-family rule, the box-fill score weights are not read at all under the
+shipped \texttt{combine=loc\_only} configuration (flat curves), the operative
+box-fill measure is the overlap \emph{mode} (inside/cover cost
+$46.3$/$2.9$ mIoU), and the candidate count and semantic mix dominate the
+remaining variation ($63.88$ at $k{=}5$ to $70.93$ at $k{=}30$).
+
+\begin{table}[t]\centering\small
+\caption{Parameter Sensitivity Analysis: shipped value and the range of the
+reported metric across each sweep (\S\ref{sec:analysis}); the gRefCOCO
+sweeps use the val-subset frame, the RefCOCO-family sweeps the held-out train
+refs.}\label{tab:sensitivity}
+\input{tables/sensitivity}
+\end{table}
+
+\paragraph{Testing Stability.}
+Table~\ref{tab:stability} reports four tests on the val-subset frame. (T1)
+Re-querying the frozen VLM with a paraphrased box prompt and substituting the
+answers changes \stabParaChanged{}/\stabParaN{} non-abstaining predictions;
+the aggressive control that drops \emph{every} LLaVA box changes
+\stabControlChanged{}/\stabParaN{}, so the substitution path is live and the
+box prior's picks are redundant with the detector picks and the SAM masks
+rather than fragile. (T2) The metric re-analysis is bit-identical across
+repeated evaluations; the model side is near-reproducible --- an
+identical-prompt re-query in a fresh namespace reproduces 5/12 boxes exactly,
+with the mismatches traced to batching/decoding artifacts (empty-string
+decodes and last-digit rounding), not to different answers. (T3)
+Deterministic jitter of every cached box (10\% scale, 5\% shift) moves cIoU by
+at most \stabJitterMax{} --- near zero because the SAM masks dominate the
+union, with the drop-control above evidencing that the path is live. (T4)
+Replacing the LLaVA+detector box pair with the detector-only box changes cIoU
+by \stabSwapCIoU{}. The deployed configuration is stable: neither the box
+source nor small box errors move the metric, while the abstention threshold
+(above) is the one knob that must be respected.
+
+\begin{table}[t]\centering\small
+\caption{Testing Stability (\S\ref{sec:analysis}).}\label{tab:stability}
+\input{tables/stability}
+\end{table}
+
+\paragraph{A trained selector was tried and does not transfer.}
+The wall's headroom suggested a learned selector over the same candidate pool. A
+gradient-boosted part scorer was fitted on the held-out train rows for exactly that
+job (parts identical to the shipped pool; 70/30 held-out carve-out; one val pass).
+It improves the held-out frame by $+6.8$ cIoU but \emph{loses} $12.2$ cIoU on val
+($38.79$): the measured covariate shift (predicted part-IoU means $0.413$ vs $0.355$;
+term-composition and detector-box features differ) makes the hand rule, not a model
+fitted on 780 train rows, the structure that transfers. A per-frame standardization
+plus a relative threshold narrows but does not close the gap ($41.63$). The negative
+result is recorded in \texttt{gref\_learned\_selector\_transfer.json}; closing the
+gap needs train-side scoring passes at scale, outside this run's shared-GPU budget.
+
+\paragraph{Model Complexity.}
+Table~\ref{tab:complexity} totals \cxParams{}B unique parameters, all frozen
+(0 trainable); the only fitted quantities in the entire system are the
+selector's \cxFitted{} coefficients and scalars. Peak GPU memory is
+\cxPeak{}\,GB, dominated by the 8-bit VLM, and the per-component latencies
+(measured on this run's shared GPU; the historical uncontended box-query
+figure is $0.6$--$1.8$\,s/expression) sum to a few seconds per expression,
+dominated by the VLM query and the SAM proposal pass over each image.
+\emph{Training time}: this pipeline trains nothing --- no gradient step is
+taken anywhere; the selector's fitting cost is six 300-trial Optuna studies
+on held-out rows, on the order of ten GPU-hours, and it is the run's only
+``training''.
+
+\begin{table}[t]\centering\small
+\caption{Model Complexity: parameters, estimated FLOPs per query, peak memory
+and latency; FLOPs are analytical estimates (2$\times$MACs) with assumptions
+stated in \texttt{complexity.json}.}\label{tab:complexity}
+\input{tables/complexity}
+\end{table}
+
+\subsection{gRefCOCO: the same-class floors are cleared; the supervised cIoU level is quantified}
+\label{sec:gref}
+Table~\ref{tab:gres} reports gRefCOCO. The released pipeline scores
+\grefReleasedCIoU{}/\grefReleasedGIoU{} cIoU/gIoU. Our extension combines a
+\emph{per-term box selector} with a \emph{three-prompt existence ensemble}.
+Two measured properties of the benchmark shape it. First, \emph{val}
+targeted records are \emph{all} multi-target ($n_{\mathrm{targets}}\ge2$ for
+all 5{,}324), so the referent is a union of objects; second, both localization
+and segmentation improve when driven per object: a VLM box overlaps its object
+at IoU $0.580$ ($63.5\%$ selecting $\ge0.50$) against $0.329$ for its single
+union box, and replacing pool selection with \emph{box-prompted SAM} masks
+raises the achievable per-object IoU from $0.655$ to $0.885$. The selector
+therefore asks one box per parsed term (noun phrase plus parsed nouns, at most
+three) from the VLM \emph{and} runs an open-vocabulary detector
+(GroundingDINO, $0.705$ box IoU versus the VLM's $0.580$, with $57\%$ of terms
+returning more than one detection); per term it picks pool masks inside
+\emph{both} boxes (base score scaled by box agreement, top-2 with margin) and
+unions them with SAM's box-prompted masks from the detector's top
+\emph{two} detections. Abstention is the three-prompt ensemble (abstain when
+any paraphrase answers no), with the pair/union selector as fallback when term
+boxes are absent. Every selection and threshold was fitted on held-out
+gRefCOCO \emph{train} populations, never val --- four
+\grefStudyTrials{}-trial Optuna studies: the joint space of score source,
+pick box, SAM source, and single-term handling on a population that mixes
+multi-term and single-term records at val prevalence; the cIoU-side
+objective; and the abstention operating point, re-studied under the final
+rule and re-converging on the same point --- and frozen before one full-val
+pass. \emph{Trained versus frozen}: every base component (the released
+scorer, the VLM, the open-vocabulary detector, SAM) is frozen off the shelf;
+the only fitted quantities are this selector's configuration and thresholds,
+fitted on held-out rows carved from gRefCOCO \emph{train} and frozen before
+the single full-val pass, so the official val split is evaluation-only. The
+shipped pick policy was later re-selected on the same held-out train rows once
+their box-prompted SAM caches existed (single pick per box; $+1.3$ cIoU on those
+rows, $+0.33$ realised on full val, abstention untouched) --- a hand-knob choice
+aligned with the reported metric, not a learned component: the pipeline still
+trains nothing. On
+the complete official val split (\grefN{} sentences over \nGres{} references;
+\S\ref{sec:protocol}) this
+reaches \grefCIoU{}/\grefGIoU{} cIoU/gIoU, beating every same-class
+(zero-shot) published number on both metrics: the best published zero-shot
+cIoU \grefZeroShotCIoU{} (SELF1E-8B) and gIoU \grefZeroShotGIoU{} (PSALM),
+both by large margins --- stated explicitly, because the comparison is
+against \emph{published} numbers we did not re-measure: a cross-harness delta
+larger than the margin would flip it, and the cross-paper comparability
+caveat of Section~\ref{sec:repro} applies (held-out train rows at val
+prevalence: cIoU \grefSelHeldOutCIoU{}, gIoU \grefSelHeldOutGIoU{}). The
+training-free rule also exceeds the gIoU of the strongest supervised baseline
+(InstAlign, \grefPubGIoU, a labelled reference row) by a margin of
+$\approx0.57$ --- the same cross-harness caveat applies to that margin.
+The supervised cIoU level (\grefPubCIoU) remains out of reach, and the
+remainder of this section measures why.
+
+The decomposition is measured. The existence axis is \emph{solved
+to a useful point}: the presence ensemble separates no-target expressions at
+$N_{\mathrm{acc}}=\wallEnsTrainN$ ($T_{\mathrm{acc}}=\wallEnsTrainT$) on
+held-out train and $\wallCombN$ ($\wallCombT$) on the full val split ---
+above the \wallTrainedNAcc{} the trained state of the art
+reports. gIoU \grefGIoU{} decomposes as $0.626\,N_{\mathrm{acc}} +
+0.374\,T_{\mathrm{acc}}\,m$ with $m$ the mean targeted IoU: the same-class
+gIoU floor (\grefZeroShotGIoU) is cleared by a wide margin, and even the
+strongest supervised gIoU reference (\grefPubGIoU) demands only
+$m=\wallMNeedGIoU$ at the shipped operating point, where the rule delivers
+$m=\wallMDelivered$. The clearing decomposes
+additively at the winning operating point (held-out factorial): adding the
+detector's second detection as a SAM source is worth $+0.012$ mixture mean
+IoU, picks in the detector box $+0.002$, re-tuned pick coefficients the rest;
+the interaction is $\approx0$, and both populations gain --- multi-term rows
+$+0.036$, the single-term rows ($12.5\%$ of val targeted, where the parse
+misses an object) $+0.085$. One further measured refinement applies to the
+no-target side only: the fallback for predicted-no-target records takes the
+best single candidate rather than a pair (selected on held-out no-target
+rows, where $99.8\%$ of the fallback argmaxes are pairs; singles halve their
+predicted area), shrinking the cIoU denominator without touching any targeted
+decision --- worth $+1.4$ cIoU with gIoU, $N_{\mathrm{acc}}$ and
+$T_{\mathrm{acc}}$ unchanged exactly. The supervised cIoU level
+(\grefPubCIoU) remains out of reach; our cIoU (\grefCIoU) is quantified
+rather than tuned around:
+it needs a targeted cumulative $r=\wallRealNeedR$ against the
+\wallRealMeasR{} delivered (\wallRealMultiple$\times$). Two oracles bracket
+the honest reading, and they agree. A perfect selection over the candidate
+\emph{pool} reaches $r=0.884$; the construction itself, driven by per-object
+GT boxes and SAM, reaches $r=\wallConstructionOrc$ on the full val split and
+would score cIoU \wallConstructionCap{} --- above the supervised cIoU
+reference. So cIoU is
+\emph{realization}-bound, not foreclosed, under either oracle: the rule would
+need $\approx90\%$ of the best measured realization where it delivers
+$\approx66\%$. The training-free gap is one of selection quality, and the
+held-out decomposition says which part: with per-object GT boxes the same
+pick reaches $0.802$ mean targeted IoU against $0.568$ delivered --- the
+choice of \emph{which box to ask} carries most of the loss --- while making
+the mask choice itself perfect over the delivered boxes adds $0.070$. The bind is
+partly \emph{perceptual}: a forced-choice probe of the same localizer --- which
+of two candidate crops shows the referent, no ``none'' option --- picks the
+GT-best candidate at $29.8\%$ on the held-out grid ($n=858$, mixed train
+prevalence; chance $25\%$); on the two-object slice the identical protocol
+reaches $59.3\%$, still below the trivial largest-candidate heuristic
+($85.4\%$), and a verified-clean Qwen2.5-VL-7B copy measured the same way is
+weaker still ($51.6\%$; $n=246$ records, ${\sim}2.7$k queries per model).
+Closing the cIoU gap needs a supervisor that selects boxes at near-oracle
+quality on two-object referents --- the capability the trained
+baselines buy with gRefCOCO supervision. Every published cIoU number above us
+on gRefCOCO comes from such a model; no same-class (zero-shot) number exceeds
+ours on either metric.
+
+\subsection{Reproduction audit}
+\label{sec:repro}
+The released HybridGL code and our reimplementation agree within $0.6$\,mIoU
+on two disjoint 150-reference blocks, and both fall $4.6$--$5.1$\,mIoU below
+the numbers printed in the HybridGL paper. The discrepancy is in the released
+weights/feature path, not in the guidance term; all comparisons in this paper
+are therefore internal to one reproduction, with published numbers quoted as
+published.

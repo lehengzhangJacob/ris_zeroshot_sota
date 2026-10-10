@@ -1,0 +1,18 @@
+{
+  "n_targeted": 1081,
+  "note": "cumulative targeted IoU (sum I / sum U) over the held-out train targeted records, per selection over the FULL selector pool",
+  "cumulative": {
+    "best_single": 0.6956819695007662,
+    "best_pair": 0.8249740385457416,
+    "greedy_union": 0.8722755346700808,
+    "shipped_threshold_union": 0.5608689605794525
+  },
+  "label_pathology": {
+    "proposals_total": 51050,
+    "in_iou_band_040_060_pct": 1.2987267384916747,
+    "rows_with_a_ge95pct_single_mask_pct": 24.2368177613321,
+    "rows_where_no_single_mask_covers_70pct_pct": 32.00740055504163
+  },
+  "interpretation": "if best_pair >> best_single and shipped << best_single, the union construction is the defect and a learned pair/union selector is the model change to build next",
+  "generated": "exp77_pair_headroom.py"
+}

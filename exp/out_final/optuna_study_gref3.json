@@ -1,0 +1,29 @@
+{
+  "n_trials": 300,
+  "best_calib_value": 0.6769133728311307,
+  "best_params": {
+    "clf": "logreg",
+    "C": 0.004026103991062367,
+    "p_inc": 0.7953009588239334,
+    "p_abs": 0.3756325026758316,
+    "use_exists": true
+  },
+  "calib_metrics": {
+    "n": 491,
+    "cIoU": 46.66640792297815,
+    "gIoU": 69.92353951955084,
+    "N_acc": 92.05607476635514,
+    "T_acc": 83.75451263537906
+  },
+  "val_transfer": {
+    "n": 2000,
+    "cIoU": 35.6373120542015,
+    "gIoU": 68.75667882986565,
+    "N_acc": 86.73061550759392,
+    "T_acc": 79.70627503337784
+  },
+  "n_train_rows": 1741,
+  "n_val_rows": 2000,
+  "split": "gRefCOCO train fit/calib; val2000 touched once for transfer",
+  "generated": "exp57_learned_selector.py"
+}

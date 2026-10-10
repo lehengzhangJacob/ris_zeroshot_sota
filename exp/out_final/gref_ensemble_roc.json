@@ -1,0 +1,181 @@
+{
+  "question": "does any operating point of the 3-probe existence ensemble clear the gIoU floor 74.34 on the val distribution, at the shipped selector's mask quality?",
+  "formula": "gIoU = 0.6256*N_acc + 0.3744*T_acc*m",
+  "floor_gIoU": 74.34,
+  "required_roc_point": {
+    "N_acc": 94.0,
+    "T_acc": 86.0,
+    "note": "point the floor demands at the delivered m=48.54"
+  },
+  "rules": {
+    "ens_vote_ge1": {
+      "train": {
+        "cIoU": 49.56,
+        "gIoU": 69.5,
+        "N_acc": 93.1,
+        "T_acc": 91.4,
+        "m_delivered": 59.76,
+        "m_required_for_floor": 46.96,
+        "n": 1398
+      },
+      "val": {
+        "cIoU": 34.94,
+        "gIoU": 67.43,
+        "N_acc": 85.4,
+        "T_acc": 89.4,
+        "m_delivered": 41.93,
+        "m_required_for_floor": 62.58,
+        "n": 14220
+      }
+    },
+    "ens_vote_ge2": {
+      "train": {
+        "cIoU": 49.33,
+        "gIoU": 68.55,
+        "N_acc": 88.1,
+        "T_acc": 96.0,
+        "m_delivered": 58.54,
+        "m_required_for_floor": 53.38,
+        "n": 1398
+      },
+      "val": {
+        "cIoU": 35.72,
+        "gIoU": 64.67,
+        "N_acc": 79.7,
+        "T_acc": 94.7,
+        "m_delivered": 41.71,
+        "m_required_for_floor": 68.97,
+        "n": 14220
+      }
+    },
+    "ens_vote_ge3": {
+      "train": {
+        "cIoU": 49.94,
+        "gIoU": 67.19,
+        "N_acc": 82.6,
+        "T_acc": 98.5,
+        "m_delivered": 58.38,
+        "m_required_for_floor": 61.48,
+        "n": 1398
+      },
+      "val": {
+        "cIoU": 35.42,
+        "gIoU": 59.93,
+        "N_acc": 71.5,
+        "T_acc": 98.0,
+        "m_delivered": 41.42,
+        "m_required_for_floor": 80.72,
+        "n": 14220
+      }
+    },
+    "ens_vote_ge1_or_boxnone": {
+      "train": {
+        "cIoU": 49.56,
+        "gIoU": 69.5,
+        "N_acc": 93.1,
+        "T_acc": 91.4,
+        "m_delivered": 59.76,
+        "m_required_for_floor": 46.96,
+        "n": 1398
+      },
+      "val": {
+        "cIoU": 34.94,
+        "gIoU": 67.44,
+        "N_acc": 85.4,
+        "T_acc": 89.4,
+        "m_delivered": 41.93,
+        "m_required_for_floor": 62.54,
+        "n": 14220
+      }
+    },
+    "ens_vote_ge2_or_boxnone": {
+      "train": {
+        "cIoU": 49.33,
+        "gIoU": 68.55,
+        "N_acc": 88.1,
+        "T_acc": 96.0,
+        "m_delivered": 58.54,
+        "m_required_for_floor": 53.38,
+        "n": 1398
+      },
+      "val": {
+        "cIoU": 35.72,
+        "gIoU": 64.74,
+        "N_acc": 79.8,
+        "T_acc": 94.7,
+        "m_delivered": 41.71,
+        "m_required_for_floor": 68.77,
+        "n": 14220
+      }
+    },
+    "ens_vote_ge1_and_empty": {
+      "train": {
+        "cIoU": 49.56,
+        "gIoU": 70.0,
+        "N_acc": 94.4,
+        "T_acc": 84.7,
+        "m_delivered": 64.45,
+        "m_required_for_floor": 48.09,
+        "n": 1398
+      },
+      "val": {
+        "cIoU": 34.94,
+        "gIoU": 69.77,
+        "N_acc": 89.1,
+        "T_acc": 77.2,
+        "m_delivered": 48.52,
+        "m_required_for_floor": 64.32,
+        "n": 14220
+      }
+    },
+    "ens_vote_ge2_and_empty": {
+      "train": {
+        "cIoU": 49.32,
+        "gIoU": 69.63,
+        "N_acc": 90.9,
+        "T_acc": 88.2,
+        "m_delivered": 63.72,
+        "m_required_for_floor": 52.85,
+        "n": 1398
+      },
+      "val": {
+        "cIoU": 35.72,
+        "gIoU": 68.37,
+        "N_acc": 85.6,
+        "T_acc": 81.6,
+        "m_delivered": 48.42,
+        "m_required_for_floor": 67.97,
+        "n": 14220
+      }
+    },
+    "boxnone_only": {
+      "train": {
+        "cIoU": 48.13,
+        "gIoU": 58.12,
+        "N_acc": 58.1,
+        "T_acc": 99.8,
+        "m_delivered": 58.24,
+        "m_required_for_floor": null,
+        "n": 1398
+      },
+      "val": {
+        "cIoU": 33.08,
+        "gIoU": 45.38,
+        "N_acc": 47.9,
+        "T_acc": 99.8,
+        "m_delivered": 41.26,
+        "m_required_for_floor": null,
+        "n": 14220
+      }
+    }
+  },
+  "best_val_rule": "ens_vote_ge1_and_empty",
+  "best_val_gIoU": 69.77,
+  "verdict": "NO: the best val point reaches gIoU 69.77 (N_acc 89.1, T_acc 77.2); the train ROC point (93.1, 91.4) does not transfer (val T_acc 77.2). Across the whole val frontier the demanded m stays >= 0.63 while the selector delivers <= 0.49 and the best realized deployable value is 0.686.",
+  "provenance": {
+    "generated_by": "exp68_ensemble_roc.py",
+    "classifier": "optuna_study_gref5.json best_params",
+    "rows": "full val, 14220/14220 with all 3 probes",
+    "selection": "rule selected on held-out train in exp67; the frontier table here is a measurement, no parameter is chosen on val"
+  }
+}

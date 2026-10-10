@@ -1,0 +1,42 @@
+{
+  "model": {
+    "kind": "hybrid: pair candidates + per-term picks + termbox-union",
+    "study_params": {
+      "kind": "gbm",
+      "p_inc": 0.6311620664353685,
+      "gd": 4
+    },
+    "source_study": "optuna_study_gref10.json"
+  },
+  "metrics": {
+    "n": 14220,
+    "cIoU": 22.27483119515219,
+    "gIoU": 67.47999370726586,
+    "N_acc": 95.68345323741008,
+    "T_acc": 40.92787377911345,
+    "TP": 8512,
+    "FN": 384,
+    "TN": 2179,
+    "FP": 3145,
+    "hybrid_used": 2563
+  },
+  "history": {
+    "termbox": {
+      "cIoU": 40.9593,
+      "gIoU": 71.1064
+    },
+    "pair_union": {
+      "cIoU": 36.7453,
+      "gIoU": 69.6279
+    },
+    "ensemble": {
+      "cIoU": 34.9419,
+      "gIoU": 69.7711
+    },
+    "single_probe": {
+      "cIoU": 35.0884,
+      "gIoU": 68.3729
+    }
+  },
+  "generated": "exp96_hybrid_full_val.py"
+}

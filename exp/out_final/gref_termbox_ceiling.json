@@ -1,0 +1,9 @@
+{
+  "rows": 262,
+  "oracle_in_llava_box_r": 0.5855079913658775,
+  "oracle_in_gt_box_r": 0.6872557272332798,
+  "oracle_top2_llava_r": 0.5966301717856979,
+  "shipped_rule_r_heldout_population": 0.5059253890464251,
+  "interpretation": "oracle_in_llava_box is the picker's ceiling with THESE boxes; the gap to it is pick-quality headroom; the gap from it to oracle_in_gt_box is box-quality headroom",
+  "generated": "exp94_termbox_ceiling.py"
+}

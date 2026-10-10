@@ -1,0 +1,23 @@
+{
+  "s1": {
+    "row_mean": 0.4529389515338709,
+    "n": 254
+  },
+  "s2": {
+    "row_mean": 0.5469131685462275,
+    "n": 257
+  },
+  "s3": {
+    "row_mean": 0.5443404050180646,
+    "n": 257
+  },
+  "s_orc": {
+    "row_mean": 0.5304900978606267,
+    "n": 262
+  },
+  "references": {
+    "shipped_term_rule": 0.6433,
+    "required_m": 0.6212
+  },
+  "generated": "exp116_sentence_gdino.py"
+}

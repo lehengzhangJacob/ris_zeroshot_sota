@@ -1,0 +1,56 @@
+{
+  "n_trials": 300,
+  "variants": {
+    "base": {
+      "value": 0.6826409830044728,
+      "metrics": {
+        "n": 423,
+        "cIoU": 47.061269368328354,
+        "gIoU": 64.50381246703323,
+        "N_acc": 72.72727272727273,
+        "T_acc": 90.68825910931174
+      },
+      "params": {
+        "C": 0.0057899422515107195,
+        "p_inc": 0.7992593186615212,
+        "p_abs": 0.2890418745384214,
+        "use_ens": false
+      },
+      "calib_at_val_prevalence": {
+        "cIoU": 41.63412037260431,
+        "gIoU": 67.4545631338864,
+        "N_acc": 72.72727272727269,
+        "T_acc": 90.68825910931174
+      }
+    },
+    "pair": {
+      "value": 0.6777963833249923,
+      "metrics": {
+        "n": 423,
+        "cIoU": 46.72728266642496,
+        "gIoU": 70.86606623326067,
+        "N_acc": 93.75,
+        "T_acc": 82.99595141700405
+      },
+      "params": {
+        "C": 0.008050532705811412,
+        "p_inc": 0.8772964196190061,
+        "p_abs": 0.4560106259181998,
+        "use_ens": true
+      },
+      "calib_at_val_prevalence": {
+        "cIoU": 44.661153683372,
+        "gIoU": 79.07730343579364,
+        "N_acc": 93.75,
+        "T_acc": 82.99595141700405
+      }
+    }
+  },
+  "winner": "base",
+  "pair_winner_vs_gtbest_agreement_pct": 29.836829836829835,
+  "split": "gRefCOCO train fit/calib by ref (seed 0, calib 0.30)",
+  "objective": "min(cIoU/68.94, gIoU/74.34) on calib, shipped ensemble rule family",
+  "shortlist": "top-4 by shipped study-5 classifier (fixed)",
+  "note": "gate for exp72 pairwise forced-choice features; val untouched. winner requires > +0.005 over base to trigger val extraction",
+  "generated": "exp73_pair_study.py"
+}

@@ -1,0 +1,71 @@
+{
+  "dataset": "refcoco",
+  "split": "val",
+  "limit": 250,
+  "seed": 101,
+  "n_expressions": 250,
+  "elapsed_s": 20.0,
+  "oracle_single": 0.8265234345345501,
+  "results": [
+    {
+      "variant": "fg_minus_bg_and_generic",
+      "mIoU": 0.3826132281430755,
+      "oracle_recovery": 0.46291878990526264
+    },
+    {
+      "variant": "fg_minus_generic",
+      "mIoU": 0.3687458370381071,
+      "oracle_recovery": 0.4461408129894868
+    },
+    {
+      "variant": "dod_cos_fused",
+      "mIoU": 0.3532211297607804,
+      "oracle_recovery": 0.42735767069894876
+    },
+    {
+      "variant": "centered_fused",
+      "mIoU": 0.3532211297607804,
+      "oracle_recovery": 0.42735767069894876
+    },
+    {
+      "variant": "fg_over_bg",
+      "mIoU": 0.34982444712488425,
+      "oracle_recovery": 0.42324806836467377
+    },
+    {
+      "variant": "cos_fg",
+      "mIoU": 0.3455573476720032,
+      "oracle_recovery": 0.41808535999538954
+    },
+    {
+      "variant": "centered_fg",
+      "mIoU": 0.3455573476720032,
+      "oracle_recovery": 0.41808535999538954
+    },
+    {
+      "variant": "zscore_fg",
+      "mIoU": 0.3455573476720032,
+      "oracle_recovery": 0.41808535999538954
+    },
+    {
+      "variant": "fg_minus_bg",
+      "mIoU": 0.3376675279417693,
+      "oracle_recovery": 0.4085395692766098
+    },
+    {
+      "variant": "cos_orthogonal",
+      "mIoU": 0.33255352764624424,
+      "oracle_recovery": 0.40235220654514053
+    },
+    {
+      "variant": "cos_fg_minus_area",
+      "mIoU": 0.03427463033254139,
+      "oracle_recovery": 0.041468431384335605
+    },
+    {
+      "variant": "cos_fg_over_sqrt_area",
+      "mIoU": 0.0011522591228578115,
+      "oracle_recovery": 0.001394103391038993
+    }
+  ]
+}

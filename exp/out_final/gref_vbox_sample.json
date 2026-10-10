@@ -1,0 +1,16 @@
+{
+  "sample": "262 val-matched rows",
+  "vbox_box_vs_best_object_iou_mean": 0.31904889954042426,
+  "vbox_box_select_ge50_pct": 33.0,
+  "n_term_picks": 600,
+  "r_vbox_bboxiou_on_sample": 0.24746061193759425,
+  "r_vbox_sxi_on_sample": 0.431249426742245,
+  "llava_ov_reference": {
+    "box_iou_mean": 0.58,
+    "select_ge50_pct": 63.5,
+    "sxi_r_250rows": 0.5187,
+    "bboxiou_r_250rows": 0.4161,
+    "shipped_rule_250rows": 0.4819
+  },
+  "generated": "exp101_vbox_diagnose.py"
+}

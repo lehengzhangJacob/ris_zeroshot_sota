@@ -1,0 +1,691 @@
+                                            Hybrid Global-Local Representation with Augmented Spatial Guidance for
+                                                           Zero-Shot Referring Image Segmentation
+
+                                                                                     Ting Liu1,2 * Siyuan Li1
+                                                          1
+                                                              ASGO, School of Computer Science, Northwestern Polytechnical University
+                                                               2
+                                                                 Shenzhen Research Institute of Northwestern Polytechnical University
+                                                                            liuting@nwpu.edu.cn, lisiyuan@mail.nwpu.edu.cn
+arXiv:2504.00356v1 [cs.CV] 1 Apr 2025
+
+
+
+
+                                                                     Abstract                                Prediction        GT         Prediction      GT       Prediction        GT
+
+
+
+                                        Recent advances in zero-shot referring image segmenta-
+                                        tion (RIS), driven by models such as the Segment Anything
+                                                                                                            A baseball umpire calling a   The yellow cab next to   An officer in a blue vest
+                                        Model (SAM) and CLIP, have made substantial progress in                     strikeout               buildings on left
+                                        aligning visual and textual information. Despite these suc-
+                                        cesses, the extraction of precise and high-quality mask re-        Figure 1. Common issues in existing methods: 1) Inaccurate mask
+                                        gion representations remains a critical challenge, limiting        feature extraction; 2) Incorrect spatial localization; 3) Incomplete
+                                        the full potential of RIS tasks. In this paper, we introduce       segmentation.
+                                        a training-free, hybrid global-local feature extraction ap-
+                                        proach that integrates detailed mask-specific features with        mentation without the need for labeled data or task-specific
+                                        contextual information from the surrounding area, enhanc-          training. In typical RIS pipelines, SAM generates a set of
+                                        ing mask region representation. To further strengthen align-       mask proposals, and CLIP extracts visual features for each
+                                        ment between mask regions and referring expressions, we            mask region. For each mask, a similarity score is computed
+                                        propose a spatial guidance augmentation strategy that im-          with the referring text, and the mask with the highest score
+                                        proves spatial coherence, which is essential for accurately        is selected as the final prediction.
+                                        localizing described areas. By incorporating multiple spa-             Despite the promising performance of existing methods,
+                                        tial cues, this approach facilitates more robust and pre-          the accurate extraction of mask representations that align
+                                        cise referring segmentation. Extensive experiments on stan-        well with referring text remains underexplored. Most ex-
+                                        dard RIS benchmarks demonstrate that our method signifi-           isting approaches either mask out areas outside the mask
+                                        cantly outperforms existing zero-shot RIS models, achieving        region or crop the image to focus solely on the mask re-
+                                        substantial performance gains. We believe our approach             gion before feeding it into CLIP, which primarily concen-
+                                        advances RIS tasks and establishes a versatile framework           trates on local features while often neglecting the essential
+                                        for region-text alignment, offering broader implications for       surrounding context. Some works [22, 32, 41] have sought
+                                        cross-modal understanding and interaction. Code is avail-          to introduce global surrounding context features. However,
+                                        able at https://github.com/fhgyuanshen/HybridGL.                   such methods remain simplistic and fail to fully capture the
+                                                                                                           complex interplay between the mask and its context, lim-
+                                                                                                           iting their ability to accurately match referring expressions
+                                        1. Introduction                                                    with the correct mask regions, as shown in Fig. 1.
+                                                                                                               In this paper, we propose a novel hybrid global-local
+                                        Referring image segmentation (RIS) is a critical task in
+                                                                                                           feature extraction approach to enhance mask region fea-
+                                        computer vision, where the goal is to segment a specific
+                                                                                                           ture extraction, achieving a more precise and contextually
+                                        object or region in an image based on a natural language
+                                                                                                           rich mask representation without any additional training.
+                                        expression. This task is essential for applications such as
+                                                                                                           Our approach seamlessly integrates local and global fea-
+                                        visual search, robot perception, and human-computer inter-
+                                                                                                           tures, capturing both region-specific and context-aware in-
+                                        action. Recent advancements, particularly models like the
+                                                                                                           formation for each mask. Specifically, we design two com-
+                                        Segment Anything Model (SAM) [9] and CLIP [23], have
+                                                                                                           plementary branches within CLIP to extract local region-
+                                        significantly advanced zero-shot RIS, enabling object seg-
+                                                                                                           specific visual features and broader context-aware visual
+                                          * Ting Liu is the corresponding author.                          features for each mask. Features from the global branch
+
+
+                                                                                                       1
+are progressively fused into the local branch to generate a            abling more sophisticated interactions with visual content.
+hybrid feature representation. This hybrid fusion allows the           Fully supervised methods [3, 8, 12, 13, 16, 27, 28, 38] have
+visual encoder to automatically capture and interact with the          achieved impressive performance in this area by effectively
+complementary information from both branches, yielding a               integrating information from both images and text descrip-
+more contextually enriched mask feature.                               tions. These methods rely on large datasets with detailed
+    Another challenge in referring semantic segmentation               annotations, where each object mentioned in the text is pre-
+lies in the use of spatial relationships within referring ex-          cisely segmented in the corresponding image [33, 34]. Cur-
+pressions (e.g., “left of”, “bottom of”) to describe objects, as       rently, some weakly supervised methods [4, 10, 20, 29] can
+shown in Fig. 1. These spatial cues introduce complexity, as           learn and perform segmentation using a smaller amount of
+they require both the recognition of object locations and the          labeled data. However, the requirement for such detailed
+relationship between them. Capturing and aligning these                and expensive human-annotated data limits the scalability
+spatial descriptions with visual features is inherently diffi-         and applicability of supervised approaches.
+cult. While referring text offers rich contextual information          Foundation Model in Image Segmentation . Recent re-
+about spatial relationships, effectively integrating this con-         search has shown that segmentation knowledge can emerge
+text with visual data remains a significant challenge. With-           from pre-trained foundation models (FMs) [1] such as CLIP
+out a mechanism to explicitly model and align this spatial             and Stable Diffusion [25]. Though the standard CLIP model
+information, accurately matching the textual description to            excels at recognizing object appearances, it falls short in
+the correct visual region becomes problematic. Moreover,               grasping their exact locations. However, MaskCLIP [43]
+directly computing the similarity between the extracted vi-            demonstrates that it is possible to adapt CLIP for segmenta-
+sual mask features and text features can lead to ambigu-               tion purposes by making minor adjustments to its attention-
+ity in the segmentation, as the mask features may capture              pooling mechanism. Other works delve into various strate-
+a mixture of information from multiple objects or regions.             gies for refining attention mechanisms [2, 6, 14], enhanc-
+it could mistakenly segment only part of the target region,            ing the model’s localization capability. Specifically, SAM
+rather than the full object. To alleviate these limitations, we        has shown promising capabilities in object segmentation in
+introduce an augmentation approach by introducing several              many works [5, 17, 18, 24, 37, 39, 44]. Overall, these find-
+spatial guidance including spatial relationships, coherence,           ings suggest that FMs can serve as a valuable resource for
+and positional cues.                                                   zero-shot segmentation and related tasks.
+    Our experiments show that the proposed method signifi-             Zero-shot Referring Image Segmentation. To address
+cantly outperforms several zero-shot baselines and weakly-             the limitations of fully supervised methods, zero-shot re-
+supervised referring segmentation methods, achieving sig-              ferring image segmentation has gained significant attention.
+nificant accuracy improvements. The proposed framework                 Zero-shot approaches aim to perform segmentation with-
+offers a powerful, efficient approach to zero-shot referring           out requiring any labeled data for the target objects, mak-
+image segmentation, with strong potential for practical de-            ing them highly flexible and scalable. One notable method
+ployment in real-world scenarios. The contributions of this            in this domain is Global-Local [41], which leverages pre-
+paper can be summarized as follows:                                    trained models like FreeSOLO [35] and CLIP to achieve
+• We propose an innovative hybrid global-local feature ex-             zero-shot segmentation. Another approach, CaR [31], fur-
+   traction approach for RIS, enhancing mask region repre-             ther enhances this process by recurrently applying CLIP
+   sentation without additional training requirements.                 to refine the segmentation mask iteratively. The introduc-
+• We introduce a spatial guidance augmentation strategy                tion of Segment Anything Model (SAM) has marked a sig-
+   that leverages spatial relationships, coherence, and posi-          nificant milestone in zero-shot referring image segmenta-
+   tional cues to mitigate segmentation ambiguity.                     tion. For example, Ref-Diff [22] utilizes diffusion models
+• Extensive experiments on the four public datasets,                   to better understand the relationship between image and text
+   demonstrate that our method significantly outperforms               pairs, leading to more accurate and context-aware segmen-
+   existing state-of-the-art zero-shot semantic segmentation           tations. TAS [32] uses a captioner, BLIP2 [11], to provide
+   approaches.                                                         additional context and enhance the segmentation results by
+                                                                       generating descriptive captions for the images. Pseudo-
+2. Related Work                                                        RIS [42] modifies the Global-Local’s pipeline and incorpo-
+                                                                       rates a captioner like CoCa [40] for unsupervised training,
+Referring Image Segmentation. Referring image segmen-                  leveraging the rich knowledge of current foundation models
+tation is a visual grounding task that requires the model to           to improve segmentation accuracy.
+understand a natural language expression describing a spe-
+cific object within an image and accurately segment that ob-              Note that although we also adopt both local and global
+ject from the rest of the scene [7]. The goal of this task is          features, our approach differs significantly from Global-
+to bridge the gap between visual and textual modalities, en-           Local [41] in terms of both the methods for local and global
+
+                                                                   2
+                                                                                                                                                                      Referring text            Spatial Guidance             Input image
+                                                                                         Local branch
+
+         Masked image                                                                                                                                       “The pizza on man’s right”               Relationship
+
+
+
+
+                                                                                                   𝑙+1-th Transformer
+
+
+
+
+                                                                                                                        𝐿𝑎𝑠𝑡 Transformer
+                                                                            𝑙 -th Transformer
+                                                                                                                                                                                                     Coherence
+
+
+
+
+                              CLIP Image Encoder ( Early 𝑙−1 blocks )
+
+
+
+
+                                                                                                           block
+
+
+
+
+                                                                                                                              block
+                                                                                    block
+                                                                                                                                                                          CLIP                      Position
+                                                                                                                                                                      Text Encoder
+                                                                                                                                                                                                                               CLIP
+                                                                                                                                                                                                                           Image Encoder
+                                                                                                                                                            Mask feature       Text feature       pizza
+
+
+                                                                                                                                                                                                                          Self-Self Attention
+                                                                        Hybrid Global-Local Feature Extraction                                                                                    pizza           man
+
+                                                                                                                                                                                                                   Text feature
+        Blurred image                                                                                                                                                                                     𝑮𝒑𝒐𝒔                    ⊗ 𝑮𝒄𝒐
+
+
+
+
+                                                                                                   𝑙+1-th Transformer
+
+
+
+
+                                                                                                                        𝐿𝑎𝑠𝑡 Transformer
+                                                                            𝑙 -th Transformer
+
+
+
+
+                                                                                                                              block
+                                                                                   block
+
+
+
+
+                                                                                                           block
+                                                                                                                                                                           Scoring                                      ⨀
+                                                                                                                                                                                 Mask scores
+                                                                                                                                                                0.01 0.49 0.41 0.03 0.01 0.05
+
+                                                                                       Global branch
+
+                                                                                                                                                                      Re-ranked mask scores     Augment          0.02 0.39 0.56 0.01 0.01 0.01
+                        A𝒎𝒊                                                                                                                                     0.01 0.42 0.52 0.03 0.01 0.01
+
+
+
+                                                                                                                                           Predicted mask
+Figure 2. The proposed framework combines hybrid global-local feature extraction with multiple spatial guidance mechanisms to improve
+zero-shot referring image segmentation, using mask proposals generated by SAM. By leveraging both broad context and local details, and
+enhancing segmentation with spatial guidance, the framework effectively augments the segmentation of target based on textual descriptions.
+
+feature extraction and the fusion strategy of these features.                                                                                        tegrates several spatial cues, specifically spatial coherence
+Distinct from previous methods, our work introduces a                                                                                                guidance, spatial position guidance, and spatial relation-
+novel, training-free approach to extracting mask represen-                                                                                           ships guidance, to enhance the mask scoring process. The
+tations using a hybrid feature extraction scheme. Further-                                                                                           overall framework is shown in Fig. 2.
+more, we incorporate multiple spatial guidance mechanisms
+to enhance semantic coherence and spatial alignment, im-                                                                                             3.2. Hybrid Global-Local Feature Extraction
+proving the referring segmentation process.                                                                                                          To extract a more precise mask feature for mask mi , we pro-
+                                                                                                                                                     pose the Hybrid Global-Local Feature Extraction method.
+3. Method                                                                                                                                            This approach captures both region-specific and context-
+                                                                                                                                                     aware features, significantly enhancing mask feature extrac-
+3.1. Overview                                                                                                                                        tion. The method consists of two branches: a local branch
+Given an input image I ∈ RH×W ×3 , where H and W are                                                                                                 for region-specific feature extraction and a global branch for
+the height and width of the image, respectively, and a refer-                                                                                        context-aware feature extraction. Features from the global
+ring text T , which describes the target object or region, the                                                                                       branch are progressively fused into the local branch to gen-
+goal is to predict the segmentation mask m∗ ∈ {0, 1}H×W                                                                                              erate a hybrid feature representation. This hybrid fusion al-
+that corresponds to the region in I described by t. We first                                                                                         lows the model to automatically capture the complementary
+adopt SAM (Segment Anything Model) [9] to generate a set                                                                                             information from the two branches.
+of mask proposals M = {m1 , m2 , . . . , mn }, where each                                                                                            Local Feature Extraction. For the local region-specific
+mi is a binary mask highlighting a potential segment region                                                                                          feature extraction, we apply the binary mask m to the input
+in I.                                                                                                                                                image I, creating a masked image Ilocal = I · mi . This en-
+    For each mask mi ∈ M , we use the CLIP visual en-                                                                                                sures that only the relevant region contributes to feature ex-
+coder to extract our proposed hybrid global-local features                                                                                           traction. The masked image Ilocal is then processed through
+xi ∈ Rd . To match the referring expression with the vi-                                                                                             the CLIP image encoder to obtain the region-specific fea-
+sual features, we encode the referring expression t using                                                                                            tures. Unlike most existing methods, we do not crop the
+the CLIP text encoder ϕtext (·) to obtain the textual feature                                                                                        mask region, ensuring that the input image remains well-
+ft ∈ Rd , adopting same strategy with [41]. Subsequently,                                                                                            aligned with the input of the global branch. This allows the
+we can compute the cosine similarity between ft and each                                                                                             naturally aligned features to be hybridized and deeply fused
+feature xi , obtaining the semantic alignment score Ssmi for                                                                                         for enhanced feature extraction.
+each mask mi . Furthermore, we introduce a spatial guid-                                                                                             Global Feature Extraction. For the context-aware global
+ance augmentation approach. By leveraging several spa-                                                                                               feature extraction, we use the original image I and apply a
+tial cues, we augment the scoring mask process to prioritize                                                                                         Gaussian blur to the non-mask regions, thereby emphasiz-
+semantically and spatially aligned masks. Our method in-                                                                                             ing the relevant areas while preserving essential contextual
+
+
+                                                                                                                                                3
+information. To further direct the model’s focus onto the             each xi corresponds to a mask proposal mi . After extract-
+mask region, we introduce an attention mask Ami during                ing a referring text feature ft from the CLIP text encoder,
+the self-attention operation in the last l layers of the CLIP         we calculate the cosine semantic alignment score between
+transformer-based architecture as shown in Fig. 2. Consid-            the referring text and each xi :
+ering the CLS token is embedded into the shared visual-
+textual space as the visual feature, we nullify the attention                           Ssmi = cos(ϕtext (t), xi ).               (3)
+scores between the CLS token and image tokens outside
+                                                                      3.3. Spatial Guidance Augmentation
+the masked region, effectively preventing non-relevant ar-
+eas from contributing to the attention on the CLS token.              We combine multiple spatial guidance mechanisms, includ-
+Hybrid Feature Extraction. To enhance the fusion of local             ing relationships, coherence, and position, which are de-
+and global features, we propose a hybrid fusion approach              tailed in the following.
+that enables the attention mechanism in the network to ef-            Spatial Relationship Guidance. To utilize the spatial re-
+fectively and automatically capture the complementary in-             lationships described in the referring text, we first parse the
+formation between these two features.                                 text into objects and spatial relations, following a method
+   Given that local features primarily focus on the mask re-          similar to [30]. For instance, objects might include phrases
+gion, which typically contains the most relevant information          like “the pizza” or “man” while spatial relations describe
+for the task, the global branch is intended to complement             the positioning between objects, such as “right”.
+the local branch by providing a broader context. While the                With the extracted hybrid mask features xi for each mask
+global branch captures a wider spatial range and provides             mi , we compute the semantic alignment score P(p, mi ) =
+essential contextual information beyond the mask, it may              cos(ϕtext (p), xi ), which measures how well the mask satis-
+also introduce irrelevant information from regions outside            fies a given object p (e.g., “the pizza”). We then select the
+the target. To maximize the benefits of both local and global         top k masks based on this score and apply the softmax func-
+features, it is crucial to selectively integrate them, ensur-         tion to normalize these selected scores, ensuring that they
+ing that the global context enhances the local representation         sum to one. This strategy prioritizes the most relevant and
+without diluting its focus on the target region.                      semantically aligned mask proposals while also enhancing
+   To achieve this, we apply a token mask to the global fea-          computational efficiency for subsequent operations.
+tures during the fusion. Specifically, we mask out image                  To model the spatial relationships, a spatial relation func-
+tokens outside the mask region to ensure that only the rele-          tion R(p, q) quantified the relationship between two parsed
+vant tokens contribute to the feature extraction process. The         objects p and q is defined as:
+fusion of local and global features at layer l is performed as                                  (
+follows:                                                                                          1 if p satisfies the relation with q,
+                                                                      R((p, mi ), (q, mj )) =
+             (l)      (l−1)
+                                   
+                                      (l−1)
+                                                                                                 0 otherwise,
+           xhybrid = xlocal + β · xglobal · Bmi ,          (1)
+                                                                                                                                    (4)
+        (l−1)       (l−1)                                             where the spatial relation between p and q can be any of
+where xlocal and xglobal represent the local and global fea-
+                                                                      the defined relations like “left”, “right”, “top”, “bottom”,
+tures derived from the l − 1-th layer, respectively. The
+                                                                      “within”, “smaller”, or “bigger”. The satisfaction of the
+hyper-parameter β is the relative contribution of the global
+                                                                      spatial relation is computed based on the position and size
+feature to the fusion process. To ensure that only relevant
+                                                                      of the corresponding masks mi and mj for p and q.
+tokens contribute to the feature fusion, we apply a mask
+                                                                          Finally, we combine the probability of each object with
+Bmi ∈ {0, 1}K on the global feature, where each feature
+                                                                      the spatial relation probabilities to identify the target object.
+contains K image token features, effectively excluding to-
+                                                                      The overall likelihood of mask mi being the target p is given
+kens corresponding to regions outside the mask. The result-
+                     (l−1)                                            by:
+ing hybrid feature xhybrid is then passed as input to the l-th
+                                                                                X
+layer of the CLIP image encoder, denoted ϕlvisual , to produce          Ssmi =       P(p, mi ) · R((p, mi ), (q, mj )) · P(q, mj ), (5)
+a feature representation that integrates both global and local                 mj
+information:
+                    (l)                (l)
+                   xlocal = ϕlvisual (xhybrid ).           (2)        where Ssmi is the final probability of mi being the correct
+                                                                      target, combining both its predicate satisfaction and its spa-
+                        (L)
+   The local feature xlocal obtained from the last encoder            tial relationships with other objects. If the referring text
+layer L, which effectively combines localized and global              contains those spatial relations, the score of each mask is
+contextual information, serves as the final hybrid feature for        computed accordingly. Otherwise, Ssmi is directly com-
+the mask region.                                                      puted using Equation. 3.
+Semantic Alignment Score. We then extract hybrid visual               Spatial Coherence Guidance. To enhance spatial coher-
+features Xhybrid = {x1 , x2 , . . . , xn } for each mask, where       ence, we generate a spatial localization guidance Gco ∈
+
+                                                                  4
+[0, 1]H×W by using the referring text feature (t) to identify         masks, and fuse them together. The final score for each
+the target region. Specifically, we apply the algorithm pro-          mask mi is obtained by:
+posed in [2], which leverages self-attention mechanisms for
+expression localization and segmentation. This guidance                              Smi = (1 − α)Ssmi + αSgmi ,                (9)
+map is constructed by calculating the similarity between
+                                                                      where α controls the trade-off between semantic alignment
+ϕtext (t) and each visual token embedding derived from the
+                                                                      and spatial guidance. The final referring semantic segmen-
+CLIP image encoder with the self-attention mechanisms,
+                                                                      tation result m∗ is generated by selecting the mask with the
+yielding a localization map that broadly highlights areas
+                                                                      highest mask score.
+corresponding to the target object or region. Consequently,
+                                                                          This comprehensive approach allows us to prioritize
+positions with values closer to 1 represent higher similar-
+                                                                      mask proposals that are not only semantically aligned with
+ity, thereby indicating regions more likely aligned with the
+                                                                      the text feature but also spatially consistent with the spec-
+target described by the text feature.
+                                                                      ified direction. Thus, masks are refined based on both se-
+Spatial Position Guidance. To incorporate spatial posi-
+                                                                      mantic and spatial coherence, enhancing the accuracy of the
+tions that align with the referring expression context, similar
+                                                                      selected mask with respect to the referring expression’s spa-
+with [22], we introduce a set of positional guidance matri-
+                                                                      tial context.
+ces Gpos ∈ [0, 1]H×W , each representing a position within
+the image. Here, pos ∈ {top, bottom, left, right, middle}
+denotes specific spatial attributes, such as “top” for upper
+                                                                      4. Experiments
+regions. Gpos is computed by:                                         4.1. Datasets and Metrics
+                                                                      To evaluate the proposed method, we use several main
+             (
+               E(pos) if position pos appears in t,
+    Gpos =                                                  (6)       RIS datasets: RefCOCO [21], RefCOCO+ [21], and Re-
+               1H×W if no position pos appears in t,
+                                                                      fCOCOg [19]. These datasets are derived from the
+where E(pos) represents the emphasis function that returns            MSCOCO [15] dataset and feature images annotated with
+a value between 0 and 1 based on the position’s empha-                detailed referring expressions that pinpoint specific objects
+sis. To generate these matrices, we compute the distance of           or regions. Each dataset brings unique aspects to the refer-
+each pixel to the corresponding region defined by pos, nor-           ring expressions it contains. RefCOCO often includes posi-
+malize the distances to the range [0, 1], and directly assign         tional information like “left” and “right,” which is banned in
+these values to the positional guidance matrix. This struc-           RefCOCO+, and RefCOCOg has more elaborate sentence
+ture reflects a gradual transition in spatial emphasis across         structures. We also evaluate it on PhraseCut [36] dataset,
+the image, enabling the model to focus on regions by the              which introduces structured textual descriptions that detail
+referring expression’s context.                                       attributes, categories, and relationships among objects. We
+    In this manner, we define Gpos for each desired direc-            employ two primary metrics to evaluate the performance:
+tion. Once the pos appears in the referring text, we in-              overall Intersection over Union (oIoU) and mean Intersec-
+corporate this spatial guidance into our spatial coherence            tion over Union (mIoU). oIoU assesses the total overlap be-
+guidance Gco by performing an element-wise multiplica-                tween predicted and ground truth regions relative to their
+tion. For each direction dir, the spatial guidance matrix G           combined area, making it particularly stringent for inaccu-
+is defined as:                                                        racies in larger segments. On the other hand, mIoU calcu-
+                     G = Gco ⊙ Gpos .                     (7)         lates the average overlap for each individual instance, ensur-
+                                                                      ing a balanced consideration of performance across objects
+Spatial Guidance Score. The spatial guidance score Sgmi               of varying sizes. Together, these metrics provide a robust
+for each mask proposal mi is computed as the difference               framework for assessing the effectiveness of the proposed
+between the mean spatial guidance values within the mask.             method in RIS tasks.
+Specifically, we define the spatial guidance score as:
+                                                                      4.2. Implementation Details
+         Sum(G ⊙ mi )     Sum(G ⊙ (1 − mi ))
+  Sgmi =              −λ·                    ,             (8)        The experiments were run on a single NVIDIA RTX 3090
+           Sum(mi )          Sum(1 − mi )
+                                                                      GPU. Following previous work [22, 32], we use the default
+where λ is a hyperparameter that controls the importance              ViT-H SAM model, and the hyperparameters “predicted iou
+of the negative score. This score Sgmi serves as a spatial co-        threshold” and “stability score threshold” were set to 0.7,
+herence measure, with larger values indicating better spatial         the “points per side” was set to 8. We use CLIP with ViT-
+alignment between the mask proposal and the referring ex-             B/16 backbone in both hybrid feature extraction and spatial
+pression.                                                             coherence guidance. We set α and β to 0.6 and 2, respec-
+   Finally, we apply softmax normalization to the semantic            tively, for all datasets. The hyperparameter λ is empirically
+alignment score Ssmi and spatial guidance score Sgmi for all          set to 9 to balance the propensity of both excessively large
+
+
+                                                                  5
+                                                                                RefCOCO                 RefCOCO+           RefCOCOg
+ Metric        Method         Vision Backbone      Pre-trained Model
+                                                                          val     testA testB     val      testA testB     val   test
+          zero-shot methods w/ additional training
+           Pseudo-RIS [42]          ViT-B           SAM, CoCa, CLIP     37.33    43.43   31.90   40.19    46.43   33.63   41.63     43.52
+            VLM-VG [33]             R101           COCO∗ , VLM-VG∗      45.40    48.00   41.40   37.00    40.70   30.50   42.80     44.10
+          zero-shot methods w/o additional training
+           Grad-CAM [26]             R50               SAM, CLIP        23.44    23.91   21.60   26.67    27.20   24.84   23.00     23.91
+           MaskCLIP [43]             R50               SAM, CLIP        20.18    20.52   21.30   22.06    22.43   24.61   23.05     23.41
+  oIoU
+          Global-Local [41]          R50             FreeSOLO, CLIP     24.58    23.38   24.35   25.87    24.61   25.61   30.07     29.83
+          Global-Local [41]          R50               SAM, CLIP        24.55    26.00   21.03   26.62    29.99   22.23   28.92     30.48
+          Global-Local [41]         ViT-B              SAM, CLIP        21.71    24.48   20.51   23.70    28.12   21.86   26.57     28.21
+            Ref-Diff [22]           ViT-B            SAM, SD, CLIP      35.16    37.44   34.50   35.56    38.66   31.40   38.62     37.50
+              TAS [32]              ViT-B          SAM, BLIP2, CLIP     29.53    30.26   28.24   33.21    38.77   28.01   35.84     36.16
+                 Ours               ViT-B               SAM,CLIP        41.81    44.52    38.5   35.74    41.43    30.9   42.47     42.97
+          weakly-supervised methods
+             CLRL [10]              ViT-B                   -           31.06    32.30   30.11   31.28    32.11   30.13   32.88          -
+               PPT [4]              ViT-B                 SAM           46.76    45.33   46.28   45.34    45.84   44.77   42.97          -
+          zero-shot methods w/ additional training
+           Pseudo-RIS [42]          ViT-B           SAM, CoCa, CLIP     41.05    48.19   33.48   44.33    51.42   35.08   45.99     46.67
+            VLM-VG [33]             R101           COCO∗ , VLM-VG∗      49.90    53.10   46.70   42.70    47.30   36.20   48.00     48.50
+          zero-shot methods w/o additional training
+           Grad-CAM [26]             R50               SAM, CLIP        30.22    31.90   27.17   33.96    25.66   32.29   33.05     32.50
+ mIoU
+           MaskCLIP [43]             R50               SAM, CLIP        25.62    26.66   25.17   27.49    28.49   30.47   30.13     30.15
+          Global-Local [41]          R50             FreeSOLO, CLIP     26.70    24.99   26.48   28.22    26.54   27.86   33.02     33.12
+          Global-Local [41]          R50               SAM, CLIP        31.83    32.93   28.64   34.97    37.11   30.61   40.66     40.94
+          Global-Local [41]         ViT-B              SAM, CLIP        33.12    36.52   29.58   35.29    39.58   31.89   40.08     40.74
+              CaR [31]        ViT-B and ViT-L             CLIP          33.57    35.36   30.51   34.22    36.03   31.02   36.67     36.57
+            Ref-Diff [22]           ViT-B            SAM, SD, CLIP      37.21    38.40   37.19   37.29    40.51   33.01   44.02     44.51
+               TAS [32]             ViT-B          SAM, BLIP2, CLIP     39.84    41.08   36.24   43.63    49.13   36.54   46.62     46.80
+                 Ours               ViT-B               SAM, CLIP       49.48    53.37   45.19   43.40    49.13   37.17   51.25     51.59
+
+Table 1. Comparisons with the SOTA zero-shot approaches on RefCOCO, RefCOCO+, and RefCOCOg datasets. The best two results
+under the same setting, w/o additional training, are highlighted in bold and underlined , respectively. * indicates the extra dataset used
+to train the model.
+
+and small mask regions receiving disproportionately high                RefCOCO and RefCOCOg, and it also achieves compara-
+scores. When the referring text includes “big” or “small”, λ            ble performance on RefCOCO+. Importantly, our method
+is adjusted to 3 or 14, respectively.                                   achieves comparable or even higher mIoU on all three
+                                                                        datasets compared to methods that use additional training.
+4.3. Results                                                            This indicates that our method has a more balanced consid-
+In Tab. 1, we evaluate our model on RefCOCO, Ref-                       eration across varying objects. In addition, we present the
+COCO+, and RefCOCOg and compare it with other state-                    oIoU and mIoU results on the PhraseCut dataset’s test set
+of-the-art (SOTA) zero-shot models. Here, we evaluate the               in Tab. 2. Our method demonstrates superior performance
+MaskCLIP, Grad-CAM methods by computing the similar-                    compared to previous methods, achieving the highest aver-
+ity between their feature maps and SAM’s mask proposals.                age score.
+Since the original Global-Local method used FreeSOLO as
+the mask extractor, we have re-evaluated the performance of                       Methods               oIoU      mIoU            avg.
+Global-Local using SAM as the mask extractor, across dif-                   Global-Local[41]            23.64       -          23.64
+ferent backbones. We also provide results of Ref-Diff, and                      TAS[32]                 25.64     24.66        25.15
+TAS using different backbones. Additionally, we include                       Ref-Diff[22]              29.42     41.75        35.59
+weakly-supervised methods and zero-shot methods with ex-                         Ours                   38.39     36.98        37.69
+tra training or additional datasets. Our method achieves ex-
+cellent results on all three datasets. In terms of oIoU, our            Table 2. Comparison with existing methods on the PhraseCut
+method improves by 4%-7% over SOTA methods on Ref-                      dataset.
+COCO and RefCOCOg, and although it does not achieve                        Notably, our approach relies solely on SAM and CLIP,
+the best performance on the testB set of RefCOCO+, it                   while TAS additionally incorporates the large BLIP2 model,
+is only 0.5% lower than the SOTA method. For mIoU,                      and Ref-Diff leverages the Stable-Diffusion model; yet, our
+our method outperforms SOTA methods by 4%-10% on                        method still outperforms these more complex models. Be-
+
+
+                                                                    6
+    Referring text : The woman in the middle sitting on the couch
+
+
+
+
+    Referring text : A beige surfboard being carried by a man in a wetsuit
+
+
+
+
+    Referring text : The chair behind the guy wearing the stripes
+
+
+
+
+            Image            SAM-CLIP            Global-Local            TAS                  Ours                 GT
+Figure 3. Visual comparisons with existing methods. Our approach achieves more accurate localization and a complete segmentation of
+the target object.
+
+sides, TAS and Ref-Diff show better performance in either                                 RefCOCO RefCOCO+ RefCOCOg
+mIoU or oIoU, whereas our method consistently outper-                     Method
+                                                                                         oIoU mIoU oIoU mIoU oIoU mIoU
+forms both metrics. We present visual comparisons with
+existing methods in Fig. 3, highlighting the improvements                   L         24.65 32.64 28.16 36.44 33.63 42.35
+in segmentation accuracy and the ability to capture spatial              G(blur)      16.17 22.01 18.61 25.14 22.00 31.24
+relationships.                                                         G(tok mask) 20.55 31.71 21.84 33.18 19.82 32.55
+                                                                       G(att mask)    20.05 30.07 21.44 31.51 24.11 36.24
+4.4. Ablation Study                                                  G(blur+att mask) 27.63 37.12 29.75 39.94 33.03 44.45
+To evaluate the effectiveness of different strategies, we con-         G + L [41]     21.71 33.12 23.70 35.29 26.57 40.08
+duct extensive ablation studies on the val dataset of Ref-                G+L         28.90 37.64 32.27 41.12 38.08 47.51
+COCO, RefCOCO+, and RefCOCOg datasets. We compare                          L2G        29.93 39.17 33.17 42.55 37.71 47.20
+a range of feature extraction methods and spatial guidance                 G2L        31.71 40.27 34.44 43.40 39.12 48.64
+strategies, examining their impact on performance.                     G2L + L2G      31.32 40.23 34.63 43.73 38.43 48.22
+
+4.4.1. Ablation on Hybrid Feature Extraction                         Table 3. Results of different mask feature extraction methods on
+                                                                     the val split of three datasets.
+Local and Global Features. We first evaluate the per-
+formance of local and global features, including different           of the two. In Tab. 3, we present experimental results of
+strategies for global feature extraction. These strategies in-       this fusion strategy, employing the local and global fea-
+volve blurring images to reduce the influence of irrelevant          ture extraction method from “G + L[41]”, which denotes
+regions on the global representation, applying a token mask          the weighted sum of G(tok mask) and cropped L, while “G
+to exclude non-mask regions, and using an attention mask             + L” refers to the weighted sum of G(blur+att mask) with
+to minimize the impact of non-mask regions on the CLS to-            L. We report both the results with the optimal weight that
+ken. All these different mask strategies are applied to the          yielded the highest performance. Our results demonstrate
+last few layers of the CLIP image encoder. As shown in               that, due to the effectiveness of our global feature extrac-
+Tab. 3, the local features (L) consistently outperform the           tion strategy in generating a more accurate global represen-
+global methods across all datasets in terms of both oIoU             tation, this weighted sum fusion significantly outperforms
+and mIoU. Notably, combining a blur operation with the at-           the previous method.
+tention mask (G(blur+att mask)) results in a significant im-             To fully exploit the attention mechanism in the model
+provement, approaching the performance of local features             and facilitate a comprehensive interaction between the
+on the RefCOCO+ and RefCOCOg datasets. Hence, we                     global and local features, we propose generating a hy-
+adopt this approach to extract global features.                      brid feature by fusing features from the later layers of one
+Hybrid Global-Local Features. The intuitive way to fuse              branch’s image encoder into the other branch. In Tab. 3,
+the global and local features is to compute a weighted sum           we present the results of different hybrid fusion strategies.
+
+
+                                                                 7
+                             G2L                    L2G                                                    RefCOCO   RefCOCOg
+    Start Layer                                                             G2L Rel       Gco Gpos
+                      oIoU      mIoU         oIoU      mIoU                                               oIoU mIoU oIoU mIoU
+          7           22.61      34.78      29.12      39.33                 ✓                            31.71    40.27    39.12   48.64
+          8           38.16      47.82      34.67      43.62                 ✓      ✓                     35.68    44.29    39.68   48.99
+          9           39.12      48.64      37.61      47.17                 ✓      ✓      ✓              35.68    44.29    39.73   49.02
+         10           36.50      46.47      37.38      46.81                 ✓      ✓      ✓       ✓      41.81    49.48    42.47   51.25
+         11           34.12      42.26      33.28      44.06
+                                                                               Table 5. Ablation study on the different spatial guidance.
+Table 4. Results of the starting layer l for hybrid fusion of global
+and local branches on the val split of RefCOCOg dataset.                   tain fewer spatial relationships. The most significant im-
+                                                                           provement is seen on RefCOCO, where both mIoU and
+The “L2G” strategy, where local branch features are incor-                 oIoU increase by approximately 4%. This is attributed to
+porated into the global branch, shows a significant improve-               the richer spatial relationship descriptions in the referring
+ment over “G + L”. This highlights the effectiveness of our                expressions, which are better captured by the introduced
+hybrid feature extraction method. On the other hand, the                   guidance. Overall, these results highlight the effectiveness
+“G2L” strategy, where global features are fused into the lo-               of spatial relationship guidance in enhancing referring ex-
+cal branch, provides the best results overall. This indicates              pression comprehension, especially in datasets with com-
+that local features, which are crucial for fine-grained ob-                plex and detailed spatial descriptions.
+ject identification, benefit most from the additional global               Impact of Spatial Coherence & Position Guidance Spa-
+context, allowing the model to achieve more accurate and                   tial coherence guidance Gco is introduced to enhance seg-
+contextually informed segmentations. The key difference                    mentation coherence and mitigate the issue of partial masks
+between “G2L” and “L2G” is that the global branch applies                  being selected for the target object. As a result, improve-
+an attention mask, while the local branch does not. Global                 ments in oIoU and mIoU are modest, as only a small sub-
+features require a token mask for integration into the local               set of data face this issue, which may not be fully reflected
+branch, whereas local features can be directly fused into the              in the overall scores. However, when combined with spa-
+global branch, resulting in distinct “G2L” and “L2G” out-                  tial position guidance Gpos together, as shown in Tab. 5,
+puts. We also explore the fusion of both “L2G” and “G2L”                   we observe a significant improvement in spatial position
+strategies using a weighted sum operation, but no further                  awareness, leading to more accurate target localization and
+improvements are observed. Consequently, we adopt the                      enhanced segmentation performance. In referring expres-
+“G2L” strategy for hybrid feature extraction in our imple-                 sions, spatial positional cues such as “the left [object]” of-
+mentation.                                                                 ten specify the target object’s position without additional in-
+Impact of Starting Layer for Hybrid Fusion We further                      formation. By introducing Gpos , which explicitly encodes
+investigate the effect of starting the hybrid fusion at differ-            spatial positioning information, we improve the alignment
+ent layers of the image encoder on the RefCOCOg dataset.                   between the referring text and the mask prediction.
+In Tab. 4, we present the results of applying the fusion at
+various layers to determine which starting layer yields the                5. Conclusion
+best performance. Our findings show that initiating fusion
+at the 9-th layer yields the best performance, suggesting that             This paper presents a novel, training-free approach to zero-
+representations at this layer provide the most meaningful                  shot referring image segmentation (RIS), addressing chal-
+and contextually relevant information for effective interac-               lenges in aligning visual masks with referring expressions.
+tion between global and local features.                                    Leveraging CLIP and SAM, our hybrid global-local feature
+                                                                           extraction method combines mask-specific detail with con-
+4.4.2. Ablation on Spatial Guidance                                        textual information to improve mask representation. Fur-
+                                                                           ther, a spatial guidance augmentation strategy enhances spa-
+Building upon the proposed hybrid global-local feature ex-
+                                                                           tial coherence and reduces ambiguities, effectively align-
+traction method, we further conduct ablation studies to as-
+                                                                           ing masks with referring text. Experiments on RefCOCO,
+sess the impact of different components in the spatial guid-
+                                                                           RefCOCO+, and RefCOCOg demonstrate that our method
+ance augmentation approach. Our experiments primarily
+                                                                           achieves substantial gains over zero-shot RIS models.
+focus on two datasets: RefCOCO and RefCOCOg.
+                                                                           Acknowledgements.           This work was supported in
+Impact of Spatial Relationship Guidance From Tab. 5,                       part by the National Natural Science Foundation of
+we can see that incorporating spatial relationship guidance                China (No.62106201, No.62376217), and in part by the
+(Rel) leads to consistent performance improvements across                  Guangdong Basic and Applied Basic Research Foun-
+all datasets. However, the improvements are more limited                   dation (No.2025A1515011501).            The authors thank
+on RefCOCOg, where referring expressions typically con-                    the anonymous reviewers for their helpful feedback.
+
+
+                                                                       8
+                                                                             frozen image encoders and large language models. In In-
+                                                                             ternational conference on machine learning, pages 19730–
+References                                                                   19742. PMLR, 2023. 2
+                                                                        [12] Jiachen Li, Qing Xie, Xiaojun Chang, Jinyu Xu, and
+ [1] Rishi Bommasani, Drew A Hudson, Ehsan Adeli, Russ Alt-                  Yongjian Liu. Mutually-guided hierarchical multi-modal
+     man, Simran Arora, Sydney von Arx, Michael S Bernstein,                 feature learning for referring image segmentation. ACM
+     Jeannette Bohg, Antoine Bosselut, Emma Brunskill, et al.                Trans. Multimedia Comput. Commun. Appl., 2024. Just Ac-
+     On the opportunities and risks of foundation models. arXiv              cepted. 2
+     preprint arXiv:2108.07258, 2021. 2                                 [13] Tianxiao Li, Junhong Chen, Yiheng Huang, Kesi Huang,
+ [2] Walid Bousselham, Felix Petersen, Vittorio Ferrari, and                 Qiqiang Xia, Muhammad Asim, and Wenyin Liu. Smvt:
+     Hilde Kuehne. Grounding everything: Emerging localiza-                  Spectrum-driven multi-scale vision transformer for referring
+     tion properties in vision-language transformers. In Proceed-            image segmentation. In Advanced Intelligent Computing
+     ings of the IEEE/CVF Conference on Computer Vision and                  Technology and Applications, pages 193–206, Singapore,
+     Pattern Recognition, pages 3828–3837, 2024. 2, 5                        2024. Springer Nature Singapore. 2
+ [3] Yong Xien Chng, Henry Zheng, Yizeng Han, Xuchong Qiu,              [14] Yi Li, Hualiang Wang, Yiqun Duan, and Xiaomeng Li. Clip
+     and Gao Huang. Mask grounding for referring image seg-                  surgery for better explainability with enhancement in open-
+     mentation. In Proceedings of the IEEE/CVF Conference                    vocabulary tasks. arXiv preprint arXiv:2304.05653, 2023.
+     on Computer Vision and Pattern Recognition, pages 26573–                2
+     26583, 2024. 2                                                     [15] Tsung-Yi Lin, Michael Maire, Serge Belongie, James Hays,
+ [4] Qiyuan Dai and Sibei Yang. Curriculum point prompting                   Pietro Perona, Deva Ramanan, Piotr Dollár, and C Lawrence
+     for weakly-supervised referring image segmentation. In Pro-             Zitnick. Microsoft coco: Common objects in context. In
+     ceedings of the IEEE/CVF Conference on Computer Vision                  Computer Vision–ECCV 2014: 13th European Conference,
+     and Pattern Recognition (CVPR), pages 13711–13722, 2024.                Zurich, Switzerland, September 6-12, 2014, Proceedings,
+     2, 6                                                                    Part V 13, pages 740–755. Springer, 2014. 5
+ [5] Ruining Deng, Can Cui, Quan Liu, Tianyuan Yao, Lu-                 [16] Sihan Liu, Yiwei Ma, Xiaoqing Zhang, Haowei Wang, Ji-
+     cas W Remedios, Shunxing Bao, Bennett A Landman, Lee E                  ayi Ji, Xiaoshuai Sun, and Rongrong Ji. Rotated multi-scale
+     Wheless, Lori A Coburn, Keith T Wilson, et al. Segment                  interaction network for referring remote sensing image seg-
+     anything model (sam) for digital pathology: Assess zero-                mentation. In Proceedings of the IEEE/CVF Conference
+     shot segmentation on whole slide imaging. arXiv preprint                on Computer Vision and Pattern Recognition, pages 26658–
+     arXiv:2304.04155, 2023. 2                                               26668, 2024. 2
+ [6] Sina Hajimiri, Ismail Ben Ayed, and Jose Dolz. Pay attention       [17] Yang Liu, Muzhi Zhu, Hengtao Li, Hao Chen, Xinlong
+     to your neighbours: Training-free open-vocabulary semantic              Wang, and Chunhua Shen. Matcher: Segment anything with
+     segmentation. arXiv preprint arXiv:2404.08181, 2024. 2                  one shot using all-purpose feature matching. arXiv preprint
+ [7] Ronghang Hu, Marcus Rohrbach, and Trevor Darrell. Seg-                  arXiv:2305.13310, 2023. 2
+     mentation from natural language expressions. In Computer           [18] Jun Ma, Yuting He, Feifei Li, Lin Han, Chenyu You, and
+     Vision–ECCV 2016: 14th European Conference, Amster-                     Bo Wang. Segment anything in medical images. Nature
+     dam, The Netherlands, October 11–14, 2016, Proceedings,                 Communications, 15(1):654, 2024. 2
+     Part I 14, pages 108–124. Springer, 2016. 2                        [19] Junhua Mao, Jonathan Huang, Alexander Toshev, Oana
+ [8] Ziling Huang and Shin’ichi Satoh. Referring image segmen-               Camburu, Alan L Yuille, and Kevin Murphy. Generation
+     tation via joint mask contextual embedding learning and pro-            and comprehension of unambiguous object descriptions. In
+     gressive alignment network. In Proceedings of the 2023 Con-             Proceedings of the IEEE conference on computer vision and
+     ference on Empirical Methods in Natural Language Process-               pattern recognition, pages 11–20, 2016. 5
+     ing, pages 7753–7762, 2023. 2                                      [20] Sayan Nag, Koustava Goswami, and Srikrishna Karanam.
+ [9] Alexander Kirillov, Eric Mintun, Nikhila Ravi, Hanzi Mao,               Safari: Adaptive sequence transformer for weakly super-
+     Chloe Rolland, Laura Gustafson, Tete Xiao, Spencer White-               vised referring expression segmentation. In European Con-
+     head, Alexander C. Berg, Wan-Yen Lo, Piotr Dollar, and                  ference on Computer Vision, pages 485–503. Springer, 2025.
+     Ross Girshick. Segment anything. In Proceedings of the                  2
+     IEEE/CVF International Conference on Computer Vision               [21] Varun K Nagaraja, Vlad I Morariu, and Larry S Davis. Mod-
+     (ICCV), pages 4015–4026, 2023. 1, 3                                     eling context between objects for referring expression under-
+[10] Jungbeom Lee, Sungjin Lee, Jinseok Nam, Seunghak Yu,                    standing. In Computer Vision–ECCV 2016: 14th European
+     Jaeyoung Do, and Tara Taghavi. Weakly supervised refer-                 Conference, Amsterdam, The Netherlands, October 11–14,
+     ring image segmentation with intra-chunk and inter-chunk                2016, Proceedings, Part IV 14, pages 792–807. Springer,
+     consistency. In Proceedings of the IEEE/CVF International               2016. 5
+     Conference on Computer Vision, pages 21870–21881, 2023.            [22] Minheng Ni, Yabo Zhang, Kailai Feng, Xiaoming Li, Yi-
+     2, 6                                                                    wen Guo, and Wangmeng Zuo. Ref-diff: Zero-shot referring
+[11] Junnan Li, Dongxu Li, Silvio Savarese, and Steven Hoi.                  image segmentation with generative models. arXiv preprint
+     Blip-2: Bootstrapping language-image pre-training with                  arXiv:2308.16777, 2023. 1, 2, 5, 6
+
+
+                                                                    9
+[23] Alec Radford, Jong Wook Kim, Chris Hallacy, Aditya                       sion segmentation. In Proceedings of the IEEE/CVF Con-
+     Ramesh, Gabriel Goh, Sandhini Agarwal, Girish Sastry,                    ference on Computer Vision and Pattern Recognition, pages
+     Amanda Askell, Pamela Mishkin, Jack Clark, et al. Learning               12998–13008, 2024. 2
+     transferable visual models from natural language supervi-           [35] Xinlong Wang, Zhiding Yu, Shalini De Mello, Jan Kautz,
+     sion. In International conference on machine learning, pages             Anima Anandkumar, Chunhua Shen, and Jose M Alvarez.
+     8748–8763. PMLR, 2021. 1                                                 Freesolo: Learning to segment objects without annotations.
+[24] Nikhila Ravi, Valentin Gabeur, Yuan-Ting Hu, Ronghang                    In Proceedings of the IEEE/CVF conference on computer vi-
+     Hu, Chaitanya Ryali, Tengyu Ma, Haitham Khedr, Roman                     sion and pattern recognition, pages 14176–14186, 2022. 2
+     Rädle, Chloe Rolland, Laura Gustafson, et al. Sam 2:               [36] Chenyun Wu, Zhe Lin, Scott Cohen, Trung Bui, and
+     Segment anything in images and videos. arXiv preprint                    Subhransu Maji. Phrasecut: Language-based image segmen-
+     arXiv:2408.00714, 2024. 2                                                tation in the wild. In Proceedings of the IEEE/CVF Con-
+[25] Robin Rombach, Andreas Blattmann, Dominik Lorenz,                        ference on Computer Vision and Pattern Recognition, pages
+     Patrick Esser, and Björn Ommer. High-resolution image                   10216–10225, 2020. 5
+     synthesis with latent diffusion models. In Proceedings of           [37] Defeng Xie, Ruichen Wang, Jian Ma, Chen Chen, Haonan
+     the IEEE/CVF conference on computer vision and pattern                   Lu, Dong Yang, Fobo Shi, and Xiaodong Lin. Edit every-
+     recognition, pages 10684–10695, 2022. 2                                  thing: A text-guided generative system for images editing.
+[26] Ramprasaath R. Selvaraju, Michael Cogswell, Abhishek                     arXiv preprint arXiv:2304.14006, 2023. 2
+     Das, Ramakrishna Vedantam, Devi Parikh, and Dhruv Ba-               [38] Li Xu, Mark He Huang, Xindi Shang, Zehuan Yuan, Ying
+     tra. Grad-cam: Visual explanations from deep networks                    Sun, and Jun Liu. Meta compositional referring expression
+     via gradient-based localization. In 2017 IEEE International              segmentation. In Proceedings of the IEEE/CVF Conference
+     Conference on Computer Vision (ICCV), pages 618–626,                     on Computer Vision and Pattern Recognition, pages 19478–
+     2017. 6                                                                  19487, 2023. 2
+[27] Nisarg A Shah, Vibashan VS, and Vishal M Patel. Lqm-                [39] Jinyu Yang, Mingqi Gao, Zhe Li, Shang Gao, Fangjing
+     former: Language-aware query mask transformer for refer-                 Wang, and Feng Zheng. Track anything: Segment anything
+     ring image segmentation. In Proceedings of the IEEE/CVF                  meets videos. arXiv preprint arXiv:2304.11968, 2023. 2
+     Conference on Computer Vision and Pattern Recognition,              [40] Jiahui Yu, Zirui Wang, Vijay Vasudevan, Legg Yeung, Mo-
+     pages 12903–12913, 2024. 2                                               jtaba Seyedhosseini, and Yonghui Wu. Coca: Contrastive
+[28] Chao Shang, Zichen Song, Heqian Qiu, Lanxiao Wang, Fan-                  captioners are image-text foundation models. arXiv preprint
+     man Meng, and Hongliang Li. Prompt-driven referring im-                  arXiv:2205.01917, 2022. 2
+     age segmentation with instance contrasting. In Proceedings          [41] Seonghoon Yu, Paul Hongsuck Seo, and Jeany Son. Zero-
+     of the IEEE/CVF Conference on Computer Vision and Pat-                   shot referring image segmentation with global-local context
+     tern Recognition, pages 4124–4134, 2024. 2                               features. In Proceedings of the IEEE/CVF Conference on
+[29] Robin Strudel, Ivan Laptev, and Cordelia Schmid. Weakly-                 Computer Vision and Pattern Recognition, pages 19456–
+     supervised segmentation of referring expressions. arXiv                  19465, 2023. 1, 2, 3, 6, 7
+     preprint arXiv:2205.04725, 2022. 2                                  [42] Seonghoon Yu, Paul Hongsuck Seo, and Jeany Son. Pseudo-
+[30] Sanjay Subramanian, William Merrill, Trevor Darrell, Matt                ris: Distinctive pseudo-supervision generation for referring
+     Gardner, Sameer Singh, and Anna Rohrbach. Reclip: A                      image segmentation. In Proceedings of the European Con-
+     strong zero-shot baseline for referring expression compre-               ference on Computer Vision, 2024. 2, 6
+     hension. In Proceedings of the 60th Annual Meeting of the           [43] Chong Zhou, Chen Change Loy, and Bo Dai. Extract free
+     Association for Computational Linguistics (Volume 1: Long                dense labels from clip. In European Conference on Com-
+     Papers), pages 5198–5215, 2022. 4                                        puter Vision, pages 696–712. Springer, 2022. 2, 6
+[31] Shuyang Sun, Runjia Li, Philip Torr, Xiuye Gu, and Siyang           [44] Xueyan Zou, Jianwei Yang, Hao Zhang, Feng Li, Linjie Li,
+     Li. Clip as rnn: Segment countless visual concepts without               Jianfeng Wang, Lijuan Wang, Jianfeng Gao, and Yong Jae
+     training endeavor. In Proceedings of the IEEE/CVF Con-                   Lee. Segment everything everywhere all at once. Advances
+     ference on Computer Vision and Pattern Recognition, pages                in Neural Information Processing Systems, 36, 2024. 2
+     13171–13182, 2024. 2, 6
+[32] Yucheng Suo, Linchao Zhu, and Yi Yang. Text augmented
+     spatial aware zero-shot referring image segmentation. In
+     The 2023 Conference on Empirical Methods in Natural Lan-
+     guage Processing, 2023. 1, 2, 5, 6
+[33] Shijie Wang, Dahun Kim, Ali Taalimi, Chen Sun, and We-
+     icheng Kuo. Learning visual grounding from generative vi-
+     sion and language model. arXiv preprint arXiv:2407.14563,
+     2024. 2, 6
+[34] Wenxuan Wang, Tongtian Yue, Yisi Zhang, Longteng Guo,
+     Xingjian He, Xinlong Wang, and Jing Liu. Unveiling parts
+     beyond objects: Towards finer-granularity referring expres-
+
+
+                                                                    10
+

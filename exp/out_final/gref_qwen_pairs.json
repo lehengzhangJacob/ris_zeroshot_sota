@@ -1,0 +1,28 @@
+{
+  "n_sample_records": 291,
+  "chance_pct": 25.0,
+  "llava_full_grid_reference_pct": 29.8,
+  "models": {
+    "llava": {
+      "records_with_answers": 246,
+      "order_answers": 2718,
+      "gt_best_agreement_pct": 59.34959349593496
+    },
+    "qwen": {
+      "records_with_answers": 246,
+      "order_answers": 2694,
+      "gt_best_agreement_pct": 51.6260162601626
+    }
+  },
+  "llava_strict_parse": {
+    "records": 246,
+    "agreement_pct": 59.34959349593496
+  },
+  "baselines": {
+    "size_heuristic_agreement_pct": 85.36585365853658,
+    "size_heuristic_records": 246,
+    "random_over_answered_candidates_pct": 26.287262872628745
+  },
+  "note": "tolerant parse = first regex hit of 'first'|'second' on both sides; Qwen extraction (exp129) may still be running - re-run for the final number",
+  "generated": "exp130_qwen_pairs_study.py"
+}

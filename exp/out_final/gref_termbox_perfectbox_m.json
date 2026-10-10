@@ -1,0 +1,10 @@
+{
+  "rows": 262,
+  "m_llava_box": 0.5334802386201328,
+  "m_gt_box": 0.6551888369830682,
+  "r_llava_box": 0.5059253890464251,
+  "r_gt_box": 0.6207709394004928,
+  "required_m_at_shipped_operating_point": 0.6212,
+  "note": "means are over rows (per-record IoU), the gIoU-relevant m; the shipped picker + top-2 margin used in both variants",
+  "generated": "exp102_termbox_perfectbox_m.py"
+}

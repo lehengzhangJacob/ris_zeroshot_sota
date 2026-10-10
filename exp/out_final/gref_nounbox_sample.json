@@ -1,0 +1,12 @@
+{
+  "sample": "300 multi-object targeted held-out-train records (exp84)",
+  "rows_matched": 250,
+  "nounbox_box_vs_best_object_iou_mean": 0.5801956032247177,
+  "nounbox_box_select_ge50_pct": 63.46153846153846,
+  "n_term_picks": 572,
+  "r_shipped_pair_on_sample": 0.48189955672147544,
+  "r_nounbox_pick_on_sample": 0.4160942421639692,
+  "r_gtbox_pick_reference_on_sample": 0.763881954491028,
+  "note": "deployed proxy: per-term LLaVA box -> pool mask with max bbox-IoU vs box -> union. Compare r_nounbox_pick vs r_shipped_pair (the gain, deployable) and vs r_gtbox_pick_reference (what perfect boxes would give on these rows)",
+  "generated": "exp85_nounbox_diagnose.py"
+}

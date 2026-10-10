@@ -1,0 +1,24 @@
+# --- run state & logs -------------------------------------------------------
+# NOTE: older *.log.* files contain API keys (prompts echoed key files) -- never commit these.
+*.log
+*.log.*
+*.session
+*.pid
+
+# --- large derived caches / raw record stores (stay on the lab machine) -----
+exp/out_*/
+!exp/out_final/
+papers/
+
+# --- downloaded model weights / raw tuning records (redownloadable) ---------
+exp/qwen25vl_7b/
+exp/tuning/
+*.safetensors
+
+# --- misc -------------------------------------------------------------------
+__pycache__/
+*.pyc
+*.zip
+.aris/
+env_backup_glodris.txt
+aris_stopped.txt

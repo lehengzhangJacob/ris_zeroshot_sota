@@ -1,0 +1,39 @@
+{
+  "rows": 8,
+  "terms_with_box": 16,
+  "terms_missing_box": 0,
+  "m_llava_sam_v1_argmax_score": 0.2528626202222428,
+  "m_llava_sam_v2_all3": 0.4050450105521034,
+  "m_llava_sam_v3_largest": 0.40400522658005966,
+  "m_llava_sam_oracle": 0.4261774654512961,
+  "m_pool_rule_same_rows": 0.6022013556705655,
+  "m_pool_union_sam_v4": 0.5411358026289174,
+  "m_gtbox_sam_v1": 0.8058333684375258,
+  "m_gtbox_sam_oracle": 0.9213888266438202,
+  "sam_mask_rank_iou_mean": [
+    0.39944219726192404,
+    0.5267422483012488,
+    0.5917553973665864
+  ],
+  "sam_mask_rank_select_ge50_pct": [
+    43.75,
+    56.25,
+    68.75
+  ],
+  "sam_mask_best_of_3_iou_mean": 0.5918109004963712,
+  "gtbox_sam_mask_rank_iou_mean": [
+    0.770798825936592,
+    0.8907956170182167,
+    0.9007551692938194
+  ],
+  "gtbox_sam_best_of_3_iou_mean": 0.9008907899298378,
+  "required_m_at_shipped_operating_point": 0.6212,
+  "references": {
+    "pool_delivered_m_262rows": 0.5335,
+    "pool_gtbox_m_262rows": 0.6552,
+    "llava_pool_box_iou_mean": 0.58,
+    "llava_pool_select_ge50_pct": 63.5
+  },
+  "note": "pilot on the val-matched held-out sample; unions use per-term masks with LLaVA nounbox boxes (full-res SAM box prompts, stride-2 decode)",
+  "generated": "exp103_sam_boxp.py"
+}

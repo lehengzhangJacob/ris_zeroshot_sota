@@ -1,0 +1,841 @@
+{
+  "population": "exp/out_extreme/records_grefcoco_val2000.jsonl",
+  "population_n": 1525,
+  "split": "val",
+  "frame": "primary: the loadable rows of the val-2000 file (1,525 of 2,000 records; load_rows drops rows with missing probe caches or empty phrases) - the deployed configuration with box-prompted SAM caches live; raw and val-prevalence-weighted metrics (identical here, the subset is already at val prevalence). Secondary: the held-out train frame (no SAM caches) in sweeps_heldout_frame_without_sam_caches.",
+  "tool": "exp/exp133_sensitivity.py (deterministic re-analysis of saved records and caches)",
+  "shipped_setting": {
+    "alpha": 1.8111644301883565,
+    "beta": 0.23434019563238434,
+    "margin": 0.6312676830144586,
+    "cap": 0.5,
+    "topk": 2,
+    "p_sel": 0.34040013160612675
+  },
+  "shipped_anchor": {
+    "cIoU": 51.0773,
+    "gIoU": 74.8436,
+    "N_acc": 85.9313,
+    "T_acc": 90.5207,
+    "cIoU_val_prev": 51.0761,
+    "gIoU_val_prev": 74.8465
+  },
+  "note": "Descriptive curves; nothing here selects anything (the shipped values come from the 300-trial studies' own objectives). Primary sweeps are on a val subset where the full deployed configuration (including SAM) is live; the anchor reproduces the independent frozen run exactly. Some shipped knobs are not the optimum of these frames (topk=1 reads +1.2 cIoU on val-2000, margin 0.9 +1.0, p_sel 0.2 +0.2): the studies fitted the joint configuration on the held-out train population under their pre-registered objective, and the shipped point is what those studies selected; the curves are reported as measured and select nothing.",
+  "sweeps": [
+    {
+      "parameter": "alpha (box-fill weight, base)",
+      "key": "alpha",
+      "shipped_value": 1.8111644301883565,
+      "settings": [
+        {
+          "cIoU": 51.0962,
+          "gIoU": 74.8552,
+          "N_acc": 85.9313,
+          "T_acc": 90.5207,
+          "cIoU_val_prev": 51.0951,
+          "gIoU_val_prev": 74.8582,
+          "value": 1.2,
+          "is_shipped": false
+        },
+        {
+          "cIoU": 51.1018,
+          "gIoU": 74.8573,
+          "N_acc": 85.9313,
+          "T_acc": 90.5207,
+          "cIoU_val_prev": 51.1007,
+          "gIoU_val_prev": 74.8602,
+          "value": 1.5,
+          "is_shipped": false
+        },
+        {
+          "cIoU": 51.0773,
+          "gIoU": 74.8436,
+          "N_acc": 85.9313,
+          "T_acc": 90.5207,
+          "cIoU_val_prev": 51.0761,
+          "gIoU_val_prev": 74.8465,
+          "value": 1.8112,
+          "is_shipped": false,
+          "is_shipped_grid_point": true
+        },
+        {
+          "cIoU": 51.0721,
+          "gIoU": 74.8363,
+          "N_acc": 85.9313,
+          "T_acc": 90.5207,
+          "cIoU_val_prev": 51.0709,
+          "gIoU_val_prev": 74.8393,
+          "value": 2.2,
+          "is_shipped": false
+        },
+        {
+          "cIoU": 51.0706,
+          "gIoU": 74.8356,
+          "N_acc": 85.9313,
+          "T_acc": 90.5207,
+          "cIoU_val_prev": 51.0694,
+          "gIoU_val_prev": 74.8385,
+          "value": 2.5,
+          "is_shipped": false
+        }
+      ],
+      "grid_note": "the marked grid point represents the shipped value rounded to 4 dp and reproduces the anchor exactly; the shipped value itself is 1.8111644301883565"
+    },
+    {
+      "parameter": "beta (box-fill weight, in-box IoU term)",
+      "key": "beta",
+      "shipped_value": 0.23434019563238434,
+      "settings": [
+        {
+          "cIoU": 51.2463,
+          "gIoU": 74.8832,
+          "N_acc": 85.9313,
+          "T_acc": 90.5207,
+          "cIoU_val_prev": 51.2451,
+          "gIoU_val_prev": 74.8862,
+          "value": 0.0,
+          "is_shipped": false
+        },
+        {
+          "cIoU": 51.0683,
+          "gIoU": 74.8333,
+          "N_acc": 85.9313,
+          "T_acc": 90.5207,
+          "cIoU_val_prev": 51.0672,
+          "gIoU_val_prev": 74.8362,
+          "value": 0.12,
+          "is_shipped": false
+        },
+        {
+          "cIoU": 51.0773,
+          "gIoU": 74.8436,
+          "N_acc": 85.9313,
+          "T_acc": 90.5207,
+          "cIoU_val_prev": 51.0761,
+          "gIoU_val_prev": 74.8465,
+          "value": 0.2343,
+          "is_shipped": false,
+          "is_shipped_grid_point": true
+        },
+        {
+          "cIoU": 51.0962,
+          "gIoU": 74.8553,
+          "N_acc": 85.9313,
+          "T_acc": 90.5207,
+          "cIoU_val_prev": 51.0951,
+          "gIoU_val_prev": 74.8582,
+          "value": 0.35,
+          "is_shipped": false
+        },
+        {
+          "cIoU": 51.0537,
+          "gIoU": 74.8244,
+          "N_acc": 85.9313,
+          "T_acc": 90.5207,
+          "cIoU_val_prev": 51.0526,
+          "gIoU_val_prev": 74.8273,
+          "value": 0.47,
+          "is_shipped": false
+        }
+      ],
+      "grid_note": "the marked grid point represents the shipped value rounded to 4 dp and reproduces the anchor exactly; the shipped value itself is 0.23434019563238434"
+    },
+    {
+      "parameter": "margin (top-2 acceptance)",
+      "key": "margin",
+      "shipped_value": 0.6312676830144586,
+      "settings": [
+        {
+          "cIoU": 50.9923,
+          "gIoU": 74.7928,
+          "N_acc": 85.9313,
+          "T_acc": 90.5207,
+          "cIoU_val_prev": 50.9911,
+          "gIoU_val_prev": 74.7957,
+          "value": 0.3,
+          "is_shipped": false
+        },
+        {
+          "cIoU": 51.0283,
+          "gIoU": 74.8086,
+          "N_acc": 85.9313,
+          "T_acc": 90.5207,
+          "cIoU_val_prev": 51.0271,
+          "gIoU_val_prev": 74.8116,
+          "value": 0.45,
+          "is_shipped": false
+        },
+        {
+          "cIoU": 51.0773,
+          "gIoU": 74.8436,
+          "N_acc": 85.9313,
+          "T_acc": 90.5207,
+          "cIoU_val_prev": 51.0761,
+          "gIoU_val_prev": 74.8465,
+          "value": 0.6313,
+          "is_shipped": false,
+          "is_shipped_grid_point": true
+        },
+        {
+          "cIoU": 51.2549,
+          "gIoU": 74.8795,
+          "N_acc": 85.9313,
+          "T_acc": 90.5207,
+          "cIoU_val_prev": 51.2537,
+          "gIoU_val_prev": 74.8824,
+          "value": 0.75,
+          "is_shipped": false
+        },
+        {
+          "cIoU": 52.0697,
+          "gIoU": 75.171,
+          "N_acc": 85.9313,
+          "T_acc": 90.5207,
+          "cIoU_val_prev": 52.0684,
+          "gIoU_val_prev": 75.1739,
+          "value": 0.9,
+          "is_shipped": false
+        }
+      ],
+      "grid_note": "the marked grid point represents the shipped value rounded to 4 dp and reproduces the anchor exactly; the shipped value itself is 0.6312676830144586"
+    },
+    {
+      "parameter": "cap (SAM mask area cap)",
+      "key": "cap",
+      "shipped_value": 0.5,
+      "settings": [
+        {
+          "cIoU": 49.5854,
+          "gIoU": 74.4695,
+          "N_acc": 85.9313,
+          "T_acc": 90.5207,
+          "cIoU_val_prev": 49.5842,
+          "gIoU_val_prev": 74.4726,
+          "value": 0.2,
+          "is_shipped": false
+        },
+        {
+          "cIoU": 50.2915,
+          "gIoU": 74.7143,
+          "N_acc": 85.9313,
+          "T_acc": 90.5207,
+          "cIoU_val_prev": 50.2903,
+          "gIoU_val_prev": 74.7173,
+          "value": 0.3,
+          "is_shipped": false
+        },
+        {
+          "cIoU": 51.0773,
+          "gIoU": 74.8436,
+          "N_acc": 85.9313,
+          "T_acc": 90.5207,
+          "cIoU_val_prev": 51.0761,
+          "gIoU_val_prev": 74.8465,
+          "value": 0.5,
+          "is_shipped": true,
+          "is_shipped_grid_point": true
+        },
+        {
+          "cIoU": 51.0345,
+          "gIoU": 74.8609,
+          "N_acc": 85.9313,
+          "T_acc": 90.5207,
+          "cIoU_val_prev": 51.0334,
+          "gIoU_val_prev": 74.8639,
+          "value": 0.65,
+          "is_shipped": false
+        },
+        {
+          "cIoU": 51.0262,
+          "gIoU": 74.8656,
+          "N_acc": 85.9313,
+          "T_acc": 90.5207,
+          "cIoU_val_prev": 51.025,
+          "gIoU_val_prev": 74.8685,
+          "value": 0.8,
+          "is_shipped": false
+        }
+      ],
+      "grid_note": "the marked grid point represents the shipped value rounded to 4 dp and reproduces the anchor exactly; the shipped value itself is 0.5"
+    },
+    {
+      "parameter": "topk (pool picks per box)",
+      "key": "topk",
+      "shipped_value": 2,
+      "settings": [
+        {
+          "cIoU": 52.2709,
+          "gIoU": 75.2784,
+          "N_acc": 85.9313,
+          "T_acc": 90.5207,
+          "cIoU_val_prev": 52.2697,
+          "gIoU_val_prev": 75.2812,
+          "value": 1,
+          "is_shipped": false
+        },
+        {
+          "cIoU": 51.0773,
+          "gIoU": 74.8436,
+          "N_acc": 85.9313,
+          "T_acc": 90.5207,
+          "cIoU_val_prev": 51.0761,
+          "gIoU_val_prev": 74.8465,
+          "value": 2,
+          "is_shipped": true,
+          "is_shipped_grid_point": true
+        }
+      ],
+      "grid_note": "the marked grid point represents the shipped value rounded to 4 dp and reproduces the anchor exactly; the shipped value itself is 2"
+    },
+    {
+      "parameter": "p_sel (abstention threshold)",
+      "key": "p_sel",
+      "shipped_value": 0.34040013160612675,
+      "settings": [
+        {
+          "cIoU": 51.2726,
+          "gIoU": 74.7397,
+          "N_acc": 85.3717,
+          "T_acc": 91.7223,
+          "cIoU_val_prev": 51.2713,
+          "gIoU_val_prev": 74.7425,
+          "value": 0.2,
+          "is_shipped": false
+        },
+        {
+          "cIoU": 50.8639,
+          "gIoU": 74.735,
+          "N_acc": 85.9313,
+          "T_acc": 90.1202,
+          "cIoU_val_prev": 50.8627,
+          "gIoU_val_prev": 74.738,
+          "value": 0.35,
+          "is_shipped": false
+        },
+        {
+          "cIoU": 48.2275,
+          "gIoU": 74.2891,
+          "N_acc": 87.9297,
+          "T_acc": 81.5754,
+          "cIoU_val_prev": 48.2264,
+          "gIoU_val_prev": 74.2927,
+          "value": 0.5,
+          "is_shipped": false
+        },
+        {
+          "cIoU": 32.7096,
+          "gIoU": 69.8365,
+          "N_acc": 93.3653,
+          "T_acc": 47.53,
+          "cIoU_val_prev": 32.709,
+          "gIoU_val_prev": 69.8428,
+          "value": 0.65,
+          "is_shipped": false
+        },
+        {
+          "cIoU": 3.6969,
+          "gIoU": 63.3178,
+          "N_acc": 99.7602,
+          "T_acc": 3.2043,
+          "cIoU_val_prev": 3.6969,
+          "gIoU_val_prev": 63.3275,
+          "value": 0.8,
+          "is_shipped": false
+        }
+      ],
+      "grid_note": "no grid point reproduces the anchor here: the shipped value 0.3404 lies between grid points and the nearest point (0.35) reads cIoU 50.86 / T_acc 90.12 against the anchor's 51.08 / 90.52; the shipped value's metrics are the anchor block above."
+    },
+    {
+      "parameter": "mode (box-fill measure: the operative box-fill knob under loc_only)",
+      "key": "mode",
+      "shipped_value": "iou",
+      "family": "refcoco",
+      "settings": [
+        {
+          "value": "iou",
+          "mIoU": 68.8989,
+          "oIoU": 62.1223,
+          "is_shipped": true
+        },
+        {
+          "value": "inside",
+          "mIoU": 22.5961,
+          "oIoU": 18.6014,
+          "is_shipped": false
+        },
+        {
+          "value": "cover",
+          "mIoU": 66.035,
+          "oIoU": 53.1361,
+          "is_shipped": false
+        }
+      ]
+    },
+    {
+      "parameter": "k_dec (candidates kept)",
+      "key": "k_dec",
+      "shipped_value": 15,
+      "family": "refcoco",
+      "settings": [
+        {
+          "value": 5,
+          "mIoU": 63.8796,
+          "oIoU": 56.2928,
+          "is_shipped": false
+        },
+        {
+          "value": 10,
+          "mIoU": 67.6584,
+          "oIoU": 61.1982,
+          "is_shipped": false
+        },
+        {
+          "value": 15,
+          "mIoU": 68.8989,
+          "oIoU": 62.1223,
+          "is_shipped": true
+        },
+        {
+          "value": 20,
+          "mIoU": 70.0993,
+          "oIoU": 63.8712,
+          "is_shipped": false
+        },
+        {
+          "value": 30,
+          "mIoU": 70.9274,
+          "oIoU": 64.89,
+          "is_shipped": false
+        }
+      ]
+    },
+    {
+      "parameter": "gem_mix (semantic mix)",
+      "key": "gem_mix",
+      "shipped_value": 0.490569059596547,
+      "family": "refcoco",
+      "settings": [
+        {
+          "value": 0.0,
+          "mIoU": 68.0051,
+          "oIoU": 61.7084,
+          "is_shipped": false
+        },
+        {
+          "value": 0.25,
+          "mIoU": 68.5529,
+          "oIoU": 62.029,
+          "is_shipped": false
+        },
+        {
+          "value": 0.490569059596547,
+          "mIoU": 68.8989,
+          "oIoU": 62.1223,
+          "is_shipped": true
+        },
+        {
+          "value": 0.75,
+          "mIoU": 69.5777,
+          "oIoU": 62.8203,
+          "is_shipped": false
+        },
+        {
+          "value": 1.0,
+          "mIoU": 69.762,
+          "oIoU": 63.7691,
+          "is_shipped": false
+        }
+      ]
+    },
+    {
+      "parameter": "beta (box-fill weight; inert under the shipped combine=loc_only)",
+      "key": "beta",
+      "shipped_value": 2.20722374350054,
+      "family": "refcoco",
+      "settings": [
+        {
+          "value": 1.0,
+          "mIoU": 68.8989,
+          "oIoU": 62.1223,
+          "is_shipped": false
+        },
+        {
+          "value": 2.20722374350054,
+          "mIoU": 68.8989,
+          "oIoU": 62.1223,
+          "is_shipped": true
+        },
+        {
+          "value": 3.4,
+          "mIoU": 68.8989,
+          "oIoU": 62.1223,
+          "is_shipped": false
+        }
+      ],
+      "note": "flat across the swept range on this population: the parameter is not read by the shipped rule configuration (combine=loc_only)"
+    },
+    {
+      "parameter": "eps (box-agreement gate; inert under the shipped combine=loc_only)",
+      "key": "eps",
+      "shipped_value": 0.020794812033278407,
+      "family": "refcoco",
+      "settings": [
+        {
+          "value": 0.005,
+          "mIoU": 68.8989,
+          "oIoU": 62.1223,
+          "is_shipped": false
+        },
+        {
+          "value": 0.020794812033278407,
+          "mIoU": 68.8989,
+          "oIoU": 62.1223,
+          "is_shipped": true
+        },
+        {
+          "value": 0.04,
+          "mIoU": 68.8989,
+          "oIoU": 62.1223,
+          "is_shipped": false
+        }
+      ],
+      "note": "flat across the swept range on this population: the parameter is not read by the shipped rule configuration (combine=loc_only)"
+    }
+  ],
+  "refcoco_family": {
+    "population": "exp/tuning/records_tune_refcoco.jsonl",
+    "population_n": 1137,
+    "split": "train (held-out refs)",
+    "frame": "RefCOCO held-out train refs; mIoU and pooled oIoU per setting",
+    "tool": "exp/exp134_sensitivity_refcoco.py (exp40 re-analysis per setting)",
+    "shipped_anchor": {
+      "mIoU": 68.8989,
+      "oIoU": 62.1223
+    }
+  },
+  "sweeps_heldout_frame_without_sam_caches": [
+    {
+      "parameter": "alpha (box-fill weight, base)",
+      "key": "alpha",
+      "shipped_value": 1.8111644301883565,
+      "settings": [
+        {
+          "cIoU": 52.3893,
+          "gIoU": 71.4137,
+          "N_acc": 93.5185,
+          "T_acc": 90.9091,
+          "cIoU_val_prev": 50.745,
+          "gIoU_val_prev": 80.0338,
+          "value": 1.2,
+          "is_shipped": false
+        },
+        {
+          "cIoU": 51.705,
+          "gIoU": 71.195,
+          "N_acc": 93.5185,
+          "T_acc": 90.9091,
+          "cIoU_val_prev": 50.0799,
+          "gIoU_val_prev": 79.9004,
+          "value": 1.5,
+          "is_shipped": false
+        },
+        {
+          "cIoU": 51.4872,
+          "gIoU": 71.0499,
+          "N_acc": 93.5185,
+          "T_acc": 90.9091,
+          "cIoU_val_prev": 49.8672,
+          "gIoU_val_prev": 79.8118,
+          "value": 1.8112,
+          "is_shipped": false
+        },
+        {
+          "cIoU": 51.414,
+          "gIoU": 71.0101,
+          "N_acc": 93.5185,
+          "T_acc": 90.9091,
+          "cIoU_val_prev": 49.7934,
+          "gIoU_val_prev": 79.7876,
+          "value": 2.2,
+          "is_shipped": false
+        },
+        {
+          "cIoU": 51.4328,
+          "gIoU": 71.0363,
+          "N_acc": 93.5185,
+          "T_acc": 90.9091,
+          "cIoU_val_prev": 49.81,
+          "gIoU_val_prev": 79.8035,
+          "value": 2.5,
+          "is_shipped": false
+        }
+      ]
+    },
+    {
+      "parameter": "beta (box-fill weight, in-box IoU term)",
+      "key": "beta",
+      "shipped_value": 0.23434019563238434,
+      "settings": [
+        {
+          "cIoU": 49.8742,
+          "gIoU": 70.5573,
+          "N_acc": 93.5185,
+          "T_acc": 90.9091,
+          "cIoU_val_prev": 48.2941,
+          "gIoU_val_prev": 79.5114,
+          "value": 0.0,
+          "is_shipped": false
+        },
+        {
+          "cIoU": 50.3377,
+          "gIoU": 70.6492,
+          "N_acc": 93.5185,
+          "T_acc": 90.9091,
+          "cIoU_val_prev": 48.7525,
+          "gIoU_val_prev": 79.5674,
+          "value": 0.12,
+          "is_shipped": false
+        },
+        {
+          "cIoU": 51.4872,
+          "gIoU": 71.0499,
+          "N_acc": 93.5185,
+          "T_acc": 90.9091,
+          "cIoU_val_prev": 49.8672,
+          "gIoU_val_prev": 79.8118,
+          "value": 0.2343,
+          "is_shipped": false
+        },
+        {
+          "cIoU": 52.1913,
+          "gIoU": 71.3459,
+          "N_acc": 93.5185,
+          "T_acc": 90.9091,
+          "cIoU_val_prev": 50.5532,
+          "gIoU_val_prev": 79.9924,
+          "value": 0.35,
+          "is_shipped": false
+        },
+        {
+          "cIoU": 52.3463,
+          "gIoU": 71.4719,
+          "N_acc": 93.5185,
+          "T_acc": 90.9091,
+          "cIoU_val_prev": 50.7175,
+          "gIoU_val_prev": 80.0693,
+          "value": 0.47,
+          "is_shipped": false
+        }
+      ]
+    },
+    {
+      "parameter": "margin (top-2 acceptance)",
+      "key": "margin",
+      "shipped_value": 0.6312676830144586,
+      "settings": [
+        {
+          "cIoU": 50.9924,
+          "gIoU": 70.7731,
+          "N_acc": 93.5185,
+          "T_acc": 90.9091,
+          "cIoU_val_prev": 49.4089,
+          "gIoU_val_prev": 79.643,
+          "value": 0.3,
+          "is_shipped": false
+        },
+        {
+          "cIoU": 51.0405,
+          "gIoU": 70.8257,
+          "N_acc": 93.5185,
+          "T_acc": 90.9091,
+          "cIoU_val_prev": 49.4532,
+          "gIoU_val_prev": 79.6751,
+          "value": 0.45,
+          "is_shipped": false
+        },
+        {
+          "cIoU": 51.4872,
+          "gIoU": 71.0499,
+          "N_acc": 93.5185,
+          "T_acc": 90.9091,
+          "cIoU_val_prev": 49.8672,
+          "gIoU_val_prev": 79.8118,
+          "value": 0.6313,
+          "is_shipped": false
+        },
+        {
+          "cIoU": 51.9148,
+          "gIoU": 71.4465,
+          "N_acc": 93.5185,
+          "T_acc": 90.9091,
+          "cIoU_val_prev": 50.2622,
+          "gIoU_val_prev": 80.0538,
+          "value": 0.75,
+          "is_shipped": false
+        },
+        {
+          "cIoU": 51.5385,
+          "gIoU": 71.8174,
+          "N_acc": 93.5185,
+          "T_acc": 90.9091,
+          "cIoU_val_prev": 49.8604,
+          "gIoU_val_prev": 80.28,
+          "value": 0.9,
+          "is_shipped": false
+        }
+      ]
+    },
+    {
+      "parameter": "cap (SAM mask area cap)",
+      "key": "cap",
+      "shipped_value": 0.5,
+      "settings": [
+        {
+          "cIoU": 51.4872,
+          "gIoU": 71.0499,
+          "N_acc": 93.5185,
+          "T_acc": 90.9091,
+          "cIoU_val_prev": 49.8672,
+          "gIoU_val_prev": 79.8118,
+          "value": 0.2,
+          "is_shipped": false
+        },
+        {
+          "cIoU": 51.4872,
+          "gIoU": 71.0499,
+          "N_acc": 93.5185,
+          "T_acc": 90.9091,
+          "cIoU_val_prev": 49.8672,
+          "gIoU_val_prev": 79.8118,
+          "value": 0.3,
+          "is_shipped": false
+        },
+        {
+          "cIoU": 51.4872,
+          "gIoU": 71.0499,
+          "N_acc": 93.5185,
+          "T_acc": 90.9091,
+          "cIoU_val_prev": 49.8672,
+          "gIoU_val_prev": 79.8118,
+          "value": 0.5,
+          "is_shipped": true
+        },
+        {
+          "cIoU": 51.4872,
+          "gIoU": 71.0499,
+          "N_acc": 93.5185,
+          "T_acc": 90.9091,
+          "cIoU_val_prev": 49.8672,
+          "gIoU_val_prev": 79.8118,
+          "value": 0.65,
+          "is_shipped": false
+        },
+        {
+          "cIoU": 51.4872,
+          "gIoU": 71.0499,
+          "N_acc": 93.5185,
+          "T_acc": 90.9091,
+          "cIoU_val_prev": 49.8672,
+          "gIoU_val_prev": 79.8118,
+          "value": 0.8,
+          "is_shipped": false
+        }
+      ]
+    },
+    {
+      "parameter": "topk (pool picks per box)",
+      "key": "topk",
+      "shipped_value": 2,
+      "settings": [
+        {
+          "cIoU": 49.1948,
+          "gIoU": 70.443,
+          "N_acc": 93.5185,
+          "T_acc": 90.9091,
+          "cIoU_val_prev": 47.5236,
+          "gIoU_val_prev": 79.4416,
+          "value": 1,
+          "is_shipped": false
+        },
+        {
+          "cIoU": 51.4872,
+          "gIoU": 71.0499,
+          "N_acc": 93.5185,
+          "T_acc": 90.9091,
+          "cIoU_val_prev": 49.8672,
+          "gIoU_val_prev": 79.8118,
+          "value": 2,
+          "is_shipped": true
+        }
+      ]
+    },
+    {
+      "parameter": "p_sel (abstention threshold)",
+      "key": "p_sel",
+      "shipped_value": 0.34040013160612675,
+      "settings": [
+        {
+          "cIoU": 51.629,
+          "gIoU": 71.0553,
+          "N_acc": 93.3333,
+          "T_acc": 91.2587,
+          "cIoU_val_prev": 49.999,
+          "gIoU_val_prev": 79.7429,
+          "value": 0.2,
+          "is_shipped": false
+        },
+        {
+          "cIoU": 51.4872,
+          "gIoU": 71.0499,
+          "N_acc": 93.5185,
+          "T_acc": 90.9091,
+          "cIoU_val_prev": 49.8672,
+          "gIoU_val_prev": 79.8118,
+          "value": 0.35,
+          "is_shipped": false
+        },
+        {
+          "cIoU": 48.8067,
+          "gIoU": 69.1941,
+          "N_acc": 95.1852,
+          "T_acc": 83.5664,
+          "cIoU_val_prev": 47.4756,
+          "gIoU_val_prev": 79.3297,
+          "value": 0.5,
+          "is_shipped": false
+        },
+        {
+          "cIoU": 30.511,
+          "gIoU": 57.2937,
+          "N_acc": 97.963,
+          "T_acc": 48.8345,
+          "cIoU_val_prev": 30.1875,
+          "gIoU_val_prev": 73.1532,
+          "value": 0.65,
+          "is_shipped": false
+        },
+        {
+          "cIoU": 2.3075,
+          "gIoU": 39.7877,
+          "N_acc": 99.8148,
+          "T_acc": 3.38,
+          "cIoU_val_prev": 2.3035,
+          "gIoU_val_prev": 63.1961,
+          "value": 0.8,
+          "is_shipped": false
+        }
+      ]
+    }
+  ],
+  "frames": {
+    "primary": {
+      "population": "exp/out_extreme/records_grefcoco_val2000.jsonl (2,000 val records)",
+      "why": "the deployed configuration: the SAM box-prompted caches exist for the val terms (1545/1545 pairs over targeted records); the anchor is computed on the same 1,525 loadable rows the independent exp124 val-2000 run used and reproduces it exactly (cIoU 51.08 / gIoU 74.84 / N 85.9 / T 90.5)"
+    },
+    "secondary_heldout": {
+      "population": "exp/out_extreme/records_grefcoco_train_tune.jsonl (held-out train rows)",
+      "caveat": "on this population the box-prompted SAM caches do not exist (the held-out studies computed those masks live on GPU), so every setting here runs without SAM masks: the cap sweep is inert BY CONSTRUCTION and the topk direction differs from the val frame; kept for transparency, not for claims"
+    },
+    "refcoco_family": "held-out RefCOCO train refs (records_tune_refcoco.jsonl)"
+  }
+}

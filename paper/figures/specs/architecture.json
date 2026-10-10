@@ -1,0 +1,258 @@
+{
+  "title": "Dense localization prior for training-free referring image segmentation",
+  "canvas": {
+    "width": 1200,
+    "height": 700
+  },
+  "style": {
+    "font_family": "Helvetica, Arial, sans-serif",
+    "font_size": 13,
+    "bg_color": "#FFFFFF",
+    "palette": [
+      "#EFF6FF",
+      "#F0FDF4",
+      "#FEF9C3",
+      "#FCE7F3",
+      "#EDE9FE",
+      "#E2E8F0"
+    ]
+  },
+  "nodes": [
+    {
+      "id": "img",
+      "label": "Image",
+      "sublabel": "COCO val",
+      "x": 95,
+      "y": 90,
+      "width": 120,
+      "height": 56,
+      "fill": "#F1F5F9",
+      "stroke": "#94A3B8"
+    },
+    {
+      "id": "sam",
+      "label": "SAM ViT-H AMG",
+      "sublabel": "frozen, pps = 8",
+      "x": 355,
+      "y": 90,
+      "width": 200,
+      "height": 56,
+      "fill": "#E2E8F0",
+      "stroke": "#64748B"
+    },
+    {
+      "id": "pool",
+      "label": "Proposal pool",
+      "sublabel": "N ~ 50 masks",
+      "x": 355,
+      "y": 178,
+      "width": 200,
+      "height": 52,
+      "fill": "#DBEAFE",
+      "stroke": "#2563EB"
+    },
+    {
+      "id": "g2l",
+      "label": "G2L encoder",
+      "sublabel": "frozen CLIP ViT-B/16",
+      "x": 355,
+      "y": 272,
+      "width": 220,
+      "height": 64,
+      "fill": "#E2E8F0",
+      "stroke": "#64748B"
+    },
+    {
+      "id": "vlm",
+      "label": "LLaVA-OneVision-7B",
+      "sublabel": "frozen; expression -> box",
+      "x": 358,
+      "y": 470,
+      "width": 226,
+      "height": 68,
+      "fill": "#E2E8F0",
+      "stroke": "#64748B"
+    },
+    {
+      "id": "sem",
+      "label": "Semantic score",
+      "sublabel": "0.5 sentence + 0.5 noun",
+      "x": 690,
+      "y": 178,
+      "width": 200,
+      "height": 58,
+      "fill": "#DCFCE7",
+      "stroke": "#16A34A"
+    },
+    {
+      "id": "coh",
+      "label": "Coherence score",
+      "sublabel": "GEM attention contrast",
+      "x": 690,
+      "y": 272,
+      "width": 200,
+      "height": 58,
+      "fill": "#DCFCE7",
+      "stroke": "#16A34A"
+    },
+    {
+      "id": "fuse",
+      "label": "Rank fusion",
+      "sublabel": "top-k candidates, k = 15",
+      "x": 690,
+      "y": 380,
+      "width": 200,
+      "height": 58,
+      "fill": "#BBF7D0",
+      "stroke": "#15803D"
+    },
+    {
+      "id": "sel",
+      "label": "Box-overlap selection",
+      "sublabel": "argmax IoU(mask, box)",
+      "x": 960,
+      "y": 272,
+      "width": 216,
+      "height": 68,
+      "fill": "#FDE68A",
+      "stroke": "#B45309"
+    },
+    {
+      "id": "repair",
+      "label": "Repairs (optional)",
+      "sublabel": "growth; relation operator",
+      "x": 960,
+      "y": 470,
+      "width": 216,
+      "height": 66,
+      "fill": "#FEF9C3",
+      "stroke": "#A16207"
+    },
+    {
+      "id": "expr",
+      "label": "Expression",
+      "sublabel": "e.g. \"the man in red, left\"",
+      "x": 110,
+      "y": 250,
+      "width": 180,
+      "height": 66,
+      "fill": "#F1F5F9",
+      "stroke": "#94A3B8"
+    }
+  ],
+  "edges": [
+    {
+      "from": "img",
+      "to": "sam"
+    },
+    {
+      "from": "img",
+      "to": "vlm",
+      "curve": true
+    },
+    {
+      "from": "expr",
+      "to": "vlm",
+      "label": "prompt",
+      "curve": true
+    },
+    {
+      "from": "expr",
+      "to": "sem",
+      "label": "text",
+      "style": "dashed",
+      "curve": true
+    },
+    {
+      "from": "sam",
+      "to": "pool",
+      "label": "masks"
+    },
+    {
+      "from": "pool",
+      "to": "g2l",
+      "label": "regions"
+    },
+    {
+      "from": "g2l",
+      "to": "sem",
+      "label": "features"
+    },
+    {
+      "from": "g2l",
+      "to": "coh"
+    },
+    {
+      "from": "sem",
+      "to": "fuse",
+      "label": "rank"
+    },
+    {
+      "from": "coh",
+      "to": "fuse",
+      "label": "rank"
+    },
+    {
+      "from": "vlm",
+      "to": "sel",
+      "label": "box",
+      "curve": true
+    },
+    {
+      "from": "fuse",
+      "to": "sel",
+      "label": "candidates",
+      "curve": true
+    },
+    {
+      "from": "sel",
+      "to": "repair",
+      "style": "dashed",
+      "curve": true
+    },
+    {
+      "from": "sel",
+      "to": "repair",
+      "label": "mask set",
+      "curve": false
+    }
+  ],
+  "groups": [
+    {
+      "id": "frozen",
+      "label": "Frozen pretrained components (no RIS training, no ground truth)",
+      "node_ids": [
+        "sam",
+        "g2l",
+        "vlm"
+      ],
+      "fill": "#F8FAFC",
+      "stroke": "#CBD5E1",
+      "padding": 26
+    },
+    {
+      "id": "scoring",
+      "label": "Scoring (released quantities)",
+      "node_ids": [
+        "sem",
+        "coh",
+        "fuse"
+      ],
+      "fill": "#F0FDF4",
+      "stroke": "#BBF7D0",
+      "padding": 26
+    },
+    {
+      "id": "selection",
+      "label": "Selection -> output",
+      "node_ids": [
+        "sel",
+        "repair"
+      ],
+      "fill": "#FFFBEB",
+      "stroke": "#FDE68A",
+      "padding": 26
+    }
+  ],
+  "labels": []
+}

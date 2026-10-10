@@ -1,0 +1,38 @@
+{
+  "model": {
+    "kind": "GDINO+SAM termbox union (change 13)",
+    "study_params": {
+      "box_src": "llava",
+      "gd_thresh": 0.18535118071181583,
+      "pool_rule": "sxi",
+      "topk": 2,
+      "margin": 0.7294331399965459,
+      "sam_mode": "all3",
+      "sam_area_cap": 0.25,
+      "cover2": false,
+      "alpha": 1.2205484428630569,
+      "beta": 0.6172278143610928
+    },
+    "abstention": {
+      "k_abs": 1,
+      "p_abs": 0.34040013160612675,
+      "use_ens": true
+    },
+    "source_study": "optuna_study_gref12.json"
+  },
+  "metrics": {
+    "n": 802,
+    "cIoU": null,
+    "gIoU": null,
+    "N_acc": 93.51851851851852,
+    "T_acc": 96.94656488549619,
+    "TP": 505,
+    "FN": 35,
+    "TN": 254,
+    "FP": 8,
+    "cIoU_val_prevalence": 55.73328618950757,
+    "gIoU_val_prevalence": 81.84033682043899
+  },
+  "population": "held-out train: val-matched multi-target sample rows + all no-target tune rows at val prevalence weight",
+  "generated": "exp113_gdino_heldout.py"
+}

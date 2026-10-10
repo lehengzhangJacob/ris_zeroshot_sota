@@ -1,0 +1,16 @@
+\begin{table}[t]
+\centering
+\footnotesize
+\setlength{\tabcolsep}{4pt}
+\caption{Taxonomy of the oracle gap at the released operating point (share of the recoverable IoU in parentheses). Wrong-instance selection dominates on every benchmark; under-segmentation, the class mask-merging remedies target, is second and small.}
+\label{tab:taxonomy}
+\begin{tabular}{@{}lcccc@{}}
+\toprule
+split & correct & under-seg. & wrong-inst. & boundary \\
+\midrule
+RefCOCO (10{,}834) & 0.478\,(0.027) & 0.108\,(0.176) & 0.380\,(0.774) & 0.018\,(0.004) \\
+RefCOCO+ (10{,}758) & 0.428\,(0.028) & 0.106\,(0.152) & 0.437\,(0.801) & 0.015\,(0.004) \\
+RefCOCOg (4{,}896) & 0.552\,(0.028) & 0.029\,(0.052) & 0.356\,(0.864) & 0.033\,(0.012) \\
+\bottomrule
+\end{tabular}
+\end{table}

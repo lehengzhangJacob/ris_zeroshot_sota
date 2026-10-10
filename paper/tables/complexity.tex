@@ -1,0 +1,12 @@
+\begin{tabular}{lrrrr}
+\toprule
+component & params & FLOPs/query & peak & latency \\
+\midrule
+selector & 33 & <1M & <50 MB (host numpy) & 42.602\,ms \\
+LLaVA-OneVision-7B & 8.0B & 25.30T & 10.7\,GB & 37.706\,s \\
+GroundingDINO-base term detector & 233M & 712.8G & 2.1\,GB & 0.15\,s \\
+SAM ViT-H proposals + CLIP ViT-B/16 region scoring & 791M & 10.22T & 6.6\,GB & 4.402\,s \\
+\midrule
+\textbf{total (unique)} & \textbf{9.1B} & -- & \textbf{10.7\,GB} & -- \\
+\bottomrule
+\end{tabular}

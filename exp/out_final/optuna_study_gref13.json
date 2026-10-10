@@ -1,0 +1,21 @@
+{
+  "n_trials": 300,
+  "best_params": {
+    "k_abs": 1,
+    "p_abs": 0.34040013160612675,
+    "use_ens": true
+  },
+  "calib_gIoU_w": 80.57086345614101,
+  "calib_cIoU_w": 55.12081657396612,
+  "shipped_operating_point": {
+    "k_abs": 1,
+    "p_abs": 0.34040013160612675,
+    "use_ens": true,
+    "gIoU_w": 80.57086345614101,
+    "cIoU_w": 55.12081657396612
+  },
+  "n_t_calib": 86,
+  "n_nt_calib": 152,
+  "note": "weighted at val prevalence; rule = frozen GDINO+SAM masks; objective calib weighted gIoU with cIoU no-regression penalty; val pass only if the winner clears 74.34 + 0.15 margin on calib AND differs from the shipped operating point",
+  "generated": "exp110_abstain_study.py"
+}

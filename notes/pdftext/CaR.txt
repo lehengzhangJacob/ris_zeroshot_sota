@@ -1,0 +1,944 @@
+                                          CLIP as RNN: Segment Countless Visual Concepts without Training Endeavor
+
+                                                              Shuyang Sun1,2 *              Runjia Li1 * Philip Torr1   Xiuye Gu2†                   Siyang Li2†
+                                                                                      1                         2
+                                                                                          University of Oxford    Google Research
+                                                             {kevinsun, runjia, phst}@robots.ox.ac.uk {siyang, xiuyegu}google.com
+                                                                              https://torrvision.com/clip_as_rnn/
+arXiv:2312.07661v3 [cs.CV] 7 May 2024
+
+
+
+
+                                        Figure 1. We propose CLIP as RNN (CaR) to segment concepts in a vast vocabulary, including fictional characters, landmarks, brands,
+                                        everyday objects, and referring expressions. This figure shows our qualitative results. More visualizations are included in the supplementary
+                                        material. Best viewed in color and with zoom-in.
+
+                                                                      Abstract                                         1. Introduction
+                                        Existing open-vocabulary image segmentation methods re-                        Natural language serves as a bridge to connect visual el-
+                                        quire a fine-tuning step on mask labels and/or image-text                      ements with human-communicable ideas by transforming
+                                        datasets. Mask labels are labor-intensive, which limits                        colors, shapes, and objects etc. into descriptive language.
+                                        the number of categories in segmentation datasets. Con-                        On the other hand, human can use natural language to eas-
+                                        sequently, the vocabulary capacity of pre-trained VLMs is                      ily instruct computers and robotics to perform their desired
+                                        severely reduced after fine-tuning. However, without fine-                     tasks. Built upon the revolutionary vision-language model
+                                        tuning, VLMs trained under weak image-text supervision                         trained on Internet-scale image-text pairs, e.g., CLIP [49],
+                                        tend to make suboptimal mask predictions. To alleviate                         a variaty of studies [10, 35, 39, 42, 50, 55, 68, 76, 84] have
+                                        these issues, we introduce a novel recurrent framework                         explored using pre-trained VLMs for open-vocabulary im-
+                                        that progressively filters out irrelevant texts and enhances                   age segmentation — to segment any concepts in the image
+                                        mask quality without training efforts. The recurrent unit                      described by arbitrary text queries.
+                                        is a two-stage segmenter built upon a frozen VLM. Thus,                            Among these advances, several works [35, 40, 76] have
+                                        our model retains the VLM’s broad vocabulary space and                         integrated pre-trained VLMs with segmenters fine-tuned on
+                                        equips it with segmentation ability. Experiments show that                     bounding boxes and masks. While these methods exhibit
+                                        our method outperforms not only the training-free counter-                     superior performances on segmentation benchmarks with
+                                        parts, but also those fine-tuned with millions of data sam-                    common categories, their ability to handle a broader vocab-
+                                        ples, and sets the new state-of-the-art records for both zero-                 ulary is hampered by the small category lists in the segmen-
+                                        shot semantic and referring segmentation. Concretely, we                       tation datasets used for fine-tuning. As depicted in Figure 2,
+                                        improve the current record by 28.8, 16.0, and 6.9 mIoU on                      even though all three methods incorporate CLIP [49], those
+                                        Pascal VOC, COCO Object, and Pascal Context.                                   relying on fine-tuning with mask annotations [35, 40] fail to
+                                                                                                                       recognize the concepts like Pepsi and Coca Cola.
+                                            * The first two authors contribute equally to this work. The majority of       Since box and mask annotations are expensive, another
+                                        this work was done during Shuyang’s internship at Google Research.             line of works [10, 39, 42, 50, 51, 68] seek to fine-tune the
+                                            † Equal advising.                                                          VLM and/or auxiliary segmentation modules with image-
+     OVSeg [35]       Grounded SAM [40]         CaR (Ours)          ferring image segmentation benchmarks, Ref-COCO, Ref-
+                                                                    COCO+ and RefCOCOg. CaR outperforms the zero-shot
+                                                                    counterparts by a large margin. Moreover, we extend our
+                                                                    method to the video domain, and establish a zero-shot base-
+                                                                    line for the video referring segmentation on Ref-DAVIS
+                                                                    2017 [29]. As showcased in Figure 1, our proposed ap-
+                                                                    proach CaR exhibits remarkable success across a broad vo-
+Figure 2. Our method CaR can fully inherit the vast vocabu-         cabulary spectrum, effectively processing diverse queries
+lary space of CLIP, by directly using features from a pre-trained
+                                                                    from celebrities and landmarks to referring expressions and
+VLM, i.e., CLIP, without any fine-tuning. Although the scene in
+the image is simple, state-of-the-art methods fine-tuned on seg-
+                                                                    general objects.
+mentation datasets [35, 40] fail to segment and recognize Pepsi     Our contributions can be summarized as follows: 1. By
+and Coca Cola correctly.                                            constructing a recurrent architecture, our method CaR per-
+                                                                    forms visual segmentation with arbitrary text queries in a
+                                                                    vast vocabulary space without the need of fine-tuning. 2.
+level annotations only, e.g., paired image-text data obtained       When compared with previous methods on zero-shot open-
+from the Internet. This would lead to a complicated fine-           vocabulary semantic segmentation and referring segmenta-
+tuning pipeline. Besides, these segmentation models often           tion, our method CaR outperforms the prior state of the art
+have suboptimal mask qualities, as image-level labels can-          by a large margin.
+not directly supervise pixel grouping.
+    In this paper, we eliminate the fine-tuning on mask an-
+                                                                    2. Related Work
+notations or additional image-text pairs to fully preserve the      Open-vocabulary segmentation with mask annotations.
+extensive vocabulary space of the pre-trained VLM. How-             The success of VLMs [25, 34, 49, 59, 73, 78, 79] has mo-
+ever, the pre-training objectives of VLMs are not specif-           tivated researchers to push the boundaries of traditional
+ically designed for dense predictions. As a result, exist-          image segmentation tasks, moving them beyond fixed la-
+ing approaches [14, 37, 84] that do not fine-tune the VLMs          bel sets and into an open vocabulary by fine-tuning or
+struggle to generate accurate visual masks corresponding to         training VLMs on segmentation datasets [20, 22, 26, 32,
+the text queries, particularly when some of the text queries        35, 40, 44, 70, 76, 80, 81, 85]. However, as collecting
+refer to non-existing objects in the image. To address this         mask annotations for a vast range of fine-grained labels
+issue, we repeatedly assess the degree of alignment between         is prohibitively expensive, existing segmentation datasets,
+mask proposals and text queries, and progressively remove           e.g. [4, 19, 36, 45, 83] have limited vocabularies. Meth-
+text queries with low confidence. As the text queries be-           ods fine-tuned on these mask annotations reduce the open-
+come cleaner, better mask proposals are consequently ob-            vocabulary capacity inherited from the pre-trained VLMs.
+tained. To facilitate this iterative refinement, we propose         In this work, we attempt to preserve the completeness of
+a novel recurrent architecture with a two-stage segmenter           the vocabulary space in pre-trained VLMs.
+as the recurrent unit, maintaining the same set of weights          Open-vocabulary segmentation without mask supervi-
+across all time steps. The two-stage segmenter consists of a        sion. Several works [6, 10, 11, 23, 42, 46, 50, 51, 55, 68,
+mask proposal generator and a mask classifier to assess the         69, 84] avoid the aforementioned vocabulary reduction is-
+mask proposals. Both are built upon a pre-trained CLIP              sue by not fine-tuning on any mask annotations. Instead,
+model without modifications. Given an input image and               researchers allow semantic grouping to emerge automati-
+multiple text queries, our model recurrently aligns the vi-         cally without any mask supervision. GroupViT [68] learns
+sual and textual spaces and generates refined masks as the          to progressively group semantic regions with weak super-
+final output, continuing until a stable state is achieved. Ow-      vision, using only image-text datasets. Furthermore, it is
+ing to its recurrent nature, we name our entire framework as        possible to use a pre-trained VLM for open-vocabulary seg-
+CLIP as RNN (CaR).                                                  mentation without any additional training [27, 55, 84]. For
+    Experimental results demonstrate our approach is re-            example, MaskCLIP [84] enables CLIP to perform open-
+markably effective. In comparison with methods that do not          vocabulary segmentation by only modifying its image en-
+use additional training data, i.e., zero-shot open-vocabulary       coder. However, these methods often suffer from inferior
+semantic segmentation, our approach outperforms the prior           segmentation performance due to the lack of mask supervi-
+art by 28.8, 16.0, and 6.9 mIoU on Pascal VOC [19], COCO            sion, and the modification of the pre-trained VLMs. CaR is
+Object [36], and Pascal Context [45], respectively. Im-             closely related to these approaches, we are both in a zero-
+pressively, even when pitted against models fine-tuned on           shot manner without training. CaR stands out by propos-
+extensive additional data, our strategy surpasses the best          ing a recurrent framework on a VLM with fixed weights
+record by 12.6, 4.6, and 0.1 on the three aforementioned            and no alternation on its architecture. Note that our zero-
+datasets, respectively. To assess our model’s capacity to           shot is different from the zero-shot semantic segmenta-
+handle more complex text queries, we evaluate on the re-            tion [2, 3, 17, 24, 33, 66, 84] that mirrors the seen/unseen
+  (a) Compressed                 (b) Unfolded Pipeline                                                                       Final Mask Prediction
+  Pipeline
+              Mask 𝑦!                              Mask 𝑦#                        Mask 𝑦!                                  Stop & Post-Process
+                                  Manchester                       Manchester
+                                   United,                          United,                                Manchester                Y
+                                  Barcelona,                   𝝈   Barcelona,                      𝝈        United,      …                  N …
+      ℎ!"#      Segmenter          Arsenal,      Segmenter                       Segmenter                 Manchester
+                                                                                                                                   ℎ! == ℎ!"# ?
+                                                                    Arsenal,
+                                  Manchester                       Manchester                                 City
+                                     City,                            City
+                 Image 𝑥!                         Image 𝑥#                       Image 𝑥$
+                                     ℎ%                               ℎ#                                       ℎ$
+
+  …      Manchester United, Barcelona, Text query ℎ!"#                                                                       (c) Details of each stage
+           Arsenal, Manchester City,
+                                                   Segmenter
+
+
+
+
+                                                                                         Mask Classifier
+                                                                                …                               Manchester
+
+
+
+
+                                                                                          (CLIP) 𝑔(⋅,⋅)
+                   Proposal                                                                                      United,
+                  Generator                                                                                𝝈    Barcelona,     …
+                 (CLIP+CAM)                                                                                      Arsenal,
+                    𝑓(⋅.⋅)                                                                                      Manchester
+  Image 𝑥!                                                                                                         City
+                                  Mask Proposals 𝑦!      Image+Visual Prompts 𝑥!&                              Text query ℎ!        Final Mask Prediction
+
+Figure 3. The overall framework of our method CaR. (a), (b): given an image, the user provides a set of text queries that they are
+interested to segment. This initial set, denoted by h0 , may refer to non-existing concepts in the image, e.g., Barcelona and Arsenal.
+In the t-th time step, the frozen segmenter evaluates the degree of alignment between each mask and text query from the previous time step,
+ht−1 , and then low-confidence queries are eliminated by the function σ. (c) depicts the detailed architecture of our two-stage segmenter. It
+consists a mask proposal generator f (·, ·), and a mask classifier g(·, ·) that assesses the alignment of each mask-text pairs.
+
+
+class separation from zero-shot classification in earlier ages.             sequential data, such as text, speech, and time series. A ba-
+Segmentation with VLM-generated pseudo-labels. As                           sic RNN, commonly known as a vanilla RNN, uses the same
+an alternative direction, recent works have exploited pre-                  set of weights to process data at all time steps. At each time
+trained VLMs to generate pseudo-masks in a fixed label                      step t, the process can be expressed as follows:
+space, requiring only image-level labels or captions for
+training [1, 37, 41, 52, 55, 67, 71, 84]. Once pseudo mask                              ht = σ(Whh ht−1 + Wxh xt + bh ),                             (1)
+labels are obtained, a segmenter with a fixed vocabulary                                yt = Why ht + by .                                           (2)
+(e.g., DeepLab [12, 13]) can be trained in a fully super-
+vised manner. Among these, CLIP-ES [37] is particularly                     xt represents the input, and ht represents the hidden state
+relevant as it directly uses CLIP for pseudo-mask genera-                   which serves as the “memory” to store information from
+tion given the class names in ground-truth. However, CLIP-                  previous steps. yt denotes the output. Whh , Wxh , and Why
+ES [37] requires pseudo-label training while we do not.                     are weight matrices, bh and by refer to bias terms, and σ
+Progressive refinement for image segmentation. Pro-                         denotes a thresholding function to introduce non-linearity.
+gressive refinement in image segmentation has seen sig-                        An RNN’s core lies in its hidden state, ht , which cap-
+nificant advancements through various approaches. Re-                       tures information from past time steps. This empowers
+cent works [8, 15, 16, 60, 62, 75] such as Cascade R-                       RNNs to exploit temporal dynamics within sequences. In
+CNN [7], DETR [8] and CRF-RNN [82] combine a detector                       our approach CaR, we design a similar process - iteratively
+(R-CNN [21]), a transformer [61] or a segmenter (dense-                     aligning the textual and visual domains by assessing the ac-
+CRF [31]) repeatedly for iterative refinement. We kindly                    curacy of each text query through a segmenter, using the
+note that all these works are designed for supervised image                 same set of weights as well. The text queries at each step
+instance or semantic segmentation in a closed-set vocabu-                   act like the RNN’s hidden state, representing the entities
+lary. Our method does not require any training effort, yet                  identified in the image at each specific time step.
+our way of progressive refinement is fundamentally differ-
+ent from these methods.                                                     3.2. Overview
+                                                                               As depicted in Figure 3(a) and (b), our training-free
+3. CLIP as Recurrent Neural Networks                                        framework operates in a recurrent manner, with a fixed-
+                                                                            weight segmenter shared across all time steps. In the t-th
+3.1. A Recap on Recurrent Neural Networks
+                                                                            time step, the segmenter receives an image xt ∈ R3×H×W
+We begin with a concise overview of recurrent neural net-                   and a set of text queries ht−1 from the preceding step as
+works (RNN). RNNs are specifically designed to process                      the input. It then produces two outputs: a set of masks
+Algorithm 1 Pseudo-code of CLIPasRNN in PyTorch style.                                    Background Background Background
+                                                                 Red Circle Red Contour
+                                                                                             Blur       Gray      Mask
+# img: the input image with shape (3, H, W)
+# h_0: a list of the initial N_0 text queries.
+# clip: the CLIP model encoding the image and texts.
+# cam: the gradient-based CAM model for mask proposal
+     generation.
+# eta: a threshold to binarize the masks for visual
+     prompting.                                                 Figure 4. Examples of visual prompts given a mask on the man
+# theta: a threshold defined in Eq. 6.
+                                                                wearing the jersey of Manchester United.
+h_{t-1} = h_0
+while len(h_{t-1}) > 0:
+   # logits: [1, len(h_{t-1})]
+   logits = clip(img, h_{t-1})
+   scores = softmax(logits, dim=-1)                             θ will be removed so that the text queries ht = σ(Pt ) for the
+   # proposals: [len(h_{t-1}), H, W]                            next step t are obtained. ht is a potentially reduced set of
+   proposals = cam(clip, img, scores)
+   # prompted_img: [len(h_{t-1}), H, W]                         ht−1 . Details of the thresholding function will be given in
+   prompted_imgs = apply_visual_prompts(img, proposals
+        , eta)                                                  Section 3.3. This recurrent process continues until the text
+   # mask_logits: [len(h_{t-1}), len(h_{t-1})]                  queries remain unchanged between consecutive steps, i.e.,
+   mask_logits = clip(prompted_imgs, h_{t-1})
+   mask_scores = softmax(mask_logits, dim=-1)                   ht == ht−1 . We use T to denote this terminal time step.
+   # diag_scores: [len(h_{t-1})]
+   diag_scores = diagonal(mask_scores)                          Finally, we apply post-processing described in Section 3.4
+   h_t = []                                                     to the mask proposals yT generated in the final time step.
+   for score, label in zip(diag_scores, h_{t-1}):
+      if score > theta:                                             The pseudo-code in PyTorch-style is given in Algo-
+         h_t.append(label)
+   if len(h_t) == len(h_{t-1}):                                 rithm 1. Note that users provide the initial text queries
+      break                                                     h0 , which are unrestricted and can include general object
+   h_{t-1} = h_t
+final_masks = post_process(proposals)                           classes (“cat”), proper nouns (“Space Needle”), referring
+                                                                phrases (“the man in red jacket”), etc.
+
+                                                                3.3. The Two-stage Segmenter
+yt ∈ [0, 1]Nt−1 ×H×W corresponding to Nt−1 input text
+queries, and the updated text queries ht for the subsequent     In this section, we explain the two components of our seg-
+step. For image segmentation, all different time steps share    menter, i.e. a mask proposal generator and a mask classi-
+the same xt .                                                   fier, which serve as the recurrent unit. As illustrated in Fig-
+   To delve deeper into the design of our framework, we         ure 3(c), the mask proposal generator first predicts a mask
+formulate its operations through Eq. (3) to Eq. (5).            for each text query and then the mask classifier filters out ir-
+                                                                relevant text queries based on the degree of alignment with
+                  yt = f (xt , ht−1 ; Wf ).              (3)    their associated masks. We use the frozen pre-trained CLIP
+                                                                model weights for both the proposal generator and classifier
+Here the function f (·, ·) represents the mask proposal gen-    to fully preserve the knowledge encapsulated in CLIP.
+erator and Wf denotes its pre-trained weights. The mask         Mask proposal generator. To predict the mask proposal yt ,
+proposal generator processes the input image xt and the text    a gradient-based Class-Activation Map (gradCAM) [37, 54]
+queries at previous step ht−1 to generate candidate mask        is applied to the pre-trained CLIP. More specifically, the im-
+proposals yt . Given the mask proposal generator is not pre-    age xt and text queries ht−1 are first fed into CLIP to get
+trained for dense prediction, the mask proposals yt from        a score between the image and each text. We then back-
+f (·, ·) are inaccurate. To assess these mask proposals, we     propagate the gradients of the score of each text query (i.e.,
+draw visual prompts e.g., red circles or background blur,       class) from the feature maps of the CLIP image encoder
+to the input xt , based on mask proposals to highlight the      to obtain a heatmap. Unless otherwise specified, we use
+masked area on the image. The visual prompting function         the Class Activation Map (CAM) and class affinity (CAA)
+v(·, ·) is defined as:                                          module from CLIP-ES [37] as our mask proposal generator,
+                                                                with no further training of the CLIP model required. Apart
+                      x′t = v(xt , yt ).                 (4)
+                                                                from the text queries at the current step, we explicitly add a
+Here x′t represent Nt−1 images with the visual prompts.         set of background queries describing categories that do not
+The prompted images x′t are then passed to the mask classi-     exist in the user text queries and calculate their gradients.
+fier g(·, ·) with the pre-trained weights Wg , along with the   This helps to suppress the activation from irrelevant texts
+text queries ht−1 , to compute a similarity matrix Pt . The     (e.g., Barcelona and Arsenal in Figure 3) in the sub-
+entire process of the mask classifier can be defined as:        sequent mask classification process. More details of how
+                                                                CLIP works with gradCAM are provided in the appendix.
+                  Pt = g(x′t , ht−1 ; Wg ).               (5)   Mask classifier. The masks from the proposal generator
+                                                                may be noisy because the input texts are from an unre-
+Finally, after going through a thresholding function σ(·),      stricted vocabulary and may refer to non-existing objects in
+text queries with similarity scores lower than the threshold    the input image. To remove this type of proposals, we apply
+another CLIP model to compute a similarity score between          CRF-refined mask are combined into one single mask. Fi-
+each query and its associated mask proposal. A straightfor-       nally, we compute the IoU between the combined mask and
+ward approach is blacking out all pixels outside the mask re-     the original CRF-refined mask. If the IoU is greater than a
+gion, as shown in the rightmost image in Figure 4, and then       threshold ϕiou , we adopt the combined mask to replace the
+computing the visual embedding for the foreground only.           original mask, otherwise, we keep the CRF-refined mask.
+However, recent works [41, 56] have found several more            The detailed post-processing steps are explained in the sup-
+effective visual prompts which can highlight the foreground       plementary material.
+as well as preserve the context in the background. Inspired
+by this, we apply a variety of visual prompts, e.g., red          4. Experiments
+circles, bounding boxes, background blur and gray back-
+ground to guide the CLIP model to focus on the foreground         4.1. Zero-shot Semantic Segmentation
+region. A threshold η is set to first binarize the mask pro-      Datasets. Since our method does not require training, be-
+posals yt before applying these visual prompts to the im-         low we introduce only the datasets utilized for evaluation
+ages. Please refer to the supplementary material for more         purposes. We conduct assessments for semantic segmen-
+implementation details. After applying visual prompts, we         tation using the validation (val) splits of Pascal VOC,
+obtain Nt−1 different prompted images, corresponding to           Pascal Context, and COCO Object. Specifically, Pascal
+Nt−1 text queries (ht−1 ). We feed these images and text          VOC [18] encompasses 21 categories: 20 object classes
+queries into the CLIP classifier g(·, ·) followed by a soft-      (VOC-20) alongside one background class (VOC-21). For
+max operation along the text query dimension to get the           Pascal Context [45], our evaluation employs the prevalent
+similarity matrix Pt ∈ RNt−1 ×Nt−1 given the image and            version comprising 59 classes including both “things” and
+text embeddings. We only keep the diagonal elements of            “stuff” categories (PC-59), and one background (“other”)
+Pt as the matching score between the i-th mask and the i-th       class for the concepts outside of the 59 classes (PC-60).
+query. If the score is lower than a threshold θ, the query and    Following [68], we construct the COCO Object dataset as
+its mask are filtered out. Mathematically, the thresholding       a derivative of COCO Stuff [5]. We kindly emphasize that
+function σ(·) is defined as follows:                              the COCO Object dataset is not COCO Stuff since it merges
+                             (                                    all “stuff” classes into one background class and thus has
+             i         ii      hit−1 , if Ptii ≥ θ                81 classes (80 “things” + 1 background) in total. We use
+            ht = σ(Pt ) =                                   (6)
+                               NULL, if Ptii < θ                  the standard mean Intersection-over-Union (mIoU) metric
+                                                                  to evaluate our method’s segmentation performance. Be-
+where Ptii is the i-th element of the diagonal of the nor-        sides, we report the performance of CaR on ADE-150 (A-
+malized similarity matrix, and θ is a manually set threshold.     150), ADE-847 (A-847) and Pascal Context 459 (PC-459)
+NULL represents that the i-th text query is filtered out and      that consist of 150, 847 and 459 classes respectively.
+will not be input to next steps.                                  Implementation details. Our proposed method CaR uti-
+                                                                  lizes the foundational pre-trained CLIP models as the back-
+3.4. Post-Processing
+                                                                  bone. More precisely, we harness the CLIP model with
+Once the recurrent process stops, we start to post-process        ViT-B/16 to serve as the underlying framework for the
+yT , the masks from the final step T . We employ dense con-       mask proposal generator f (·, ·). Concurrently, for the mask
+ditional random field (CRF) [31] to refine mask boundaries.       classifier g(·, ·), we adopt a larger ViT-L/14 version for
+When constructing the CRF, the unary potentials are cal-          higher precision based on our ablation study. Unless oth-
+culated based on the mask proposals of the last step. All         erwise specified, the reported quantitative results are post-
+hyper-parameters are set to the defaults in [31]. Finally, an     processed solely with a denseCRF, with no SAM masks
+argmax operation is applied to the mask output of dense-          involved. When setting the threshold hyper-parameters,
+CRF along the dimension of text queries. Thus, for each           we assign η = 0.4, θ = 0.6, and λ = 0.4 for Pascal
+spatial location of the mask we only keep the class (text         VOC, and η = 0.5, θ = 0.3, λ = 0.5 for COCO and
+query) with the highest response.                                 η = 0.6, θ = 0.2, λ = 0.4 for Pascal context. The spe-
+    Additionally, we propose to ensemble the CRF-refined          cific background queries used for the mask generator f (·, ·)
+masks with SAM [30], as an optional post-processing mod-          are ablated in Section 4.2 and detailed in the supplemen-
+ule. This begins with generating a set of mask propos-            tary material. For Pascal Context, we use separate groups
+als from SAM using the automask mode, without enter-              of background queries for “thing” and “stuff”. For “thing”
+ing any prompts into SAM. To match these SAM propos-              categories, all “stuff” categories are added as background
+als with the masks processed by denseCRF, we introduce            queries and vice versa for “stuff” categories. As an optional
+a novel metric: the Intersection over the Minimum-mask            strategy, we utilize a matching algorithm and perform an en-
+(IoM). If the IoM between a mask from SAM and a CRF-              semble with SAM masks. We set both thresholds, ϕiom and
+refined mask surpasses a threshold ϕiom , we consider them        ϕiou , to 0.7 for all three datasets. We enable half-precision
+matched. Then all SAM proposals matched to the same               floating point for CLIP. Since CaR is just a framework de-
+                               Is VLM w/ aux trainable     Additional           Additional VOC- VOC- COCO PC- PC- A- A- PC-
+Models                                                                  #Images
+                             pre-trained?     module?     Training Data         Supervision 20‡     21 Object 59‡ 60 150 847 459
+zero-shot methods fine-tuned with additional data
+ViL-Seg [39]                      ✓             ✓            CC12M        12M    text+self    -   34.4 16.4     - 16.3 -      -  -
+GroupViT [68]                      ×            ✓        CC12M+YFCC       26M       text     74.1 52.3 24.3 23.4 22.4 10.6 4.3 4.9
+GroupViT [68]                      ×            ✓       CC12M+RedCaps     24M       text     79.7 50.8 27.5     - 23.7 -      -  -
+SegCLIP [42]                       ×            ✓        CC3M+COCO       3.4M    text+self    -   33.3 15.2     - 19.1 -      -  -
+SegCLIP [42]                      ✓             ✓        CC3M+COCO       3.4M    text+self    -   52.6 26.5     - 24.7 8.7 -     -
+ZeroSeg [11]                      ✓             ✓            IN-1K       1.3M       self      -   40.8 20.2     - 20.4 -      -  -
+ViewCo [51]                       ✓             ✓        CC12M+YFCC       26M    text+self    -   52.4 23.5     - 23.0 -      -  -
+MixReorg [6]                      ✓             ✓            CC12M        12M       text      -   47.9    -     - 23.9 -      -  -
+CLIPpy [50]                       ✓             ×         HQITP-134M     134M text+self       -   52.2 32.0     -    - 13.5 -    -
+OVSegmenter [69]                  ✓             ✓            CC4M         4M        text      -   53.8 25.1     - 20.4 -      -  -
+TCL [10]                          ✓             ✓            CC15M        15M    text+self 77.5 51.2 30.4 24.3 30.3 14.9 -       -
+TCL+PAMR [10]                     ✓             ✓            CC15M        15M    text+self 83.2 55.0 31.6 33.9 30.4 17.1 -       -
+zero-shot methods with SAM
+SAMCLIP [63] (w/ [30])            ✓             ✓      CC15M+YFCC+IN21k 41M      text+self    -   60.6    -     - 29.2 17.1 -    -
+CaR+SAM (Ours, w/ [28])           ✓              -              -           -         -       -    70.2 37.6    - 31.1 -      -  -
+zero-shot methods without fine-tuning on CLIP
+ReCo† [55]                        ✓             ×               -           -         -      57.7 25.1 15.7 22.3 19.9 11.2 -     -
+MaskCLIP† [84]                    ✓             ×               -           -         -      74.9 38.8 20.6 26.4 23.6 9.8 -      -
+CaR (Ours, w/o SAM)               ✓             ×               -           -         -      91.4 67.6 36.6 39.5 30.5 17.7 8.1 13.9
+∆ w/ the state-of-the-art w/o additional data                                               +16.5 +28.8 +16.0 +13.1 +6.9 +6.5 -  -
+∆ w/ the state-of-the-art w/ additional data                                                +8.2 +12.6 +4.6 +5.6 +0.1 +0.6 +3.8 +9.0
+
+Table 1. Comparison to state-of-the-art zero-shot semantic segmentation approaches. Results annotated with a † are reported by Cha
+et al. [10]. A ✓ is placed if either the visual or text encoder of the VLM is pre-trained. The table shows that our method outperforms
+not only counterparts without fine-tuning by a large margin, but also those fine-tuned on millions of data samples. For fair comparison,
+we compare with methods using CLIP [49] as the backbone. ‡ VOC-20 and PC-59 represent Pascal VOC and Pascal Context without
+background. VOC-21 and PC-60 represent Pascal VOC and Pascal Context with an additional background class. A-150, A-847 and PC-
+459 represent ADE-150, ADE-847, and Pascal Context 459 datasets, respectively.
+
+
+     Dataset       w/ recurrence?        CAM           mIoU            ods including ViL-Seg [39], GroupViT [68], SegCLIP [42],
+                                     CLIP-ES [37]      15.2            ZeroSeg [11], ViewCo [51], CLIPpy [50], and TCL [10],
+   Pascal VOC            ✓           CLIP-ES [37]      67.6            which are augmented with additional data. The prior
+                         ✓           gradCAM [54]      41.1            best results of different datasets are achieved by different
+                                                                       methods. Specifically, TCL [10], employing a fully pre-
+Table 2. Effect of applying our recurrent architecure and dif-         trained CLIP model and fine-tuned on 15M additional data,
+ferent CAM methods. The recurrence plays a vital role in im-           achieves the highest mIoU (55.0 and 30.4) on Pascal VOC
+proving the performance.                                               and Pascal Context. CLIPpy [50] sets the previous high-
+                                                                       est record on COCO Object but also requires extensive data
+                                                                       for fine-tuning. Concretely, it first utilizes a ViT-based im-
+signed for inference, all experiments in this paper are con-           age encoder pre-trained with DINO [9] and a pre-trained T5
+ducted on just one NVIDIA V100 GPU.                                    text encoder [48], and then fine-tunes both encoders with
+Efficiency. CaR without SAM operates at 950 ms with                    134M additional data. Our method, incurring no cost for
+CPU-based CRF (200ms) for 500 × 500 images. GPU CRF                    fine-tuning, still outperforms these methods by 12.6, 4.5,
+is ∼ 5× faster. CaR is memory-efficient, consuming only                and 0.1 mIoU on the Pascal VOC, COCO Object, and Pas-
+3.6GB GPU memory on Pascal VOC.                                        cal Context datasets, respectively. Since “stuff” appears less
+CaR significantly outperforms methods without addi-                    frequently in the pre-training image-text data for CLIP, CaR
+tional training. We also compare CaR with training-free                also exhibits less sensitivity to “stuff” on Pascal Context.
+methods like MaskCLIP [84] and ReCo [55]. Across the
+benchmarks, our model consistently demonstrates an im-                 CaR+SAM further boosts the performance. When inte-
+pressive performance uplift. Under a similar setting with no           grated with SAM [28, 30], we compare CaR with a concur-
+additional training data, CaR surpasses previous state-of-             rent method SAMCLIP [63] and outperform it by 9.6 and
+the-art method by 28.8, 16.0 and 6.9 mIoU on Pascal VOC,               1.9 on Pascal VOC and Pascal Context. We use the recent
+COCO Object and Pascal Context, respectively.                          variant HQ-SAM [28] with no prompt given (automask
+Training-free CaR even outperforms several methods                     mode), and then match the generated masks with metrics
+with additional fine-tuning. As shown in Table 1, we                   designed in Section 3.4. In other words, SAM is only used
+compare our method with previous state-of-the-art meth-                as a post-processor to refine the boundary of results from
+    Mask Proposal        Mask Classifier   Pascal    COCO                           Pascal VOC             COCO Object
+    Generator f (·, ·)      g(·, ·)        VOC       Object                    η     θ    λ mIoU      η      θ   λ mIoU
+                           ViT-B/16         54.1      15.9                    0.3   0.6 0.4 67.0     0.5    0.3 0.6 35.4
+        ViT-B/16
+                           ViT-L/14         67.6      36.6                    0.4   0.6 0.4 67.6     0.5    0.3 0.4 36.1
+                           ViT-B/16         50.6      14.1                    0.5   0.6 0.4 67.0     0.4    0.3 0.5 35.8
+        ViT-L/14
+                           ViT-L/14         57.6      32.5                    0.4   0.5 0.4 67.4     0.5    0.3 0.5 36.6
+                                                                              0.4   0.7 0.4 67.5     0.6    0.3 0.5 35.9
+Table 3. Effect of CLIP backbones. We compare various CLIP                    0.4   0.6 0.3 67.3     0.5    0.4 0.5 36.3
+backbones on Pascal VOC and COCO Object. Results show that                    0.4   0.6 0.5 67.0     0.5    0.5 0.5 36.0
+we can improve the performance by scaling up the mask classifier.
+                                                                    Table 5. Effect of different hyper-parameters: the threshold to
+                                                                    binarize mask proposals (η), the threshold to remove text queries
+                     Visual Prompts                                 (θ), and parameter of CLIP-ES’s[37] (λ). Experiments are con-
+ Dataset                                 mIoU
+           circle contour blur gray mask                            ducted on Pascal VOC and COCO Object.
+             ✓                           66.9
+                     ✓                   66.0
+                               ✓         66.4
+                                    ✓    66.1                       COCO Object datasets. Results are displayed in Table 3.
+ Pascal                               ✓  61.8                       As for the mask proposal generator, ViT-B/16 outperforms
+ VOC         ✓                 ✓         67.6                       the ViT-L/14 by over 10 mIoU on both Pascal VOC and
+             ✓                      ✓    67.1                       COCO Object. There is significant mIoU gains when em-
+                     ✓         ✓         66.5                       ploying the larger ViT-L/14 for the mask classifier over ViT-
+                               ✓    ✓    66.3                       B/16. Similar observations have been found by Shtedrit-
+             ✓                 ✓    ✓    66.8                       ski et al. [56] that a larger backbone can better understand
+                                                                    the visual prompts, which indicates that the performance of
+Table 4. Effect of different visual prompts. When multiple          our method can be potentially improved by employing large
+visual prompts are checked, we will apply all checked visual        backbones for the mask classifier.
+prompts simultaneously on one image. The experiments are con-       Effect of different visual prompts. There are various
+ducted on Pascal VOC. Results for COCO and Pascal Context are
+                                                                    forms of visual prompts, including circle, contour, back-
+shown in supplementary materials.
+                                                                    ground blur (blur), background gray (gray), and back-
+                                                                    ground mask (mask), etc. We study the effects of different
+                                                                    visual prompts on the Pascal VOC dataset and Table 4 sum-
+CaR. By applying SAM into our framework, our results can
+                                                                    marizes the results when applying one or a combination of
+be further boosted by 2.6, 1.1 and 0.6 mIoU on Pascal VOC,
+                                                                    two of the aforementioned visual prompt types. The highest
+COCO Object and Pascal Context, respectively.
+                                                                    mIoU score is achieved with the combination of circle
+4.2. Ablation Studies.                                              and blur, yielding a mIoU of 67.6. Notably, using mask
+                                                                    alone results in the lowest mIoU of 61.8, which is a com-
+Effect of Recurrence. As illustrated in Table 2, the in-            mon practice for most previous open-vocabulary segmenta-
+corporation of the recurrent architecture is crucial to our         tion approaches, e.g., [35, 76]. We also evaluate the effect of
+method. Without recurrence (a.k.a T = 1), our method                different visual prompts on COCO Object and Pascal Con-
+functions similarly to CLIP-ES [37] with an additional              text, and show the results in the supplementary material.
+CLIP classifier, and achieves only 15.2% in mIoU. The re-           Effect of hyper-parameters. We perform an ablation study
+current framework can lead to a 52.4% improvement, reach-           on the performance impact of various hyper-parameter con-
+ing an mIoU of 67.6%. The significant improvement vali-             figurations on Pascal VOC, and present the results in Ta-
+dates the effectiveness of the recurrent design of our frame-       ble 5. Hyper-parameters include the mask binarization
+work. For VOC and COCO, most images require two steps,              threshold, η, defined in Section 3.3, the threshold θ em-
+and a small portion of images goes beyond two.                      ployed in the thresholding function defined in Eq. (6), and
+Effect of different CAM methods. Table 2 exhibits that              the parameter λ defined in CLIP-ES [37]. The peak perfor-
+our framework is compatible with different CAM methods              mance is recorded at an mIoU of 67.6 for η = 0.4, θ = 0.6,
+and could be potentially integrated with other CAM-related          and λ = 0.4 on Pascal VOC and 36.6 for η = 0.5, θ = 0.3,
+designs. When integrated with CLIP-ES [37], our method is           and λ = 0.5 on COCO Object. Different parameter combi-
+26.5 mIoU higher than that with gradCAM [54]. We kindly             nations result in mIoU scores that range from 67.0 to 67.6
+note that we do not carefully search the hyper-parameters on        on Pascal VOC and from 35.4 to 36.6 on COCO Object.
+gradCAM so the performance could be further improved.               Effect of background queries. In Table 6, we explore how
+Effect of different CLIP Backbones. We experiment with              different background queries (classes not existing in the in-
+different settings of CLIP backbones used in the mask pro-          put queries) can affect CaR’s performance. We find that the
+posal generator f and mask classifier g, on Pascal VOC and          segmentation quality improves as we include more diverse
+                  Background queries                                       segmentation on Ref-DAVIS 2017 [29]. Following [29],
+ Dataset                Aquatic               mIoU                         we adopt region similarity J , contour accuracy F, and the
+         Terrestrial                 Man-Made
+                     Atmospheric                                           averaged score J &F as the metrics for evaluation.
+              ×            ×            ×     64.3                         Experimental results. Table 7
+              ✓            ×            ×     65.6                         compares the performance of
+              ×            ✓            ×     64.9                                                                 J &F      J     F
+                                                                           CaR with other methods on               30.34 28.15 32.53
+  Pascal      ×            ×            ✓     66.4
+  VOC         ✓            ✓            ×     65.8
+                                                                           the referring image segmen-
+              ×            ✓            ✓     66.4                         tation tasks across RefCOCO,          Table 8. Results on
+              ✓            ×            ✓     65.8                         RefCOCO+, and RefCOCOg.               Ref-DAVIS 2017.
+              ✓            ✓            ✓     67.6                         Comparing with other zero-shot
+                                                                           methods, our method CaR out-
+Table 6. Effect of background queries on Pascal VOC. We                    performs Global-Local CLIP (GL CLIP) on all splits of
+divide background queries into: Terrestrial, Aquatic,                      these benchmarks. The performance gap is most pro-
+Atmospheric, and Man-Made. We use “None” as the back-                      nounced on RefCOCO’s testA split, where CaR outper-
+ground query for the result in the first row. Specific background          forms 10.42 mIoU, and similarly on RefCOCO+’s testA
+queries of each category are shown in the supplementary material.          split, with a lead of 10.72 mIoU. We also note that GL
+                                                                           CLIP [77] uses a pre-trained segmenter Free-SOLO [64] for
+Models            RefCOCO          RefCOCO+           RefCOCOg      GRES   mask extraction, while CaR is built without any pre-trained
+               val testA testB val testA testB val test(U) val(G)          segmenter. As the first zero-shot method on GRES [38],
+weakly-supervised
+TSEG [58]     25.95 -       - 22.62 -         - 23.41     -     -     -    CaR achieves 16.8 mIoU with no training effort incurred.
+zero-shot                                                                      For referring video segmentation, we demonstrate in Ta-
+GL CLIP [77] 26.20 24.94 26.56 27.80 25.64 27.84 33.52 33.67 33.61    -
+CaR(Ours)     33.57 35.36 30.51 34.22 36.03 31.02 36.67 36.57 36.63 16.8
+                                                                           ble 8 that our method achieves 30.34, 28.15 and 32.53 for
+                                                                           J &F, J and F on Ref-DAVIS 2017 [29]. Considering
+Table 7. Comparison to state-of-the-art methods on referring               that our method CaR requires neither fine-tuning nor anno-
+image segmentation in mIoU. CaR is better than all comparison              tations and operates in a zero-shot manner, this performance
+methods in all benchmarks.                                                 establishes a strong baseline.
+
+                                                                           5. Conclusion
+background queries: The combination of all three types of
+                                                                           We introduce CLIP as RNN (CaR), which preserves the en-
+background queries delivers the highest mIoU of 67.6. For
+                                                                           tire large vocabulary space of pre-trained VLMs, by elimi-
+more details about the background queries of each class,
+                                                                           nating the fine-tuning process. By constructing a recurrent
+please refer to the supplementary material.
+                                                                           pipeline with a shared segmenter in the loop, CaR can per-
+                                                                           form zero-shot semantic and referring segmentation with-
+4.3. Referring Segmentation                                                out any additional training efforts. Experiments show that
+We evaluate CaR on the referring segmentation task for both                CaR outperforms previous state-of-the-art counterparts by
+images and videos. Again, our method is an inference-only                  a large margin on eight different benchmarks, i.e. Pascal
+pipeline built upon pre-trained CLIP models, and does not                  VOC, COCO Object, Pascal Context, ADE-150, ADE-847
+need training/fine-tuning on any types of annotations. For                 and Pascal Context 459 on zero-shot semantic segmenta-
+referring segmentation we only use denseCRF [31] for post-                 tion. We also demonstrate that CaR can handle referring
+processing, and SAM is not involved for all experiments in                 expressions and segment fine-grained concepts like anime
+this section for fair comparison. Please refer to the supple-              characters and landmarks, and also achieves state-of-the-art
+mentary material for the implementation details.                           performance on RefCOCO, RefCOCO+, RefCOCOg and
+                                                                           GRES for zero-shot referring segmentation. We hope our
+Datasets. Following [72, 77], we evaluate on Ref-
+                                                                           work sheds light on future research in open-vocabulary seg-
+COCO [74], RefCOCO+ [74], RefCOCOg [43, 47] and
+                                                                           mentation aiming to further expand the vocabulary space.
+GRES [38] for the referring image segmentation task. Im-
+ages used in all three datasets are sourced from the MS                    Acknowledgement. The majority of this work was done
+COCO [36] dataset and the masks are paired with descrip-                   during Shuyang’s internship at Google Research. We would
+tive language annotations. In RefCOCO+, descriptions                       like to thank Jindong Gu and Jianhao Yuan at Oxford Uni-
+about location are prohibited, making the task more chal-                  versity, Anurag Arnab, Xingyi Zhou, Huizhong Chen and
+lenging. There are two separate splits of the RefCOCOg                     Neil Alldrin at Google Research for their insightful discus-
+dataset, one by UMD (U) [47] and another by Google                         sion, Zhongli Ding for image donation. Shuyang Sun and
+(G) [65]. Following previous work, we use the standard                     Philip Torr are supported by UKRI grants: Turing AI Fel-
+mIoU metric. Apart from referring image segmentation, we                   lowship EP/W002981/1. We would also like to thank the
+also set up a new baseline for zero-shot referring video                   Royal Academy of Engineering and FiveAI.
+References                                                            [15] Bowen Cheng, Alexander G Schwing, and Alexander Kir-
+                                                                           illov. Per-pixel classification is not all you need for semantic
+ [1] Nikita Araslanov and Stefan Roth. Single-stage seman-                 segmentation. In NeurIPS, 2021. 3
+     tic segmentation from image labels. In Proceedings of
+                                                                      [16] Bowen Cheng, Ishan Misra, Alexander G Schwing, Alexan-
+     the IEEE/CVF Conference on Computer Vision and Pattern
+                                                                           der Kirillov, and Rohit Girdhar. Masked-attention mask
+     Recognition, pages 4253–4262, 2020. 3
+                                                                           transformer for universal image segmentation. CVPR, 2022.
+ [2] Donghyeon Baek, Youngmin Oh, and Bumsub Ham. Ex-                      3
+     ploiting a joint embedding space for generalized zero-shot       [17] Jian Ding, Nan Xue, Gui-Song Xia, and Dengxin Dai. De-
+     semantic segmentation. In ICCV, 2021. 2                               coupling zero-shot semantic segmentation. In Proceedings of
+ [3] Maxime Bucher, Tuan-Hung Vu, Matthieu Cord, and Patrick               the IEEE/CVF Conference on Computer Vision and Pattern
+     Pérez. Zero-shot semantic segmentation. Advances in Neural           Recognition, pages 11583–11592, 2022. 2
+     Information Processing Systems, 32, 2019. 2                      [18] Mark Everingham, Luc Van Gool, Christopher KI Williams,
+ [4] Holger Caesar, Jasper Uijlings, and Vittorio Ferrari. Coco-           John Winn, and Andrew Zisserman. The pascal visual object
+     stuff: Thing and stuff classes in context. In Proceedings of          classes (voc) challenge. IJCV, 88:303–338, 2010. 5
+     the IEEE conference on computer vision and pattern recog-        [19] Mark Everingham, Luc Van Gool, Christopher KI Williams,
+     nition, 2018. 2                                                       John Winn, and Andrew Zisserman. The pascal visual object
+ [5] Holger Caesar, Jasper Uijlings, and Vittorio Ferrari. Coco-           classes (voc) challenge. International journal of computer
+     stuff: Thing and stuff classes in context. In Proceedings of          vision, 88:303–338, 2010. 2, 13, 15
+     the IEEE conference on computer vision and pattern recog-        [20] Golnaz Ghiasi, Xiuye Gu, Yin Cui, and Tsung-Yi Lin. Scal-
+     nition, pages 1209–1218, 2018. 5, 15                                  ing open-vocabulary image segmentation with image-level
+ [6] Kaixin Cai, Pengzhen Ren, Yi Zhu, Hang Xu, Jianzhuang                 labels. In European Conference on Computer Vision, pages
+     Liu, Changlin Li, Guangrun Wang, and Xiaodan Liang.                   540–557. Springer, 2022. 2
+     Mixreorg: Cross-modal mixed patch reorganization is a good       [21] Ross Girshick, Jeff Donahue, Trevor Darrell, and Jitendra
+     mask learner for open-world semantic segmentation. In                 Malik. Rich feature hierarchies for accurate object detection
+     Proceedings of the IEEE/CVF International Conference on               and semantic segmentation. In Proceedings of the IEEE con-
+     Computer Vision, pages 1196–1205, 2023. 2, 6                          ference on computer vision and pattern recognition, pages
+ [7] Zhaowei Cai and Nuno Vasconcelos. Cascade r-cnn: Delving              580–587, 2014. 3
+     into high quality object detection. In CVPR, 2018. 3             [22] Xiuye Gu, Tsung-Yi Lin, Weicheng Kuo, and Yin Cui.
+ [8] Nicolas Carion, Francisco Massa, Gabriel Synnaeve, Nicolas            Open-vocabulary object detection via vision and language
+     Usunier, Alexander Kirillov, and Sergey Zagoruyko. End-to-            knowledge distillation. arXiv preprint arXiv:2104.13921,
+     end object detection with transformers. In European confer-           2021. 2
+     ence on computer vision, pages 213–229. Springer, 2020. 3        [23] Wenbin He, Suphanut Jamonnak, Liang Gou, and Liu Ren.
+ [9] Mathilde Caron, Hugo Touvron, Ishan Misra, Hervé Jégou,             Clip-s4: Language-guided self-supervised semantic segmen-
+     Julien Mairal, Piotr Bojanowski, and Armand Joulin. Emerg-            tation. In Proceedings of the IEEE/CVF Conference on Com-
+     ing properties in self-supervised vision transformers. In Pro-        puter Vision and Pattern Recognition, pages 11207–11216,
+     ceedings of the IEEE/CVF international conference on com-             2023. 2
+     puter vision, pages 9650–9660, 2021. 6                           [24] Ping Hu, Stan Sclaroff, and Kate Saenko. Uncertainty-aware
+[10] Junbum Cha, Jonghwan Mun, and Byungseok Roh. Learn-                   learning for zero-shot semantic segmentation. Advances in
+     ing to generate text-grounded mask for open-world semantic            Neural Information Processing Systems, 33:21713–21724,
+     segmentation from only image-text pairs. In Proceedings of            2020. 2
+     the IEEE/CVF Conference on Computer Vision and Pattern           [25] Chao Jia, Yinfei Yang, Ye Xia, Yi-Ting Chen, Zarana Parekh,
+     Recognition, pages 11165–11174, 2023. 1, 2, 6, 13                     Hieu Pham, Quoc Le, Yun-Hsuan Sung, Zhen Li, and Tom
+[11] Jun Chen, Deyao Zhu, Guocheng Qian, Bernard Ghanem,                   Duerig. Scaling up visual and vision-language representa-
+     Zhicheng Yan, Chenchen Zhu, Fanyi Xiao, Mohamed Elho-                 tion learning with noisy text supervision. In International
+     seiny, and Sean Chang Culatana. Exploring open-vocabulary             conference on machine learning, pages 4904–4916. PMLR,
+     semantic segmentation without human labels. arXiv preprint            2021. 2
+     arXiv:2306.00450, 2023. 2, 6                                     [26] Aishwarya Kamath, Mannat Singh, Yann LeCun, Gabriel
+[12] Liang-Chieh Chen, George Papandreou, Iasonas Kokkinos,                Synnaeve, Ishan Misra, and Nicolas Carion.                Mdetr-
+     Kevin Murphy, and Alan L Yuille. Semantic image segmen-               modulated detection for end-to-end multi-modal understand-
+     tation with deep convolutional nets and fully connected crfs.         ing. In Proceedings of the IEEE/CVF International Confer-
+     In ICLR, 2015. 3                                                      ence on Computer Vision, pages 1780–1790, 2021. 2
+[13] Liang-Chieh Chen, Yukun Zhu, George Papandreou, Florian          [27] Laurynas Karazija, Iro Laina, Andrea Vedaldi, and Christian
+     Schroff, and Hartwig Adam. Encoder-decoder with atrous                Rupprecht. Diffusion models for zero-shot open-vocabulary
+     separable convolution for semantic image segmentation. In             segmentation. arXiv preprint arXiv:2306.09316, 2023. 2
+     ECCV, 2018. 3                                                    [28] Lei Ke, Mingqiao Ye, Martin Danelljan, Yifan Liu, Yu-Wing
+[14] Peijie Chen, Qi Li, Saad Biaz, Trung Bui, and Anh Nguyen.             Tai, Chi-Keung Tang, and Fisher Yu. Segment anything in
+     gscorecam: What objects is clip looking at? In Proceedings            high quality. arXiv preprint arXiv:2306.01567, 2023. 6, 14
+     of the Asian Conference on Computer Vision, pages 1959–          [29] Anna Khoreva, Anna Rohrbach, and Bernt Schiele. Video
+     1975, 2022. 2                                                         object segmentation with language referring expressions. In
+     Computer Vision–ACCV 2018: 14th Asian Conference on            [42] Huaishao Luo, Junwei Bao, Youzheng Wu, Xiaodong He,
+     Computer Vision, Perth, Australia, December 2–6, 2018, Re-          and Tianrui Li. Segclip: Patch aggregation with learnable
+     vised Selected Papers, Part IV 14, pages 123–141. Springer,         centers for open-vocabulary semantic segmentation. In In-
+     2019. 2, 8                                                          ternational Conference on Machine Learning, pages 23033–
+[30] Alexander Kirillov, Eric Mintun, Nikhila Ravi, Hanzi Mao,           23044. PMLR, 2023. 1, 2, 6
+     Chloe Rolland, Laura Gustafson, Tete Xiao, Spencer White-      [43] Junhua Mao, Jonathan Huang, Alexander Toshev, Oana
+     head, Alexander C Berg, Wan-Yen Lo, et al. Segment any-             Camburu, Alan L Yuille, and Kevin Murphy. Generation
+     thing. arXiv preprint arXiv:2304.02643, 2023. 5, 6                  and comprehension of unambiguous object descriptions. In
+[31] Philipp Krähenbühl and Vladlen Koltun. Efficient inference        Proceedings of the IEEE conference on computer vision and
+     in fully connected crfs with gaussian edge potentials. Ad-          pattern recognition, pages 11–20, 2016. 8, 13
+     vances in neural information processing systems, 24, 2011.     [44] M Minderer, A Gritsenko, A Stone, M Neumann, D Weis-
+     3, 5, 8                                                             senborn, A Dosovitskiy, A Mahendran, A Arnab, M De-
+[32] Boyi Li, Kilian Q Weinberger, Serge Belongie, Vladlen               hghani, Z Shen, et al. Simple open-vocabulary object de-
+     Koltun, and Rene Ranftl. Language-driven semantic seg-              tection with vision transformers. arxiv 2022. arXiv preprint
+     mentation. In International Conference on Learning Rep-             arXiv:2205.06230, 2022. 2
+     resentations, 2022. 2                                          [45] Roozbeh Mottaghi, Xianjie Chen, Xiaobai Liu, Nam-Gyu
+[33] Peike Li, Yunchao Wei, and Yi Yang. Consistent structural           Cho, Seong-Whan Lee, Sanja Fidler, Raquel Urtasun, and
+     relation learning for zero-shot segmentation. NeurIPS, 2020.        Alan Yuille. The role of context for object detection and
+     2                                                                   semantic segmentation in the wild. In IEEE Conference on
+[34] Yanghao Li, Haoqi Fan, Ronghang Hu, Christoph Feichten-             Computer Vision and Pattern Recognition (CVPR), 2014. 2,
+     hofer, and Kaiming He. Scaling language-image pre-training          5, 13, 14
+     via masking. In Proceedings of the IEEE/CVF Conference         [46] Jishnu Mukhoti, Tsung-Yu Lin, Omid Poursaeed, Rui Wang,
+     on Computer Vision and Pattern Recognition, pages 23390–            Ashish Shah, Philip HS Torr, and Ser-Nam Lim. Open
+     23400, 2023. 2                                                      vocabulary semantic segmentation with patch aligned con-
+[35] Feng Liang, Bichen Wu, Xiaoliang Dai, Kunpeng Li, Yinan             trastive learning. In Proceedings of the IEEE/CVF Con-
+     Zhao, Hang Zhang, Peizhao Zhang, Peter Vajda, and Diana             ference on Computer Vision and Pattern Recognition, pages
+     Marculescu. Open-vocabulary semantic segmentation with              19413–19423, 2023. 2, 13
+     mask-adapted clip. In Proceedings of the IEEE/CVF Con-
+                                                                    [47] Varun K Nagaraja, Vlad I Morariu, and Larry S Davis. Mod-
+     ference on Computer Vision and Pattern Recognition, pages
+                                                                         eling context between objects for referring expression under-
+     7061–7070, 2023. 1, 2, 7, 13, 15, 18
+                                                                         standing. In Computer Vision–ECCV 2016: 14th European
+[36] Tsung-Yi Lin, Michael Maire, Serge Belongie, James Hays,            Conference, Amsterdam, The Netherlands, October 11–14,
+     Pietro Perona, Deva Ramanan, Piotr Dollár, and C Lawrence          2016, Proceedings, Part IV 14, pages 792–807. Springer,
+     Zitnick. Microsoft coco: Common objects in context. In              2016. 8, 13
+     Computer Vision–ECCV 2014: 13th European Conference,
+                                                                    [48] Jianmo Ni, Gustavo Hernández Ábrego, Noah Constant, Ji
+     Zurich, Switzerland, September 6-12, 2014, Proceedings,
+                                                                         Ma, Keith B Hall, Daniel Cer, and Yinfei Yang. Sentence-
+     Part V 13, pages 740–755. Springer, 2014. 2, 8, 13
+                                                                         t5: Scalable sentence encoders from pre-trained text-to-text
+[37] Yuqi Lin, Minghao Chen, Wenxiao Wang, Boxi Wu, Ke
+                                                                         models. arXiv preprint arXiv:2108.08877, 2021. 6
+     Li, Binbin Lin, Haifeng Liu, and Xiaofei He. Clip is also
+     an efficient segmenter: A text-driven approach for weakly      [49] Alec Radford, Jong Wook Kim, Chris Hallacy, Aditya
+     supervised semantic segmentation. In Proceedings of the             Ramesh, Gabriel Goh, Sandhini Agarwal, Girish Sastry,
+     IEEE/CVF Conference on Computer Vision and Pattern                  Amanda Askell, Pamela Mishkin, Jack Clark, et al. Learning
+     Recognition, pages 15305–15314, 2023. 2, 3, 4, 6, 7, 13,            transferable visual models from natural language supervi-
+     14                                                                  sion. In International conference on machine learning, pages
+[38] Chang Liu, Henghui Ding, and Xudong Jiang. GRES: Gen-               8748–8763. PMLR, 2021. 1, 2, 6, 13
+     eralized referring expression segmentation. In CVPR, 2023.     [50] Kanchana Ranasinghe, Brandon McKinzie, Sachin Ravi,
+     8                                                                   Yinfei Yang, Alexander Toshev, and Jonathon Shlens. Per-
+[39] Quande Liu, Youpeng Wen, Jianhua Han, Chunjing Xu,                  ceptual grouping in vision-language models. arXiv preprint
+     Hang Xu, and Xiaodan Liang. Open-world semantic seg-                arXiv:2210.09996, 2022. 1, 2, 6
+     mentation via contrasting and clustering vision-language       [51] Pengzhen Ren, Changlin Li, Hang Xu, Yi Zhu, Guan-
+     embedding. In European Conference on Computer Vision,               grun Wang, Jianzhuang Liu, Xiaojun Chang, and Xiaodan
+     pages 275–292. Springer, 2022. 1, 6                                 Liang. Viewco: Discovering text-supervised segmentation
+[40] Shilong Liu, Zhaoyang Zeng, Tianhe Ren, Feng Li, Hao                masks via multi-view semantic consistency. arXiv preprint
+     Zhang, Jie Yang, Chunyuan Li, Jianwei Yang, Hang Su, Jun            arXiv:2302.10307, 2023. 1, 2, 6
+     Zhu, et al. Grounding dino: Marrying dino with grounded        [52] Lixiang Ru, Yibing Zhan, Baosheng Yu, and Bo Du. Learn-
+     pre-training for open-set object detection. arXiv preprint          ing affinity from attention: End-to-end weakly-supervised
+     arXiv:2303.05499, 2023. 1, 2, 15, 18                                semantic segmentation with transformers. In Proceedings of
+[41] Timo Lüddecke and Alexander Ecker. Image segmenta-                 the IEEE/CVF Conference on Computer Vision and Pattern
+     tion using text and image prompts. In Proceedings of                Recognition, pages 16846–16855, 2022. 3
+     the IEEE/CVF Conference on Computer Vision and Pattern         [53] Olga Russakovsky, Jia Deng, Hao Su, Jonathan Krause, San-
+     Recognition, pages 7086–7096, 2022. 3, 5                            jeev Satheesh, Sean Ma, Zhiheng Huang, Andrej Karpathy,
+     Aditya Khosla, Michael S. Bernstein, Alexander C. Berg,          [67] Jinheng Xie, Xianxu Hou, Kai Ye, and Linlin Shen. Clims:
+     and Li Fei-Fei. Imagenet large scale visual recognition chal-         Cross language image matching for weakly supervised se-
+     lenge. IJCV, 115:211–252, 2015. 13                                    mantic segmentation. In Proceedings of the IEEE/CVF Con-
+[54] Ramprasaath R Selvaraju, Michael Cogswell, Abhishek Das,              ference on Computer Vision and Pattern Recognition, pages
+     Ramakrishna Vedantam, Devi Parikh, and Dhruv Batra.                   4483–4492, 2022. 3
+     Grad-cam: Visual explanations from deep networks via             [68] Jiarui Xu, Shalini De Mello, Sifei Liu, Wonmin Byeon,
+     gradient-based localization. In Proceedings of the IEEE in-           Thomas Breuel, Jan Kautz, and Xiaolong Wang. Groupvit:
+     ternational conference on computer vision, pages 618–626,             Semantic segmentation emerges from text supervision. In
+     2017. 4, 6, 7, 13                                                     CVPR, 2022. 1, 2, 5, 6, 13
+[55] Gyungin Shin, Weidi Xie, and Samuel Albanie. Reco: Re-           [69] Jilan Xu, Junlin Hou, Yuejie Zhang, Rui Feng, Yi Wang, Yu
+     trieve and co-segment for zero-shot transfer. Advances in             Qiao, and Weidi Xie. Learning open-vocabulary semantic
+     Neural Information Processing Systems, 35:33754–33767,                segmentation models from natural language supervision. In
+     2022. 1, 2, 3, 6, 13                                                  Proceedings of the IEEE/CVF Conference on Computer Vi-
+[56] Aleksandar Shtedritski, Christian Rupprecht, and An-                  sion and Pattern Recognition, pages 2935–2944, 2023. 2,
+     drea Vedaldi. What does clip know about a red cir-                    6
+     cle? visual prompt engineering for vlms. arXiv preprint          [70] Jiarui Xu, Sifei Liu, Arash Vahdat, Wonmin Byeon, Xiao-
+     arXiv:2304.06712, 2023. 5, 7                                          long Wang, and Shalini De Mello. Open-vocabulary panop-
+[57] Richard Sinkhorn. A relationship between arbitrary positive           tic segmentation with text-to-image diffusion models. In
+     matrices and doubly stochastic matrices. The annals of math-          Proceedings of the IEEE/CVF Conference on Computer Vi-
+     ematical statistics, 35(2):876–879, 1964. 14                          sion and Pattern Recognition, pages 2955–2966, 2023. 2
+[58] Robin Strudel, Ivan Laptev, and Cordelia Schmid. Weakly-         [71] Lian Xu, Wanli Ouyang, Mohammed Bennamoun, Farid
+     supervised segmentation of referring expressions. arXiv               Boussaid, and Dan Xu. Multi-class token transformer for
+     preprint arXiv:2205.04725, 2022. 8                                    weakly supervised semantic segmentation. In Proceedings
+                                                                           of the IEEE/CVF Conference on Computer Vision and Pat-
+[59] Quan Sun, Yuxin Fang, Ledell Wu, Xinlong Wang, and Yue
+                                                                           tern Recognition, pages 4310–4319, 2022. 3
+     Cao. Eva-clip: Improved training techniques for clip at scale.
+                                                                      [72] Zhao Yang, Jiaqi Wang, Yansong Tang, Kai Chen, Heng-
+     arXiv preprint arXiv:2303.15389, 2023. 2
+                                                                           shuang Zhao, and Philip HS Torr. Lavt: Language-aware
+[60] Shuyang Sun, Weijun Wang, Qihang Yu, Andrew Howard,                   vision transformer for referring image segmentation. In Pro-
+     Philip Torr, and Liang-Chieh Chen. Remax: Relaxing for                ceedings of the IEEE/CVF Conference on Computer Vision
+     better training on efficient panoptic segmentation. arXiv             and Pattern Recognition, pages 18155–18165, 2022. 8
+     preprint arXiv:2306.17319, 2023. 3
+                                                                      [73] Jiahui Yu, Zirui Wang, Vijay Vasudevan, Legg Yeung, Mo-
+[61] Ashish Vaswani, Noam Shazeer, Niki Parmar, Jakob Uszko-               jtaba Seyedhosseini, and Yonghui Wu. Coca: Contrastive
+     reit, Llion Jones, Aidan N Gomez, Łukasz Kaiser, and Illia            captioners are image-text foundation models. arXiv preprint
+     Polosukhin. Attention is all you need. Advances in neural             arXiv:2205.01917, 2022. 2
+     information processing systems, 30, 2017. 3                      [74] Licheng Yu, Patrick Poirson, Shan Yang, Alexander C Berg,
+[62] Huiyu Wang, Yukun Zhu, Hartwig Adam, Alan Yuille, and                 and Tamara L Berg. Modeling context in referring expres-
+     Liang-Chieh Chen. Max-deeplab: End-to-end panoptic seg-               sions. In Computer Vision–ECCV 2016: 14th European
+     mentation with mask transformers. In CVPR, 2021. 3                    Conference, Amsterdam, The Netherlands, October 11-14,
+[63] Haoxiang Wang, Pavan Kumar Anasosalu Vasu, Fartash                    2016, Proceedings, Part II 14, pages 69–85. Springer, 2016.
+     Faghri, Raviteja Vemulapalli, Mehrdad Farajtabar, Sachin              8, 13
+     Mehta, Mohammad Rastegari, Oncel Tuzel, and Hadi                 [75] Qihang Yu, Huiyu Wang, Siyuan Qiao, Maxwell Collins,
+     Pouransari. Sam-clip: Merging vision foundation models                Yukun Zhu, Hartwig Adam, Alan Yuille, and Liang-Chieh
+     towards semantic and spatial understanding. arXiv preprint            Chen. k-means Mask Transformer. In ECCV, 2022. 3
+     arXiv:2310.15308, 2023. 6                                        [76] Qihang Yu, Ju He, Xueqing Deng, Xiaohui Shen, and Liang-
+[64] Xinlong Wang, Zhiding Yu, Shalini De Mello, Jan Kautz,                Chieh Chen. Convolutions die hard: Open-vocabulary seg-
+     Anima Anandkumar, Chunhua Shen, and Jose M Alvarez.                   mentation with single frozen convolutional clip. arXiv
+     Freesolo: Learning to segment objects without annotations.            preprint arXiv:2308.02487, 2023. 1, 2, 7
+     In Proceedings of the IEEE/CVF Conference on Computer            [77] Seonghoon Yu, Paul Hongsuck Seo, and Jeany Son. Zero-
+     Vision and Pattern Recognition, pages 14176–14186, 2022.              shot referring image segmentation with global-local context
+     8                                                                     features. In Proceedings of the IEEE/CVF Conference on
+[65] Yonghui Wu, Mike Schuster, Zhifeng Chen, Quoc V Le,                   Computer Vision and Pattern Recognition, pages 19456–
+     Mohammad Norouzi, Wolfgang Macherey, Maxim Krikun,                    19465, 2023. 8
+     Yuan Cao, Qin Gao, Klaus Macherey, et al. Google’s neu-          [78] Xiaohua Zhai, Xiao Wang, Basil Mustafa, Andreas Steiner,
+     ral machine translation system: Bridging the gap between              Daniel Keysers, Alexander Kolesnikov, and Lucas Beyer.
+     human and machine translation. arXiv:1609.08144, 2016. 8              Lit: Zero-shot transfer with locked-image text tuning. In
+[66] Yongqin Xian, Subhabrata Choudhury, Yang He, Bernt                    Proceedings of the IEEE/CVF Conference on Computer Vi-
+     Schiele, and Zeynep Akata. Semantic projection network                sion and Pattern Recognition, pages 18123–18133, 2022. 2
+     for zero-and few-label semantic segmentation. In Proceed-        [79] Xiaohua Zhai, Basil Mustafa, Alexander Kolesnikov, and
+     ings of the IEEE/CVF Conference on Computer Vision and                Lucas Beyer. Sigmoid loss for language image pre-training.
+     Pattern Recognition, pages 8256–8265, 2019. 2                         arXiv preprint arXiv:2303.15343, 2023. 2
+[80] Haotian Zhang, Pengchuan Zhang, Xiaowei Hu, Yen-Chun
+     Chen, Liunian Li, Xiyang Dai, Lijuan Wang, Lu Yuan, Jenq-
+     Neng Hwang, and Jianfeng Gao. Glipv2: Unifying localiza-
+     tion and vision-language understanding. Advances in Neural
+     Information Processing Systems, 35:36067–36080, 2022. 2
+[81] Hao Zhang, Feng Li, Xueyan Zou, Shilong Liu, Chunyuan
+     Li, Jianwei Yang, and Lei Zhang. A simple framework for
+     open-vocabulary segmentation and detection. In Proceed-
+     ings of the IEEE/CVF International Conference on Com-
+     puter Vision, pages 1020–1031, 2023. 2
+[82] Shuai Zheng, Sadeep Jayasumana, Bernardino Romera-
+     Paredes, Vibhav Vineet, Zhizhong Su, Dalong Du, Chang
+     Huang, and Philip HS Torr. Conditional random fields as
+     recurrent neural networks. In ICCV, 2015. 3
+[83] Bolei Zhou, Hang Zhao, Xavier Puig, Tete Xiao, Sanja Fi-
+     dler, Adela Barriuso, and Antonio Torralba. Semantic under-
+     standing of scenes through the ade20k dataset. International
+     Journal of Computer Vision, 2019. 2
+[84] Chong Zhou, Chen Change Loy, and Bo Dai. Extract free
+     dense labels from clip. In European Conference on Com-
+     puter Vision, pages 696–712. Springer, 2022. 1, 2, 3, 6, 13
+[85] Xingyi Zhou, Rohit Girdhar, Armand Joulin, Philipp
+     Krähenbühl, and Ishan Misra. Detecting twenty-thousand
+     classes using image-level supervision. In European Confer-
+     ence on Computer Vision, pages 350–368. Springer, 2022.
+     2
+Appendix                                                         Models         RefCOCO          RefCOCO+           RefCOCOg
+                                                                             val testA testB val testA testB val test(U) val(G)
+A. More Experimental Results                                     OVSeg [35] 22.58 19.38 25.63 19.13 15.74 25.30 27.87 29.09 28.31
+                                                                 CaR(Ours) 33.57 35.36 30.51 34.22 36.03 31.02 36.67 36.57 36.63
+A.1. Quantitative Analysis on Vocabulary Space.
+                                                                Table I. Comparison to mask-supervised open-vocabulary
+We demonstrate that our method CaR has a larger vo-             methods on referring image segmentation in mIoU. CaR is bet-
+cabulary space compared to the methods fine-tuned with          ter than the comparison method, OVSeg, in all splits of the three
+mask annotations. Here we compare our method with               benchmarks.
+OVSeg [35], which is fine-tuned on ImageNet [53] and
+COCO [36] with a pre-trained CLIP backbone for the task                             Is VLM #Additional
+of referring image segmentation. We believe that refer-                                                       w/o Background
+                                                                Model             pre-trained? Images
+ring expressions (e.g., “the person in the red shirt” or “the                                               VOC-20 Context-59
+cat in the mirror”) refers to a specific segment using a        GroupViT† [68]         ×           26M       79.7    23.4
+broad vocabulary. We conduct a comparative analysis be-         PACL [46]              ✓           40M       72.3    50.1
+tween a robust open-vocabulary segmentation benchmark,          TCL [10]               ✓           15M       77.5    30.3
+OVSeg [35], and CaR, utilizing standard referring image         MaskCLIP† [84]         ✓             -       74.9    26.4
+segmentation benchmarks [43, 47, 74]. We note that Ref-         ReCo† [55]             ✓             -       57.5    22.3
+COCO and COCO share the same set of images so OVSeg             CaR (Ours)             ✓             -       91.4    39.5
+fine-tuning on COCO may not be counted as zero-shot on
+RefCOCO. The results, as detailed in Table I, demonstrate       Table J. Comparison with methods under the setting where
+that CaR significantly surpasses OVSeg in performance.          background is ignored. We compare CaR with prior work on
+This disparity in performance suggests that CaR encom-          VOC-20, Context-59 in a setting that considers only the fore-
+passes a more expansive vocabulary space than OVSeg.            ground pixels (decided by ground truth). Our method shows com-
+                                                                parable performance to prior works despite only relying on pre-
+A.2. Evaluation without Background                              trained feature extractors. † : numbers are from [10].
+
+Following [37], our methodology benefits from using back-
+ground queries in CLIP [49] classification to suppress          mension of vh . This score s quantifies the alignment (a.k.a
+false positives (predictions not belonging to the input text    similarity) between the image x and the text h as perceived
+queries), enhancing segmentation results. Nevertheless, for     by the CLIP model. Here h contains multiple queries. To
+more comprehensive comparison, we also assess our ap-           integrate Grad-CAM into our framework, we first compute
+proach using an alternate evaluation setting, previously es-    the gradients of the similarity score with respect to the fea-
+tablished, which omits the background class. Consequently,      ture maps of the image encoder by:
+less emphasis is placed on object boundaries in this setting.
+We test our method on two datasets: Pascal VOC [19] with-                                        ∂s
+                                                                                           g=       ,
+out background (termed VOC-20) and Pascal Context [45]                                          ∂Ak
+without background (termed Context-59). This setting tests
+the ability of various methods to discriminate between dif-     where Ak represents the feature maps and g denotes the gra-
+ferent classes. Our method CaR significantly outperforms        dients. Then we compute the neuron importance weights by
+previous methods on VOC-20 and Context-59, where all            average-pooling the gradients:
+methods use the same setting that ignores the background                                    1 XX k
+class. We reached out to the PACL authors to confirm that                            αk =         g .
+they did not evaluate background.                                                           Z i j ij
+
+B. Implementation Details of CAM                                Here, αk is the neuron importance weights and Z is the
+                                                                number of pixels in each feature map. We then calculate a
+In this paper, we integrate two kinds of gradient-based         weighted combination of the feature maps Ak and the neu-
+CAM, i.e., Grad-CAM [54] and CLIP-ES [37], respectively.        ron importance αk :
+                                                                                                       !
+Integration with Grad-CAM. When integrating Grad-
+                                                                                             X
+                                                                                                     k
+                                                                               L = ReLU          αk A ,
+CAM [54] into our framework, we first extract the image                                           k
+and text feature vectors vx = fI (x), vh = fT (h) from
+the image and text encoder fI (·), fT (·) given an image x      an activation function ReLU is applied to filter out all neg-
+and text queries h. We compute a similarity score be-           ative activations. Specifically, we use the feature map af-
+tween the image and text features using the dot product         ter the first normalization layer of the last residual block to
+s = softmax(vx ·vh⊺ ), where softmax is applied along the di-   compute the gradients for CAM.
+Integration with CLIP-ES. In summary, the CLIP-                   • Aquatic-Atmospheric: [‘sea’, ‘ocean’, ‘lake’, ‘wa-
+ES [37] we adopted is composed of a Grad-CAM and a                  ter’, ‘river’, ‘sky’, ‘cloud’, ‘pond’, ‘stream’, ‘lagoon’,
+class-aware attention-based affinity (CAA) module. The              ‘bay’, ‘gulf’, ‘fjord’, ‘estuary’, ‘creek’, ‘brook’, ‘reser-
+CAA module is introduced to enhance the vanilla multi-              voir’, ‘pool’, ‘spring’, ‘marsh’, ‘swamp’, ‘wetland’,
+head self-attention (MHSA) for the Vision Transformer               ‘glacier’, ‘iceberg’, ‘atmosphere’, ‘stratosphere’, ‘mist’,
+in CLIP. Given an image, class-wise CAM maps Mc ∈                   ‘fog’, ‘rain’, ‘drizzle’, ‘hail’, ‘sleet’, ‘snow’, ‘thunder-
+Rh×w for each target class c and the attention weight               storm’, ‘breeze’, ‘wind’, ‘gust’, ‘hurricane’, ‘tornado’,
+W attn ∈ Rhw×hw are obtained from MHSA. For the at-                 ‘monsoon’, ‘cumulus’, ‘cirrus’, ‘stratus’, ‘nimbus’]
+tention weight, which is made asymmetric due to the use of        • Man-Made: [ ‘building’, ‘house’, ‘wall’, ‘road’,
+different projection layers by the query and key, Sinkhorn          ‘street’, ‘railway’, ‘railroad’, ‘bridge’, ‘edifice’, ‘struc-
+normalization [57] is applied (alternately applying row-            ture’, ‘apartment’, ‘condominium’, ‘skyscraper’, ‘high-
+normalization and column-normalization) to convert it into          way’, ‘boulevard’, ‘lane’, ‘alley’, ‘byway’, ‘avenue’,
+a doubly stochastic matrix D, and the symmetric affinity            ‘expressway’, ‘freeway’, ‘path’, ‘overpass’, ‘underpass’,
+matrix A can be derived as follows:                                 ‘viaduct’, ‘tunnel’, ‘footbridge’, ‘crosswalk’, ‘culvert’,
+                                                                    ‘dam’, ‘archway’, ‘causeway’, ‘plaza’, ‘square’, ‘station’,
+            D + DT                                                  ‘terminal’ ]
+      A=           , where D = Sinkhorn(W attn ).          (7)
+               2
+                                                                  E. Implementation Details of Mutual Back-
+For the CAM map Mc ∈ Rh×w , a mask map for each target                ground for Pascal Context
+class c can be obtained by thresholding the CAM with λ.
+Then a set of bounding boxes can be generated based on            Our approach involves creating a list of background queries
+the thresholded masks. These boxes are used to mask the           to minimize false positive predictions in mask propos-
+affinity weight matrix A, and then each pixel can be refined      als. However, in the Pascal Context dataset [45], many
+based on the masked affinity weight and its semantically          “stuff” categories (e.g. sky, ground, sea) serve as back-
+similar pixels. This refinement process can be formalized         ground queries for “object” categories (e.g. bird, car, boat).
+as follows:                                                       Directly removing these ’stuff’ categories from the back-
+                                                                  ground query list and generating object and stuff masks
+               Mcaf f = Bc ⊙ At · vec(Mc ),                (8)    using CAM leads to noisy results due to the lack of false
+                                                                  positive background suppression. To address this issue, we
+where Bc ∈ R1×hw represents the box mask obtained from            adopt a mutual background strategy. In this method, ob-
+the CAM of class c, ⊙ denotes the Hadamard product, t in-         ject and stuff masks are produced separately, using object
+dicates the number of refining iterations, and vec(·) denotes     categories as the background queries for stuff masks and
+the vectorization of a matrix. It should be noted that the        vice versa. This technique not only maintains the benefit
+attention map and CAM are extracted in the same forward           of reducing false positives but also significantly enhances
+pass. Therefore, CAA refinement is performed in real time         performance in the Pascal Context dataset.
+and does not need an additional stage. Our implementa-
+tion uses the attention maps from the last 8 layers of Vision     F. Implementation Details of Referring Image
+Transformer for CAA.                                                  Segmentation.
+                                                                  We use ViT-B/16 as the backbone of the visual encoder
+C. Implementation Details of Visual Prompts                       for both the mask proposal generator and mask classifier,
+The Python code of visual prompts is shown in Algo-               and use circle and background blur as the visual
+rithm B, which is at the end of the supplementary material.       prompts for the inputs of mask classifier. The η, θ, λ
+                                                                  were set to (0.5, 0.3, 0.5), (0.2, 0.1, 0.5), (0.5, 0.1, 0.6)
+                                                                  for refCOCO, refCOCO+ and refCOCOg, respectively. All
+D. Breakdown of Background Tokens                                 splits of these three datasets share the same set of hyper-
+                                                                  parameters. We note that we do not apply SAM for refer-
+We break down the background tokens into 3 sub-categories         ring image segmentation.
+for ablation study (experiment results are shown in the main
+manuscript in Table 6):                                           G. More Visualization Results
+• Terrestrial: [‘ground’, ‘land’, ‘grass’, ‘tree’,
+                                                                  G.1. Visualization results on different post-
+  ‘mountain’, ‘rock’, ‘valley’, ‘earth’,‘terrain’, ‘forest’,
+                                                                       processors
+  ‘bush’, ‘hill’, ‘field’, ‘pasture’, ‘meadow’, ‘plateau’,
+  ‘cliff’, ‘canyon’, ‘ridge’, ‘peak’, ‘plain’, ‘prairie’, ‘tun-   Figures E and F present a comparative visualization of
+  dra’, ‘savanna’, ‘steppe’, ‘crag’, ‘knoll’, ‘dune’, ‘glen’,     the post-processing techniques Conditional Random Field
+  ‘dale’, ‘copse’, ‘thicket’]                                     (CRF) and Segment Anything Model (SAM) [28], applied
+to randomly chosen samples from the VOC [19] and COCO
+                                                                Algorithm B Pseudo-code of CLIP as RNN in PyTorch style.
+Object datasets [5]. Initial observations reveal that the ap-
+plication of CRF in CaR facilitates the generation of high-     import cv2
+                                                                import numpy as np
+quality masks, albeit with notable limitations in delineating   import torch
+boundaries between distinct semantic masks. The integra-        from scipy.ndimage import binary_fill_holes
+                                                                def apply_visual_prompts(
+tion of SAM enhances the precision of these masks, yield-             image_array,
+                                                                      mask,
+ing clearer and more well-defined boundaries. Neverthe-               visual_prompt_type=(’circle’),
+less, the implementation of SAM is not without drawbacks;             visualize=False,
+                                                                      color=(255, 0, 0),
+it occasionally leads to false negative predictions, stemming         thickness=1,
+                                                                      blur_strength=(15, 15)):
+from mismatches between CaR raw masks and SAM can-                 prompted_image = image_array
+didate masks (the matching algorithm is introduced in the          inv_mask = (1 - mask)[:, :, None]
+                                                                   if ’blur’ in visual_prompt_type:
+main manuscript), or false positive predictions due to the            # blur the part out side the mask
+                                                                      # Blur the entire image
+overly coarse nature of SAM masks. Meanwhile, we find                 blurred = cv2.GaussianBlur(prompted_image,
+SAM is not very sensitive to stuff classes, so combining                   blur_strength, 0)
+                                                                      # Get the sharp region using the mask
+SAM on Pascal Context will not lead to much increase in               sharp_region = cv2.bitwise_and(
+                                                                         prompted_image,
+mIoU.                                                                    prompted_image,
+                                                                         mask=np.clip(mask, 0, 255)))
+G.2. Visualization comparison for different open-                     # Get the blurred region using the inverted mask
+
+      vocabulary segmentation methods.                                blurred_region = (blurred * inv_mask)
+                                                                      # Combine the sharp and blurred regions
+                                                                      prompted_image = cv2.add(sharp_region,
+Figure G presents a qualitative comparison of open-                        blurred_region)
+vocabulary segmentation results for a variety of non-              if ’gray’ in visual_prompt_type:
+                                                                      gray = cv2.cvtColor(prompted_image, cv2.
+standard subjects, including unique characters, brands, and                COLOR_BGR2GRAY)
+                                                                      # make gray part 3 channel
+landmarks. These subjects are notably distinct from com-              gray = np.stack([gray, gray, gray], axis=-1)
+mon objects. The Grounded SAM [40] method demon-                      # Get the sharp region using the mask
+                                                                      color_region = cv2.bitwise_and(
+strates proficiency in segmenting prominent objects with                 prompted_image,
+                                                                         prompted_image,
+precision, yet it often misclassify these segments. The                  mask=np.clip(mask, 0, 255))
+OVSeg [35] approach also generates low-quality segmenta-              # Get the blurred region using the inverted mask
+                                                                      inv_mask = 1 - mask
+tion masks and inaccurate class predictions. In contrast, our         gray_region = (gray * inv_mask)
+                                                                      # Combine the sharp and blurred regions
+methodology CaR excels by creating high-quality masks                 prompted_image = cv2.add(color_region,
+with accurate semantic class predictions, showcasing its su-               gray_region)
+                                                                   if ’black’ in visual_prompt_type:
+perior capability in the realm of open-vocabulary segmen-             prompted_image = cv2.bitwise_and(
+                                                                         prompted_image,
+tation.                                                                  prompted_image,
+                                                                         mask=np.clip(mask, 0, 255))
+                                                                   if ’circle’ in visual_prompt_type:
+H. Limitation                                                         mask_center, mask_height, mask_width = mask2chw(
+                                                                           mask)
+                                                                      center_coordinates = (mask_center[1],
+The primary limitation of our method is that its perfor-                   mask_center[0])
+mance is bounded by the pre-trained VLM. For example,                 axes_length = (mask_width // 2, mask_height //
+                                                                           2)
+since the CLIP model utilizes horizontal flipping augmen-             prompted_image = cv2.ellipse(prompted_image,
+                                                                                             center_coordinates,
+tation during training, it becomes challenging for our model                                 axes_length, 0, 0, 360,
+to successfully distinguish between the concepts “left” and                                       color, thickness)
+                                                                   if ’rectangle’ in visual_prompt_type:
+“right”. However, we believe that this issue can be easily            mask_center, mask_height, mask_width = mask2chw(
+                                                                           mask)
+resolved through adjustments, such as incorporating better            center_coordinates = (mask_center[1],
+data augmentation techniques during the pre-training phase.                mask_center[0])
+                                                                      start_point = (mask_center[1] - mask_width //
+                                                                                   2, mask_center[0] - mask_height // 2)
+                                                                      end_point = (mask_center[1] + mask_width //
+I. Future Potentials and Broader Impact                                          2, mask_center[0] + mask_height // 2)
+                                                                      prompted_image = cv2.rectangle(prompted_image,
+CaR is simple, straightforward yet highly efficient. To                                        start_point,
+                                                                                               end_point,
+enhance its performance further, we provide two ways to                                        color, thickness)
+                                                                   if ’contour’ in visual_prompt_type:
+explore. First, incorporating additional trainable modules            # Find the contours of the mask
+such as Feature-Pyramid Networks can significantly im-                # fill holes for the mask
+                                                                      mask = binary_fill_holes(mask)
+prove its capability in handling small objects. Second,               contours, hierarchy = cv2.findContours(mask, cv2
+                                                                           .RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+since our method is fundamentally compatible with various             # Draw the contours on the image
+Vision-Language Models (VLMs), it presents an intrigu-                prompted_image = cv2.drawContours(
+                                                                         prompted_image, contours, -1, color,
+ing opportunity to investigate integration with other VLMs.                   thickness)
+                                                                   return prompted_image
+Moreover, CaR can serve the purpose of generating pseudo-
+labels for other open-vocabulary segmenters.
+Image                           CaR                         CaR+SAM                             GT
+
+
+
+
+   Figure E. Comparison of different post-processors on randomly selected images from PASCAL VOC.
+Image                           CaR                          CaR+SAM                             GT
+
+
+
+
+   Figure F. Comparison of different post-processors on randomly selected images from COCO Object.
+Image                       OVSeg [35]                   Grounded SAM [40]                      Ours
+
+
+
+
+        Figure G. Visualization comparison of different open-vocabulary segmentation methods.
+

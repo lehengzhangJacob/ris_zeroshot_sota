@@ -1,0 +1,27 @@
+{
+  "mIoU": 0.3933461916460485,
+  "oIoU": 0.34605991115115275,
+  "delta_vs_released": -0.05490158398819973,
+  "ci_vs_released": [
+    -0.06185164364844974,
+    -0.0479646742240978
+  ],
+  "p_vs_released": 0.0,
+  "delta_vs_argmax": 0.04153295807109688,
+  "ci_vs_argmax": [
+    0.033347022538116236,
+    0.049464632715638605
+  ],
+  "p_vs_argmax": 0.0,
+  "fired": 4555,
+  "win": 1686,
+  "loss": 2441,
+  "oracle_hit": 0.36007014952925975,
+  "tag": "refcoco",
+  "row": "ctrl_geom_extreme",
+  "n": 10834,
+  "records": "exp/out_extreme/records_refcoco.jsonl",
+  "script": "exp/exp23_final.py",
+  "records_mtime": "2026-10-03 02:03:50",
+  "generated_at": "2026-10-03 02:08:48"
+}

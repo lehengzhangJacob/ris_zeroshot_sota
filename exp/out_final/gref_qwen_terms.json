@@ -1,0 +1,18 @@
+{
+  "unique_pairs": 487,
+  "pairs_measured": 487,
+  "failed": 0,
+  "qwen_box_iou_mean": 0.6325275197790352,
+  "qwen_hit50_pct": 67.35112936344969,
+  "llava_reference": {
+    "box_iou_mean": 0.58,
+    "hit50_pct": 63.5
+  },
+  "gdino_reference": {
+    "top1_box_iou_mean": 0.7046,
+    "top1_hit50_pct": 71.6,
+    "oracle_box_iou_mean": 0.8419
+  },
+  "gt_box_rule_ceiling": 0.802,
+  "generated": "exp128_qwen_terms.py"
+}

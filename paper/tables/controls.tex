@@ -1,0 +1,23 @@
+\begin{table}[t]
+\centering
+\small
+\setlength{\tabcolsep}{4pt}
+\caption{Controls on full RefCOCO val. Each row removes one design element or replaces it with a one-line alternative; the composed method must and does lead all of them.}
+\label{tab:controls}
+\begin{tabular}{@{}lcc@{}}
+\toprule
+control & $\Delta$ mIoU & $\Delta$ oIoU \\
+\midrule
+coherence ranking, no relation gate & $+0.0430$ & $+0.0449$ \\
+no gate, + growth & $+0.0870$ & $+0.0598$ \\
+full-score candidate set & $+0.0349$ & $+0.0361$ \\
+full-score set, + growth & $+0.0850$ & $+0.0566$ \\
+geometric extremum of the set & $-0.0549$ & $-0.0355$ \\
+mirrored relation & $-0.1833$ & $-0.1417$ \\
+whole pool instead of top-8 & $+0.0537$ & $+0.0632$ \\
+\midrule
+\textbf{operator (no growth)} & $\mathbf{+0.0587}$ & $\mathbf{+0.0659}$ \\
+\textbf{operator + growth (full)} & $\mathbf{+0.1076}$ & $\mathbf{+0.0821}$ \\
+\bottomrule
+\end{tabular}
+\end{table}

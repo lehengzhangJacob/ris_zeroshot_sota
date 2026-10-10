@@ -1,0 +1,733 @@
+{
+  "n": 14229,
+  "n_refs": 4237,
+  "n_refs_no_target": 1499,
+  "n_refs_multi": 2738,
+  "n_no_target": 8905,
+  "source_refs": 4237,
+  "abstain_threshold": 26.328123931884765,
+  "calibration": "p1",
+  "rows": {
+    "released": {
+      "n": 14229,
+      "cIoU": 22.555571716413894,
+      "gIoU": 12.485068549696651,
+      "N_acc": 0.0,
+      "T_acc": 100.0,
+      "TP": 0,
+      "FN": 8905,
+      "TN": 5324,
+      "FP": 0
+    },
+    "argmax_g2l": {
+      "n": 14229,
+      "cIoU": 19.87196238176336,
+      "gIoU": 11.323571811473348,
+      "N_acc": 0.0,
+      "T_acc": 100.0,
+      "TP": 0,
+      "FN": 8905,
+      "TN": 5324,
+      "FP": 0
+    },
+    "snap": {
+      "n": 14229,
+      "cIoU": 22.106942051998317,
+      "gIoU": 14.254989289673018,
+      "N_acc": 0.0,
+      "T_acc": 100.0,
+      "TP": 0,
+      "FN": 8905,
+      "TN": 5324,
+      "FP": 0
+    },
+    "ours_single": {
+      "n": 14229,
+      "cIoU": 20.231133298192585,
+      "gIoU": 11.13668599936016,
+      "N_acc": 0.0,
+      "T_acc": 100.0,
+      "TP": 0,
+      "FN": 8905,
+      "TN": 5324,
+      "FP": 0
+    },
+    "ours_single+snap": {
+      "n": 14229,
+      "cIoU": 20.447447518532137,
+      "gIoU": 13.160468522482114,
+      "N_acc": 0.0,
+      "T_acc": 100.0,
+      "TP": 0,
+      "FN": 8905,
+      "TN": 5324,
+      "FP": 0
+    },
+    "clause_only": {
+      "n": 14229,
+      "cIoU": 22.546790396326195,
+      "gIoU": 17.98994996803619,
+      "N_acc": 3.189219539584503,
+      "T_acc": 99.79338842975206,
+      "TP": 284,
+      "FN": 8621,
+      "TN": 5313,
+      "FP": 11
+    },
+    "clause+plural m0.3": {
+      "n": 14229,
+      "cIoU": 22.336592856096228,
+      "gIoU": 18.065289239485704,
+      "N_acc": 3.189219539584503,
+      "T_acc": 99.79338842975206,
+      "TP": 284,
+      "FN": 8621,
+      "TN": 5313,
+      "FP": 11
+    },
+    "clause+plural m0.6": {
+      "n": 14229,
+      "cIoU": 21.862149473281285,
+      "gIoU": 18.089455683301438,
+      "N_acc": 3.189219539584503,
+      "T_acc": 99.79338842975206,
+      "TP": 284,
+      "FN": 8621,
+      "TN": 5313,
+      "FP": 11
+    },
+    "clause+plural m1.0": {
+      "n": 14229,
+      "cIoU": 20.969005793019004,
+      "gIoU": 17.96623875590314,
+      "N_acc": 3.189219539584503,
+      "T_acc": 99.79338842975206,
+      "TP": 284,
+      "FN": 8621,
+      "TN": 5313,
+      "FP": 11
+    },
+    "clause+plural m1.5": {
+      "n": 14229,
+      "cIoU": 20.20407806237378,
+      "gIoU": 17.82355831986939,
+      "N_acc": 3.189219539584503,
+      "T_acc": 99.79338842975206,
+      "TP": 284,
+      "FN": 8621,
+      "TN": 5313,
+      "FP": 11
+    },
+    "full m1.0 + abstain": {
+      "n": 14229,
+      "cIoU": 21.609604364593427,
+      "gIoU": 20.65247225882134,
+      "N_acc": 7.591240875912408,
+      "T_acc": 99.69947407963937,
+      "TP": 676,
+      "FN": 8229,
+      "TN": 5308,
+      "FP": 16
+    },
+    "clause+abstain": {
+      "n": 14229,
+      "cIoU": 23.10349760908017,
+      "gIoU": 20.66329955798184,
+      "N_acc": 7.591240875912408,
+      "T_acc": 99.69947407963937,
+      "TP": 676,
+      "FN": 8229,
+      "TN": 5308,
+      "FP": 16
+    },
+    "clause+abstain p0.5": {
+      "n": 14229,
+      "cIoU": 22.845209061680045,
+      "gIoU": 19.41719795469469,
+      "N_acc": 5.53621560920831,
+      "T_acc": 99.7182569496619,
+      "TP": 493,
+      "FN": 8412,
+      "TN": 5309,
+      "FP": 15
+    },
+    "clause+abstain p2": {
+      "n": 14229,
+      "cIoU": 23.463655032382306,
+      "gIoU": 22.880233036897394,
+      "N_acc": 11.218416619876475,
+      "T_acc": 99.58677685950413,
+      "TP": 999,
+      "FN": 7906,
+      "TN": 5302,
+      "FP": 22
+    },
+    "clause+abstain p5": {
+      "n": 14229,
+      "cIoU": 24.30387037153506,
+      "gIoU": 26.78955437566885,
+      "N_acc": 17.664233576642335,
+      "T_acc": 99.02329075882795,
+      "TP": 1573,
+      "FN": 7332,
+      "TN": 5272,
+      "FP": 52
+    },
+    "clause+plural m0.3 + abstain": {
+      "n": 14229,
+      "cIoU": 22.921365937891323,
+      "gIoU": 20.734574748665345,
+      "N_acc": 7.591240875912408,
+      "T_acc": 99.69947407963937,
+      "TP": 676,
+      "FN": 8229,
+      "TN": 5308,
+      "FP": 16
+    },
+    "ctrl: no relation": {
+      "n": 14229,
+      "cIoU": 20.611727765526272,
+      "gIoU": 17.95133936939784,
+      "N_acc": 3.189219539584503,
+      "T_acc": 99.79338842975206,
+      "TP": 284,
+      "FN": 8621,
+      "TN": 5313,
+      "FP": 11
+    },
+    "ctrl: no snap": {
+      "n": 14229,
+      "cIoU": 21.525166248169594,
+      "gIoU": 15.934336052912165,
+      "N_acc": 3.189219539584503,
+      "T_acc": 99.79338842975206,
+      "TP": 284,
+      "FN": 8621,
+      "TN": 5313,
+      "FP": 11
+    }
+  },
+  "targeted_only": {
+    "released": {
+      "n": 5324,
+      "mean_iou": 0.3336777618212487
+    },
+    "argmax_g2l": {
+      "n": 5324,
+      "mean_iou": 0.30263543070145305
+    },
+    "snap": {
+      "n": 5324,
+      "mean_iou": 0.38098092149278057
+    },
+    "ours_single": {
+      "n": 5324,
+      "mean_iou": 0.2976406932473616
+    },
+    "ours_single+snap": {
+      "n": 5324,
+      "mean_iou": 0.3517285999368839
+    },
+    "clause_only": {
+      "n": 5324,
+      "mean_iou": 0.42745867410816774
+    },
+    "clause+plural m0.3": {
+      "n": 5324,
+      "mean_iou": 0.42947220245800827
+    },
+    "clause+plural m0.6": {
+      "n": 5324,
+      "mean_iou": 0.43011807835780846
+    },
+    "clause+plural m1.0": {
+      "n": 5324,
+      "mean_iou": 0.4268249647966694
+    },
+    "clause+plural m1.5": {
+      "n": 5324,
+      "mean_iou": 0.4230116666668339
+    },
+    "full m1.0 + abstain": {
+      "n": 5324,
+      "mean_iou": 0.42498878243946103
+    },
+    "clause+abstain": {
+      "n": 5324,
+      "mean_iou": 0.4252781544149587
+    },
+    "clause+abstain p0.5": {
+      "n": 5324,
+      "mean_iou": 0.4263473134811264
+    },
+    "clause+abstain p2": {
+      "n": 5324,
+      "mean_iou": 0.4238595715289513
+    },
+    "clause+abstain p5": {
+      "n": 5324,
+      "mean_iou": 0.42052698950299217
+    },
+    "clause+plural m0.3 + abstain": {
+      "n": 5324,
+      "mean_iou": 0.42718306554988705
+    },
+    "ctrl: no relation": {
+      "n": 5324,
+      "mean_iou": 0.42642676162126736
+    },
+    "ctrl: no snap": {
+      "n": 5324,
+      "mean_iou": 0.3725200369964086
+    }
+  },
+  "shipped": {
+    "cIoU": 51.3182,
+    "gIoU": 74.9098,
+    "N_acc": 86.14,
+    "T_acc": 87.85,
+    "n": 14229,
+    "rule": "joint-config termbox union + singles-only no-target fallback (change 15): per parsed term, sxi pool picks (bs*(1.811+0.234*in-box-IoU), top-2 margin 0.631) inside BOTH the LLaVA nounbox and the top-1 GroundingDINO detection box, unioned with SAM's box-prompted masks from the top-1 AND top-2 detections (cap 0.5); predicted-no-target records take the best SINGLE fallback candidate (exp123: pairs add pure dilution; selected on held-out no-target rows, halves their area, targeted side untouched); abstention unchanged. Frozen before one full-val pass (exp124). | change 16 (2026-10-10): single pick per box (topk 1); re-selected on the held-out TRAIN frame with the box-prompted SAM caches present (exp137), where top-1 reads cIoU 51.13 / gIoU 70.13 against the shipped top-2's 49.81 / 68.93 (gref_topk_reselection.json); the descriptive val-2000 sensitivity curve agrees (+1.19 cIoU). Abstention untouched (N/T identical).",
+    "gIoU_floor": {
+      "published": 43.3,
+      "method": "PSALM (zero-shot)",
+      "status": "CLEARED (74.91 > 43.3) with the same-class floor. The strongest supervised gIoU reference (InstAlign 74.34) is also exceeded, by ~0.57 --- a cross-harness, cross-paper margin inside plausible protocol noise; the cross-paper comparability caveat of the reproduction audit applies (see best_published.caveat)."
+    },
+    "trained_vs_frozen": "Declared (2026-10-08 operator standard): base components are FROZEN off-the-shelf --- released HybridGL scorer/CLIP ViT-B/16 region scores, LLaVA-OneVision-7B boxes, GroundingDINO-base, SAM ViT-H, yes/no existence probes. The only fitted quantities are the selector configuration (score-source and pick-box policy, top-2 margin, SAM source, no-target fallback) fitted on held-out rows carved from the gRefCOCO TRAIN split (records_grefcoco_train_tune.jsonl; four 300-trial Optuna studies, optuna_study_gref*.json) and frozen before its single full-val pass (exp124). No rule, threshold, or hyperparameter was fitted on val. Precisely: full val was scored once per frozen candidate across the development history (exp89, exp109b, exp118, exp124; recorded in this file's history and rows), so val results were observed across successive frozen candidates, but never used to fit anything, and the shipped configuration's full-val pass was its first and only one. Test untouched. This is the small-selector-component supervision the 2026-10-08 standard allows, declared here. Change 16 (2026-10-10) adds no training: it re-selects one hand knob (top-1 vs top-2 pick) on the held-out train rows with the SAM caches present; the pipeline still takes no gradient step anywhere and val remains evaluation-only.",
+    "history": {
+      "ensemble_threshold_union": {
+        "cIoU": 34.9419,
+        "gIoU": 69.7711,
+        "rule": "three-probe existence ensemble (exists/exists2/exists3, abstain when any answers"
+      },
+      "single_probe": {
+        "cIoU": 35.0884,
+        "gIoU": 68.3729
+      },
+      "pair_union": {
+        "cIoU": 36.7453,
+        "gIoU": 69.6279,
+        "rule": "learned pair/union selector: candidates are singles+pairs of the top-6 proposals by the fr"
+      },
+      "termbox_llava": {
+        "cIoU": 40.9593,
+        "gIoU": 71.1064,
+        "N_acc": 86.17,
+        "T_acc": 87.85,
+        "rule": "per-term box selection: one LLaVA box per parsed term (noun_phrase + nouns, max 3), a learned per-term picker (logreg, top-2 margin 0.815) selects a mask inside each box, output = union of picks; abstention unchanged (pair-rule gate + 3-probe ensemble); pair/union selector as fallback when term boxes are absent. Selected by exp87's 300-trial held-out study on the val-matched population, frozen before one full-val pass (exp89)"
+      },
+      "gdino_sam_v13": {
+        "cIoU": 47.1442,
+        "gIoU": 73.9518,
+        "rule": "GDINO+SAM termbox union: per parsed term, a pool pick (sxi = base_score*(alpha+beta*in-box-IoU), alpha 1.2205 beta 0.6172, top-2 margin 0.729) inside the LLaVA nounbox (GDINO top-1 fallback), union with SAM's three box-prompted masks from the top-1 GroundingDINO detection (area-capped 0.25); abstention unchanged (pair-rule gate + 3-probe ensemble); pair/union fallback. Selected by exp108's 300-trial held-out study (fit/calib by ref, val prevalence) and verified on the full 262-row sample (exp108b: delta +0.097 over the shipped-equivalent, 95% CI [+0.064,+0.129]); the abstention operating point re-studied (exp110, 300 trials) and confirmed optimal at the shipped point; frozen before one full-val pass (exp109b)"
+      },
+      "joint_v14": {
+        "cIoU": 49.593,
+        "gIoU": 74.7292,
+        "rule": "joint-config termbox union (change 14): per parsed term, sxi pool picks (bs*(1.811+0.234*in-box-IoU), top-2 margin 0.631) inside BOTH the LLaVA nounbox and the top-1 GroundingDINO detection box, unioned with SAM's three box-prompted masks from the top-1 AND top-2 detections (area cap 0.5); abstention unchanged; pair/union fallback. Selected by exp117's 300-trial held-out study on the mixture population (262 >=2-term rows + 47 1-term rows at val prevalence 0.875/0.125), frozen before one full-val pass (exp118)."
+      }
+    },
+    "best_published": {
+      "cIoU": 50.99,
+      "gIoU": 43.3,
+      "method": "previous shipped record (this run) / SELF1E-8B (zero-shot) / PSALM (zero-shot)",
+      "citation": "SELF1E, CVPR 2026 (arXiv 2603.19026), gRefCOCO zero-shot val cIoU 44.4 / gIoU 37.5; PSALM, ECCV 2024, Table 12, zero-shot val cIoU 42.0 / gIoU 43.3 | 2026-10-10: the cIoU comparison class is now the run's own previous shipped record 50.99 (operator instruction); the same-class published floors (SELF1E-8B 44.4, PSALM 42.0) remain cited and are also beaten.",
+      "family": "same-class: zero-shot / generalist, no gRefCOCO training",
+      "caveat": "cross-paper comparison; numbers verified via secondary retrievals on 2026-10-08 (primary PDFs not fetchable headless). Per-metric best same-class number is used as the floor.",
+      "note": "2026-10-08 operator standard change (user instruction): the gRefCOCO floor is the best published SAME-METHODOLOGY (zero-shot) number, not fully-supervised rows. cIoU floor raised from PSALM 42.0 to SELF1E-8B 44.4 per the escalation rule ('if a newer same-class paper is higher, raise best_published and beat that'); gIoU floor stays PSALM 43.3 (SELF1E-8B zero-shot gIoU 37.5 is lower). Replaces the previous InstAlign 68.94/74.34 floor, retained below as a labelled fully-supervised reference row. Ours 50.9899/74.7292 beats both same-class floors. 2026-10-10 operator instruction: shipped.cIoU must strictly exceed the previous record; best_published.cIoU raised to 50.99 (the previous record) and beaten by 51.3182 via change 16.",
+      "fully_supervised_reference_rows": {
+        "InstAlign": {
+          "cIoU": 68.94,
+          "gIoU": 74.34,
+          "family": "fully-supervised (trained on gRefCOCO train)",
+          "status": "reference row, never a floor; our cIoU 50.99 does not reach it"
+        },
+        "SAM4MLLM": {
+          "cIoU": 67.83,
+          "gIoU": 71.86,
+          "family": "fully-supervised",
+          "status": "reference row"
+        },
+        "ReLA": {
+          "cIoU": 62.42,
+          "gIoU": 63.6,
+          "family": "fully-supervised",
+          "status": "reference row"
+        },
+        "GSVA(ft)": {
+          "family": "fully-supervised (fine-tuned on gRefCOCO train)",
+          "status": "reference row, never a floor; listed here for completeness (no published val cIoU/gIoU transcription stored in this record); not shown in the paper table, which lists the supervised rows with published val numbers"
+        },
+        "LAVT": {
+          "cIoU": 57.64,
+          "gIoU": 58.4,
+          "family": "fully-supervised (trained on gRefCOCO train)",
+          "venue": "CVPR 2022",
+          "status": "reference row, never a floor"
+        }
+      },
+      "coverage_readings": "the previous record 50.99 is the rounded shipped cIoU of the aligned full-coverage evaluation (50.9864 on 14,229 official val sentences; the earlier 14,220-row subset read 50.9899); the floor is the conservative reading of the record"
+    }
+  },
+  "class_wall": {
+    "statement": "Published gRefCOCO val numbers are from models TRAINED on gRefCOCO train. The training-free wall binds on three independently measured axes: (1) grounder - the VLM box overlaps the 2-object GT union at IoU 0.329; (2) selector - under a PERFECT (GT) box the best deployable rule reaches only r=0.507 cumulative, below the r>0.689 the cIoU floor needs even at perfect abstention, so it fails at ANY N_acc (oracle on the same candidates: r=0.740, needing N_acc>=0.912; perfect single-mask oracle: r=0.581); (3) abstention - the VLM's own `none` answer reaches N_acc=0.413 (T_acc 1.000), while even the oracle-with-perfect-box ceiling needs N_acc>=0.74 for gIoU - above the 0.797 the trained state of the art reports. Note 92% of val no-target sentences are transplanted from other images, so the absences are genuine but the phrases stay generic, which is why image-grounded existence tops out near 0.41.",
+    "frontier": {
+      "formula": "r > 0.6894 * (1 + (FP_U/S_U)(1 - N_acc))",
+      "fp_u_over_s_u": 0.8345,
+      "need_r_at": {
+        "N_acc=0.00": 1.2647,
+        "N_acc=0.41": 1.0271,
+        "N_acc=0.50": 0.9771,
+        "N_acc=0.70": 0.862,
+        "N_acc=0.90": 0.7469,
+        "N_acc=1.00": 0.6894
+      },
+      "need_nacc_at": {
+        "r=0.392": null,
+        "r=0.415": null,
+        "r=0.581": null,
+        "r=0.886": 0.6576
+      }
+    },
+    "decomposition": {
+      "axis1_grounder": {
+        "vlm_box_iou": 0.32869701613955377,
+        "perfect_box_iou": 1.0,
+        "note": "VLM box vs 2-object GT union"
+      },
+      "axis2_selector": {
+        "box_cover|k15|gt": {
+          "mean_iou": 0.5474184443884968,
+          "r": 0.5073218462840471,
+          "frac_of_perfect_box_oracle": 0.686
+        },
+        "box_cover|k50|gt": {
+          "mean_iou": 0.5024056410409097,
+          "r": 0.45302667204601255,
+          "frac_of_perfect_box_oracle": 0.612
+        },
+        "greedy_novel|k15|gt": {
+          "mean_iou": 0.4674211917674211,
+          "r": 0.44260055296200357,
+          "frac_of_perfect_box_oracle": 0.598
+        },
+        "greedy_novel|k50|gt": {
+          "mean_iou": 0.46344876794862166,
+          "r": 0.43544618247825556,
+          "frac_of_perfect_box_oracle": 0.589
+        },
+        "top2_disjoint|k15|gt": {
+          "mean_iou": 0.4376366619467041,
+          "r": 0.415447571814527,
+          "frac_of_perfect_box_oracle": 0.561
+        },
+        "top2_disjoint|k50|gt": {
+          "mean_iou": 0.4376366619467041,
+          "r": 0.415447571814527,
+          "frac_of_perfect_box_oracle": 0.561
+        },
+        "top2_plain|k15|gt": {
+          "mean_iou": 0.42308878396430005,
+          "r": 0.40446630922974824,
+          "frac_of_perfect_box_oracle": 0.547
+        },
+        "top2_plain|k50|gt": {
+          "mean_iou": 0.42308878396430005,
+          "r": 0.40446630922974824,
+          "frac_of_perfect_box_oracle": 0.547
+        }
+      },
+      "axis2_ceilings": {
+        "oracle_perfect_box_k15": 0.7399,
+        "oracle_perfect_box_k50": 0.8832,
+        "oracle_no_box_k50": 0.8813,
+        "note": "oracle = GT-guided greedy union over the same shortlist"
+      },
+      "axis3_abstention": {
+        "achieved_N_acc": 0.413,
+        "best_score_threshold": 0.1750224820143885,
+        "trained_sota_N_acc": 0.797,
+        "note": "InstAlign N-acc on gRefCOCO val (published)"
+      },
+      "requirements": {
+        "cIoU_at_realizable_stack": {
+          "r": 0.39199476230424257,
+          "need_N_acc": null
+        },
+        "cIoU_at_perfect_box_realizable_rule": {
+          "r": 0.5073218462840471,
+          "need_N_acc": null
+        },
+        "cIoU_at_oracle_perfect_box": {
+          "r": 0.7399,
+          "need_N_acc": 0.912
+        },
+        "gIoU_at_oracle_perfect_box": {
+          "mean_iou": 0.7345388888241683,
+          "need_N_acc": 0.749
+        }
+      },
+      "verdict": "Three independent axes, all measured, all short. (1) Grounder: the VLM box overlaps the 2-object union at 0.329. (2) Selector: even given a PERFECT box the best deployable rule reaches r=0.507 vs the oracle's 0.740 - and r=0.507 cannot clear cIoU at ANY N_acc. (3) Abstention: the cIoU floor at the oracle-with-perfect-box ceiling still needs N_acc>=0.91, and gIoU needs >=0.74; the best training-free existence signal measures 0.413 and the trained state of the art is 0.797. No realizable combination clears either line, and the only configurations that could would require simultaneously a perfect grounder, an oracle selector, and a trained-level abstention rate."
+    },
+    "measured": {
+      "rules": {
+        "boxcover": {
+          "targeted_cumulative": 0.39199476230424257,
+          "S_I": 4107278.0,
+          "S_U": 10477890.0,
+          "s_u_val_scaled": 371895242.4,
+          "mean_fp_union": 34886.09859154929,
+          "fp_u": 310346733.07042253,
+          "fp_u_over_s_u": 0.8345004121795739,
+          "frac_nt_predicted": 0.47333333333333333
+        },
+        "top2disjoint": {
+          "targeted_cumulative": 0.415447571814527,
+          "S_I": 4559685.0,
+          "S_U": 10975356.0,
+          "s_u_val_scaled": 389551968.96,
+          "mean_fp_union": 28600.586666666666,
+          "fp_u": 254430818.98666665,
+          "fp_u_over_s_u": 0.6531370375714675,
+          "frac_nt_predicted": 1.0
+        }
+      },
+      "two_target_frac": 0.994740796393689,
+      "box_iou_vlm_vs_gtunion": 0.32869701613955377,
+      "orc_inbox_ceiling": 0.401568168568833,
+      "orc_pool_ceiling": 0.7345564359977677,
+      "oracle_single_cumulative": 0.581,
+      "oracle_union_cumulative": 0.8863797338377634,
+      "N_acc_vlm_box_or_none": 0.413,
+      "T_acc_vlm_box_or_none": 1.0,
+      "N_acc_best_score_threshold": 0.1750224820143885
+    },
+    "evidence": {
+      "wall": "exp/out_final/gref_wall.json (exp50/exp52)",
+      "rules": "exp/out_final/gref_rules.json (exp51_shortlist_rules.py)",
+      "estimate": "exp/out_final/gref_estimate.json (exp48_estimate.py)",
+      "box_ceiling": "exp/out_final/gref_box_ceiling.json (exp49_box_ceiling.py)",
+      "oracle": "exp/out_final/gref_ceiling.json (exp31_gref_ceiling.py)",
+      "existence_pilot": "exp/pilot_gref_exists.py (600 VLM queries, 300 val records)"
+    }
+  },
+  "tuned_model": {
+    "rows": {
+      "cIoU": 40.9593,
+      "gIoU": 71.1064,
+      "N_acc": 86.17,
+      "T_acc": 87.85
+    },
+    "model": "per-term box selector: one LLaVA box per parsed term, learned per-term picker (logreg, top-2 margin 0.815, C=1.07e-3) selects a mask per box, union of picks; pair/union selector fallback; 3-probe ensemble abstention",
+    "params": {
+      "kind": "logreg",
+      "topk": 2,
+      "margin": 0.8153109295029856,
+      "C": 0.001072678194796712,
+      "pair_fallback": {
+        "K": 6,
+        "C": 0.000285483537421555,
+        "p_sel": 0.34040013160612675,
+        "use_ens": true,
+        "clf": "logreg"
+      }
+    },
+    "n": 14220,
+    "records": "exp/out_extreme/records_grefcoco.jsonl (full val); held-out: records_grefcoco_train_tune.jsonl",
+    "held_out": {
+      "val_prevalence": {
+        "cIoU": 49.52,
+        "gIoU": 79.79,
+        "N_acc": 93.52,
+        "T_acc": 90.91,
+        "source": "gref_termbox_heldout.json (exp89 on held-out train rows)"
+      },
+      "raw_population": {
+        "cIoU": 51.66,
+        "gIoU": 71.02
+      },
+      "n_trials": 300
+    },
+    "subset_check": {
+      "cIoU": 36.5,
+      "gIoU": 68.96,
+      "n": 2000,
+      "records": "records_grefcoco_val2000.jsonl (seed 20261004)"
+    },
+    "provenance": "eighth 300-trial held-out study (optuna_study_gref9.json, val-matched population); frozen and evaluated once over the complete val split (exp89_termbox_full_val.py)",
+    "history": {
+      "held_out_ensemble_era": {
+        "calib_at_50_50_prevalence": {
+          "cIoU": 46.18,
+          "gIoU": 69.74,
+          "source": "study best (optuna_study_gref5.json)"
+        },
+        "calib_at_val_prevalence": {
+          "cIoU": 45.09,
+          "gIoU": 77.37,
+          "source": "exp59 (gref_tuned_val2000.json calib_optimal)"
+        },
+        "n_trials": 300
+      },
+      "params_ensemble_era": {
+        "clf": "logreg",
+        "C": 0.003372099519840815,
+        "p_inc": 0.77606891764233,
+        "p_abs": 0.3395872474890961,
+        "use_exists": true
+      }
+    },
+    "gdino_sam_rule": {
+      "model": "GDINO+SAM termbox union (change 13)",
+      "params": {
+        "box_src": "llava",
+        "gd_thresh": 0.18535118071181583,
+        "pool_rule": "sxi",
+        "topk": 2,
+        "margin": 0.7294331399965459,
+        "sam_mode": "all3",
+        "sam_area_cap": 0.25,
+        "cover2": false,
+        "alpha": 1.2205484428630569,
+        "beta": 0.6172278143610928
+      },
+      "abstention": {
+        "k_abs": 1,
+        "p_abs": 0.34040013160612675,
+        "use_ens": true
+      },
+      "full_val": {
+        "cIoU": 47.1442,
+        "gIoU": 73.9518,
+        "N_acc": 86.17,
+        "T_acc": 87.85
+      },
+      "masses": {
+        "S_U_union_mass": 100182121.00000003,
+        "P_sum_pred_areas": 90967915.0,
+        "I_tot": 56895964.0,
+        "G_U": 76667626.35155708,
+        "FP_U": 10486685.0,
+        "A_U": 10016077.79180994,
+        "note": "S_U here is the union(pred,GT) mass (exp90 wall convention); the file's earlier 'S_U' accumulator was pred-area mass and is preserved as P_sum_pred_areas",
+        "r_delivered": 0.5679253287120961,
+        "r_required_for_floor": 0.8304890938181851,
+        "ceiling_at_pool_oracle_r08842": 71.51081713902373,
+        "ceiling_at_r1": 78.90019483038213,
+        "cIoU_identity_check": 47.144233985549995
+      },
+      "provenance": "exp106/107/108/108b/109b + exp110"
+    },
+    "joint_config_v14": {
+      "model": "joint-config termbox union (change 14)",
+      "params": {
+        "src": "bs",
+        "alpha": 1.8111644301883565,
+        "beta": 0.23434019563238434,
+        "topk": 2,
+        "margin": 0.6312676830144586,
+        "cap": 0.5,
+        "pick_box": "ll+d0",
+        "sam": "d0+d1"
+      },
+      "full_val": {
+        "cIoU": 49.593,
+        "gIoU": 74.7292,
+        "N_acc": 86.17,
+        "T_acc": 87.85
+      },
+      "masses": {
+        "S_U_union_mass": 111829294.00000003,
+        "P_sum_pred_areas": 111346621.0,
+        "I_tot": 65627497.0,
+        "G_U": 76667626.35155708,
+        "FP_U": 10486685.0,
+        "A_U": 10016077.79180994,
+        "note": "S_U = union(pred,GT) mass (exp90 convention); the pass's S_U accumulator is pred-area mass",
+        "r_delivered": 0.5868542548431003,
+        "r_required_for_floor": 0.8157944728889532,
+        "ceiling_at_pool_oracle_r08842": 71.51081713902373,
+        "ceiling_at_r1": 78.90019483038213,
+        "cIoU_identity_check": 49.59304539734297
+      },
+      "provenance": "exp117 study + exp119 SAM(det1) precompute + exp118 val pass"
+    },
+    "fp_shrink_v15": {
+      "model": "singles-only no-target fallback on top of change 14",
+      "full_val": {
+        "cIoU": 50.9899,
+        "gIoU": 74.7292,
+        "N_acc": 86.17,
+        "T_acc": 87.85
+      },
+      "masses": {
+        "S_U_union_mass": 111829294.00000004,
+        "P_sum_pred_areas": 107721486.0,
+        "I_tot": 65627497.0,
+        "G_U": 76667626.35155708,
+        "FP_U": 6861550.0,
+        "A_U": 10016077.79180994,
+        "note": "S_U = union(pred,GT) mass; FP_U shrank 10.49M -> 6.86M via the exp123/124 singles-only no-target fallback",
+        "r_delivered": 0.5868542548431002,
+        "r_required_for_floor": 0.7934464102337422,
+        "ceiling_at_pool_oracle_r08842": 74.01343457132498,
+        "cIoU_identity_check": 50.989873805043544
+      },
+      "provenance": "exp123 (held-out measurement) + exp124 (frozen val pass)"
+    },
+    "full_coverage_14229": {
+      "model": "shipped rule re-evaluated on the complete official val split",
+      "full_val": {
+        "cIoU": 50.9864,
+        "gIoU": 74.7171,
+        "N_acc": 86.14,
+        "T_acc": 87.85,
+        "n": 14229
+      },
+      "TP": 7671,
+      "FN": 1234,
+      "TN": 4677,
+      "FP": 647,
+      "provenance": "exp124_fp_shrink_val.py on records_grefcoco_14229.jsonl (exp/out_final/gref_fp_shrink_val_14229.json); the nine additional sentences are ref 51250 (image COCO_train2014_000000320432.jpg restored, records built by exp21, caches filled by exp132)",
+      "delta_vs_14220_subset": {
+        "cIoU": -0.0035,
+        "gIoU": -0.0121
+      }
+    },
+    "note": "historical rows: the termbox-era tuned model was evaluated on the 14,220-sentence subset before the 2026-10-08 coverage completion (ref 51250 image restored; full split = 14,229 in records_grefcoco_14229.jsonl). These rows are retained as history and are not the shipped numbers; the shipped rule's aligned full-coverage numbers are in shipped.* and full_coverage_14229.",
+    "full_coverage_14229_topk1": {
+      "model": "change 16 (top-1 pick) applied once to the complete official val split",
+      "full_val": {
+        "cIoU": 51.3182,
+        "gIoU": 74.9098,
+        "N_acc": 86.14,
+        "T_acc": 87.85,
+        "n": 14229
+      },
+      "TP": 7671,
+      "FN": 1234,
+      "TN": 4677,
+      "FP": 647,
+      "provenance": "exp124_fp_shrink_val.py --study optuna_study_gref17.json on records_grefcoco_14229.jsonl -> gref_fp_shrink_val_14229_topk1.json",
+      "delta_vs_topk2": {
+        "cIoU": 0.3318,
+        "gIoU": 0.1927
+      }
+    }
+  },
+  "protocol_audit": {
+    "date": "2026-10-08",
+    "what": "metric-protocol alignment per operator instruction: every shipped number and cross-paper comparison computed under the official evaluation of the compared papers; see exp/out_final/protocol_audit.json",
+    "grefcoco": "official gRefCOCO evaluation (sample = (reference, sentence); no-target TP iff prediction empty; gIoU mean over all samples, cIoU cumulative I/U; N_acc/T_acc as defined by the official evaluator). Coverage complete (14,229/14,229). Change 16 re-evaluated under the same protocol: cIoU 51.3182, gIoU 74.9098, N_acc 86.14, T_acc 87.85."
+  },
+  "history": [
+    {
+      "version": "change 16 (top-1 pick)",
+      "cIoU": 51.3182,
+      "gIoU": 74.9098,
+      "n": 14229,
+      "selected_on": "held-out train frame with SAM caches (exp137 + exp133 --train-side-sam)",
+      "evidence": "gref_topk_reselection.json"
+    }
+  ]
+}

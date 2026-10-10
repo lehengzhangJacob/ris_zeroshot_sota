@@ -1,0 +1,64 @@
+\section{Limitations and Threats to Validity}
+\label{sec:limitations}
+
+We state the limits of this work in the order in which they bound its claims.
+
+\textbf{No multimodal chooser baseline.} The most obvious alternative to a
+hand-written relation resolver is to hand the candidate set to an
+off-the-shelf multimodal model and ask it to pick. We did not run that
+baseline. The local reproduction of GLOD-RIS, whose pipeline depends on such a
+model, broke in production (aborted at 223 of 10{,}834 expressions with a
+malformed structured response), and no local vision--language weights are
+available in this environment. We bound the question instead
+(§\ref{sec:experiments}): any chooser acting on the operator's candidate set
+could add at most $+0.227$ mIoU, and the internal alternatives we did test ---
+ranking by the semantic score, and picking the geometric extremum --- both lose
+to the coherence ranking. This is the largest open flank of the paper and we
+flag it as such rather than reporting the ceiling as if it were the comparison.
+
+\textbf{The mIoU gain is not distinguishable from a one-line baseline.} On
+full RefCOCO val the operator's mIoU delta is statistically indistinguishable
+from a containment snap ($+0.0005$, $p=0.87$). The selector separates on oIoU
+($+3.6$ points), on part expressions, and on coverage of the GT-area quartiles,
+and the two compose almost additively. A reader who cares only about mIoU on
+this benchmark should read the two rows as tied.
+
+\textbf{The repair does not transfer uniformly.} It is neutral on RefCOCOg
+($-0.0034$) and RefCOCO$+$ ($+0.0012$). On RefCOCO$+$ the null is expected ---
+1.6\,\% of expressions are spatial --- and the residual spatial stratum is
+positive. On RefCOCOg the operator is negative on its own target stratum, which
+we attribute to object-relative spatial language. A method that helps on one of
+three benchmarks is a scoped contribution, and we scope it accordingly.
+
+\textbf{One proposal generator and one vision--language backbone.} All results
+use SAM ViT-H and CLIP ViT-B/16. Pool \emph{density} was varied
+(\texttt{points\_per\_side} $8\rightarrow16$, Table~\ref{tab:pool}) and both
+the diagnosis and the operator survived, but a different proposal generator or
+a different vision--language backbone was not tested. The taxonomy's robustness
+additionally rests on three scorers spanning roughly 10 mIoU on RefCOCO, but
+those three share the same frozen features.
+
+\textbf{Reproduction gap.} Absolute rows are not comparable to the published
+HybridGL table: our reproduction is $4.03$ oIoU / $5.09$ mIoU below the
+published G2L row on RefCOCO val and $2.32$ / $2.16$ on RefCOCOg, while the
+guidance increment matches within $0.4$ points (§\ref{sec:repro}). Since all
+head-to-head comparisons are internal to one reproduction, the gap does not
+affect them; it does mean the absolute numbers should not be quoted as
+state-of-the-art figures.
+
+\textbf{Ordinal reference is unsolved.} Ordinal expressions are 4.1\,\% of
+RefCOCO val; the deterministic ordinal resolver we implemented lost
+$0.153$ mIoU on that stratum, so the operator abstains and the stratum is
+untouched. Ordinal and depth reference remain open.
+
+\textbf{The spatial vocabulary is a fixed list.} The parser matches a
+hand-written vocabulary of English spatial terms rather than learning it. Tier
+ablations at the unguided operating point show the gain is dominated by
+left/right alone ($+0.1064$) and increases monotonically as middle/centre
+($+0.1171$), ordinals ($+0.1292$) and the full list ($+0.1331$) are added, but
+the list is still a design commitment, and languages or phrasings outside it
+are not handled.
+
+\textbf{The evaluation is on RefCOCO-family benchmarks only.} No generalized
+(no-target) or multi-target benchmark was run; the taxonomy and the operator
+say nothing about those settings.

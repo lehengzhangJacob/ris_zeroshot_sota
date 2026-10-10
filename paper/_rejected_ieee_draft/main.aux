@@ -1,0 +1,111 @@
+\relax 
+\providecommand\hyper@newdestlabel[2]{}
+\providecommand\HyField@AuxAddToFields[1]{}
+\providecommand\HyField@AuxAddToCoFields[2]{}
+\citation{kirillov2023sam}
+\citation{radford2021clip}
+\citation{yu2023global,liu2025hybridgl,wu2026glodris}
+\citation{kim2023refdiff,li2023tas}
+\citation{li2025lgd}
+\citation{wu2026glodris}
+\@writefile{toc}{\contentsline {section}{\numberline {I}Introduction}{1}{section.1}\protected@file@percent }
+\citation{yu2023global}
+\citation{kim2023refdiff}
+\citation{li2023tas}
+\citation{li2025lgd}
+\citation{wu2026glodris}
+\citation{liu2025hybridgl}
+\citation{ren2015faster,he2017maskrcnn}
+\citation{liu2023gres}
+\citation{liu2025grex}
+\citation{hu2016natural}
+\citation{yu2017slr}
+\citation{zhou2022proposalclip}
+\citation{esam2025}
+\citation{gfsam2024}
+\citation{mars2026}
+\citation{ras2025}
+\@writefile{toc}{\contentsline {section}{\numberline {II}Related Work}{2}{section.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {II-A}}Training-free referring image segmentation}{2}{subsection.2.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {II-B}}Diagnostic and oracle analyses}{2}{subsection.2.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {II-C}}Spatial and relational reasoning in RIS}{2}{subsection.2.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {II-D}}Mask merging and granularity remedies}{2}{subsection.2.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {II-E}}Selection over proposal sets}{3}{subsection.2.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {III}Diagnosis: Where the Recoverable IoU Goes}{3}{section.3}\protected@file@percent }
+\newlabel{sec:diagnosis}{{III}{3}{Diagnosis: Where the Recoverable IoU Goes}{section.3}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {III-A}}Setting and notation}{3}{subsection.3.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {III-B}}An error taxonomy of the oracle gap}{3}{subsection.3.2}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {I}{\ignorespaces Error taxonomy of the oracle gap. Each cell is \emph  {prevalence}\,/\,\emph  {share of total gap mass}. Full RefCOCO validation split, 10{,}834 expressions, oracle mIoU 0.8221 in both columns. Under-seg.\ = under-segmentation; over-seg.\ = over-segmentation.}}{3}{table.1}\protected@file@percent }
+\newlabel{tab:taxonomy}{{I}{3}{Error taxonomy of the oracle gap. Each cell is \emph {prevalence}\,/\,\emph {share of total gap mass}. Full RefCOCO validation split, 10{,}834 expressions, oracle mIoU 0.8221 in both columns. Under-seg.\ = under-segmentation; over-seg.\ = over-segmentation}{table.1}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces Oracle-gap taxonomy on full RefCOCO val, at the unguided argmax operating point (left) and at the released HybridGL operating point (right). Solid bars: share of the total recoverable IoU. Hatched bars: prevalence. Wrong-instance selection dominates the gap mass at both operating points, although the guidance modules reduce its prevalence; under-segmentation, which granularity remedies target, carries a small and operating-point-dependent share.}}{3}{figure.1}\protected@file@percent }
+\newlabel{fig:taxonomy}{{1}{3}{Oracle-gap taxonomy on full RefCOCO val, at the unguided argmax operating point (left) and at the released HybridGL operating point (right). Solid bars: share of the total recoverable IoU. Hatched bars: prevalence. Wrong-instance selection dominates the gap mass at both operating points, although the guidance modules reduce its prevalence; under-segmentation, which granularity remedies target, carries a small and operating-point-dependent share}{figure.1}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {III-C}}Wrong-instance is spatial reference failure}{3}{subsection.3.3}\protected@file@percent }
+\newlabel{sec:spatial}{{\mbox  {III-C}}{3}{Wrong-instance is spatial reference failure}{subsection.3.3}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {III-D}}Why the released guidance cannot repair it}{3}{subsection.3.4}\protected@file@percent }
+\newlabel{sec:confinement}{{\mbox  {III-D}}{3}{Why the released guidance cannot repair it}{subsection.3.4}{}}
+\newlabel{eq:released}{{1}{3}{Why the released guidance cannot repair it}{equation.1}{}}
+\citation{liu2025hybridgl}
+\@writefile{lot}{\contentsline {table}{\numberline {II}{\ignorespaces Confinement of the released guidance on full RefCOCO val (10{,}834 expressions, oracle mIoU 0.8221). ``Category score'' is the same scorer reading the expression with its spatial vocabulary removed.}}{4}{table.2}\protected@file@percent }
+\newlabel{tab:confinement}{{II}{4}{Confinement of the released guidance on full RefCOCO val (10{,}834 expressions, oracle mIoU 0.8221). ``Category score'' is the same scorer reading the expression with its spatial vocabulary removed}{table.2}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {IV}Method: Category-Set Relation Guidance}{4}{section.4}\protected@file@percent }
+\newlabel{sec:method}{{IV}{4}{Method: Category-Set Relation Guidance}{section.4}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {IV-A}}The operator}{4}{subsection.4.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {IV-B}}Ordinal expressions abstain}{4}{subsection.4.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {IV-C}}Cost}{4}{subsection.4.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {V}Experiments}{4}{section.5}\protected@file@percent }
+\newlabel{sec:experiments}{{V}{4}{Experiments}{section.5}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {V-A}}Protocol}{4}{subsection.5.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {V-B}}Reproduction}{5}{subsection.5.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {V-C}}Main result}{5}{subsection.5.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {V-D}}The operator and the containment snap are complementary, not competing}{5}{subsection.5.4}\protected@file@percent }
+\newlabel{sec:snap}{{\mbox  {V-D}}{5}{The operator and the containment snap are complementary, not competing}{subsection.5.4}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {V-E}}Controls}{5}{subsection.5.5}\protected@file@percent }
+\newlabel{sec:controls}{{\mbox  {V-E}}{5}{Controls}{subsection.5.5}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {V-F}}Stratification}{5}{subsection.5.6}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {V-G}}Candidate-set ceilings}{5}{subsection.5.7}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {III}{\ignorespaces Full RefCOCO validation split, 10{,}834 expressions, released HybridGL scorer. Oracle mIoU 0.8221. $\Delta $ is paired over expressions; CI is a 10{,}000-resample bootstrap; $p$ is a sign-flip permutation test; every $p<0.0001$. ``changed'' counts expressions whose returned index differs from the released row. All deltas are computed from unrounded values, so a delta may differ by $\pm 0.0001$ from the difference of the two rounded mIoU columns shown. The containment snap is a required baseline and is \emph  {not} part of the proposed method.}}{6}{table.3}\protected@file@percent }
+\newlabel{tab:main}{{III}{6}{Full RefCOCO validation split, 10{,}834 expressions, released HybridGL scorer. Oracle mIoU 0.8221. $\dD $ is paired over expressions; CI is a 10{,}000-resample bootstrap; $p$ is a sign-flip permutation test; every $p<0.0001$. ``changed'' counts expressions whose returned index differs from the released row. All deltas are computed from unrounded values, so a delta may differ by $\pm 0.0001$ from the difference of the two rounded mIoU columns shown. The containment snap is a required baseline and is \emph {not} part of the proposed method}{table.3}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {IV}{\ignorespaces Sensitivity of the operator on full RefCOCO val. The shipped configuration ($k=8$, side percentile 50, category score, coherence ranking) was fixed on the 716-expression selection split before the final evaluation script and is not the best cell of any sweep.}}{6}{table.4}\protected@file@percent }
+\newlabel{tab:sensitivity}{{IV}{6}{Sensitivity of the operator on full RefCOCO val. The shipped configuration ($k=8$, side percentile 50, category score, coherence ranking) was fixed on the 716-expression selection split before the final evaluation script and is not the best cell of any sweep}{table.4}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {V}{\ignorespaces Controls on full RefCOCO val. Each replaces one component of the operator and leaves the rest intact.}}{6}{table.5}\protected@file@percent }
+\newlabel{tab:controls}{{V}{6}{Controls on full RefCOCO val. Each replaces one component of the operator and leaves the rest intact}{table.5}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {V-H}}Reproduction gap, localised}{6}{subsection.5.8}\protected@file@percent }
+\newlabel{sec:repro}{{\mbox  {V-H}}{6}{Reproduction gap, localised}{subsection.5.8}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {VI}{\ignorespaces Proposal-pool density on the identical 716 selection-split expressions. Doubling the pool buys $+1.0$ mIoU of oracle while degrading the released pipeline by $3.2$ mIoU, and leaves both the diagnosis and the operator intact.}}{6}{table.6}\protected@file@percent }
+\newlabel{tab:pool}{{VI}{6}{Proposal-pool density on the identical 716 selection-split expressions. Doubling the pool buys $+1.0$ mIoU of oracle while degrading the released pipeline by $3.2$ mIoU, and leaves both the diagnosis and the operator intact}{table.6}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {V-I}}Pool density does not explain the diagnosis}{6}{subsection.5.9}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {V-J}}Cross-dataset behaviour, and the boundary of the repair}{6}{subsection.5.10}\protected@file@percent }
+\newlabel{sec:cross}{{\mbox  {V-J}}{6}{Cross-dataset behaviour, and the boundary of the repair}{subsection.5.10}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {VII}{\ignorespaces Cross-dataset behaviour of the operator at the released HybridGL operating point. The three splits differ sharply, and for construction reasons, in how often an expression carries a spatial relation: RefCOCO$+$ was collected with location words excluded. ``$\Delta $ fired'' is the delta restricted to expressions whose returned index the operator changed. Wrong-instance share is the fraction of the oracle gap mass that class carries.}}{7}{table.7}\protected@file@percent }
+\newlabel{tab:cross}{{VII}{7}{Cross-dataset behaviour of the operator at the released HybridGL operating point. The three splits differ sharply, and for construction reasons, in how often an expression carries a spatial relation: RefCOCO$+$ was collected with location words excluded. ``$\dD $ fired'' is the delta restricted to expressions whose returned index the operator changed. Wrong-instance share is the fraction of the oracle gap mass that class carries}{table.7}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces (a) The operator's benefit tracks how often expressions carry a spatial relation. Filled markers: all expressions; hollow diamonds: the spatial stratum only. The RefCOCO$+$ outcome was predicted before the run, from the dataset's construction. (b) Deltas by relation type on RefCOCO. Ordinal and relation-free expressions are unchanged by construction.}}{7}{figure.2}\protected@file@percent }
+\newlabel{fig:dose}{{2}{7}{(a) The operator's benefit tracks how often expressions carry a spatial relation. Filled markers: all expressions; hollow diamonds: the spatial stratum only. The RefCOCO$+$ outcome was predicted before the run, from the dataset's construction. (b) Deltas by relation type on RefCOCO. Ordinal and relation-free expressions are unchanged by construction}{figure.2}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {V-K}}Qualitative behaviour}{7}{subsection.5.11}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {VI}Limitations and Threats to Validity}{7}{section.6}\protected@file@percent }
+\newlabel{sec:limitations}{{VI}{7}{Limitations and Threats to Validity}{section.6}{}}
+\bibstyle{IEEEtran}
+\bibdata{references}
+\bibcite{kirillov2023sam}{1}
+\bibcite{radford2021clip}{2}
+\bibcite{yu2023global}{3}
+\bibcite{liu2025hybridgl}{4}
+\bibcite{wu2026glodris}{5}
+\bibcite{kim2023refdiff}{6}
+\bibcite{li2023tas}{7}
+\bibcite{li2025lgd}{8}
+\bibcite{ren2015faster}{9}
+\bibcite{he2017maskrcnn}{10}
+\bibcite{liu2023gres}{11}
+\bibcite{liu2025grex}{12}
+\bibcite{hu2016natural}{13}
+\bibcite{yu2017slr}{14}
+\bibcite{zhou2022proposalclip}{15}
+\bibcite{esam2025}{16}
+\bibcite{gfsam2024}{17}
+\bibcite{mars2026}{18}
+\bibcite{ras2025}{19}
+\@writefile{toc}{\contentsline {section}{\numberline {VII}Conclusion}{8}{section.7}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{References}{8}{section*.1}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces Expressions the operator repairs. Columns: input; ground truth (green); the released HybridGL selection (red); ours (blue). Rows are ordered by reference id and are a deterministic sample, not a curated selection. In each case the released pipeline returns a plausible instance of the right category and the operator returns the referred one.}}{10}{figure.3}\protected@file@percent }
+\newlabel{fig:qual}{{3}{10}{Expressions the operator repairs. Columns: input; ground truth (green); the released HybridGL selection (red); ours (blue). Rows are ordered by reference id and are a deterministic sample, not a curated selection. In each case the released pipeline returns a plausible instance of the right category and the operator returns the referred one}{figure.3}{}}
+\gdef \@abspage@last{10}

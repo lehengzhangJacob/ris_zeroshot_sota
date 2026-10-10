@@ -1,0 +1,125 @@
+\begin{thebibliography}{17}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{\texttt{#1}}
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \providecommand{\doi}[1]{doi: #1}\else
+  \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+
+\bibitem[Catalano et~al.(2026)]{mars2026}
+Nico Catalano et~al.
+\newblock Mars: a multimodal alignment and ranking system for few-shot
+  segmentation.
+\newblock In \emph{Proceedings of the IEEE/CVF Winter Conference on
+  Applications of Computer Vision (WACV)}, 2026.
+
+\bibitem[Kazemzadeh et~al.(2014)Kazemzadeh, Ordonez, Matten, and
+  Berg]{kazemzadeh2014refer}
+Sahar Kazemzadeh, Vicente Ordonez, Mark Matten, and Tamara~L. Berg.
+\newblock Referitgame: Referring to objects in photographs of natural scenes.
+\newblock In \emph{Proceedings of the Conference on Empirical Methods in
+  Natural Language Processing (EMNLP)}, 2014.
+
+\bibitem[Kirillov et~al.(2023)Kirillov, Mintun, Ravi, Mao, Rolland, Gustafson,
+  Xiao, Whitehead, Berg, Lo, Doll{\'a}r, and Girshick]{kirillov2023sam}
+Alexander Kirillov, Eric Mintun, Nikhila Ravi, Hanzi Mao, Chloe Rolland, Laura
+  Gustafson, Tete Xiao, Spencer Whitehead, Alexander~C. Berg, Wan-Yen Lo, Piotr
+  Doll{\'a}r, and Ross Girshick.
+\newblock Segment anything.
+\newblock In \emph{Proceedings of the IEEE/CVF International Conference on
+  Computer Vision (ICCV)}, 2023.
+
+\bibitem[Li et~al.(2024)Li, Zhang, Guo, Zhang, Li, Zhang, Zhang, Li, Liu, and
+  Li]{li2024llavaov}
+Bo Li, Yuanhan Zhang, Dong Guo, Renrui Zhang, Feng Li, Hao Zhang, Kaichen
+  Zhang, Yanwei Li, Ziwei Liu, and Chunyuan Li.
+\newblock Llava-onevision: Easy visual task transfer.
+\newblock \emph{arXiv preprint arXiv:2408.03326}, 2024.
+
+\bibitem[Li et~al.(2025{\natexlab{a}})Li, Xie, Gu, Xu, et~al.]{lgd2025}
+Jiachen Li, Qing Xie, Renshu Gu, Jinyu Xu, et~al.
+\newblock Lgd: Leveraging generative descriptions for zero-shot referring image
+  segmentation.
+\newblock \emph{Pattern Recognition}, 2025{\natexlab{a}}.
+
+\bibitem[Li et~al.(2025{\natexlab{b}})Li, Pang, et~al.]{bms2024}
+Wenhui Li, Chao Pang, et~al.
+\newblock Bidirectional mask selection for zero-shot referring image
+  segmentation.
+\newblock \emph{IEEE Transactions on Circuits and Systems for Video
+  Technology}, 35\penalty0 (1), 2025{\natexlab{b}}.
+
+\bibitem[Liu et~al.(2023)Liu, Ding, Jiang, et~al.]{liu2023gres}
+Chang Liu, Henghui Ding, Xudong Jiang, et~al.
+\newblock Gres: Generalized referring expression segmentation.
+\newblock In \emph{Proceedings of the IEEE/CVF Conference on Computer Vision
+  and Pattern Recognition (CVPR)}, 2023.
+
+\bibitem[Liu and Li(2025)]{hybridgl2025}
+Ting Liu and Siyuan Li.
+\newblock Hybrid global-local representation with augmented spatial guidance
+  for zero-shot referring image segmentation.
+\newblock In \emph{Proceedings of the IEEE/CVF Conference on Computer Vision
+  and Pattern Recognition (CVPR)}, pages 29634--29643, 2025.
+
+\bibitem[Mao et~al.(2016)Mao, Huang, Toshev, Camburu, Yuille, and
+  Murphy]{mao2016generation}
+Junhua Mao, Jonathan Huang, Alexander Toshev, Oana Camburu, Alan~L. Yuille, and
+  Kevin Murphy.
+\newblock Generation and comprehension of unambiguous object descriptions.
+\newblock In \emph{Proceedings of the IEEE/CVF Conference on Computer Vision
+  and Pattern Recognition (CVPR)}, 2016.
+
+\bibitem[Ni et~al.(2023)Ni, Zhang, Feng, Li, Guo, and Zuo]{ni2023refdiff}
+Minheng Ni, Yabo Zhang, Ke Feng, Xiujun Li, Daxin Guo, and Wangmeng Zuo.
+\newblock Ref-diff: Zero-shot referring image segmentation with generative
+  models.
+\newblock In \emph{arXiv preprint arXiv:2308.16777}, 2023.
+
+\bibitem[Suo et~al.(2023)Suo, Zhu, and Yang]{shu2023tas}
+Yucheng Suo, Linchao Zhu, and Yi Yang.
+\newblock Text augmented spatial-aware zero-shot referring image segmentation.
+\newblock In \emph{Findings of the Association for Computational Linguistics:
+  EMNLP 2023}, 2023.
+
+\bibitem[Wang et~al.(2025)Wang, Wu, Huang, Zheng, and Wang]{wang2025mllm}
+Jingchao Wang, Zhijian Wu, Dingjiang Huang, Yefeng Zheng, and Hong Wang.
+\newblock Unlocking the potential of mllms in referring expression segmentation
+  via a light-weight mask decoder.
+\newblock In \emph{arXiv preprint arXiv:2508.04107}, 2025.
+
+\bibitem[Wu et~al.(2026)]{wu2026glodris}
+Junjie Wu et~al.
+\newblock Glod-ris: Zero-shot referring image segmentation with gaussian
+  localization and orthogonal decoupling.
+\newblock \emph{IEEE Transactions on Circuits and Systems for Video
+  Technology}, 2026.
+
+\bibitem[Xu et~al.(2025)]{esam2025}
+Xiaoyang Xu et~al.
+\newblock E-sam: Training-free segment every entity model.
+\newblock In \emph{Proceedings of the IEEE/CVF International Conference on
+  Computer Vision (ICCV)}, 2025.
+
+\bibitem[Yu et~al.(2023)Yu, Seo, and Son]{yu2023global}
+Seonghoon Yu, Paul~Hongsuck Seo, and Jeany Son.
+\newblock Zero-shot referring image segmentation with global-local context
+  features.
+\newblock In \emph{Proceedings of the IEEE/CVF Conference on Computer Vision
+  and Pattern Recognition (CVPR)}, 2023.
+
+\bibitem[Zhong et~al.(2022)Zhong, Yang, Wang, Tang, Zhao, Liu, Li, and
+  Yuan]{proposalclip2022}
+Yiwu Zhong, Jianwei Yang, Peng Wang, Ronghui Tang, Cheng-Lin Zhao, Renjie Liu,
+  Xiang Li, and Yuhui Yuan.
+\newblock Proposalclip: Unsupervised open-category object proposal generation
+  via exploiting clip cues.
+\newblock In \emph{Proceedings of the IEEE/CVF Conference on Computer Vision
+  and Pattern Recognition (CVPR)}, 2022.
+
+\bibitem[Zhou et~al.(2022)Zhou, Loy, and Dai]{zhou2022maskclip}
+Chong Zhou, Chen~Change Loy, and Bo Dai.
+\newblock Extract free dense labels from {CLIP}.
+\newblock In \emph{Proceedings of the European Conference on Computer Vision
+  (ECCV)}, 2022.
+
+\end{thebibliography}

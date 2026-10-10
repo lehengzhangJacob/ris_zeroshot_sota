@@ -1,0 +1,85 @@
+{
+  "configs": {
+    "winner_llava_sxi_all3": {
+      "box_src": "llava",
+      "gd_thresh": 0.18535118071181583,
+      "pool_rule": "sxi",
+      "topk": 2.0,
+      "margin": 0.7294331399965459,
+      "sam_mode": "all3",
+      "sam_area_cap": 0.25,
+      "cover2": 0.0,
+      "alpha": 1.2205484428630569,
+      "beta": 0.6172278143610928
+    },
+    "gdino_sxi_all3": {
+      "box_src": "gdino",
+      "gd_thresh": 0.18535118071181583,
+      "pool_rule": "sxi",
+      "topk": 2.0,
+      "margin": 0.7294331399965459,
+      "sam_mode": "all3",
+      "sam_area_cap": 0.25,
+      "cover2": 0.0,
+      "alpha": 1.2205484428630569,
+      "beta": 0.6172278143610928
+    },
+    "gdino_sxi_largest": {
+      "box_src": "gdino",
+      "gd_thresh": 0.18535118071181583,
+      "pool_rule": "sxi",
+      "topk": 2.0,
+      "margin": 0.7294331399965459,
+      "sam_mode": "largest",
+      "sam_area_cap": 0.25,
+      "cover2": 0.0,
+      "alpha": 1.2205484428630569,
+      "beta": 0.6172278143610928
+    },
+    "llava_sxi_off": {
+      "box_src": "llava",
+      "gd_thresh": 0.18535118071181583,
+      "pool_rule": "sxi",
+      "topk": 2.0,
+      "margin": 0.7294331399965459,
+      "sam_mode": "off",
+      "sam_area_cap": 0.25,
+      "cover2": 0.0,
+      "alpha": 1.2205484428630569,
+      "beta": 0.6172278143610928
+    }
+  },
+  "results": {
+    "winner_llava_sxi_all3": {
+      "row_mean": 0.6432751953646464,
+      "row_n": 262,
+      "per_rid_mean": 0.6340301626304073,
+      "per_rid_n": 109
+    },
+    "gdino_sxi_all3": {
+      "row_mean": 0.6252561804997746,
+      "row_n": 262,
+      "per_rid_mean": 0.6204157840663339,
+      "per_rid_n": 109
+    },
+    "gdino_sxi_largest": {
+      "row_mean": 0.6221826372465014,
+      "row_n": 262,
+      "per_rid_mean": 0.6210523434730721,
+      "per_rid_n": 109
+    },
+    "llava_sxi_off": {
+      "row_mean": 0.5465259096064026,
+      "row_n": 262,
+      "per_rid_mean": 0.5341453299004323,
+      "per_rid_n": 109
+    }
+  },
+  "winner_delta_row_level": 0.09674928575824393,
+  "winner_delta_ci": [
+    0.06399566132613833,
+    0.12890997151050573
+  ],
+  "required_m": 0.6212,
+  "generated": "exp108b_verify_winner.py"
+}

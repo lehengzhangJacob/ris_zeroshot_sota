@@ -1,0 +1,43 @@
+{
+  "model": {
+    "kind": "per-term box picker + pair fallback",
+    "study_params": {
+      "kind": "logreg",
+      "topk": 2,
+      "margin": 0.8153109295029856,
+      "C": 0.001072678194796712
+    },
+    "source_study": "optuna_study_gref9.json"
+  },
+  "metrics": {
+    "n": 1398,
+    "cIoU": 51.66350919109235,
+    "gIoU": 71.0198295808531,
+    "N_acc": 93.51851851851852,
+    "T_acc": 90.9090909090909,
+    "TP": 505,
+    "FN": 35,
+    "TN": 780,
+    "FP": 78,
+    "termbox_used": 243,
+    "fallback_used": 572,
+    "cIoU_val_prevalence": 49.51857454093012,
+    "gIoU_val_prevalence": 79.79350013239969
+  },
+  "history": {
+    "pair_union": {
+      "cIoU": 36.7453,
+      "gIoU": 69.6279
+    },
+    "ensemble": {
+      "cIoU": 34.9419,
+      "gIoU": 69.7711
+    },
+    "single_probe": {
+      "cIoU": 35.0884,
+      "gIoU": 68.3729
+    }
+  },
+  "generated": "exp89_termbox_full_val.py",
+  "provenance_note": "evaluated over the held-out TRAIN rows (records_grefcoco_train_tune.jsonl, 1,398 rows incl. no-target) with the frozen shipped rule; the picker's scaler refit uses the full 262-row val-matched sample, so 127 of the tune refs are in-sample for the PICKER's refit while the study's parameter SELECTION was ref-disjoint (fit/calib) and all tune rows outside the sample are out-of-sample. A calib-only variant is impossible: the sample refs are targeted-only (gref_termbox_heldout_calib.json documents the degenerate 0 no-target run). No val data anywhere."
+}

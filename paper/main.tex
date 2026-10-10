@@ -1,0 +1,82 @@
+% CVPR submission draft built from this run's evidence.
+% Every number in tables/ is generated from exp/out_final/*.json by
+% exp/exp25_tables.py; inline numbers are macros in tables/numbers.tex.
+\documentclass[10pt,twocolumn,letterpaper]{article}
+
+\usepackage{cvpr}
+\usepackage{times}
+\usepackage{epsfig}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\DeclareMathOperator*{\argmax}{arg\,max}
+\DeclareMathOperator*{\argmin}{arg\,min}
+\usepackage{amssymb}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{xcolor}
+
+\input{tables/numbers}
+
+\definecolor{myblue}{RGB}{37,99,235}
+\newcommand{\dD}{\ensuremath{\Delta}}
+\newcommand{\best}[1]{\textbf{#1}}
+
+\title{Where Is It? A Dense Localization Prior\\for Training-Free Referring Image Segmentation}
+
+\author{Anonymous CVPR submission\\
+Paper ID ****}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Training-free referring image segmentation is implemented as
+\emph{propose-then-select}: a frozen segmenter proposes masks, a frozen
+vision-language model scores them, and the argmax is returned. We measure
+what actually limits this pipeline on full validation splits and find that the
+proposal pool is not the bottleneck --- an oracle picker over the pool reaches
+\oracleRefcoco\,mIoU on RefCOCO while the released pipeline returns
+\refcocoReleased, and the recoverable IoU is carried by wrong-instance
+selection, not by mask granularity. The failure is one of \emph{localization}
+rather than representation: the released scores compare whole-region
+embeddings with whole-sentence embeddings, which are ambiguous across
+instances on descriptive expressions, and a stronger encoder does not help
+(SigLIP-so400m selects worse than CLIP ViT-B/16 here). We therefore add one
+frozen, local component --- a 7B vision-language model asked, in natural
+language, for the referent's bounding box --- and select the candidate whose
+mask best fills that box. Passing the full referring expression rather than a
+parsed noun phrase is worth $+13.4$/$+10.6$/$+11.6$\,mIoU in a held-out study;
+no API is involved. The method is tuned only on a held-out split built from
+RefCOCO-family train references (\studyTrials{}-trial Optuna studies, objective
+= minimum over datasets) and evaluated on the full validation sets. On
+gRefCOCO we locate where the training-free class stands: a three-prompt yes/no
+presence ensemble \emph{solves} the no-target decision above the trained state
+of the art (N-acc \wallCombN{} vs.\ \wallTrainedNAcc{}), and the
+training-free rule \emph{beats} every same-class (zero-shot) published
+number on both metrics (\grefCIoU{}/\grefGIoU{} vs.\ \grefZeroShotCIoU{}/\grefZeroShotGIoU{})
+as well as the strongest supervised gIoU reference (\grefPubGIoU{}). The
+remaining constraint is the \emph{supervised} cIoU level, quantified rather
+than tuned around: at the shipped operating point it
+needs the selector at \wallRealNeedCIoU\,\% of the best measured realization
+--- both oracles measured, and agreeing at $\approx0.88$ --- while the frozen
+rule realizes \wallRealMeas\,\%, a gap attributable to instance-level
+selection on two-object referents.
+\end{abstract}
+
+\input{sections/01_intro}
+\input{sections/02_related}
+\input{sections/03_diagnosis}
+\input{sections/04_method}
+\input{sections/05_experiments}
+\input{sections/06_limitations}
+\input{sections/07_conclusion}
+
+\appendix
+\input{sections/08_appendix}
+
+{\small
+\bibliographystyle{ieeenat_fullname}
+\bibliography{references}
+}
+
+\end{document}

@@ -1,0 +1,32 @@
+{
+  "val_targeted": {
+    "records": 5324,
+    "n_targets_hist": {
+      "2": 5296,
+      "3": 21,
+      "4": 2,
+      "5": 3,
+      "7": 1,
+      "14": 1
+    }
+  },
+  "train_tune_targeted": {
+    "records": 1120,
+    "n_targets_hist": {
+      "1": 748,
+      "2": 363,
+      "3": 4,
+      "4": 2,
+      "5": 1,
+      "6": 1,
+      "11": 1
+    }
+  },
+  "train_tune_all": {
+    "records": 1784,
+    "targeted": 1120,
+    "multi_ge2": 372,
+    "multi_frac_of_all": 0.2085,
+    "multi_frac_of_targeted": 0.3321
+  }
+}

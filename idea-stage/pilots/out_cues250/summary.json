@@ -1,0 +1,98 @@
+{
+  "dataset": "refcoco",
+  "split": "val",
+  "limit": 250,
+  "seed": 101,
+  "n_expressions": 250,
+  "elapsed_s": 61.4,
+  "mIoU_oracle_single": 0.8265234345345501,
+  "mIoU_argmax_dod": 0.3532211297607804,
+  "mIoU_argmax_cosfg": 0.3455573476720032,
+  "mIoU_best_global_weighting": 0.3797983589179365,
+  "best_global_weights": {
+    "c1": 1.0,
+    "c2": 0.0,
+    "c3": 0.5,
+    "c4": 0.1,
+    "c5": 0.2,
+    "c6": 0.0,
+    "c7": 0.0
+  },
+  "mIoU_per_expression_ceiling": 0.5214533290559316,
+  "oracle_recovery_argmax": 0.42735767069894876,
+  "oracle_recovery_best_global": 0.4595131160822038,
+  "oracle_recovery_per_expr_ceiling": 0.6308996300263207,
+  "mean_rank_of_best_under_dod": 4.744,
+  "mean_rank_of_best_under_cosfg": 4.904,
+  "mean_spearman": {
+    "c1_fg": 0.2198514488582976,
+    "c2_bg": -0.001976886555147564,
+    "c3_fused": 0.21896114348626333,
+    "area": 0.08592192721011153,
+    "compactness": 0.11989458744309203
+  },
+  "mIoU_argmax_consensus": 0.1990888847077132,
+  "mIoU_argmax_coverage": 0.15092432608179177,
+  "top5_global_weightings": [
+    {
+      "mIoU": 0.3797983589179365,
+      "weights": {
+        "c1": 1.0,
+        "c2": 0.0,
+        "c3": 0.5,
+        "c4": 0.1,
+        "c5": 0.2,
+        "c6": 0.0,
+        "c7": 0.0
+      }
+    },
+    {
+      "mIoU": 0.3797983589179365,
+      "weights": {
+        "c1": 1.0,
+        "c2": 0.0,
+        "c3": 0.5,
+        "c4": 0.1,
+        "c5": 0.2,
+        "c6": 0.0,
+        "c7": 0.3
+      }
+    },
+    {
+      "mIoU": 0.37979786975094715,
+      "weights": {
+        "c1": 1.0,
+        "c2": 0.0,
+        "c3": 0.5,
+        "c4": 0.1,
+        "c5": 0.2,
+        "c6": 0.0,
+        "c7": -0.3
+      }
+    },
+    {
+      "mIoU": 0.373508361206064,
+      "weights": {
+        "c1": 1.0,
+        "c2": 0.0,
+        "c3": 0.0,
+        "c4": 0.0,
+        "c5": 0.2,
+        "c6": 0.0,
+        "c7": 0.0
+      }
+    },
+    {
+      "mIoU": 0.373508361206064,
+      "weights": {
+        "c1": 1.0,
+        "c2": 0.0,
+        "c3": 0.0,
+        "c4": 0.0,
+        "c5": 0.2,
+        "c6": 0.0,
+        "c7": 0.3
+      }
+    }
+  ]
+}

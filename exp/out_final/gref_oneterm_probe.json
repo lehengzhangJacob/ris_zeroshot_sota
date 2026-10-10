@@ -1,0 +1,24 @@
+{
+  "rows": 47,
+  "reference": {
+    "implied_val_oneterm_m": 0.369,
+    "sample_ge2term_m": 0.6433
+  },
+  "generated": "exp111_oneterm_probe.py",
+  "current_rule": {
+    "n": 47,
+    "row_mean_m": 0.6409535499500114
+  },
+  "plus_pick_det1": {
+    "n": 47,
+    "row_mean_m": 0.6601177931744391
+  },
+  "plus_sam_det1": {
+    "n": 47,
+    "row_mean_m": 0.6707223190618679
+  },
+  "plus_both": {
+    "n": 47,
+    "row_mean_m": 0.6733975675611431
+  }
+}

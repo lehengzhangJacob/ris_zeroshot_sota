@@ -1,0 +1,49 @@
+{
+  "mIoU": 0.4482477756342483,
+  "oIoU": 0.38159975599833107,
+  "delta_vs_released": 0.0,
+  "ci_vs_released": [
+    0.0,
+    0.0
+  ],
+  "p_vs_released": 1.0,
+  "delta_vs_argmax": 0.09643454205929662,
+  "ci_vs_argmax": [
+    0.08981780377607339,
+    0.10301669858460817
+  ],
+  "p_vs_argmax": 0.0,
+  "fired": 0,
+  "win": 0,
+  "loss": 0,
+  "oracle_hit": 0.4535720878715156,
+  "part_delta": 0.0,
+  "part_n": 443,
+  "strata": {
+    "none": 0.0,
+    "horizontal": 0.0,
+    "vertical": 0.0,
+    "middle": 0.0,
+    "ordinal": 0.0
+  },
+  "strata_n": {
+    "none": 4614,
+    "horizontal": 4749,
+    "vertical": 443,
+    "middle": 584,
+    "ordinal": 444
+  },
+  "quartile_delta": [
+    0.0,
+    0.0,
+    0.0,
+    0.0
+  ],
+  "tag": "refcoco",
+  "row": "hybridgl_released",
+  "n": 10834,
+  "records": "exp/out_extreme/records_refcoco.jsonl",
+  "script": "exp/exp23_final.py",
+  "records_mtime": "2026-10-03 02:03:50",
+  "generated_at": "2026-10-03 02:08:48"
+}

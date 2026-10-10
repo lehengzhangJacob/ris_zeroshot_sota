@@ -1,0 +1,27 @@
+{
+  "tag": "sig_allsent_c3",
+  "n": 716,
+  "eps": 0.3,
+  "mIoU_argmax": 0.35006588235021985,
+  "mIoU_growth_ourgate": 0.41156353608274665,
+  "mIoU_growth_marsgate": 0.41711435365024413,
+  "delta_ourgate": 0.061497653732526796,
+  "ci95_ourgate": [
+    0.04687053687584891,
+    0.07699697783580071
+  ],
+  "p_ourgate": 0.0,
+  "delta_marsgate": 0.0670484713000243,
+  "ci95_marsgate": [
+    0.05113783406012784,
+    0.08325020622486078
+  ],
+  "p_marsgate": 0.0,
+  "win": 264,
+  "loss": 112,
+  "tie": 340,
+  "win_marsgate": 259,
+  "loss_marsgate": 118,
+  "sub_target_mean_delta": 0.0052662682738376446,
+  "n_sub_targets": 4
+}

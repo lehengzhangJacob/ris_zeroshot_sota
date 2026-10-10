@@ -1,0 +1,172 @@
+{
+  "n_trials": 300,
+  "best_value": 60.73684241590644,
+  "best_params": {
+    "dec_source": "sc_x_gem",
+    "k_dec": 15,
+    "mode": "iou",
+    "combine": "loc_only",
+    "loc_source": "llava",
+    "beta": 2.20722374350054,
+    "eps": 0.020794812033278407,
+    "gem_mix": 0.490569059596547,
+    "grow": false
+  },
+  "best_per_dataset": {
+    "mIoU_refcoco": 68.89889786048583,
+    "mIoU_refcoco+": 60.73684241590644,
+    "mIoU_refcocog": 61.68131503087638
+  },
+  "tuning_split": {
+    "source": "RefCOCO-family TRAIN samples (seeded)",
+    "tag": "sent",
+    "records": {
+      "refcoco": 1137,
+      "refcoco+": 1120,
+      "refcocog": 765
+    }
+  },
+  "top10": [
+    {
+      "value": 60.73684241590644,
+      "params": {
+        "dec_source": "sc_x_gem",
+        "k_dec": 15,
+        "mode": "iou",
+        "combine": "loc_only",
+        "loc_source": "llava",
+        "beta": 2.20722374350054,
+        "eps": 0.020794812033278407,
+        "gem_mix": 0.490569059596547,
+        "grow": false
+      }
+    },
+    {
+      "value": 60.73684241590644,
+      "params": {
+        "dec_source": "sc_x_gem",
+        "k_dec": 15,
+        "mode": "iou",
+        "combine": "loc_only",
+        "loc_source": "llava",
+        "beta": 2.3400116651267004,
+        "eps": 0.0203773921714501,
+        "gem_mix": 0.4890704176254311,
+        "grow": false
+      }
+    },
+    {
+      "value": 60.73684241590644,
+      "params": {
+        "dec_source": "sc_x_gem",
+        "k_dec": 15,
+        "mode": "iou",
+        "combine": "loc_only",
+        "loc_source": "llava",
+        "beta": 2.4260020281607777,
+        "eps": 0.034917141783910165,
+        "gem_mix": 0.4877155272023531,
+        "grow": false
+      }
+    },
+    {
+      "value": 60.73684241590644,
+      "params": {
+        "dec_source": "sc_x_gem",
+        "k_dec": 15,
+        "mode": "iou",
+        "combine": "loc_only",
+        "loc_source": "llava",
+        "beta": 2.5410645975346937,
+        "eps": 0.02425656935299221,
+        "gem_mix": 0.495633115592691,
+        "grow": false
+      }
+    },
+    {
+      "value": 60.73684241590644,
+      "params": {
+        "dec_source": "sc_x_gem",
+        "k_dec": 15,
+        "mode": "iou",
+        "combine": "loc_only",
+        "loc_source": "llava",
+        "beta": 2.0987512036231424,
+        "eps": 0.02110122673138784,
+        "gem_mix": 0.4969608601544781,
+        "grow": false
+      }
+    },
+    {
+      "value": 60.73684241590644,
+      "params": {
+        "dec_source": "sc_x_gem",
+        "k_dec": 15,
+        "mode": "iou",
+        "combine": "loc_only",
+        "loc_source": "llava",
+        "beta": 2.4099204062204804,
+        "eps": 0.026666227361325637,
+        "gem_mix": 0.48604814563853443,
+        "grow": false
+      }
+    },
+    {
+      "value": 60.73684241590644,
+      "params": {
+        "dec_source": "sc_x_gem",
+        "k_dec": 15,
+        "mode": "iou",
+        "combine": "loc_only",
+        "loc_source": "llava",
+        "beta": 1.95475662066171,
+        "eps": 0.021172935109264785,
+        "gem_mix": 0.48340903328176144,
+        "grow": false
+      }
+    },
+    {
+      "value": 60.73684241590644,
+      "params": {
+        "dec_source": "sc_x_gem",
+        "k_dec": 15,
+        "mode": "iou",
+        "combine": "loc_only",
+        "loc_source": "llava",
+        "beta": 1.7856309941961042,
+        "eps": 0.004146330828334278,
+        "gem_mix": 0.4932312512930804,
+        "grow": false
+      }
+    },
+    {
+      "value": 60.73684241590644,
+      "params": {
+        "dec_source": "sc_x_gem",
+        "k_dec": 15,
+        "mode": "iou",
+        "combine": "loc_only",
+        "loc_source": "llava",
+        "beta": 1.9737331749338118,
+        "eps": 0.00464452655086036,
+        "gem_mix": 0.49181394890018093,
+        "grow": false
+      }
+    },
+    {
+      "value": 60.7331005352127,
+      "params": {
+        "dec_source": "sc_x_gem",
+        "k_dec": 15,
+        "mode": "iou",
+        "combine": "loc_only",
+        "loc_source": "llava",
+        "beta": 2.8407618381911925,
+        "eps": 0.06049418529886756,
+        "gem_mix": 0.5341590667393243,
+        "grow": false
+      }
+    }
+  ],
+  "generated": "exp39_optuna.py"
+}

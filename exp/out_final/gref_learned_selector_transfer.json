@@ -1,0 +1,72 @@
+{
+  "experiment": "gref_learned_selector_transfer",
+  "question": "operator 2026-10-09: push cIoU beyond the record via a stronger trained selector over the existing candidate pool (light supervision)",
+  "attempts": [
+    {
+      "name": "A: GBM part-scorer, absolute threshold tau",
+      "protocol": "parts = the shipped pool picks + the uncapped SAM masks; 12 features; HistGradientBoostingRegressor on 70% of the held-out TRAIN refs; tau chosen on the remaining 30%; applied once to val",
+      "heldout_shipped_anchor": {
+        "cIoU": 47.1,
+        "gIoU": 69.4
+      },
+      "heldout_learned": {
+        "cIoU": 53.85,
+        "gIoU": 73.63,
+        "tau": 0.65
+      },
+      "heldout_gain": {
+        "cIoU": 6.75,
+        "gIoU": 4.23
+      },
+      "val": {
+        "cIoU": 38.79,
+        "gIoU": 69.63,
+        "parts_kept": "4829/89705"
+      },
+      "verdict": "FAILS to transfer: -12.20 cIoU against the shipped 50.99 on val"
+    },
+    {
+      "name": "B: per-frame feature standardization + relative threshold alpha",
+      "protocol": "same parts/model, features z-scored per frame (label-free), keep parts >= alpha * max within the record; alpha on the held-out 30%",
+      "heldout_learned": {
+        "cIoU": 53.94,
+        "gIoU": 74.02,
+        "alpha": 0.9
+      },
+      "heldout_gain": {
+        "cIoU": 6.84
+      },
+      "val": {
+        "cIoU": 41.63,
+        "gIoU": 70.35,
+        "parts_kept": "12376/89705"
+      },
+      "verdict": "still fails (-9.36 cIoU on val)"
+    }
+  ],
+  "measured_cause": {
+    "prediction_shift": "predicted part-IoU mean 0.413 (train carve-out) vs 0.355 (1,500-record val sample); fraction of parts with predicted IoU >= 0.65: 11.4% (train) vs 4.6% (that val sample); the full-val pass (14,229 records) kept 4,829/89,705 parts = 5.4% - the three denominators are stated so the sample statistic and the full-pass count are not conflated",
+    "feature_shift": {
+      "term_index": [
+        0.463,
+        0.756
+      ],
+      "inbox_det0": [
+        0.089,
+        0.047
+      ],
+      "inbox_llava": [
+        0.042,
+        0.087
+      ]
+    },
+    "interpretation": "the available train-side record set (the 1,784-sentence train-tune carve-out) is not distributionally comparable to val (different term composition and detector-box quality). The GBM generalises within the train carve-out (the 30% held-out refs gain +6.8) but does not transfer across the train->val gap; the shipped hand rule is precisely the structure that absorbed that gap. Attack B's partial recovery (38.79 -> 41.63 under a shift-mitigating rule) shows covariate shift explains part of the failure, not all: the residual -9.4 cIoU indicates the supervision volume (780 refs) is also insufficient."
+  },
+  "artifacts": [
+    "exp/out_final/gref_learned_union_val.json",
+    "exp/out_final/gref_learned_union_val_rel.json",
+    "exp/exp138_learned_union_selector.py",
+    "exp/exp137_train_side_caches.py"
+  ],
+  "conclusion": "the light-supervision route over this pool cannot clear the record with the available train-side data; closing the gap needs train-side scoring passes at scale (the full gRefCOCO train split), outside the shared-GPU budget. The record was instead pushed by a train-side hand-knob re-selection (change 16): cIoU 50.9864 -> 51.3182, gIoU 74.7171 -> 74.9098 (gref_topk_reselection.json)."
+}

@@ -1,0 +1,57 @@
+{
+  "cells": {
+    "base|base_p|ens0": {
+      "cIoU": 41.63412037260431,
+      "gIoU": 67.4545631338864,
+      "N_acc": 72.72727272727269,
+      "T_acc": 90.68825910931174
+    },
+    "base|base_p|ens1": {
+      "cIoU": 44.84483011019501,
+      "gIoU": 79.0867151096137,
+      "N_acc": 93.75,
+      "T_acc": 82.5910931174089
+    },
+    "base|pair_p|ens0": {
+      "cIoU": 39.98655762184614,
+      "gIoU": 69.69812652403957,
+      "N_acc": 78.40909090909089,
+      "T_acc": 80.97165991902834
+    },
+    "base|pair_p|ens1": {
+      "cIoU": 42.55822584070257,
+      "gIoU": 78.19129580031662,
+      "N_acc": 94.31818181818183,
+      "T_acc": 73.27935222672065
+    },
+    "pair|base_p|ens0": {
+      "cIoU": 37.537059901123186,
+      "gIoU": 62.088667707351455,
+      "N_acc": 66.47727272727268,
+      "T_acc": 96.76113360323886
+    },
+    "pair|base_p|ens1": {
+      "cIoU": 43.076504946474394,
+      "gIoU": 77.84160316132312,
+      "N_acc": 93.75,
+      "T_acc": 87.85425101214575
+    },
+    "pair|pair_p|ens0": {
+      "cIoU": 40.48136700806944,
+      "gIoU": 68.04501212541834,
+      "N_acc": 73.86363636363633,
+      "T_acc": 91.09311740890688
+    },
+    "pair|pair_p|ens1": {
+      "cIoU": 44.661153683372,
+      "gIoU": 79.07730343579364,
+      "N_acc": 93.75,
+      "T_acc": 82.99595141700405
+    }
+  },
+  "attribution_delta_gIoU_fixed_params": 0.886,
+  "diag_agreement": 29.836829836829835,
+  "verdict": "FEATURES CARRY SIGNAL (XA beats base at identical params)",
+  "note": "all cells at val prevalence on the exp73 calib split; the fixed-params contrast (pair_p, use_ens=True) is the only one that isolates the feature change from the rule regime",
+  "generated": "exp74_pair_attribution.py"
+}

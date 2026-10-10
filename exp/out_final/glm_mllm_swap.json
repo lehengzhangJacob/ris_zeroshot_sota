@@ -1,0 +1,90 @@
+{
+  "model": "glm-4.1v-thinking-flash (Zhipu API; GLOD-RIS's exact MLLM)",
+  "endpoint": "https://open.bigmodel.cn/api/paas/v4/chat/completions",
+  "prompt": "byte-identical to the local LLaVA path (vlm_boxes.PROMPT)",
+  "coordinate_convention": "0-1000 normalised; verified against cached LLaVA boxes (mean IoU 0.65 after scaling, 0.0 unscaled)",
+  "sampling": {
+    "n_per_dataset": 2000,
+    "seed": 20261010,
+    "scope": "seeded 2,000-expression samples of the official val records (full splits not evaluated under GLM: API budget discipline, operator note 2026-10-09); sampled records files: exp/out_extreme/records_<ds>_glm2000.jsonl",
+    "calls_queries_total": 5914,
+    "persistent_failures": {
+      "refcoco": 1,
+      "refcocoplus": 4,
+      "refcocog": 0
+    },
+    "latency": "~7.3 s/query (thinking model, ~700 completion tokens); 2.2-2.5 queries/s at 8-10 concurrent workers",
+    "cache": "exp/out_glm_boxes/<sha1(glm|file|phrase)>.json (raw + box + usage)",
+    "unique_pairs_per_dataset": {
+      "refcoco": 1979,
+      "refcocoplus": 1981,
+      "refcocog": 2000
+    },
+    "pairs_shared_across_datasets": 41,
+    "unique_pairs_global": 5919,
+    "cache_reconciliation": "6,000 rows -> 5,960 per-dataset unique (image, sentence) pairs; 41 of them recur across datasets (global key) -> 5,919 unique; 5 persistent failures -> 5,914 cached responses; per-dataset coverage 1999/1996/2000 = 99.95/99.8/100.0%",
+    "why_sampled": "the binding constraint is the shared API budget (operator note 2026-10-09), not wall-clock: at the recorded 2.2-2.5 queries/s the full 26,488-expression set would be ~3 hours; n=2,000/dataset keeps the paired comparison well-powered at a fraction of the token cost",
+    "paired_stats": "paired bootstrap (4,000 resamples, seed 0) on the per-record IoU difference, n=2,000 rows per dataset: refcoco -0.95 [-2.35,+0.46]; refcocoplus -1.07 [-2.51,+0.42]; refcocog -2.00 [-3.37,-0.66]; the GLM deficit is significant on refcocog and within noise on the other two (the pooled-oIoU CIs are not reported; mIoU is the headline metric)",
+    "missing_box_handling": "the 5 rows whose GLM query never succeeded have no cache entry; exp40 scores such rows BOX-FREE (the released-score top candidate, the same branch as the ctrl_no_box control) - not with a LLaVA fallback, so the GLM arm is not flattered by the missing rows; the LLaVA arm has 100% coverage on the same rows"
+  },
+  "cache": "exp/out_glm_boxes/",
+  "components": "with this swap the comparison is component-matched to GLOD-RIS: same SAM ViT-H proposals, same CLIP ViT-B/16 scoring, same MLLM (GLM-4.1V); only the selection rule differs",
+  "datasets": {
+    "refcoco": {
+      "n": 2000,
+      "mIoU": 67.3387,
+      "oIoU": 61.4211,
+      "box_coverage": 99.95,
+      "llava_mIoU": 68.2905,
+      "llava_oIoU": 62.8962,
+      "delta_mIoU": -0.9518,
+      "delta_oIoU": -1.4751,
+      "published_glodris_mIoU": 58.42,
+      "published_glodris_oIoU": 50.85,
+      "note": "identical rows for both box sources; only the box cache differs (exp40 --box-source glm|llava); aligned protocol (pooled oIoU)",
+      "paired_ci95_mIoU": [
+        -2.35,
+        0.46
+      ],
+      "paired_n": 2000
+    },
+    "refcocoplus": {
+      "n": 2000,
+      "mIoU": 64.5264,
+      "oIoU": 56.5407,
+      "box_coverage": 99.8,
+      "llava_mIoU": 65.5965,
+      "llava_oIoU": 60.2445,
+      "delta_mIoU": -1.0701,
+      "delta_oIoU": -3.7038,
+      "published_glodris_mIoU": 54.01,
+      "published_glodris_oIoU": 45.96,
+      "note": "identical rows for both box sources; only the box cache differs (exp40 --box-source glm|llava); aligned protocol (pooled oIoU)",
+      "paired_ci95_mIoU": [
+        -2.51,
+        0.42
+      ],
+      "paired_n": 2000
+    },
+    "refcocog": {
+      "n": 2000,
+      "mIoU": 63.3651,
+      "oIoU": 53.9057,
+      "box_coverage": 100.0,
+      "llava_mIoU": 65.3656,
+      "llava_oIoU": 59.4762,
+      "delta_mIoU": -2.0005,
+      "delta_oIoU": -5.5705,
+      "published_glodris_mIoU": 57.85,
+      "published_glodris_oIoU": 50.03,
+      "note": "identical rows for both box sources; only the box cache differs (exp40 --box-source glm|llava); aligned protocol (pooled oIoU)",
+      "paired_ci95_mIoU": [
+        -3.37,
+        -0.66
+      ],
+      "paired_n": 2000
+    }
+  },
+  "outcome": "GLM boxes land slightly below the local LLaVA prior on all three datasets (deltas -0.95/-1.07/-2.00 mIoU) while the pipeline stays far above the GLOD-RIS published rows even with the GLM boxes",
+  "prompt_caveat": "component-matched means same MLLM weights (GLM-4.1V-Thinking-Flash) used inside OUR shipped path with the SAME prompt template as the LLaVA arm, as the operator instruction prescribes; it is not GLOD-RIS's internal prompting or usage, so the comparison against their published rows remains cross-paper (caveat unchanged)"
+}

@@ -1,0 +1,27 @@
+{
+  "mIoU": 0.4033249016637719,
+  "oIoU": 0.336854250112078,
+  "delta_vs_released": 0.0010362394602999366,
+  "ci_vs_released": [
+    0.00035716351691942726,
+    0.001747271265698811
+  ],
+  "p_vs_released": 0.0036,
+  "delta_vs_argmax": 0.0154607820794257,
+  "ci_vs_argmax": [
+    0.00988325802879505,
+    0.02095112078559911
+  ],
+  "p_vs_argmax": 0.0,
+  "fired": 88,
+  "win": 39,
+  "loss": 24,
+  "oracle_hit": 0.3968209704406023,
+  "tag": "refcocoplus",
+  "row": "ours_k12",
+  "n": 10758,
+  "records": "exp/out_extreme/records_refcocoplus.jsonl",
+  "script": "exp/exp23_final.py",
+  "records_mtime": "2026-10-03 02:02:51",
+  "generated_at": "2026-10-03 02:11:08"
+}

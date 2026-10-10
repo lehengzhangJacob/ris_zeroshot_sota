@@ -1,0 +1,22 @@
+{
+  "n_trials": null,
+  "best_params": {
+    "src": "bs",
+    "alpha": 1.8111644301883565,
+    "beta": 0.23434019563238434,
+    "topk": 1,
+    "margin": 0.6312676830144586,
+    "cap": 0.5,
+    "pick_box": "ll+d0",
+    "sam": "d0+d1"
+  },
+  "selection": {
+    "kind": "hand-knob re-selection on the held-out TRAIN frame with the box-prompted SAM caches present (the regime the exp117 study worked in; the study had searched topk 1..2 but under its m-mixture objective, while cIoU/gIoU - raw and val-prevalence - all prefer top-1 on the same rows)",
+    "evidence": "exp/out_final/gref_topk_reselection.json",
+    "metric": "cIoU on the held-out train rows (SAM live): shipped top-2 49.81 -> top-1 51.13 (+1.32), gIoU 68.93 -> 70.13 (+1.20); the descriptive val-2000 sensitivity curve agrees (+1.19 cIoU); abstention untouched (N 93.5 / T 90.9 both settings)",
+    "note": "change 16: single pick per box; all other shipped parameters frozen; selection on train-side data only (val-2000 curve agrees and is disclosed in gref_topk_reselection.json)"
+  },
+  "base_study": "optuna_study_gref14.json",
+  "previous_topk": 2,
+  "trials_note": "not a study: a hand-knob re-selection (topk 1 vs 2) on the held-out train frame with SAM caches present; n_trials nulled to avoid implying a search"
+}

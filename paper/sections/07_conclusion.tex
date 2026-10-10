@@ -1,0 +1,32 @@
+\section{Conclusion}
+\label{sec:conclusion}
+
+Training-free referring image segmentation has been optimised as a scoring
+problem, but at its operating point the pool is not the bottleneck ---
+selection is, and the specific failure is localization. The released scores
+compare whole-region embeddings with whole-sentence embeddings; on
+descriptive expressions that signal is ambiguous across instances, and no
+stronger encoder repairs it. Adding one frozen, local, API-free component ---
+a 7B vision-language model asked for the referent's bounding box, with the
+\emph{full expression} as the prompt --- converts selection into geometric
+matching and moves the three RefCOCO-family benchmarks substantially, under a
+protocol in which every fitted scalar comes from a held-out train-derived
+split and every reported number is a re-analysis of full-validation records.
+
+We also report the boundary of the class we work in. On gRefCOCO we solve the
+no-target decision above the trained state of the art
+($N_{\mathrm{acc}}=\wallCombN$ vs.\ \wallTrainedNAcc{}), and the
+training-free rule beats every same-class (zero-shot) published number on
+both metrics (\grefCIoU{}/\grefGIoU{} vs.\ the best published zero-shot
+\grefZeroShotCIoU{}/\grefZeroShotGIoU{}), as well as the strongest supervised
+gIoU reference (\grefPubGIoU). The remaining constraint is the supervised
+cIoU level --- an instance-level selection gap quantified exactly: it
+requires the selector at \wallRealNeedCIoU\,\% of the deployable oracle
+(while the shipped selector realizes \wallRealMeas\,\%), and both measured
+oracles agree at $\approx0.88$ realization, so the axis is bounded by
+selection quality, not by the construction. Finally, the reproduction audit ---
+official code and reimplementation within \reproAgree\,mIoU, both
+\reproGap\,mIoU below the published baseline table --- is offered as much as a
+caution to the community as a caveat to this paper: for this baseline family,
+cross-paper absolute comparisons are not currently meaningful, and controlled
+reproductions are the only honest reference frame.

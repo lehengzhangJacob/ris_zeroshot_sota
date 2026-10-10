@@ -1,0 +1,94 @@
+\section{Introduction}
+\label{sec:intro}
+
+Training-free referring image segmentation couples a frozen segmenter that
+proposes masks with a frozen vision-language model that scores them, and
+returns the best-scoring mask. The field has spent its effort on the scorer,
+and the practice of reporting only end metrics has hidden which component
+actually fails. We measure it.
+
+Our first finding is negative and decisive: at this operating point the
+proposal pool is \emph{not} the bottleneck. On full RefCOCO val the pool
+already contains a mask with $\mathrm{IoU}\ge0.5$ for \oracleHitPct\,\% of
+expressions, and an oracle that always picked the best member would reach
+\oracleRefcoco\,mIoU; the released pipeline returns
+\refcocoReleased\,mIoU. The recoverable IoU is thus overwhelmingly in
+\emph{selection}, and our error taxonomy attributes it to wrong-instance
+selection rather than to mask granularity: on wrong-instance failures the
+returned mask is nearly disjoint from the referent (mean IoU around $0.01$)
+while a correct mask sat in the pool.
+
+Our second finding is that this failure is a \emph{localization} failure, not
+a representation failure. Both quantities the released pipeline uses to rank
+candidates are region--text similarities: they compare a whole-region
+embedding against a whole-sentence embedding. On expressions that are
+descriptive rather than spatial --- RefCOCO+ is constructed without location
+words, RefCOCOg uses long relational descriptions --- such scores are
+ambiguous across instances of the same category, and the pipeline returns the
+wrong one. Replacing the encoder with a stronger one (SigLIP-so400m) makes
+selection \emph{worse}, which rules out embedding quality as the deficit.
+
+What the pipeline lacks is an explicit answer to ``where is the referent''.
+We obtain one from a frozen vision-language model, asked in natural language
+for the referent's bounding box, and use it to select among the candidates the
+released scores already propose: the candidate whose mask best fills the box.
+The choice of prompt is the whole effect. Asking with the parsed noun phrase
+recovers little; asking with the \emph{full expression} --- so that attributes
+and relations are part of the query --- is worth
+$+13.4$/$+10.6$/$+11.6$\,mIoU on the three benchmarks in a held-out study
+(Table~\ref{tab:studies}). The component is local: a cached 7B checkpoint,
+$15$\,GB, no API key, no network at inference, and it runs 8-bit quantised at
+$9.4$\,GB when GPUs are scarce.
+
+We report the result under the protocol we would want applied to ourselves.
+All hyperparameters --- five scalars --- are chosen by Optuna
+(\studyTrials{} trials per study) on a held-out split built from RefCOCO
+family \emph{train} references, with the objective set to the minimum over
+datasets so that no benchmark can be sacrificed; the official validation and
+test splits are never used for tuning. Every number in every table is a
+re-analysis of full-validation records written by this run, and the tables
+themselves are generated from those records by script.
+
+Finally, we report a benchmark where the comparison only makes sense within
+class, and we state the boundary to the supervised class exactly. On gRefCOCO,
+whose metrics penalise false-positive masks on no-target expressions, the
+no-target decision is solvable training-free: a three-prompt presence
+ensemble abstains at $N_{\mathrm{acc}}=\wallCombN$ --- above the
+\wallTrainedNAcc{} the trained state of the art reports --- and every
+same-class (zero-shot) published number is \emph{beaten} on both metrics: the
+best published zero-shot cIoU \grefZeroShotCIoU{} (SELF1E-8B) and gIoU
+\grefZeroShotGIoU{} (PSALM) fall to \grefCIoU{}/\grefGIoU{}, and our
+training-free rule also exceeds the gIoU of the strongest supervised baseline
+(InstAlign, \grefPubGIoU). What remains out of reach is the \emph{supervised}
+cIoU level (\grefPubCIoU): at the shipped operating point it requires a
+targeted realization at $\approx90\%$ of the \emph{best measured oracle}
+(pool selection and the construction itself agree at $\approx0.88$), where the
+rule delivers $\approx66\%$. By measurement the gap is one of selection
+quality --- and within that, one of \emph{which box to ask} rather than which
+mask to keep.
+
+Contributions:
+\begin{itemize}\itemsep2pt
+  \item A measured diagnosis that selection --- specifically instance
+  localization --- is the bottleneck of training-free RIS at the released
+  operating point, with the pool's ceiling and the error taxonomy quantified
+  on full validation splits.
+  \item A dense localization prior: a frozen local VLM queried with the full
+  expression, used to select among the candidates the released scores
+  propose. It is training-free, API-free, and orthogonal to the released
+  scoring machinery.
+  \item A held-out tuning protocol (\studyTrials{}-trial Optuna studies on
+  train-derived refs, minimum-over-datasets objective) and a fully scripted
+  evidence chain in which no number is transcribed by hand.
+  \item A quantified boundary on gRefCOCO. The no-target decision is
+  \emph{solved} above the trained state of the art (N-acc \wallCombN{} vs.\
+  \wallTrainedNAcc{}), every same-class (zero-shot) published number is
+  \emph{beaten} on both metrics by the training-free rule (\grefCIoU{}/\grefGIoU{}
+  vs.\ \grefZeroShotCIoU{}/\grefZeroShotGIoU{}; the strongest supervised gIoU
+  reference, \grefPubGIoU, is also exceeded), and the remaining gap to the
+  supervised cIoU level is localized by measurement to
+  selection quality: that level needs the selector at \wallRealNeedCIoU\,\% of
+  the deployable oracle while the rule realizes \wallRealMeas\,\%, with the
+  choice of box carrying most of the loss (per-object GT boxes, same rule:
+  $0.802$ mean targeted IoU against $0.568$ delivered).
+\end{itemize}

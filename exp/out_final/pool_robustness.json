@@ -1,0 +1,30 @@
+{
+  "arm_pps8": {
+    "name": "SAM points_per_side=8",
+    "n": 716,
+    "proposals_per_image": 48.41480446927374,
+    "oracle_mIoU": 0.8285416237785117,
+    "released_mIoU": 0.46999530452593163,
+    "ours_mIoU": 0.5348899600892417,
+    "ours_delta": 0.06489465556331016,
+    "wrong_instance_share": 0.7405913831506304,
+    "under_seg_share": 0.20487106812805556,
+    "delta_spatial": 0.1073084835642727,
+    "n_spatial": 433
+  },
+  "arm_pps16": {
+    "name": "SAM points_per_side=16",
+    "n": 716,
+    "proposals_per_image": 101.69832402234637,
+    "oracle_mIoU": 0.8388162939724954,
+    "released_mIoU": 0.43832064947896016,
+    "ours_mIoU": 0.4966120227578604,
+    "ours_delta": 0.05829137327890027,
+    "wrong_instance_share": 0.719871216941469,
+    "under_seg_share": 0.22615431958484078,
+    "delta_spatial": 0.09638943017942862,
+    "n_spatial": 433
+  },
+  "note": "identical selection-split expressions in both arms; all rows are re-analyses of this run's scoring passes",
+  "generated": "2026-10-03 02:28:50"
+}

@@ -1,0 +1,652 @@
+                                            IteRPrimE: Zero-shot Referring Image Segmentation with Iterative Grad-CAM
+                                                             Refinement and Primary Word Emphasis
+                                                                  Yuji Wang* , Jingchen Ni* , Yong Liu, Chun Yuan, Yansong Tang†
+                                                                              Shenzhen International Graduate School, Tsinghua University
+                                                                  *
+                                                                      {yuji-wan24, njc24}@mails.tsinghua.edu.cn, † tang.yansong@sz.tsinghua.edu.cn
+arXiv:2503.00936v1 [cs.CV] 2 Mar 2025
+
+
+
+
+                                                                       Abstract                               et al. 2023; Luo et al. 2024a; Bai et al. 2024), RIS neces-
+                                                                                                              sitates the differentiation of instances within the same cate-
+                                            Zero-shot Referring Image Segmentation (RIS) identifies the       gory and their relationships with other objects or the scene,
+                                            instance mask that best aligns with a specified referring ex-     which requires high demands on the semantic understand-
+                                            pression without training and fine-tuning, significantly reduc-
+                                            ing the labor-intensive annotation process. Despite achieving
+                                                                                                              ing and spatial perception of the model. However, annotating
+                                            commendable results, previous CLIP-based models have a            exact pairs of images, descriptions, and ground-truth masks
+                                            critical drawback: the models exhibit a notable reduction in      is both expensive and time-intensive, as the annotation of a
+                                            their capacity to discern relative spatial relationships of ob-   query needs a grasp of diverse positional and attributive de-
+                                            jects. This is because they generate all possible masks on        tails within the image (Liu, Ding, and Jiang 2023; Ding et al.
+                                            an image and evaluate each masked region for similarity to        2023; Liu et al. 2019). Recent weakly supervised RIS tech-
+                                            the given expression, often resulting in decreased sensitiv-      niques (Strudel, Laptev, and Schmid 2022; Lee et al. 2023;
+                                            ity to direct positional clues in text inputs. Moreover, most     Xu et al. 2022) have been introduced to mitigate these an-
+                                            methods have weak abilities to manage relationships between       notation challenges, yet they still depend on paired data for
+                                            primary words and their contexts, causing confusion and re-       training purposes and have relatively poor performance. In
+                                            duced accuracy in identifying the correct target region. To
+                                            address these challenges, we propose IteRPrimE (Iterative
+                                                                                                              contrast, a zero-shot approach holds greater value. Leverag-
+                                            Grad-CAM Refinement and Primary word Emphasis), which             ing vision-language pre-trained (VLP) models such as CLIP
+                                            leverages a saliency heatmap through Grad-CAM from a              (Radford et al. 2021), this method efficiently generalizes
+                                            Vision-Language Pre-trained (VLP) model for image-text            across diverse concepts and unseen categories without fur-
+                                            matching. An iterative Grad-CAM refinement strategy is in-        ther training and fine-tuning.
+                                            troduced to progressively enhance the model’s focus on the           Existing methodologies to harness the characteristics of
+                                            target region and overcome positional insensitivity, creat-       being unnecessary to fit training data presented by zero-shot
+                                            ing a self-correcting effect. Additionally, we design the Pri-
+                                                                                                              learning often employ a two-stage pipeline, shown in Fig-
+                                            mary Word Emphasis module to help the model handle com-
+                                            plex semantic relations, enhancing its ability to attend to       ure 1 (a). As a discriminator between the images masked
+                                            the intended object. Extensive experiments conducted on the       by the candidate masks and the expression, CLIP is used to
+                                            RefCOCO/+/g, and PhraseCut benchmarks demonstrate that            select the instance mask whose similarity score is the high-
+                                            IteRPrimE outperforms previous SOTA zero-shot methods,            est (Sun et al. 2024; Yu, Seo, and Son 2023; Suo, Zhu, and
+                                            particularly excelling in out-of-domain scenarios.                Yang 2023; Ni et al. 2023). However, we observed that these
+                                                                                                              methods always malfunctioned when encountering text in-
+                                        Code — https://github.com/VoyageWang/IteRPrimE                        puts with positional information such as “left” and “right”.
+                                                                                                              Due to only a single instance contained in a masked image,
+                                                                                                              the absence of relative spatial perception can be the inherent
+                                                                  Introduction                                limitation of these CLIP-based paradigms. Previous pieces
+                                                                                                              of literature alleviate this issue by injecting the human pri-
+                                        Referring Image Segmentation (RIS) requires the model
+                                                                                                              ors or bias that explicitly prompts the CLIP with the given
+                                        to generate a pixel-level referred object mask based on a
+                                                                                                              direction clues (Ni et al. 2023; Suo, Zhu, and Yang 2023).
+                                        textual description, extending the applicability to various
+                                                                                                              To be more specific, they manually design spatial decaying
+                                        tasks such as robot interaction and image editing (Yang
+                                                                                                              weights from 1 to 0 in the directions consistent with text
+                                        et al. 2024, 2022; Liu et al. 2024b; Lai et al. 2024; Luo
+                                                                                                              phrases to make the model aware of positional information,
+                                        et al. 2024b). Different from standard semantic segmenta-
+                                                                                                              but it can not generalize the scenarios out of predefined di-
+                                        tion (Wang, Zhao, and Sun 2023; Wang et al. 2024b; Han
+                                                                                                              rections such as “next to”. Additionally, the domain shift
+                                        *                                                                     for CLIP from the natural image to the masked image can
+                                          These authors contributed equally.
+                                        †
+                                         Corresponding Author.                                                also impact the segmentation performance (Liu et al. 2024a;
+                                        Copyright © 2025, Association for the Advancement of Artificial       Ding et al. 2022; Zhu and Chen 2024).
+                                        Intelligence (www.aaai.org). All rights reserved.                        Some researchers (Lee et al. 2023) have leveraged Grad-
+        (a)                                           CLIP                                   Our IteRPrimE
+                              Mask                   Image        0.45
+                                                                                             GL-CLIP
+                             proposal               encoder
+
+
+
+
+                                                                   …
+                                           …
+                             network                              0.51
+                                                       Text
+              Left bike on
+                                                     encoder
+              the roadside
+        (b)      Left bike on the roadside
+                                                            Selective
+                             Iterative                        mask
+                           Grad-CAM                         proposal
+                            generator                                                         RefCOCO RefCOCOg
+                                                            network
+                                                                                                     (c)
+
+Figure 1: (a) The general pipeline of CLIP-based methods. They lack the perception of spatial relative position due to the
+masked images. (b) The pipeline of our IteRPrimE with Iterative Grad-CAM Refinement Strategy and Primary Word Emphasis
+of “bike”. (c) This is a comparative experiment of positional phrase accuracy between IteRPrimE and GL-CLIP on RefCOCO
+and RefCOCOg.
+
+
+CAM (Selvaraju et al. 2017) and created two specialized loss        a post-processing module is designed to select a high-
+functions to attenuate the detrimental effects of positional        quality, contiguous instance mask from a mask proposal net-
+phrases in weakly supervised settings. Although the losses          work, which encapsulates the target object as indicated by
+are unsuitable for zero-shot scenarios, Grad-CAM can par-           Grad-CAM. By addressing the limitations, the IteRPrimE
+tially mitigate the deleterious effects associated with masked      approach achieves superior performance over prior zero-
+images. This is because the method maintains the integrity          shot state-of-the-art techniques, notably excelling in out-of-
+of the model’s spatial perception capabilities by delineating       domain scenarios and exhibiting robust cross-domain trans-
+the regions with the greatest attention in the original im-         fer proficiency. Our main contributions include
+age for localization, shown in Figure 1 (b). Nevertheless,          1. To our best knowledge, we are the first to use Grad-CAM
+we still find two major problems by analyzing the occur-               to instruct Segmentors for zero-shot RIS tasks.
+rences and characteristics of Grad-CAM. First, Grad-CAM
+struggles to discriminate the semantic relations between dif-       2. We propose the Iterative Grad-CAM Refinement Strat-
+ferent noun phrases, due to the lack of a stronger considera-          egy (IGRS) and Primary Word Emphasis Module
+tion of the primary word than other context words, shown in            (PWEM) to enhance the accuracy and representation of
+baseline predictions of Figure 2 (a). Specifically, the model’s        Grad-CAM for better localization, shown in Figure 2.
+weak ability to effectively prioritize the main word in com-        3. Compared to the previous CLIP-based method, our
+plex expressions undermines its overall performance. Sec-              method significantly outperforms it with inputs contain-
+ond, Grad-CAM is limited to identifying only small areas of            ing positional information, shown in Figure 1 (c). Ad-
+the referred object, which consequently results in selecting           ditionally, the approach achieves a better performance
+undesired instance masks.                                              on the four popular benchmarks, especially for the out-
+                                                                       domain datasets.
+   To overcome these challenges, we propose a novel frame-
+work namely, IteRPrimE (Iterative Grad-CAM Refinement
+and Primary word Emphasis) utilizing Grad-CAM for zero-                                  Related Works
+shot RIS. First, we implement an iterative refinement strat-        Zero-shot referring image segmentation. For the fully-
+egy to enhance the representational accuracy and enlarge            supervised setting, training a well-specialized model for
+the indicated area of Grad-CAM, progressively improving             RIS needs massive paired text-visual annotations, which are
+the model’s concentration on the target object with each            sometimes not affordable and accessible (Shah, VS, and Pa-
+cycle, shown in Figure 2 (b). Simultaneously, this strategy         tel 2024; Liu, Ding, and Jiang 2023; Yang et al. 2022; Wang
+is particularly beneficial when the referring expression in-        et al. 2022b; Kim et al. 2022; Ding et al. 2021; Jing et al.
+cludes positional words, as it offers the model chances of          2021). Besides, these models have relatively weak ability in
+self-correction at each iteration, shown in Figure 2 (c). Sec-      out-of-domain scenarios due to the limited data and a do-
+ond, the Primary Word Emphasis Module (PWEM) plays                  main gap. Therefore, the zero-shot RIS methods are pro-
+a crucial role in enhancing the weak abilities to handle            posed as the alternative. Global- and local-CLIP (GL-CLIP)
+the complex semantic relationships between primary words            (Yu, Seo, and Son 2023) is the first proposed to segment
+and other contexts. This module is achieved by empha-               the instance given the text input with zero-shot transfer.
+sizing the Grad-CAMs of the main word within the re-                By interfacing with the mask proposal network FreeSOLO
+ferring expression, from local and global aspects. Finally,         (Wang et al. 2022a), the approach leverages both global
+(a) Expression: a man standing next to a young girl on a grassy hillside   that perform zero-shot open vocabulary semantic segmenta-
+                                                                           tion with Grad-CAM, we are the first to propose the Grad-
+                                                                           CAM for zero-shot RIS to study its behaviors under longer
+                                                                           and complex textual inputs instead of a single category noun.
+                            Baseline                  PWEM                 To address problems of lacking consideration between main
+(b) Expression: businessman posing in front of an airplane door            words and the other, the PWEM is proposed to aggregate the
+                                                                           Grad-CAM from local-spatial and global-token levels. Sec-
+                                             2nd
+                                                                           ondly, a novel iterative refinement strategy is employed to
+                    1st
+                 Iteration                Iteration                        obtain a better representation of Grad-CAM step by step.
+(c) Expression: guy on right
+                                                                                                 Preliminaries
+                                                                           The generation of Grad-CAM is essential for harnessing it
+                    1st                      2nd                           for RIS. Given an image-expression pair (I, E), we can ob-
+                 Iteration                Iteration                        tain their corresponding embeddings, v and e, by the visual
+                                                                           encoder v = fI (I) and text encoder e = fT (E), respec-
+Figure 2: (a) The weak ability of the baseline model to dif-               tively. Then, for multimodal fusion, these two embeddings
+ferentiate the semantic relationships between the primary                  are fed to the cross-attention layers used to align the visual
+word “man” and the other noun phrases colored green and                    and textual information (Yu et al. 2022; Vaswani et al. 2017).
+orange. PWEM can make the model aware of the targeted in-                  The resultant attention activation maps, A, can indicate the
+stance referred to by the main word. (b) The IGRS facilitates              activated and recognized regions of v concerning each query
+the expansion of highlighted areas, surpassing the confined                textual token in e. However, these indication clues are usu-
+small regions. (c) IGRS offers the model chances of self-                  ally scattered and not densely distributed in the relevant re-
+correction.                                                                gions. Thus, the gradients, G can be used to sharpen and di-
+                                                                           lute the effect of non-relevant regions in A, where contribute
+                                                                           less to the output objective, y, like Image Text Matching
+                                                                           (ITM). The result of this gradient-weighted dilution process
+and local textual-image similarity to enhance the discrimi-                is known as Grad-CAM, H.
+native capabilities of the CLIP model. Based on GL-CLIP,
+                                                                              In the cross-attention layer, the Grad-CAM can be formu-
+some researchers (Wang et al. 2024a) combine the original
+                                                                           lated by Equation (1)
+CLIP similarity score with their proposed Balanced Score
+with Auxiliary Prompts (BSAP), namely BSAP-H, to reduce                                          H = A ⊙ G,                           (1a)
+the CLIP’s text-to-image retrieval hallucination. Ref-Diff                                                      
+                                                                                                        ∂y
+(Ni et al. 2023) demonstrates that the text-to-image gener-                                 G = clamp      , 0, ∞ ,                   (1b)
+ative model like Stable Diffusion (Rombach et al. 2022) can                                             ∂A
+generate the intended mask from the cross-attention map,                   where clamp removes negative gradients, which often rep-
+which has considerable performance. TAS (Suo, Zhu, and                     resent noise or irrelevant features. Finally, the Grad-CAM
+Yang 2023) mainly depends on another large captioner net-                  used to indicate the image regions, Hf , is the mean over all
+work BLIP2 (Li et al. 2023) to mine the negative text based                the number of text tokens |e|, as shown in Equation (2)
+on the previous mask proposal network plus discrimina-
+tor paradigm, which achieves favorable performances. Ad-                             Hf = Ek Hk , k ∈ |e|, Hf ∈ RB×h×w
+                                                                                                   
+                                                                                                                                    (2)
+ditionally, SAM (Kirillov et al. 2023) is utilized for better
+segmentation accuracy. However, these CLIP-based meth-                     where Hk denotes the Grad-CAM for the k-th text token, B
+ods struggle to segment the referred subject with positional-              is the batch size, and h × w is the size of visual latent space.
+described text queries, due to the absence of spatial relation-            This averaging process treats every word equally and ignores
+ships in the masked image.                                                 the importance of the primary word, thereby undermining
+   Grad-CAM for localization. Grad-CAM (Selvaraju et al.                   the performance of RIS.
+2017) is proposed to provide explainable clues indicating
+the regions the model pays attention to for the prediction                                           Method
+head. In the context of the Image Text Matching (ITM) ob-
+jective from any VLP (Li et al. 2022; Xu et al. 2023a,b),                  Overview
+Grad-CAM enables the establishment of a modality map-                      Figure 1 (b) demonstrates the entire workflow of our method
+ping from the textual to the visual domain, specifically cal-              for zero-shot RIS, IteRPrimE, which can be divided into
+ibrated for the task of visual localization. Many works uti-               two parts: an iterative Grad-CAM generator and a selective
+lize it to localize the objects with the given text (Shen et al.           mask proposal network. First, the Grad-CAM generator is a
+2024; Lee et al. 2023; Xu et al. 2022; He et al. 2022; Li                  VLP model with cross-attention layers. The proposed IGRS
+et al. 2021). However, these approaches either generate a                  and PWEM are integrated into the generator. Finally, within
+bounding box annotation or are employed within weakly su-                  the mask proposal network, a post-processing module is de-
+pervised scenarios. Compared to approaches (Shin, Xie, and                 signed to select the candidate instance masks, ensuring the
+Albanie 2022; Zhou, Loy, and Dai 2022; Luo et al. 2024a)                   accurate and detailed localization of the target object.
+                Grad-CAM for          AM for partially     AM for damaged      AM for car      Grad-CAM for car
+             partially damaged car
+
+
+
+
+                      (a)                     (b)                 (c)                (d)                      (e)
+
+Figure 3: The Grad-CAMs and attention maps (AM) of “partially damaged car”. Since the attention map (d) and Grad-CAM (e)
+of the primary word “car” both contain unique activation areas compared to the others, they can be harnessed from local-spatial
+and global-token perspectives to enhance the focus on the targeted regions, respectively.
+
+
+Primary Word Emphasis Module                                        where Hm = AWm ⊙ GWm following Equation (1). Broad-
+The PWEM is an essential component of the IteRPrimE, de-            casting occurs when the dimensions do not match.
+signed to confront the challenge posed by the weak capabil-            From the global aspect, we manually add the weight of
+ity of Grad-CAM to manage the semantic relationships in             the main word Grad-CAM Hm along the token axis during
+input texts featuring multiple potential referred nouns. This       mean operations, which provides additional enhanced focus
+module emphasizes the Grad-CAM of the primary word in               on the primary token. Therefore, we can obtain the global
+the expression, thereby increasing the focus on the main            token-level Grad-CAM Hg by Equation (4)
+word during the averaging operation. Specifically, we first                                ′
+use an NLP processing toolbox to parse the part-of-speech                            W = W ∪ {Wm } × Nc ,                     (4a)
+(POS) tags of each word, filtering out a set of text tokens                                      ′        ′
+
+that includes special < CLS > token of BERT (Devlin et al.                           Hg = AW ⊙ GW                             (4b)
+2018), nouns, adjectives, verbs, proper nouns, and numerals.
+                                                                    where Nc is the number of context tokens and {Wm } × Nc
+These words are recognized as effective tokens W that can
+                                                                    means repeating the main word for Nc times. Finally, the
+provide distinct semantics and their contextual information.
+                                                                    resulting augmented Grad-CAM, Ha , is the mean of con-
+They are composed of primary words Wm and their con-
+                                                                    catenated local and global Grad-CAMs , Hc , along the to-
+texts Wc , where W = Wm ∪ Wc and Wm ∩ Wc = ∅. Then,
+                                                                    ken axis, where Hc = [Hg , Hl ]. This map significantly im-
+we extract the primary noun from these effective words (e.g.
+                                                                    proves the model’s Grad-CAM localization accuracy, shown
+“car” in “partially damaged car” shown in Figure 3) by em-
+                                                                    in PWEM of Figure 2 (a).
+ploying a designed algorithm. It first generates a syntax tree,
+identifies the leftmost noun phrase (NP), and then finds the
+rightmost noun (NN) within that NP, which can be detailed           Iterative Grad-CAM Refinement Strategy
+in Algorithm 1 in the appendix.                                     Masked Language Modeling (MLM) can be used for bi-
+   As shown in the right part of Figure 4, we emphasize the         directional image generative Transformers such as MasGIT
+effect of the primary word Grad-CAM from two perspec-               (Chang et al. 2022). The iterative generative paradigm of-
+tives: local spatial-level and global token-level augmenta-         fers self-correction chances for the model to optimize step-
+tion. Different from the other contextual effective words Wc ,      by-step in the latent space. Inspired by this, we propose a
+the attention map AWm and Grad-CAM Hm of the primary                novel iterative strategy of Grad-CAM to gradually steer the
+token holds the unique activated areas that probably indicate       model’s attention to the region that the model is not atten-
+the correct localization of Grad-CAM shown in Figure 3.             tive to initially, which brings benefits from two sides. On the
+Therefore, to highlight and isolate the specific contribution       one hand, for the circumstances in which Grad-CAM cor-
+of the primary word from the local spatial level, we com-           rectly localizes the instance initially, the gradually refined
+pute the L2 normalized differences, Adif between the main           Grad-CAM can be better gathered around the targeted in-
+word activation map and the other context word activation           stance region. On the other hand, for the first incorrect lo-
+maps, AWc . The activation difference is further integrated         calization, the model can attend to other semantic instances
+with gradients from the main word GWm , forming a spa-              to recheck the Grad-CAM prediction, especially for the po-
+tial modulator to indicate the local spatial importance in the      sitional phrase inputs. The overall approach of IGRS is il-
+main word Grad-CAM, Hm . Thus, we can obtain the local              lustrated in the left part of Figure 4.
+spatial-level enhanced Grad-CAM of the primary word, Hl ,              For simple notification, we use Ht to represent the resul-
+as shown in Equation (3)                                            tant t-th iteration Grad-CAM from the PWEM Ha . Equa-
+                            AWm − AWc                               tion (5) delineates the aggregation and refinement process
+                 Adif =                       ,           (3a)      of Grad-CAM representational updation, which entails the
+                          ||AWm − AWc ||2
+                                                                    combination with Grad-CAM in the penultimate iteration
+                Hl = Adif ⊙ GWm ⊙ Hm ,                    (3b)      step (t − 1), under the constraint of a zero initial condition
+                     𝐻𝐻𝑡𝑡′
+
+                             𝑆𝑆 𝑡𝑡−1 > 𝑆𝑆 𝑡𝑡                                             Concatenation and mean
+                                               Update Augmented
+                                                          Grad-CAM                         Global        Local
+               𝑀𝑀𝑡𝑡               Drop             𝐻𝐻𝑡𝑡    PWEM                          [         ] [     ]
+                                                                                                     × 𝑁𝑁𝑐𝑐       Local Focus
+              Update                                                                                          [     ]⊙
+                                          ITMz                                              ⊙       ⊙
+                                                                                                        z
+                                                    𝜕𝜕𝜕𝜕
+                                                    𝜕𝜕𝜕𝜕                            Effective                 [      ]⊙
+                                               × 𝑵𝑵                                  tokens
+               𝑀𝑀𝑡𝑡′              Attention layers 𝐴𝐴                                                               Get diffs
+              Mask            V       K        Q                                            Filtering         [       ]−
+                                                   Find primary word                        Algorithm
+
+                                                                    Augmented local Grad-CAM   Gradient map
+                             image    text token                    Activation difference      Attention map
+                             features features                      Grad-CAM                 ⊙ Element wise product
+
+                                                                                ′
+Figure 4: The proposed IGRS (left) and PWEM (right). The mask Mt is the attention mask for cross-attention layers by
+dropping the most salient regions of Grad-CAM to zero. PWEM filters the meaningless tokens and augments the Grad-CAM
+representation from local and global aspects.
+
+
+H0 = 0.                                                                  score, S (t) = IT M (t) · R(t) , where R(t) is defined by:
+                 ′            ′
+               Ht = λHt−1 + (1 − λ)σ(Ht ),                    (5)                             P       P             e′
+                                                                                        (t)      x∈X      y∈Y (1 − Ht−1 )
+          ′              ′
+where Ht−1 and Ht are the resultant refined heatmaps from                             R =                                  ,        (7)
+                                                                                                          X ×Y
+the (t − 1)-th and t-th iterations, σ(.) is a sigmoid function                       ′                                                   ′
+to scale the value appropriately, and the hyperparameter λ               where H e
+                                                                                    t−1 is the interpolated Grad-CAM heatmap of Ht−1
+is a balancing factor. To instruct the model to focus on the             with the same size as the original image with width X and
+region previously not paid attention to, in each iteration, a            height Y . This relevance score measures the average over-
+binary attention mask Mt would be generated from the re-                 looked Grad-CAM intensity. A higher R(t) indicates that
+fined Grad-CAM heatmap Ht by dropping the most attentive                 there are some regions less attentive to previously, guiding
+region to 0, as shown in Equation (6).                                   the model to focus on these overlooked areas in the next iter-
+                                                                        ation. If the score for the current iteration S (t) is less than the
+                                       0 if σ(H) ≥ θ                     score from the previous iteration S (t−1) , the iterative process
+       Mt = P(Ht , θ), P(H, θ) =                           (6)
+                                       1 if σ(H) < θ,                    is terminated. The total iterative times should not exceed ν.
+where P(H, θ) represents the process of applying a sigmoid               Selective Mask Proposal Network
+function to stretch the values and then thresholding the re-
+                                                                         Through the aforementioned steps, we can employ the Grad-
+sult at θ to create a binary mask. The binary mask Mt is then
+                                        ′                                CAM indication clue to instruct the Segmentors to predict
+combined with the previous mask Mt−1 by the logical and                  the referred instance mask. For a given image, the mask pro-
+                ′      ′
+operation, Mt = Mt−1 ∧ Mt , where M0 is a tensor of ones.                posal network would predict the Nb masks but they can not
+The ∧ ensures the model can expand to other regions regard-              autonomously choose which object mask users refer to by
+less of the places previously focused. This attention binary             the language. Therefore, the selection module within the
+mask will be fed into the cross-attention layer of a VLP to              network is designed to select the mask indicated by the
+mask out the visual regions in embedding v, ensuring the                 Grad-CAM, which divides the selection procedures into two
+text token queries no longer pay attention to the zero regions           phases: the filtering phase and the scoring phase.
+within the mask.                                                            Assuming that the Grad-CAM has successfully localized
+   For an interactive algorithm, the stopping condition is es-           the instance, the center point of Grad-CAM should be within
+sential. To make the iterative process more flexible, we in-             the inner part of the object. Based on this hypothesis, the se-
+troduce a dynamic stopping criterion based on the proposed               lection mechanism is initiated by a preliminary evaluation
+soft ITM score at timestep t, S (t) , which is calculated as the         that involves two main criteria. First, we identify the set
+product of the ITM, from the VLP model and the relevance                 of coordinates, Cmax , where the heatmap reaches its peak
+                                                        RefCOCO                      RefCOCO+                RefCOCOg
+                 Methods                                                                                                       Average
+                                               val    testA testB   avg.    val     testA testB    avg.   val   test avg.
+            Zero-shot methods
+     GL-CLIP (Yu, Seo, and Son 2023)          26.7    25.0   26.5   26.1    28.2    26.5   27.9    27.5   33.0   33.1   33.1    28.4
+        BSAP (Wang et al. 2024a)              27.3    27.0   27.1   27.1    28.7    27.8   28.3    28.3   34.5   34.5   34.5    29.4
+   Region token (Yu, Seo, and Son 2023)       23.4    22.1   24.6   23.4    24.5    22.6   25.4    24.2   27.6   27.3   27.5    24.7
+        SAM-CLIP (Ni et al. 2023)             26.3    25.8   26.4   26.2    25.7     28    26.8    26.8   38.8   38.9   38.9    29.6
+         Ref-Diff (Ni et al. 2023)            37.2    38.4   37.2   37.6    37.3    40.5    33     36.9    44    44.5   44.3    39.0
+      TAS (Suo, Zhu, and Yang 2023)           39.8    41.1   36.2   39.0    43.6    49.1   36.5    43.1   46.6   46.8   46.7    42.5
+           CaR (Sun et al. 2024)              33.6    35.4   30.5   33.0    34.2    36.0   31.0    33.7   36.7   36.6   36.7    34.3
+        Weakly-supervised methods
+  TSEG (Strudel, Laptev, and Schmid 2022)     25.4     -      -      -      22.0     -      -       -     22.1    -       -       -
+         Chunk (Lee et al. 2023)              31.1    32.3   30.1   31.8    31.3    32.1   30.1    31.2   32.9    -       -       -
+              IteRPrimE (ours)                40.2    46.5   33.9   40.2    44.2    51.6   35.3    43.7   46.0   45.8   45.9    42.9
+
+Table 1: Comparison of different methods on different datasets. “avg.” denotes the mean performance across various splits
+within individual datasets, while the terminal “Average” column represents the composite mean derived from all dataset splits.
+
+
+values. Then, the m-th candidate mask B m is examined to                       Method             Training dataset      All    Unseen
+determine if it includes at least one activated pixel at any                                         RefCOCO            15.5    13.8
+of these coordinates. Second, to ensure the quality of the                         CRIS             RefCOCO+            16.3    14.6
+masks, we apply a connected component labeling technique                                            RefCOCOg            16.2    13.9
+to constrain the number of connected components in each                                              RefCOCO            16.7    14.4
+mask, ensuring that the number of these components does                            LAVT             RefCOCO+            16.6    13.5
+not exceed a predefined threshold of κ. The combined crite-                                         RefCOCOg            16.1    13.5
+ria for the preliminary evaluation are defined as follows:                     GL-CLIP                  N/A             23.6    23.0
+           n                                        o                            TAS                    N/A             25.6     -
+                         m
+     A = m ∈ Nb | B(x,y)     ̸= 0, ∃(x, y) ∈ Cmax , ,                          Ref-Diff                 N/A             29.4     -
+     F = {m ∈ N | g (B m ) ≤ κ} ,                          (8)             IteRPrimE (ours)             N/A             38.1    37.9
+                  b    cc
+    D = A ∩ F.                                                         Table 2: Comparison of oIoU on PhraseCut for different su-
+In the above equations, gcc denotes a function that quantifies         pervised and zero-shot methods.
+the number of connected components within the m-th candi-
+date from total Nb masks. The intersection of sets A and F,
+denoted as D, yields the subset of candidate masks that ful-           This approach ensures that the selected mask aligns with the
+fill both the activation and mask quality requirements. This           regions of interest highlighted by the Grad-CAM heatmap,
+evaluation process filers the irrelevant and empty masks to            thereby ensuring the precision and efficacy of RIS.
+reduce the computational cost and enhance efficiency.
+    Subsequent to the preliminary filtering phase, we pro-                                        Experiments
+ceed to evaluate each remaining candidate mask through a               Experimental Settings
+weighted scoring mechanism that leverages the Grad-CAM                 Datasets and metrics. We employ the RefCOCO (Nagaraja,
+heatmap. This involves computing an element-wise product-              Morariu, and Davis 2016), RefCOCO+ (Nagaraja, Morariu,
+based score for each mask concerning the heatmap. We de-               and Davis 2016), RefCOCOg (Kazemzadeh et al. 2014; Mao
+fine the score for the j-th candidate mask as Z(j) from the            et al. 2016), and PhraseCut datasets (Wu et al. 2020) for
+set D. The scoring process is formulated below:                        evaluating the proposed zero-shot methods. RefCOCO with
+                 X X j                j      e′
+                                                                      shorter expressions (average 1.6 nouns, 3.6 words) contains
+        Z(j) =             B(x,y) + B(x,y) ⊙H   (x,y)                  massive positional phrases (50%), especially those with di-
+               x∈X y∈Y                                                 rect direction clues like “left” or “right”. In contrast, Ref-
+                                                              (9)
+                        Z(j)                                           COCO+ focuses on the attribute phrases with the same av-
+       Ẑ(j) = P        P        j
+                                         ,   j ∈ D.                    erage expression length. RefCOCOg is a more challenging
+                  x∈X       y∈Y B(x,y)
+                                                                       benchmark that has longer phrases (average 2.8 nouns, 8.4
+where H
+         ′                                                             words) and complex expressions. To verify the effectiveness
+          (x,y) is the final output Grad-CAM of original im-
+        e
+                                                                       of the mode in out-of-domains, we adapt our model to the
+age size. The final step in our selection process involves             PhraseCut dataset which contains the additional 1271 cat-
+identifying the candidate mask with the maximum normal-                egories in the test split based on 80 in COCO. Following
+ized score, Ẑ(j), as the chosen segmentation output:                  (Sun et al. 2024; Yu, Seo, and Son 2023; Han et al. 2024),
+                                                                       we utilize the mean Intersection over Union (mIoU) for Re-
+                  Bselect = arg max Ẑ(j).                   (10)      fCOCO series, a common metric for RIS. Following (Yu,
+                                  j∈D
+                (a) Self-correction effect for positional phrases.     the smaller bird at the left
+
+
+                                   1st                    2nd
+                                  IGRS                   IGRS
+                                                        Ours                      GL-CLIP               GT
+                (b) Strong robustness of out-domain phrases.         the arm of the photo not being pictured
+
+
+
+
+                                                        Ours                      GL-CLIP               GT
+                (c) Strong robustness of out-domain categories.        metal bridge
+
+
+
+
+                                                        Ours                      GL-CLIP               GT
+
+Figure 5: The qualitative comparisons with GL-CLIP. (a) The self-correction effect is brought by our IGRS, especially for
+positional phrases. (b) For the unseen phrases like “not”, our model shows better robustness. (c) shows the gathering effect of
+IteRPrimE with high confidence to select the whole mask instead of a part like GL-CLIP.
+
+
+       Method              RefCOCO testA     RefCOCOg test        Results
+     Overall Mean              43.4              41.3
+ GVLP (Shen et al. 2024)       45.0              41.9
+                                                                  Main results. As shown in Table 1, IteRPrimE almost
+   Global Augment              46.5              45.7             achieves the best performance on all three datasets, espe-
+    Local Augment              45.3              42.3             cially in the testA splits of RefCOCO and RefCOCO+. It
+        PWEM                   46.5              45.8             outperforms the SOTA TAS method with a 0.4% average im-
+                                                                  provement. For all the splits of RefCOCO and RefCOCO+
+Table 3: Comparison of methods with different Grad-CAM            rich in short positional phrases, our model obtains an aver-
+generation methods on RefCOCO testA and RefCOCOg test             age of 40.2% and 43.7% compared to the 39.0% and 43.1%
+datasets.                                                         of TAS, respectively. Therefore, our method is more ro-
+                                                                  bust to the positional information compared to the CLIP-
+                                                                  based paradigms. However, the model may have the rela-
+  Method        RefCOCO testA   RefCOCOg test   RefCOCOg val      tively weaker capability of complex expressions shown in
+ Mask image         46.3            45.3            45.2
+ Mask feature       46.5            45.8            46.0
+                                                                  RefCOCOg, which can be attributed to the data limitation
+                                                                  and gap in the pertaining stage. Additionally, by using the
+Table 4: Performance comparison of masking out the salient        additional captioner of BLIP2 (Li et al. 2023) and SAM
+regions in the image level and feature level (attention mask).    (Kirillov et al. 2023), TAS maintains the best performance
+                                                                  across some splits, especially for complex phrases, but it has
+                                                                  the drawback of low throughput and heavy volumes.
+                                                                     Zero-shot evaluation on unseen domain. Notably, as
+Seo, and Son 2023; Wu et al. 2020), we report the overall         shown in Table 2, our model has high capabilities of
+Intersection over Union (oIoU) for the PhraseCut dataset.         cross-domain zero-shot transfer compared to other zero-shot
+   Implementation details. We use the commonly used               SOTA and the existing supervised methods CRIS (Wang
+mask proposal network, Mask2Former (Cheng et al. 2022;            et al. 2022b) and LAVT (Yang et al. 2022). IteRPrimE sig-
+Liang et al. 2023), to obtain 200 instance-level mask propos-     nificantly outperforms both kinds of methods in the out-
+als. Following (Shen et al. 2024; Lee et al. 2023), we utilize    domain scenarios. Upon assessment within a subset of cat-
+the base model ALBEF to study the Grad-CAM for local-             egories not present in the RefCOCO datasets (denoted as
+ization and it is generated in the 8th cross-attention layer.     the “Unseen” column), our model shows the best robust-
+In processing the input text, a prefatory phrase “there is a”     ness compared to the supervised methods with huge perfor-
+is appended. The hyperparameter balancing factor λ, up-           mance degradation. Notably, the underperformance of the
+per connecting limit κ, iterative number ν, and binarization      TAS model on this dataset may be attributed to the pre-
+threshold θ are 0.8, 12, 3, and 0.5, respectively. All experi-    dominance of complex outdoor scenes within the dataset.
+ments are conducted on a 24 GB RTX 3090 GPU.                      In such intricate environments, the reliance on an additional
+                       RefCOCOg test             RefCOCO testA                     46.6
+     Method
+                 Position Others Overall   Position Others Overall                 46.5
+ GVLP w/o IGRS    33.0      43.6    41.3    34.7      53.2    44.7                 46.4
+  GVLP w/ IGRS    33.7      44.3    41.9    35.1      53.6    45.0
+                                                                                   46.3
+ PWEM w/o IGRS    36.4      47.5    45.1    36.1      54.8    46.1
+ PWEM w/ IGRS     37.4      48.2    45.8    36.5      55.0    46.5                 46.2
+                                                                                   46.1
+                                                                                    46
+Table 5: Ablation studies of the proposed PWEM and IGRS.                                  1     2          3          4         5         6     7
+                                                                                              (a) Iteration times
+                                                                                    47
+                                                                                    46
+captioning model for annotation by TAS could potentially                            45
+introduce greater noise, thereby compromising the model’s                           44
+performance. However, facing complex environmental con-                             43
+                                                                                    42
+texts, our model’s efficacy in localizing pertinent regions is
+                                                                                    41
+attributed to its retention of spatial perception. Concurrently,                    40
+the integration of IGRS and PWEM has further bolstered                                    0   0.1    0.2        0.3       0.4       0.5   0.6   0.7
+
+IteRPrimE’s proficiency in addressing the complicated inter-                                                   (𝐛𝐛) 𝝀𝝀
+relationships among objects within the scene, thereby lead-
+ing to this commendable performance.                                      Figure 6: The line charts of two hyperparameters.
+   Qualitative comparisons. Figure 5 shows the com-
+parisons with GL-CLIP (Yu, Seo, and Son 2023). First,
+we demonstrate that our IGRS module possesses a self-                tion” category encompasses those test samples that explic-
+corrective mechanism, the same answer as GL-CLIP ini-                itly feature positional expressions. Conversely, the “Others”
+tially before refining its predictions by revisiting initially       category serves as the complement. These results demon-
+overlooked regions. In Figure 5 (b), the scarcity of such neg-       strate that our modules not only improve general perfor-
+ative phrases in the training set is offset by our model’s ro-       mance but also enhance the model’s ability to manage com-
+bustness. Finally, we address the limited highlighted region         plex semantic and spatial relations, particularly in positional
+of initial Grad-CAM representation by the IGRS, demon-               contexts.
+strated in Figure 5 (c). The more gathering of the Grad-                Different assembly of iteration times and λ. Figure 6
+CAM, the more likelihood that the correct instance mask              presents the ablation study of two hyperparameters in IGRS,
+will be selected instead of the part.                                analyzing the effect of varying iteration times and λ on the
+                                                                     RefCOCO testA dataset. Figure 6 (a) shows that as the num-
+Ablation Study                                                       ber of iterations increases from 1 to 3, the metric improves,
+                                                                     peaking at 46.5%. However, beyond three iterations, the per-
+Effect of PWEM. According to Equation (2), the mean op-              formance change becomes minimal. Therefore, selecting 3
+eration is essential for the generation of Grad-CAM and              iterations is optimal for balancing performance and time ef-
+deeply influences the Grad-CAM representational accuracy.            ficiency. Figure 6 (b) presents another line chart analyzing
+Therefore, Table 3 presents the results of the ablation study,       the impact of λ in the Grad-CAM updation. The metric in-
+examining the impact of various aggregation configurations           creases as λ is gradually raised from 0 to 0.2 while exceed-
+for Grad-CAM generation. The “Overall Mean” is the direct            ing this point, performance declines with higher alpha val-
+mean of all the tokens’ Grad-CAM, but the GVLP uses the              ues. Overall, the optimal value of λ is 0.2.
+selected effective tokens for averaging (Shen et al. 2024).
+The remaining is introduced before as shown in Equation
+(3) and Equation (4). Compared to the previous methods,                                             Conclusion
+the proposed PWEM can significantly improve the perfor-              This paper presents IteRPrimE, a novel framework for Zero-
+mances because it can save the examples that fail due to             shot Referring Image Segmentation (RIS), addressing the
+the weak complex semantic understanding between the main             limitations of previous methods in handling positional sensi-
+word and the other contexts. Additionally, global augmen-            tivity and complex semantic relationships. By incorporating
+tation shows stronger potential than local because it could          an Iterative Grad-CAM Refinement Strategy (IGRS) and a
+dominate the effect during aggregation.                              Primary Word Emphasis Module (PWEM), IteRPrimE en-
+   Effect of mask position in IGRS. Table 4 evaluates the            hances the model’s ability to accurately focus on target re-
+position that the binary mask M applied. “Mask image”                gions and manage semantic nuances. Extensive experiments
+means adding the mask into the original image so that the            on RefCOCO/+/g and PhraseCut benchmarks demonstrate
+indicated regions are masked out, similar to GL-CLIP. How-           that IteRPrimE significantly outperforms previous state-
+ever, this can degrade the performance due to the absence            of-the-art zero-shot methods, particularly in out-of-domain
+of relative relationships of regions. Our method for attention       contexts. These findings highlight the framework’s potential
+masking in the cross-attention layer is more robust, with im-        to advance zero-shot RIS by improving model sensitivity to
+provement on all three splits.                                       positional and semantic details. Future research endeavors
+   Effect of our proposed PWEM and IGRS. Table 5 eval-               may seek to extend the Grad-CAM-guided RIS paradigm to
+uates the performance improvements achieved by integrat-             encompass all segmentation tasks across varying levels of
+ing different modules within our methodology. The “Posi-             granularity with linguistic directives.
+                   Acknowledgments                                 Li, C.; Xu, H.; Tian, J.; Wang, W.; Yan, M.; Bi, B.; Ye, J.;
+This work was supported by Shenzhen Science and Technol-           Chen, H.; Xu, G.; Cao, Z.; et al. 2022. mplug: Effective
+ogy Program under Grant CJGJZD20220517142402006.                   and efficient vision-language learning by cross-modal skip-
+                                                                   connections. arXiv preprint arXiv:2205.12005.
+                        References                                 Li, J.; Li, D.; Savarese, S.; and Hoi, S. 2023. Blip-2: Boot-
+                                                                   strapping language-image pre-training with frozen image
+Bai, S.; Liu, Y.; Han, Y.; Zhang, H.; and Tang, Y. 2024. Self-     encoders and large language models. In ICML, 19730–
+calibrated clip for training-free open-vocabulary segmenta-        19742. PMLR.
+tion. arXiv preprint arXiv:2411.15869.
+                                                                   Li, J.; Selvaraju, R.; Gotmare, A.; Joty, S.; Xiong, C.; and
+Chang, H.; Zhang, H.; Jiang, L.; Liu, C.; and Freeman, W. T.       Hoi, S. C. H. 2021. Align before fuse: Vision and language
+2022. Maskgit: Masked generative image transformer. In             representation learning with momentum distillation. Ad-
+CVPR, 11315–11325.                                                 vances in neural information processing systems, 34: 9694–
+Cheng, B.; Misra, I.; Schwing, A. G.; Kirillov, A.; and Gird-      9705.
+har, R. 2022. Masked-attention mask transformer for uni-           Liang, F.; Wu, B.; Dai, X.; Li, K.; Zhao, Y.; Zhang, H.;
+versal image segmentation. In CVPR, 1290–1299.                     Zhang, P.; Vajda, P.; and Marculescu, D. 2023. Open-
+Devlin, J.; Chang, M.-W.; Lee, K.; and Toutanova, K. 2018.         vocabulary semantic segmentation with mask-adapted clip.
+Bert: Pre-training of deep bidirectional transformers for lan-     In CVPR, 7061–7070.
+guage understanding. arXiv preprint arXiv:1810.04805.              Liu, C.; Ding, H.; and Jiang, X. 2023. Gres: Generalized
+Ding, H.; Liu, C.; He, S.; Jiang, X.; and Loy, C. C. 2023.         referring expression segmentation. In CVPR, 23592–23601.
+MeViS: A large-scale benchmark for video segmentation              Liu, R.; Liu, C.; Bai, Y.; and Yuille, A. L. 2019. Clevr-ref+:
+with motion expressions. In CVPR, 2694–2703.                       Diagnosing visual reasoning with referring expressions. In
+Ding, H.; Liu, C.; Wang, S.; and Jiang, X. 2021. Vision-           CVPR, 4185–4194.
+language transformer and query generation for referring seg-       Liu, Y.; Bai, S.; Li, G.; Wang, Y.; and Tang, Y. 2024a. Open-
+mentation. In ICCV, 16321–16330.                                   vocabulary segmentation with semantic-assisted calibration.
+                                                                   In CVPR, 3491–3500.
+Ding, J.; Xue, N.; Xia, G.-S.; and Dai, D. 2022. Decoupling
+zero-shot semantic segmentation. In CVPR, 11583–11592.             Liu, Y.; Zhang, C.; Wang, Y.; Wang, J.; Yang, Y.; and Tang,
+                                                                   Y. 2024b. Universal segmentation at arbitrary granularity
+Han, K.; Liu, Y.; Liew, J. H.; Ding, H.; Liu, J.; Wang, Y.;
+                                                                   with language instruction. In CVPR, 3459–3469.
+Tang, Y.; Yang, Y.; Feng, J.; Zhao, Y.; et al. 2023. Global
+knowledge calibration for fast open-vocabulary segmenta-           Luo, J.; Khandelwal, S.; Sigal, L.; and Li, B. 2024a. Emer-
+tion. In CVPR, 797–807.                                            gent Open-Vocabulary Semantic Segmentation from Off-
+                                                                   the-shelf Vision-Language Models. In CVPR, 4029–4040.
+Han, Z.; Zhu, F.; Lao, Q.; and Jiang, H. 2024. Zero-shot
+referring expression comprehension via structural similarity       Luo, Z.; Xiao, Y.; Liu, Y.; Li, S.; Wang, Y.; Tang, Y.; Li, X.;
+between images and captions. In CVPR, 14364–14374.                 and Yang, Y. 2024b. Soc: Semantic-assisted object cluster
+                                                                   for referring video object segmentation. Advances in Neural
+He, S.; Guo, T.; Dai, T.; Qiao, R.; Wu, C.; Shu, X.; and Ren,      Information Processing Systems, 36.
+B. 2022. VLMAE: Vision-language masked autoencoder.
+arXiv preprint arXiv:2208.09374.                                   Mao, J.; Huang, J.; Toshev, A.; Camburu, O.; Yuille, A. L.;
+                                                                   and Murphy, K. 2016. Generation and comprehension of
+Jing, Y.; Kong, T.; Wang, W.; Wang, L.; Li, L.; and Tan, T.        unambiguous object descriptions. In CVPR, 11–20.
+2021. Locate then segment: A strong pipeline for referring
+image segmentation. In CVPR, 9858–9867.                            Nagaraja, V. K.; Morariu, V. I.; and Davis, L. S. 2016. Mod-
+                                                                   eling context between objects for referring expression un-
+Kazemzadeh, S.; Ordonez, V.; Matten, M.; and Berg, T.              derstanding. In ECCV, 792–807. Springer.
+2014. Referitgame: Referring to objects in photographs of
+                                                                   Ni, M.; Zhang, Y.; Feng, K.; Li, X.; Guo, Y.; and Zuo, W.
+natural scenes. In EMNLP, 787–798.
+                                                                   2023. Ref-diff: Zero-shot referring image segmentation with
+Kim, N.; Kim, D.; Lan, C.; Zeng, W.; and Kwak, S. 2022.            generative models. arXiv preprint arXiv:2308.16777.
+Restr: Convolution-free referring image segmentation using
+                                                                   Radford, A.; Kim, J. W.; Hallacy, C.; Ramesh, A.; Goh, G.;
+transformers. In CVPR, 18145–18154.
+                                                                   Agarwal, S.; Sastry, G.; Askell, A.; Mishkin, P.; Clark, J.;
+Kirillov, A.; Mintun, E.; Ravi, N.; Mao, H.; Rolland, C.;          et al. 2021. Learning transferable visual models from natural
+Gustafson, L.; Xiao, T.; Whitehead, S.; Berg, A. C.; Lo, W.-       language supervision. In ICML, 8748–8763. PMLR.
+Y.; et al. 2023. Segment anything. In ICCV, 4015–4026.             Rombach, R.; Blattmann, A.; Lorenz, D.; Esser, P.; and Om-
+Lai, X.; Tian, Z.; Chen, Y.; Li, Y.; Yuan, Y.; Liu, S.; and Jia,   mer, B. 2022. High-resolution image synthesis with latent
+J. 2024. Lisa: Reasoning segmentation via large language           diffusion models. In CVPR, 10684–10695.
+model. In CVPR, 9579–9589.                                         Selvaraju, R. R.; Cogswell, M.; Das, A.; Vedantam, R.;
+Lee, J.; Lee, S.; Nam, J.; Yu, S.; Do, J.; and Taghavi, T. 2023.   Parikh, D.; and Batra, D. 2017. Grad-cam: Visual expla-
+Weakly supervised referring image segmentation with intra-         nations from deep networks via gradient-based localization.
+chunk and inter-chunk consistency. In ICCV, 21870–21881.           In CVPR, 618–626.
+Shah, N. A.; VS, V.; and Patel, V. M. 2024. LQMFormer:              Yang, Z.; Wang, J.; Tang, Y.; Chen, K.; Zhao, H.; and Torr,
+Language-aware Query Mask Transformer for Referring Im-             P. H. 2022. Lavt: Language-aware vision transformer for
+age Segmentation. In CVPR, 12903–12913.                             referring image segmentation. In CVPR, 18155–18165.
+Shen, H.; Zhao, T.; Zhu, M.; and Yin, J. 2024. Ground-              Yang, Z.; Wang, J.; Ye, X.; Tang, Y.; Chen, K.; Zhao, H.;
+VLP: Harnessing Zero-Shot Visual Grounding from Vision-             and Torr, P. H. 2024. Language-aware vision transformer
+Language Pre-training and Open-Vocabulary Object Detec-             for referring segmentation. IEEE TPAMI.
+tion. In AAAI, volume 38, 4766–4775.                                Yu, J.; Wang, Z.; Vasudevan, V.; Yeung, L.; Seyedhos-
+Shin, G.; Xie, W.; and Albanie, S. 2022. Reco: Retrieve             seini, M.; and Wu, Y. 2022. Coca: Contrastive caption-
+and co-segment for zero-shot transfer. Advances in Neural           ers are image-text foundation models. arXiv preprint
+Information Processing Systems, 35: 33754–33767.                    arXiv:2205.01917.
+Strudel, R.; Laptev, I.; and Schmid, C. 2022. Weakly-               Yu, S.; Seo, P. H.; and Son, J. 2023. Zero-shot referring
+supervised segmentation of referring expressions. arXiv             image segmentation with global-local context features. In
+preprint arXiv:2205.04725.                                          CVPR, 19456–19465.
+Sun, S.; Li, R.; Torr, P.; Gu, X.; and Li, S. 2024. Clip as         Zhou, C.; Loy, C. C.; and Dai, B. 2022. Extract free dense
+rnn: Segment countless visual concepts without training en-         labels from clip. In ECCV, 696–712. Springer.
+deavor. In CVPR, 13171–13182.                                       Zhu, C.; and Chen, L. 2024. A survey on open-vocabulary
+Suo, Y.; Zhu, L.; and Yang, Y. 2023. Text augmented spatial-        detection and segmentation: Past, present, and future. IEEE
+aware zero-shot referring image segmentation. EMNLP.                TPAMI.
+Vaswani, A.; Shazeer, N.; Parmar, N.; Uszkoreit, J.; Jones,
+L.; Gomez, A. N.; Kaiser, Ł.; and Polosukhin, I. 2017. At-
+tention is all you need. Advances in neural information pro-
+cessing systems, 30.
+Wang, H.; Zhan, Y.; Liu, L.; Ding, L.; Yang, Y.; and Yu, J.
+2024a. Towards Alleviating Text-to-Image Retrieval Hal-
+lucination for CLIP in Zero-shot Learning. arXiv preprint
+arXiv:2402.18400.
+Wang, X.; Yu, Z.; De Mello, S.; Kautz, J.; Anandkumar,
+A.; Shen, C.; and Alvarez, J. M. 2022a. Freesolo: Learning
+to segment objects without annotations. In CVPR, 14176–
+14186.
+Wang, Y.; Zhao, R.; and Sun, Z. 2023. Efficient Remote
+Sensing Transformer for Coastline Detection with Sentinel-
+2 Satellite Imagery. In IGARSS, 5439–5442. IEEE.
+Wang, Y.; Zhao, R.; Wei, S.; Ni, J.; Wu, M.; Luo, Y.; and
+Luo, C. 2024b. Convolution Meets Transformer: Efficient
+Hybrid Transformer for Semantic Segmentation with Very
+High Resolution Imagery. In IGARSS 2024, 9688–9691.
+IEEE.
+Wang, Z.; Lu, Y.; Li, Q.; Tao, X.; Guo, Y.; Gong, M.; and
+Liu, T. 2022b. Cris: Clip-driven referring image segmenta-
+tion. In CVPR, 11686–11695.
+Wu, C.; Lin, Z.; Cohen, S.; Bui, T.; and Maji, S. 2020.
+Phrasecut: Language-based image segmentation in the wild.
+In CVPR, 10216–10225.
+Xu, H.; Ye, Q.; Yan, M.; Shi, Y.; Ye, J.; Xu, Y.; Li, C.; Bi, B.;
+Qian, Q.; Wang, W.; et al. 2023a. mplug-2: A modularized
+multi-modal foundation model across text, image and video.
+In ICML, 38728–38748. PMLR.
+Xu, J.; De Mello, S.; Liu, S.; Byeon, W.; Breuel, T.; Kautz,
+J.; and Wang, X. 2022. Groupvit: Semantic segmentation
+emerges from text supervision. In CVPR, 18134–18144.
+Xu, X.; Wu, C.; Rosenman, S.; Lal, V.; Che, W.; and Duan,
+N. 2023b. Bridgetower: Building bridges between encoders
+in vision-language representation learning. In AAAI, vol-
+ume 37, 10637–10647.
+

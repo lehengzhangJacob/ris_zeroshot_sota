@@ -1,0 +1,27 @@
+{
+  "n_trials": 300,
+  "best_params": {
+    "box_src": "llava",
+    "gd_thresh": 0.18535118071181583,
+    "pool_rule": "sxi",
+    "topk": 2,
+    "margin": 0.7294331399965459,
+    "sam_mode": "all3",
+    "sam_area_cap": 0.25,
+    "cover2": false,
+    "alpha": 1.2205484428630569,
+    "beta": 0.6172278143610928
+  },
+  "calib_m": 0.686580784943633,
+  "calib_r": 0.6049799637610213,
+  "proj_gIoU": 76.49030806081242,
+  "proj_cIoU": 45.00416071897052,
+  "shipped_calib_m": 0.5817804776670462,
+  "shipped_calib_r": 0.5506152968920044,
+  "margin_m": 0.10480030727658673,
+  "n_fit": 193,
+  "n_calib": 69,
+  "population": "262 val-matched multi-target held-out train rows (109 refs)",
+  "note": "obj max proj_gIoU (shipped val operating point N_acc .8617, T_acc .8785); proj_cIoU recorded as a no-regression check; val pass only if calib m > 0.6212 with margin > 0.01 over shipped-on-calib",
+  "generated": "exp108_gdino_study.py"
+}
