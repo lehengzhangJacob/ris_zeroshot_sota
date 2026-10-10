@@ -82,6 +82,7 @@ if sid:
 PY
   fi
   dur=$(( $(date +%s) - t0 ))
+  if [ -x ./backup.sh ]; then bash ./backup.sh >> "$LOG" 2>&1 || true; fi
   reason=$(python3 - "$LOG" << 'PY'
 import json, sys
 last = None
