@@ -14,6 +14,7 @@ from pathlib import Path
 REPRO = Path("/home/msj_team/Jacob/sys/glod_ris_repro")
 OUTF = Path("exp/out_final")
 TAGS = {"refcoco": "refcoco", "refcocoplus": "refcocop", "refcocog": "refcocog"}
+VERSION = "v3"  # all-zero-grid fix + park-on-400 (2026-10-10)
 PUBLISHED = {"refcoco": dict(mIoU=58.42, oIoU=50.85),
              "refcocoplus": dict(mIoU=54.01, oIoU=45.96),
              "refcocog": dict(mIoU=57.85, oIoU=50.03)}
@@ -41,7 +42,7 @@ def main() -> int:
         datasets={})
     complete_all = True
     for ds, tag in TAGS.items():
-        d = REPRO / "outputs" / f"full_{tag}_v2"
+        d = REPRO / "outputs" / f"full_{tag}_{VERSION}"
         if not d.is_dir():
             doc["datasets"][ds] = dict(n=0, mIoU=None, oIoU=None,
                                        published=PUBLISHED[ds], status="missing")
