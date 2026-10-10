@@ -55,14 +55,22 @@ def main() -> int:
         m = json.loads((d / "metrics.json").read_text())
         n_parked = 0
         n_records = 0
+        n_zero_grid = 0
+        n_missing_category = 0
         for f in (d / "records").glob("*.json"):
             n_records += 1
             try:
                 r = json.loads(f.read_text())
             except Exception:
                 continue
-            if r.get("prediction", {}).get("guidance_source") == "GLM-parked-DOD-only":
+            pred = r.get("prediction", {})
+            if pred.get("guidance_source") == "GLM-parked-DOD-only":
                 n_parked += 1
+            glm = pred.get("glm") or {}
+            if glm.get("localization_skipped") == "all-zero grid":
+                n_zero_grid += 1
+            if glm.get("category_missing"):
+                n_missing_category += 1
         entry = dict(
             n=m["processed_expressions"],
             expected=m["expected_expressions"],
@@ -79,6 +87,13 @@ def main() -> int:
                               note=("parked = GLM guidance unavailable after repair retries; "
                                     "those expressions ran the DOD-only path and are flagged "
                                     "in their records (guidance_source=GLM-parked-DOD-only)")),
+            fallbacks=dict(all_zero_grids=n_zero_grid,
+                           category_missing=n_missing_category,
+                           note=("all-zero grid = GLM answered no occupied cell; the pipeline "
+                                 "uses a uniform (uninformative) localization map and flags "
+                                 "localization_skipped in the record. category_missing = a "
+                                 "guidance answer without a usable category; only the category "
+                                 "term is dropped for that expression.")),
             output_dir=str(d))
         doc["datasets"][ds] = entry
         if not m["complete"]:

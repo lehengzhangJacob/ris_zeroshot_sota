@@ -105,7 +105,7 @@ def main() -> int:
     repro = load(OUTF / "glodris_repro.json")
     if repro:
         lines = [r"\begin{tabular}{lcccc}", r"\toprule",
-                 r"Dataset & $n$ & mIoU & oIoU & published \\", r"\midrule"]
+                 r"Dataset & $n$ & mIoU & oIoU & published mIoU \\", r"\midrule"]
         for key, nice in (("refcoco", "RefCOCO"), ("refcocoplus", "RefCOCO+"),
                           ("refcocog", "RefCOCOg")):
             e = (repro.get("datasets") or {}).get(key) or {}

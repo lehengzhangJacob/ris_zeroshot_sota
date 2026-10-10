@@ -26,6 +26,11 @@
         "records_written": 10834,
         "note": "parked = GLM guidance unavailable after repair retries; those expressions ran the DOD-only path and are flagged in their records (guidance_source=GLM-parked-DOD-only)"
       },
+      "fallbacks": {
+        "all_zero_grids": 92,
+        "category_missing": 0,
+        "note": "all-zero grid = GLM answered no occupied cell; the pipeline uses a uniform (uninformative) localization map and flags localization_skipped in the record. category_missing = a guidance answer without a usable category; only the category term is dropped for that expression."
+      },
       "output_dir": "/home/msj_team/Jacob/sys/glod_ris_repro/outputs/full_refcoco_v3"
     },
     "refcocoplus": {
@@ -50,6 +55,11 @@
         "records_written": 10758,
         "note": "parked = GLM guidance unavailable after repair retries; those expressions ran the DOD-only path and are flagged in their records (guidance_source=GLM-parked-DOD-only)"
       },
+      "fallbacks": {
+        "all_zero_grids": 169,
+        "category_missing": 0,
+        "note": "all-zero grid = GLM answered no occupied cell; the pipeline uses a uniform (uninformative) localization map and flags localization_skipped in the record. category_missing = a guidance answer without a usable category; only the category term is dropped for that expression."
+      },
       "output_dir": "/home/msj_team/Jacob/sys/glod_ris_repro/outputs/full_refcocop_v3"
     },
     "refcocog": {
@@ -73,6 +83,11 @@
         "parked_expressions": 0,
         "records_written": 4896,
         "note": "parked = GLM guidance unavailable after repair retries; those expressions ran the DOD-only path and are flagged in their records (guidance_source=GLM-parked-DOD-only)"
+      },
+      "fallbacks": {
+        "all_zero_grids": 64,
+        "category_missing": 0,
+        "note": "all-zero grid = GLM answered no occupied cell; the pipeline uses a uniform (uninformative) localization map and flags localization_skipped in the record. category_missing = a guidance answer without a usable category; only the category term is dropped for that expression."
       },
       "output_dir": "/home/msj_team/Jacob/sys/glod_ris_repro/outputs/full_refcocog_v3"
     }

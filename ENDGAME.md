@@ -250,3 +250,14 @@ mIoU / oIoU / published / delta / run_hash / GLM failure stats / coverage);
 row), `exp/exp44_paper_tables.py` → `paper/tables/repro.tex`; repro drivers and
 logs in `/home/msj_team/Jacob/sys/glod_ris_repro` (`run_v3.sh`, `run_v3b.sh`,
 `run_controls.sh`). Paper build: texlive at `~/.local/texlive/bin/x86_64-linux`.
+
+Review of the reproduction milestone: cross-family (executor deepseek-flash,
+reviewer glm-5.3, `mcp__llm-chat__review` thread 849c90f981f3) — **SHIP, 9/10,
+no remaining must-fix**. Three review findings were applied before shipping:
+the decoupling contribution is +0.7 (not "about +1"), the feature-path
+comparison is labelled an anchor (different systems; ~16 mIoU of the gap stays
+unaccounted for), and the degenerate-answer fallbacks are disclosed with
+machine counts (all-zero grids 92/169/64 -> uniform localization map;
+category-less answers 0/0/0) in both the paper and the artifact's `fallbacks`
+block. The provenance of those counts (recomputed by exp142 from the record
+files) is recorded in `exp/out_final/evidence/repro_review_digest.md`.
