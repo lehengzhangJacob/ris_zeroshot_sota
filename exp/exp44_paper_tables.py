@@ -101,6 +101,32 @@ def main() -> int:
         lines += [r"\bottomrule", r"\end{tabular}"]
         (TAB / "sota.tex").write_text("\n".join(lines) + "\n")
 
+    # ---- GLOD-RIS reproduction table (2026-10-10 operator instruction) ------
+    repro = load(OUTF / "glodris_repro.json")
+    if repro:
+        lines = [r"\begin{tabular}{lcccc}", r"\toprule",
+                 r"Dataset & $n$ & mIoU & oIoU & published (mIoU / oIoU) \\", r"\midrule"]
+        for key, nice in (("refcoco", "RefCOCO"), ("refcocoplus", "RefCOCO+"),
+                          ("refcocog", "RefCOCOg")):
+            e = (repro.get("datasets") or {}).get(key) or {}
+            if e.get("mIoU") is None:
+                continue
+            pub = e.get("published") or {}
+            lines.append(f"{nice} & {e['n']:,} & {fmt(e['mIoU'])} & {fmt(e['oIoU'])} & "
+                         f"{fmt(pub.get('mIoU'))} / {fmt(pub.get('oIoU'))} \\\\")
+        ctrl = repro.get("refcoco_component_controls") or {}
+        if ctrl:
+            lines += [r"\midrule",
+                      r"\multicolumn{5}{l}{\emph{RefCOCO val component controls (n=10{,}834)}}\\"]
+            for tag in ("dodonly", "noloc", "nocat", "nodod"):
+                c = ctrl.get(tag)
+                if not c:
+                    continue
+                lines.append(f"\\quad {c['label']} & {c['n']:,} & {fmt(c['mIoU'])} & "
+                             f"{fmt(c['oIoU'])} & -- \\\\")
+        lines += [r"\bottomrule", r"\end{tabular}"]
+        (TAB / "repro.tex").write_text("\n".join(lines) + "\n")
+
     # ---- gRefCOCO table (family-labelled, 2026-10-08 standard) -------------
     if gref:
         def _setting(r):

@@ -106,6 +106,27 @@ def main() -> int:
                                  N_acc=round(m["N_acc"], 1), T_acc=round(m["T_acc"], 1),
                                  evidence="exp/out_final/main_grefcoco.json"))
 
+    # GLOD-RIS independent reproduction (2026-10-10 operator instruction):
+    # full official val splits, GLM-4.1V-Thinking-Flash guidance, measured with
+    # this run's reimplementation.  Reported as a measured row with the
+    # published numbers carried alongside for the audit.
+    repro = OUT / "glodris_repro.json"
+    if repro.exists():
+        g = json.loads(repro.read_text())
+        entry = dict(name="GLOD-RIS (our independent reproduction)", venue="this run",
+                     setting="zero-shot, SAM ViT-H + CLIP ViT-B/16, GLM-4.1V guidance",
+                     measured_by_us=True, evidence="exp/out_final/glodris_repro.json")
+        ok = False
+        for key in ("refcoco", "refcocoplus", "refcocog"):
+            e = (g.get("datasets") or {}).get(key) or {}
+            if e.get("mIoU") is None:
+                continue
+            entry[key] = dict(mIoU=e["mIoU"], oIoU=e["oIoU"], n=e["n"],
+                              published=e.get("published"))
+            ok = True
+        if ok:
+            rows.append(entry)
+
     out = {
         "caption": "Zero-shot / training-free referring image segmentation on full val splits. "
                    "Rows marked measured_by_us come from this run's scoring passes over the "
