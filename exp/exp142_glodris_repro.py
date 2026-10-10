@@ -86,6 +86,24 @@ def main() -> int:
         print(ds, entry["n"], "/", entry["expected"], "mIoU", entry["mIoU"],
               "oIoU", entry["oIoU"], "parked", n_parked)
     doc["complete"] = complete_all
+    # Diagnostic controls on RefCOCO val (no API cost, GPU-only): they localize
+    # WHERE the reimplementation diverges -- the candidate pool is not the limit
+    # (oracle mIoU ~82), so each component's effect on the selected mIoU is the
+    # measurable object.  Diagnostic evidence only; the reported reproduction
+    # number is the unflagged full pipeline.
+    controls = {}
+    for tag, label in (("dodonly", "no GLM guidance at all (DOD-only)"),
+                       ("nocat", "GLM localization only (category term dropped)"),
+                       ("noloc", "GLM category only (localization term dropped)"),
+                       ("nodod", "no orthogonal decoupling (raw foreground features)")):
+        mp = REPRO / "outputs" / f"ctrl_{tag}_v3" / "metrics.json"
+        if mp.is_file():
+            m = json.loads(mp.read_text())
+            controls[tag] = dict(label=label, n=m["processed_expressions"],
+                                 complete=bool(m["complete"]),
+                                 mIoU=round(m["mIoU"], 4), oIoU=round(m["oIoU"], 4))
+    if controls:
+        doc["refcoco_component_controls"] = controls
     (OUTF / "glodris_repro.json").write_text(json.dumps(doc, indent=2, ensure_ascii=False))
     print("wrote", OUTF / "glodris_repro.json", "| complete:", complete_all)
     return 0
