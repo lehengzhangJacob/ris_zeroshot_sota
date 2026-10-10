@@ -30,7 +30,11 @@ def main() -> int:
                         "rows, 1-based cell-index lists, all-zero grids accepted), a repair "
                         "prompt stating the parse error, 8192-token escalation on "
                         "finish_reason=length, 429/5xx retried with backoff, parked failures "
-                        "that never abort the run and are retried at the end"),
+                        "that never abort the run and are retried at the end. Pipeline "
+                        "hardening (found by the full-val run itself): all-zero grids use a "
+                        "uniform localization map; parked guidance routes the selector to a "
+                        "DOD-only configuration (no category/localization terms); guidance "
+                        "without a usable category drops only the category term"),
         cache=("glod/../cache: existing vision cache reused where valid (keyed by image sha + "
                "settings, unaffected by the code fix); GLM responses cached per "
                "(image, expression, model, grid); 704MB vision + GLM cache carried over from "
@@ -69,6 +73,7 @@ def main() -> int:
                        oIoU=round(m["oIoU"] - PUBLISHED[ds]["oIoU"], 4)),
             coverage=round(m["processed_expressions"] / max(1, m["expected_expressions"]), 6),
             complete=bool(m["complete"]),
+            run_hash=m.get("run_hash"),
             glm_failures=dict(parked_expressions=n_parked,
                               records_written=n_records,
                               note=("parked = GLM guidance unavailable after repair retries; "
