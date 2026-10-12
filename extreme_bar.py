@@ -299,6 +299,133 @@ def glodris_repro():
     return True
 
 
+def rule_swap():
+    """Same-pool rule-swap control (user instruction 2026-10-12)."""
+    rel = "exp/out_final/rule_swap.json"
+    if not newer(rel):
+        return False
+    try:
+        data = json.loads((ROOT / rel).read_text())
+    except Exception as exc:
+        return fail(f"bad json {rel}: {exc}")
+    if not isinstance(data, dict):
+        return fail("rule_swap.json must be an object")
+    for field in ("rule", "guidance_source", "pool"):
+        v = data.get(field)
+        if not isinstance(v, str) or not v.strip():
+            return fail(f"rule_swap.json needs a non-empty {field} string")
+    datasets = data.get("datasets")
+    if not isinstance(datasets, dict):
+        return fail("rule_swap.json needs a datasets{} object")
+    for key, n_min in (("refcoco", 10834), ("refcocoplus", 10758), ("refcocog", 4896)):
+        entry = datasets.get(key)
+        if not isinstance(entry, dict):
+            return fail(f"rule_swap.json datasets.{key} missing")
+        n = entry.get("n")
+        if not isinstance(n, int) or n < n_min:
+            return fail(f"rule_swap.json datasets.{key} n={n}, need >= {n_min}")
+        for metric in ("mIoU", "oIoU"):
+            if not isinstance(entry.get(metric), (int, float)):
+                return fail(f"rule_swap.json datasets.{key} needs numeric {metric}")
+    pdf_path = ROOT / "paper" / "main.pdf"
+    rel_path = ROOT / rel
+    if not pdf_path.is_file() or pdf_path.stat().st_mtime < rel_path.stat().st_mtime:
+        return fail("paper/main.pdf must be rebuilt after exp/out_final/rule_swap.json")
+    return True
+
+
+def learned_prior():
+    """Learned localization prior (user directive 2026-10-12)."""
+    rel = "exp/out_final/learned_prior.json"
+    if not newer(rel):
+        return False
+    try:
+        data = json.loads((ROOT / rel).read_text())
+    except Exception as exc:
+        return fail(f"bad json {rel}: {exc}")
+    comp = data.get("trained_component") if isinstance(data, dict) else None
+    if not isinstance(comp, dict):
+        return fail("learned_prior.json needs trained_component{}")
+    p = comp.get("params")
+    if not isinstance(p, (int, float)) or p <= 0:
+        return fail("learned_prior.json trained_component.params must be a positive number")
+    for field in ("training_data", "supervision"):
+        v = comp.get(field)
+        if not isinstance(v, str) or not v.strip():
+            return fail(f"learned_prior.json trained_component.{field} must be a non-empty string")
+    datasets = data.get("datasets") if isinstance(data, dict) else None
+    if not isinstance(datasets, dict):
+        return fail("learned_prior.json needs a datasets{} object")
+    entry = datasets.get("grefcoco")
+    if not isinstance(entry, dict):
+        return fail("learned_prior.json datasets.grefcoco missing")
+    n = entry.get("n")
+    if not isinstance(n, int) or n < 14229:
+        return fail(f"learned_prior.json datasets.grefcoco n={n}, need >= 14229 (full val)")
+    for metric in ("cIoU", "gIoU"):
+        if not isinstance(entry.get(metric), (int, float)):
+            return fail(f"learned_prior.json datasets.grefcoco needs numeric {metric}")
+    pdf_path = ROOT / "paper" / "main.pdf"
+    rel_path = ROOT / rel
+    if not pdf_path.is_file() or pdf_path.stat().st_mtime < rel_path.stat().st_mtime:
+        return fail("paper/main.pdf must be rebuilt after exp/out_final/learned_prior.json")
+    return True
+
+
+def wild_ideas():
+    """Counterintuitive-mechanism probe batch (user directive 2026-10-12)."""
+    rel = "exp/out_final/wild_ideas.json"
+    if not newer(rel):
+        return False
+    try:
+        data = json.loads((ROOT / rel).read_text())
+    except Exception as exc:
+        return fail(f"bad json {rel}: {exc}")
+    probes = data.get("probes") if isinstance(data, dict) else None
+    if not isinstance(probes, list) or len(probes) < 6:
+        return fail("wild_ideas.json needs probes[] of length >= 6")
+    for i, p in enumerate(probes):
+        if not isinstance(p, dict):
+            return fail(f"wild_ideas probe {i} is not an object")
+        for field in ("hypothesis", "test", "outcome"):
+            v = p.get(field)
+            if not isinstance(v, str) or not v.strip():
+                return fail(f"wild_ideas probe {i} needs a non-empty {field}")
+    return True
+
+
+def test_columns():
+    """Full test-column coverage vs the compared table (user question 2026-10-12)."""
+    rel = "exp/out_final/test_columns.json"
+    if not newer(rel):
+        return False
+    try:
+        data = json.loads((ROOT / rel).read_text())
+    except Exception as exc:
+        return fail(f"bad json {rel}: {exc}")
+    splits = data.get("splits") if isinstance(data, dict) else None
+    if not isinstance(splits, dict):
+        return fail("test_columns.json needs a splits{} object")
+    for key in ("refcoco_testA", "refcoco_testB", "refcocoplus_testA", "refcocoplus_testB", "refcocog_testu"):
+        entry = splits.get(key)
+        if not isinstance(entry, dict):
+            return fail(f"test_columns.json splits.{key} missing")
+        n = entry.get("n")
+        if not isinstance(n, int) or n < 1000:
+            return fail(f"test_columns.json splits.{key} n must be an int >= 1000")
+        for metric in ("mIoU", "oIoU"):
+            if not isinstance(entry.get(metric), (int, float)):
+                return fail(f"test_columns.json splits.{key} needs numeric {metric}")
+        pub = entry.get("published")
+        if not isinstance(pub, dict) or not isinstance(pub.get("mIoU"), (int, float)):
+            return fail(f"test_columns.json splits.{key} needs published{{mIoU}}")
+    pdf_path = ROOT / "paper" / "main.pdf"
+    rel_path = ROOT / rel
+    if not pdf_path.is_file() or pdf_path.stat().st_mtime < rel_path.stat().st_mtime:
+        return fail("paper/main.pdf must be rebuilt after exp/out_final/test_columns.json")
+    return True
+
+
 def as_percent(value):
     value = float(value)
     if value <= 1.5:
@@ -379,7 +506,7 @@ def main():
     if not STAMP.is_file():
         print("FAIL: extreme_started.txt missing")
         return 1
-    checks = [tex_has_appendix, architecture, sota, ablation, mains, graveyard, protocol_audit, metrics_sota, analysis_pack, glm_swap, glodris_repro, sota_line, pdf]
+    checks = [tex_has_appendix, architecture, sota, ablation, mains, graveyard, protocol_audit, metrics_sota, analysis_pack, glm_swap, glodris_repro, rule_swap, wild_ideas, learned_prior, test_columns, sota_line, pdf]
     passed = all(check() for check in checks)
     print("PASS" if passed else "NOT_READY")
     return 0 if passed else 1
