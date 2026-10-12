@@ -50,10 +50,19 @@
       "delta_mIoU": 6.9051,
       "box_coverage": 100.0,
       "records": "exp/out_test_columns/main_refcocoplus_testB.json"
+    },
+    "refcocog_testu": {
+      "n": 9602,
+      "mIoU": 64.541,
+      "oIoU": 59.6099,
+      "published": {
+        "mIoU": 57.03,
+        "source": "GLOD-RIS Table I, test column"
+      },
+      "delta_mIoU": 7.511,
+      "box_coverage": 100.0,
+      "records": "exp/out_test_columns/main_refcocog_testu.json"
     }
   },
-  "incomplete": [
-    "refcocog_testu"
-  ],
-  "pareto_ledger": "On the completed table, the shipped method strictly exceeds the published GLOD-RIS row on 4 of 4 test columns (plus the three val columns and the oIoU columns measured in the aligned re-evaluations); reproducibility (their numbers do not reproduce: -20/-23/-21 mIoU, glodris_repro.json) and API-independence (no MLLM API at inference) are dominated by the documented evidence; the one non-dominant axis is the extra frozen detector on the gRefCOCO path, which stays declared."
+  "pareto_ledger": "On the completed table, the shipped method strictly exceeds the published GLOD-RIS row on 5 of 5 test columns (plus the three val columns and the oIoU columns measured in the aligned re-evaluations); reproducibility (their numbers do not reproduce: -20/-23/-21 mIoU, glodris_repro.json) and API-independence (no MLLM API at inference) are dominated by the documented evidence; the one non-dominant axis is the extra frozen detector on the gRefCOCO path, which stays declared."
 }

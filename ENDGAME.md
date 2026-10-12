@@ -291,3 +291,15 @@ files) is recorded in `exp/out_final/evidence/repro_review_digest.md`.
 - Paper: intro/abstract restructured around the three acts; new subsections for
   the rule swap, the probes, and the learned prior; Pareto ledger pending the
   test columns. Gate adds rule_swap + wild_ideas + learned_prior + test_columns.
+
+RESOLUTION (2026-10-13, ~01:00): the five test columns are complete with the same
+frozen components and aligned protocol — RefCOCO testA 71.82/67.66, testB
+60.62/54.71; RefCOCO+ testA 70.66/66.62, testB 55.64/48.43; RefCOCOg test(u)
+64.54/59.61 mIoU/oIoU (n = 5,657 / 5,095 / 5,726 / 4,889 / 9,602; published
+59.36 / 56.23 / 57.33 / 48.73 / 57.03). Every column strictly exceeds the
+published GLOD-RIS row; `extreme_bar.py` prints PASS (17-page PDF rebuilt after
+`test_columns.json`). Degenerate greedy decodes in the box cache (408 on
+RefCOCO testA, repaired; the rest <= 0.3%) are repaired by exp151 with a
+guarded decode and disclosed. One infrastructure note: the unbounded LLaVA
+image-feature cache OOM'd a 48 GB card on the 2,500-image RefCOCOg test(u)
+split; it is now bounded (vlm_boxes.py, 256 images) and the split completed.
