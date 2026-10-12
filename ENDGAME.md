@@ -261,3 +261,33 @@ machine counts (all-zero grids 92/169/64 -> uniform localization map;
 category-less answers 0/0/0) in both the paper and the artifact's `fallbacks`
 block. The provenance of those counts (recomputed by exp142 from the record
 files) is recorded in `exp/out_final/evidence/repro_review_digest.md`.
+
+## 2026-10-12 cycle: rule swap, probes, learned prior, test columns
+
+- **Same-pool rule swap** (`exp/out_final/rule_swap.json`, gated): GLOD-RIS's own
+  selection rule (their Eqs. 1-7 decoupling + 3x3 Gaussian guidance + category
+  term, constants from the paper) run on our exact pools/features/guidance:
+  RefCOCO 32.95/28.18, RefCOCO+ 30.67/25.92, RefCOCOg 35.03/30.06 mIoU/oIoU —
+  8-15 mIoU BELOW the unguided released scorer *on the same records*
+  (44.82/40.23/50.08, which the swap reproduces to the decimal, validating the
+  pipeline end to end) and 23-30 below their published rows. Pool, features and
+  guidance held fixed -> the gap is the rule. Paper: new subsection
+  (`sec:ruleswap`) + table.
+- **Wild-idea probes** (`exp/out_final/wild_ideas.json`, gated; 7 probes):
+  Set-of-Mark 39.13, deletion 42.65, elimination 40.99, grid-vote 11.11 — all
+  below the released pick (42.94); winners: weak-signal democracy 43.61 (+0.67)
+  and union-of-top-2 37.77 vs 35.04 single-pick with the pair-oracle at 63.52;
+  prompt format (noun vs sentence) is worth 14.48 mIoU. Losers in the graveyard.
+- **Learned prior** (`exp/out_final/learned_prior.json`, gated): declared trained
+  component (GBM, gRefCOCO train only, threshold on a train-carved held-out).
+  Progression on full val: 38.79 naive -> 41.63 (+rel/std) -> 38.91 (degradation
+  augmentation) -> 45.47/71.97 (+within-row rank features). T1 (>51.32 cIoU) NOT
+  met: the hand-tuned prompt rule remains the row of record. Scale arm in
+  progress: 6,000-ref train-side build (15,975 records, 0 skipped) + boxes.
+- **Test columns** (`exp/out_final/test_columns.json`, gated, in progress):
+  five splits (refcoco testA/testB, refcoco+ testA/testB, refcocog test(u)) with
+  the same frozen components and aligned protocol; published mIoU transcribed
+  from GLOD-RIS Table I test columns (59.36/56.23/57.33/48.73/57.03).
+- Paper: intro/abstract restructured around the three acts; new subsections for
+  the rule swap, the probes, and the learned prior; Pareto ledger pending the
+  test columns. Gate adds rule_swap + wild_ideas + learned_prior + test_columns.
