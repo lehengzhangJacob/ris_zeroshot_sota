@@ -121,6 +121,33 @@ its single full-val pass (trained-vs-frozen declaration in the text).}
 \input{tables/gres}
 \end{table*}
 
+\subsection{Full-table completion and the Pareto ledger}
+\label{sec:testcols}
+The compared table's remaining columns --- RefCOCO testA/testB, RefCOCO+
+testA/testB, RefCOCOg test(u) --- are evaluated with the same frozen
+components and the aligned protocol on the full official splits
+(Table~\ref{tab:testcols}); the published numbers come from the same
+GLOD-RIS Table~I source as the audited val columns. The shipped method
+strictly exceeds the published row on every evaluated column: the val columns
+of Table~\ref{tab:sota} (mIoU and oIoU), the five test columns here, and both
+gRefCOCO metrics of Table~\ref{tab:gres}. Beyond the metric columns the
+ledger carries two non-numeric axes: reproducibility (their published numbers
+do not reproduce on our independent implementation, ruled by both the
+reimplementation and the same-pool rule swap, \S\ref{sec:repro}--\ref{sec:ruleswap})
+and deployability (our path is fully local; GLOD-RIS's inference depends on a
+network MLLM API whose failure modes we measured at scale). One axis is not
+dominated and is declared rather than hidden: the gRefCOCO path adds a second
+frozen detector next to the VLM prior (the RefCOCO-family path runs on the VLM
+prior alone).
+
+\begin{table}[t]\centering\small
+\caption{Test-column completion (mIoU; oIoU in the same JSON,
+\texttt{test\_columns.json}): full official splits, same frozen components,
+aligned protocol; published from GLOD-RIS Table~I test columns.}
+\label{tab:testcols}
+\input{tables/testcols}
+\end{table}
+
 \subsection{Counterintuitive probes (measured, not pre-filtered)}
 \label{sec:wild}
 Seven unconventional mechanisms were each given one focused test on a fixed

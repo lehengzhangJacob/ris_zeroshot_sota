@@ -26,12 +26,34 @@
       "delta_mIoU": 4.3901,
       "box_coverage": 100.0,
       "records": "exp/out_test_columns/main_refcoco_testB.json"
+    },
+    "refcocoplus_testA": {
+      "n": 5726,
+      "mIoU": 70.6639,
+      "oIoU": 66.6185,
+      "published": {
+        "mIoU": 57.33,
+        "source": "GLOD-RIS Table I, test column"
+      },
+      "delta_mIoU": 13.3339,
+      "box_coverage": 100.0,
+      "records": "exp/out_test_columns/main_refcocoplus_testA.json"
+    },
+    "refcocoplus_testB": {
+      "n": 4889,
+      "mIoU": 55.6351,
+      "oIoU": 48.4307,
+      "published": {
+        "mIoU": 48.73,
+        "source": "GLOD-RIS Table I, test column"
+      },
+      "delta_mIoU": 6.9051,
+      "box_coverage": 100.0,
+      "records": "exp/out_test_columns/main_refcocoplus_testB.json"
     }
   },
   "incomplete": [
-    "refcocoplus_testA",
-    "refcocoplus_testB",
     "refcocog_testu"
   ],
-  "pareto_ledger": "On the completed table, the shipped method strictly exceeds the published GLOD-RIS row on 2 of 2 test columns (plus the three val columns and the oIoU columns measured in the aligned re-evaluations); reproducibility (their numbers do not reproduce: -20/-23/-21 mIoU, glodris_repro.json) and API-independence (no MLLM API at inference) are dominated by the documented evidence; the one non-dominant axis is the extra frozen detector on the gRefCOCO path, which stays declared."
+  "pareto_ledger": "On the completed table, the shipped method strictly exceeds the published GLOD-RIS row on 4 of 4 test columns (plus the three val columns and the oIoU columns measured in the aligned re-evaluations); reproducibility (their numbers do not reproduce: -20/-23/-21 mIoU, glodris_repro.json) and API-independence (no MLLM API at inference) are dominated by the documented evidence; the one non-dominant axis is the extra frozen detector on the gRefCOCO path, which stays declared."
 }
