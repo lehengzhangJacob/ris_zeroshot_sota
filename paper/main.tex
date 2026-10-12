@@ -33,7 +33,12 @@ Paper ID ****}
 Training-free referring image segmentation is implemented as
 \emph{propose-then-select}: a frozen segmenter proposes masks, a frozen
 vision-language model scores them, and the argmax is returned. We measure
-what actually limits this pipeline on full validation splits and find that the
+what actually limits this pipeline on full validation splits --- after first
+testing the field's strongest published training-free method, GLOD-RIS, which
+we reimplement end to end and find does not reproduce its own numbers
+($20$--$26$\,mIoU short on the full official validation splits; its own
+selection rule scores below the unguided released scorer on our identical
+pools, features, and guidance) --- and find that the
 proposal pool is not the bottleneck --- an oracle picker over the pool reaches
 \oracleRefcoco\,mIoU on RefCOCO while the released pipeline returns
 \refcocoReleased, and the recoverable IoU is carried by wrong-instance
@@ -60,7 +65,10 @@ than tuned around: at the shipped operating point it
 needs the selector at \wallRealNeedCIoU\,\% of the best measured realization
 --- both oracles measured, and agreeing at $\approx0.88$ --- while the frozen
 rule realizes \wallRealMeas\,\%, a gap attributable to instance-level
-selection on two-object referents.
+selection on two-object referents. A small learned prior over the same pool
+(declared trained; gRefCOCO train only) recovers over half of the transfer
+gap that makes naive learned selection collapse, but does not yet exceed the
+hand-tuned training-free rule; both outcomes are reported as measured.
 \end{abstract}
 
 \input{sections/01_intro}

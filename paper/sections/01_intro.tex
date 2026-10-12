@@ -7,6 +7,21 @@ returns the best-scoring mask. The field has spent its effort on the scorer,
 and the practice of reporting only end metrics has hidden which component
 actually fails. We measure it.
 
+Before our own numbers, a reproducibility result frames them. The strongest
+published training-free method of this class, GLOD-RIS, is unreleased; we
+reimplemented it end to end and ran its full official validation splits
+(Section~\ref{sec:repro}). The reproduction \emph{completes} but lands
+$20$--$26$\,mIoU below the published rows ($32.68$/$30.96$/$37.24$ against
+$58.42$/$54.01$/$57.85$ mIoU), and the gap is measured, not asserted: the
+candidate pool is not the limit (oracle mIoU $82.2$), the guidance
+integration degrades selection in our hands, and the released ancestor scores
+$44.82$ on the same records. Running GLOD-RIS's own selection rule on our
+exact pools, features, and its own cached MLLM guidance makes the causal
+reading direct: their rule scores $32.95$/$30.67$/$35.03$\,mIoU against
+$44.82$/$40.23$/$50.08$ for the unguided released scorer on the \emph{same}
+records (Section~\ref{sec:ruleswap}). We therefore quote the published rows
+as published throughout, and every comparison against them is cross-harness.
+
 Our first finding is negative and decisive: at this operating point the
 proposal pool is \emph{not} the bottleneck. On full RefCOCO val the pool
 already contains a mask with $\mathrm{IoU}\ge0.5$ for \oracleHitPct\,\% of
@@ -48,6 +63,22 @@ datasets so that no benchmark can be sacrificed; the official validation and
 test splits are never used for tuning. Every number in every table is a
 re-analysis of full-validation records written by this run, and the tables
 themselves are generated from those records by script.
+
+We also test the prior's natural successor under the light-supervision
+allowance: a small learned part-acceptance prior over the same candidate pool
+(Section~\ref{sec:learned}), trained on gRefCOCO \emph{train} only, tuned on a
+train-carved held-out split, val evaluated once per frozen configuration. The
+naive version beats the shipped inclusion anchor on held-out by $+6.6$\,cIoU
+and then collapses in transfer ($38.79$ on val) for a measured reason --- the
+train-side part population looks better than val-time (predicted part-IoU
+$0.413$ vs $0.355$). Fixing exactly that shift, in three measured steps
+(per-frame standardization and a relative threshold, degradation-augmented
+training, within-row rank score features), recovers the transfer monotonically
+to $45.47$\,cIoU / $71.97$\,gIoU, over half of the gap the naive selector
+lost; but it does not exceed the hand-tuned prompt rule
+($51.32$/$74.91$), so the training-free variant remains the row of record and
+the learned component is reported as a declared, measured transfer study ---
+not as this paper's headline.
 
 Finally, we report a benchmark where the comparison only makes sense within
 class, and we state the boundary to the supervised class exactly. On gRefCOCO,
