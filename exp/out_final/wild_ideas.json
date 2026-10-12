@@ -1,0 +1,19 @@
+{
+  "what": "counterintuitive-mechanism probe batch (2026-10-12 directive): each probe gets one focused cached or held-out test; judged by measurement only",
+  "sample": "first N rows of the fixed 2,000-row RefCOCO val sample (records_refcoco_glm2000.jsonl, seed 20261010); diagnostics only -- no shipped knob is tuned here, and any promoted signal would be re-validated on train-carved rows before training",
+  "candidate_ordering": "released region-text similarity (sc) top-k; tie-breaks deterministic",
+  "probes": [
+    {
+      "hypothesis": "A VLM can select among numbered candidate overlays (Set-of-Mark) without producing coordinates -- turning selection into a classification.",
+      "test": "Top-8 SAM candidates tinted and numbered; GLM-4.1V asked for the index on 5 cached RefCOCO val rows; pick = answered index (unparsed answers fall back to the released pick).",
+      "outcome": "Set-of-Mark mIoU 1.749 vs released-pick 35.547 on the same rows; 0/5 answers unusable (truncated thinking or no index); parsed-only mIoU 1.749.",
+      "numbers": {
+        "n": 5,
+        "som_mIoU": 1.749,
+        "released_mIoU": 35.547,
+        "parsed": 5,
+        "parsed_mIoU": 1.749
+      }
+    }
+  ]
+}
