@@ -127,18 +127,21 @@ The compared table's remaining columns --- RefCOCO testA/testB, RefCOCO+
 testA/testB, RefCOCOg test(u) --- are evaluated with the same frozen
 components and the aligned protocol on the full official splits
 (Table~\ref{tab:testcols}); the published numbers come from the same
-GLOD-RIS Table~I source as the audited val columns. The shipped method
-strictly exceeds the published row on every evaluated column: the val columns
-of Table~\ref{tab:sota} (mIoU and oIoU), the five test columns here, and both
-gRefCOCO metrics of Table~\ref{tab:gres}. Beyond the metric columns the
-ledger carries two non-numeric axes: reproducibility (their published numbers
-do not reproduce on our independent implementation, ruled by both the
-reimplementation and the same-pool rule swap, \S\ref{sec:repro}--\ref{sec:ruleswap})
-and deployability (our path is fully local; GLOD-RIS's inference depends on a
-network MLLM API whose failure modes we measured at scale). One axis is not
-dominated and is declared rather than hidden: the gRefCOCO path adds a second
-frozen detector next to the VLM prior (the RefCOCO-family path runs on the VLM
-prior alone).
+GLOD-RIS Table~I source as the audited val columns. Scoped precisely, the shipped
+method strictly exceeds the published GLOD-RIS row on the three val mIoU and
+three val oIoU columns of Table~\ref{tab:sota} and on all five test-column
+mIoU values here. Published test-column oIoU is not transcribed (the table
+shows published mIoU only), so no oIoU claim is made there. GLOD-RIS does not
+report gRefCOCO, so our gRefCOCO results are compared against the same-class
+floors and the run's own prior record (\S\ref{sec:gref}), not against them.
+Beyond the table the ledger carries reproducibility --- their published
+numbers do not reproduce on our independent implementation (val deltas
+$-25.7$/$-23.1$/$-20.6$\,mIoU), ruled also causally by the same-pool rule swap
+(\S\ref{sec:repro}--\ref{sec:ruleswap}) --- and deployability: our path is
+fully local, while GLOD-RIS's inference depends on a network MLLM API whose
+failure modes we measured at scale. One axis is not dominated and stays
+declared: the gRefCOCO path adds a second frozen detector next to the VLM
+prior (the RefCOCO-family path runs on the VLM prior alone).
 
 \begin{table}[t]\centering\small
 \caption{Test-column completion (mIoU; oIoU in the same JSON,
@@ -158,15 +161,21 @@ Set-of-Mark index selection (numbering the candidate masks and asking the MLLM
 for the index) $39.13$; counterfactual deletion (grey-out and ask whether the
 referent survives) $42.65$; negative/elimination selection $40.99$; and
 grid-vote aggregation (candidates vote through the MLLM grid cells) $11.11$.
-Three measure positive. (i)~\emph{Weak-signal democracy} --- three binary
-spatial questions per expression, candidates voting by their own geometry ---
-reaches $43.61$, $+0.67$ over the released pick, and is kept as a cheap
-tie-breaker. (ii)~\emph{Boolean mask arithmetic}: fixed unions of the top-2
-candidates score $37.77$ against $35.04$ for the single pick, and the pair
-oracle over the top-5 reaches $63.52$ --- the construction headroom that
-single-pick selection wastes is real, though simple union policies capture
-only a fraction of it (the union-of-two is promoted into the gRefCOCO family;
-the pair oracle stands as the measured ceiling). (iii)~\emph{Prompt-format
+Three measure positive, all as diagnostic candidates only --- each is a
+few-tenths-to-few-points effect on a fixed sample, and \emph{none} is promoted
+into any shipped number without train-side re-validation. (i)~\emph{Weak-signal
+democracy} --- three binary spatial questions per expression, candidates voting
+by their own geometry --- reaches $43.61$, $+0.67$ over the released pick
+($[-1.0,+2.4]$ at one standard error on these rows; it also changes a large
+fraction of the picks, so the effect is not a rare tie-break), a candidate for
+the next training cycle rather than a component. (ii)~\emph{Boolean mask
+arithmetic}: fixed unions of the top-2 candidates score $37.77$ against
+$35.04$ for the single pick, and the pair oracle over the top-5 reaches
+$63.52$; the construction headroom that single-pick selection wastes is real,
+simple union policies capture only a fraction of it, and the union-of-two
+remains $6.3$ \emph{below} the shipped single-pick rule --- recorded as
+headroom analysis and a potential fallback when the box prior is missing, not
+as an improvement. (iii)~\emph{Prompt-format
 sensitivity as a phenomenon}: querying the same box prior with the noun phrase
 instead of the full sentence costs $14.48$\,mIoU ($68.32 \to 53.84$) while
 template paraphrases change nothing, so much of the ordering in this field is

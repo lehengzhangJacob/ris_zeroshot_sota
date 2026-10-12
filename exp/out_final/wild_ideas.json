@@ -56,7 +56,8 @@
         "union_top123": 36.914,
         "inter_top12": 9.105,
         "pair_oracle": 63.518,
-        "released": 44.024
+        "released": 44.024,
+        "union12_minus_single": 2.73
       }
     },
     {

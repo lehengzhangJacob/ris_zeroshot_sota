@@ -283,6 +283,8 @@ def probe_c(recs, files, limit):
     rows = list(zip(recs[:limit], files[:limit]))
     with ThreadPoolExecutor(max_workers=6) as pool:
         picks = list(pool.map(one, rows))
+    changed = sum(1 for p, r in zip(picks, recs[:len(picks)]) if p != int(r["final"]))
+    probe_d.last_changed = (changed, len(picks))
     return picks, len(picks)
 
 
@@ -352,7 +354,10 @@ def probe_e(recs, refs_by_id, limit):
                            iou(masks[idxs[a]] & masks[idxs[b]]))
         pol["pair_oracle"].append(best)
         pol["released"].append(iou(masks[int(r["final"])]))
-    return {k: round(100.0 * float(np.mean(v)), 3) for k, v in pol.items()}, len(recs[:limit])
+    out = {k: round(100.0 * float(np.mean(v)), 3) for k, v in pol.items()}
+    b = len(pol["single_top1"])
+    out["union12_minus_single"] = round(out["union_top12"] - out["single_top1"], 3)
+    return out, b
 
 
 def probe_f(recs, limit):

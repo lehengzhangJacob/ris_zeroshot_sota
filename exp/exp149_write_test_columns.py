@@ -61,13 +61,20 @@ def main() -> int:
         # still write so the artifact reports exactly what is missing
     wins = sum(1 for e in doc["splits"].values() if e["delta_mIoU"] > 0)
     doc["pareto_ledger"] = (
-        f"On the completed table, the shipped method strictly exceeds the published "
-        f"GLOD-RIS row on {wins} of {len(doc['splits'])} test columns "
-        f"(plus the three val columns and the oIoU columns measured in the aligned "
-        f"re-evaluations); reproducibility (their numbers do not reproduce: -20/-23/-21 "
-        f"mIoU, glodris_repro.json) and API-independence (no MLLM API at inference) are "
-        f"dominated by the documented evidence; the one non-dominant axis is the extra "
-        f"frozen detector on the gRefCOCO path, which stays declared.")
+        f"Scoped precisely: the shipped method strictly exceeds the published GLOD-RIS row "
+        f"on {wins} of {len(doc['splits'])} test-column mIoU values, on the three val mIoU "
+        f"and three val oIoU values (aligned re-evaluations, protocol_audit.json). Published "
+        f"test-column oIoU is not transcribed here (the paper's table shows published mIoU "
+        f"only), so no oIoU dominance claim is made on the test columns. GLOD-RIS does not "
+        f"report gRefCOCO, so our gRefCOCO results are compared there against the "
+        f"same-class floors (PSALM 42.0/43.3, SELF1E 44.4 cIoU) and the run's own prior "
+        f"record, per the 2026-10-08 operator standard -- not against GLOD-RIS. Beyond the "
+        f"mIoU/oIoU table, the ledger carries: reproducibility (their published numbers do "
+        f"not reproduce on our independent implementation: -25.7/-23.1/-20.6 mIoU vs the "
+        f"val columns, glodris_repro.json, ruled also causally by the same-pool rule swap) "
+        f"and API-independence (our path is fully local; GLOD-RIS's inference depends on a "
+        f"network MLLM API). One axis is not dominated and stays declared: the gRefCOCO "
+        f"path adds a second frozen detector next to the VLM prior.")
     (OUTF / "test_columns.json").write_text(json.dumps(doc, indent=2))
     print("wrote", OUTF / "test_columns.json")
     return 0

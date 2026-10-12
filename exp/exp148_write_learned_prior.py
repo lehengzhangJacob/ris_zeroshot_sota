@@ -65,9 +65,10 @@ def main() -> int:
             params_note=("upper bound on fitted node values: 250 boosting iterations of "
                          "depth-3 trees; the feature vector is 12-dimensional and the part "
                          "pool is unchanged from the shipped rule"),
-            training_data=(f"{src['train_parts']} parts from the gRefCOCO TRAIN-side "
-                           "population (78,930-ref train split; held-out carve-out = 30% "
-                           "of train refs used for threshold tuning only)"),
+            training_data=(f"{src['train_parts']} parts from the gRefCOCO train split; the "
+                           "model is fitted on 70% of train references and the acceptance "
+                           "threshold is tuned on the held-out 30% carve-out -- official val "
+                           "is never used for any choice"),
             supervision=("per-part IoU against the union of the reference's ground-truth "
                          "masks; no-target refs are excluded from part training and keep "
                          "the shipped existence/abstention machinery untouched"),
