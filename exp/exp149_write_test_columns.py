@@ -38,6 +38,10 @@ def main() -> int:
                   "protocol_audit.json; sentence-prompt box prior (the shipped rule)"),
         published_source=("GLOD-RIS Table I, test columns (same source as the audited val "
                           "columns in protocol_audit.json)"),
+        transcription_note=("the PDF text blocks were ordered by pinning the oIoU blocks to "
+                            "the three audited val oIoU values (50.85 / 45.96 / 50.03), which "
+                            "fixes the block sequence; transcribed values are internally "
+                            "coherent (oIoU < mIoU on every split, testA > testB)"),
         splits={})
     missing = []
     for key, spec in SPLITS.items():

@@ -2,6 +2,7 @@
   "what": "full-table completion: the five remaining compared-table columns (RefCOCO testA/testB, RefCOCO+ testA/testB, RefCOCOg test(u)) evaluated with the same frozen components and the aligned protocol",
   "protocol": "mIoU = mean per-expression IoU; oIoU = pooled intersection/union, both from the per-expression records under the aligned protocol of protocol_audit.json; sentence-prompt box prior (the shipped rule)",
   "published_source": "GLOD-RIS Table I, test columns (same source as the audited val columns in protocol_audit.json)",
+  "transcription_note": "the PDF text blocks were ordered by pinning the oIoU blocks to the three audited val oIoU values (50.85 / 45.96 / 50.03), which fixes the block sequence; transcribed values are internally coherent (oIoU < mIoU on every split, testA > testB)",
   "splits": {
     "refcoco_testA": {
       "n": 5657,
