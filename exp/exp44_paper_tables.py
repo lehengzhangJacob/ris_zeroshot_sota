@@ -130,6 +130,25 @@ def main() -> int:
         lines += [r"\bottomrule", r"\end{tabular}"]
         (TAB / "repro.tex").write_text("\n".join(lines) + "\n")
 
+    # ---- same-pool rule-swap table (2026-10-12 instruction) ---------------
+    swap = load(OUTF / "rule_swap.json")
+    if swap:
+        lines = [r"\begin{tabular}{lccccc}", r"\toprule",
+                 r"Dataset & $n$ & Their rule & Released (ours) & Our box rule & Published \\",
+                 r"\midrule"]
+        for key, nice in (("refcoco", "RefCOCO"), ("refcocoplus", "RefCOCO+"),
+                          ("refcocog", "RefCOCOg")):
+            e = (swap.get("datasets") or {}).get(key) or {}
+            if e.get("mIoU") is None:
+                continue
+            rel = e.get("released_hybridgl_same_records") or {}
+            box = e.get("our_box_rule_same_records") or {}
+            pub = (e.get("published_GLODRIS") or {}).get("mIoU")
+            lines.append(f"{nice} & {e['n']:,} & {fmt(e['mIoU'])} & {fmt(rel.get('mIoU'))} & "
+                         f"{fmt(box.get('mIoU'))} & {fmt(pub)} \\\\")
+        lines += [r"\bottomrule", r"\end{tabular}"]
+        (TAB / "ruleswap.tex").write_text("\n".join(lines) + "\n")
+
     # ---- gRefCOCO table (family-labelled, 2026-10-08 standard) -------------
     if gref:
         def _setting(r):

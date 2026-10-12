@@ -423,3 +423,34 @@ at run time.}
 \label{tab:repro}
 \input{tables/repro}
 \end{table}
+
+\paragraph{Same-pool rule swap.}
+To separate the rule from the components, we ran GLOD-RIS's own selection rule
+--- the decoupled region--text similarity of Eqs.~(1)--(7), the $3{\times}3$
+Gaussian localization term driven by the MLLM guidance, and the category term,
+combined exactly as in the reproduction's implementation --- on our exact
+candidate pools: the same records, the same SAM ViT-H masks, the same cached
+G2L CLIP ViT-B/16 foreground/background features, with the GLM guidance read
+from the reproduction's full-val cache (coverage and failure handling
+identical: $15$/$14$/$0$ parked expressions, $92$/$169$/$64$ all-zero grids).
+The rule's constants (grid $3$, scale $0.7$, $\mu{=}0.3$, $\tau{=}0.8$,
+top-$10$) come from the paper; nothing was tuned on val. The released ancestor
+scorer on these exact records reproduces its shipped row to the decimal
+($44.82$/$40.23$/$50.08$), which validates the swap end to end. Their rule
+scores $32.95$/$30.67$/$35.03$\,mIoU (Table~\ref{tab:ruleswap}): $8$--$15$
+points \emph{below} the unguided released scorer, $23$--$30$ below their
+published rows, and $30$--$36$ below our box rule on the same signals. With
+pool, features, guidance and evaluation held fixed, the separation is
+attributable to the rule itself and to the way it consumes prompted guidance,
+not to the candidate pool or the frozen components --- the published GLOD-RIS
+numbers are not recoverable by their rule from our components.
+
+\begin{table}[t]\centering\small
+\caption{Same-pool rule swap (mIoU, official val splits): GLOD-RIS's own
+selection rule run on our exact pools, features and guidance, against the
+released HybridGL scorer and our box rule on the same records, and the
+published rows. oIoU follows the same ordering ($28.18$/$25.92$/$30.06$ for
+their rule).}
+\label{tab:ruleswap}
+\input{tables/ruleswap}
+\end{table}

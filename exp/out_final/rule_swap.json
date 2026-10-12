@@ -1,0 +1,133 @@
+{
+  "what": "same-pool rule-swap control: GLOD-RIS's own selection rule on our exact candidate pools and released components (2026-10-12 operator instruction)",
+  "rule": "joint = max(DOD,0) * localization * max(category,0), argmax over the semantic top-10. DOD = cos(decoupled fused region feature, expression text) with Eqs. (1)-(7) decoupling (orthogonal residual on the background, area-ratio weight clamped to [mu,tau], raw fusion basis); localization = mean over the mask of the 3x3 cell-centred Gaussian map of the MLLM grid (scale 0.7, normalised to its max); category = cos(fused feature, MLLM category text). All-zero grid -> uniform map; parked guidance -> DOD-only path (no localization/category term). Constants from the paper: grid_size=3, gaussian_scale=0.7, mu=0.3, tau=0.8, top_k=10, fusion_basis=raw, spatial_reduction=mean, score_transform=positive. glod/core.py (decouple, gaussian_map, select_mask) imported verbatim from the reproduction, so the rule is held fixed and only the pool/components differ. expression text = released ensemble 0.5*sentence + 0.5*noun phrase (the same parsed strings the records' released scores use); category text = the MLLM category string, encoded with the same modified_CLIP ViT-B/16. nothing is fitted: no constant, threshold or template was selected on the val splits; the rule is the reproduction's reading of the paper.",
+  "guidance_source": "GLM-4.1V-Thinking-Flash via the Zhipu API, category + 3x3 grid per expression, read from the completed full-val reproduction cache at /home/msj_team/Jacob/sys/glod_ris_repro/cache/glm (prompt_version glod-independent-v1); no new API calls were needed for these three splits",
+  "pool_source": {
+    "records": {
+      "refcoco": "exp/out_extreme/records_refcoco.jsonl",
+      "refcocoplus": "exp/out_extreme/records_refcocoplus.jsonl",
+      "refcocog": "exp/out_extreme/records_refcocog.jsonl"
+    },
+    "vision_cache": "/home/msj_team/Jacob/sys/glod_ris_repro/cache/vision",
+    "features": "cached G2L foreground/background CLIP ViT-B/16 features per SAM ViT-H mask (same npz the records were scored on)",
+    "validation": "per-record pool size and per-candidate areas are checked against the records before scoring"
+  },
+  "protocol": "mIoU = mean per-expression IoU of the selected candidate; oIoU = pooled intersection/union; both from the records' saved GT arrays (deterministic re-analysis, no model re-run)",
+  "datasets": {
+    "refcoco": {
+      "n": 10834,
+      "mIoU": 32.947,
+      "oIoU": 28.1823,
+      "oracle_mIoU": 82.2113,
+      "released_hybridgl_same_records": {
+        "mIoU": 44.8248,
+        "oIoU": 38.16
+      },
+      "published_GLODRIS": {
+        "mIoU": 58.42,
+        "oIoU": 50.85
+      },
+      "guidance": {
+        "with_guidance": 10819,
+        "parked_dod_only": 15,
+        "missing": 0,
+        "all_zero_grids": 92
+      },
+      "sent_alignment_mismatches": 0,
+      "expression_mapping": "record sent_idx -> repro split's sentences sorted by sent_id; raw (uncased) string used for the cache key",
+      "our_box_rule_same_records": {
+        "mIoU": 68.5333,
+        "oIoU": 63.3957,
+        "source": "exp/out_final/main_refcoco.json (shipped)"
+      }
+    },
+    "refcocoplus": {
+      "n": 10758,
+      "mIoU": 30.6676,
+      "oIoU": 25.916,
+      "oracle_mIoU": 82.3974,
+      "released_hybridgl_same_records": {
+        "mIoU": 40.2289,
+        "oIoU": 33.5875
+      },
+      "published_GLODRIS": {
+        "mIoU": 54.01,
+        "oIoU": 45.96
+      },
+      "guidance": {
+        "with_guidance": 10744,
+        "parked_dod_only": 14,
+        "missing": 0,
+        "all_zero_grids": 169
+      },
+      "sent_alignment_mismatches": 0,
+      "expression_mapping": "record sent_idx -> repro split's sentences sorted by sent_id; raw (uncased) string used for the cache key",
+      "our_box_rule_same_records": {
+        "mIoU": 64.6669,
+        "oIoU": 58.3114,
+        "source": "exp/out_final/main_refcocoplus.json (shipped)"
+      }
+    },
+    "refcocog": {
+      "n": 4896,
+      "mIoU": 35.0254,
+      "oIoU": 30.0579,
+      "oracle_mIoU": 79.1206,
+      "released_hybridgl_same_records": {
+        "mIoU": 50.0816,
+        "oIoU": 41.4453
+      },
+      "published_GLODRIS": {
+        "mIoU": 57.85,
+        "oIoU": 50.03
+      },
+      "guidance": {
+        "with_guidance": 4896,
+        "parked_dod_only": 0,
+        "missing": 0,
+        "all_zero_grids": 64
+      },
+      "sent_alignment_mismatches": 0,
+      "expression_mapping": "record sent_idx -> repro split's sentences sorted by sent_id; raw (uncased) string used for the cache key",
+      "our_box_rule_same_records": {
+        "mIoU": 65.1175,
+        "oIoU": 59.7655,
+        "source": "exp/out_final/main_refcocog.json (shipped)"
+      }
+    }
+  },
+  "causal_reading": "identical rule and identical guidance, only the pool/components differ: if the rule underperforms on our pool while our box rule (same records, same pool, same released features) is far ahead, the separation is attributable to the selection rule plus guidance usage, not to the candidate pool or the frozen components.",
+  "rule_detail": {
+    "description": "joint = max(DOD,0) * localization * max(category,0), argmax over the semantic top-10. DOD = cos(decoupled fused region feature, expression text) with Eqs. (1)-(7) decoupling (orthogonal residual on the background, area-ratio weight clamped to [mu,tau], raw fusion basis); localization = mean over the mask of the 3x3 cell-centred Gaussian map of the MLLM grid (scale 0.7, normalised to its max); category = cos(fused feature, MLLM category text). All-zero grid -> uniform map; parked guidance -> DOD-only path (no localization/category term).",
+    "implementation": "glod/core.py (decouple, gaussian_map, select_mask) imported verbatim from the reproduction, so the rule is held fixed and only the pool/components differ",
+    "constants_from_paper": {
+      "grid_size": 3,
+      "gaussian_scale": 0.7,
+      "mu": 0.3,
+      "tau": 0.8,
+      "top_k": 10,
+      "fusion_basis": "raw",
+      "spatial_reduction": "mean",
+      "score_transform": "positive"
+    },
+    "text_side": "expression text = released ensemble 0.5*sentence + 0.5*noun phrase (the same parsed strings the records' released scores use); category text = the MLLM category string, encoded with the same modified_CLIP ViT-B/16",
+    "note": "nothing is fitted: no constant, threshold or template was selected on the val splits; the rule is the reproduction's reading of the paper"
+  },
+  "guidance_detail": {
+    "cache": "/home/msj_team/Jacob/sys/glod_ris_repro/cache/glm",
+    "model": "glm-4.1v-thinking-flash",
+    "prompt_version": "glod-independent-v1",
+    "extraction": "category + 3x3 grid per expression, from the completed full-val reproduction"
+  },
+  "pool_source_detail": {
+    "records": {
+      "refcoco": "exp/out_extreme/records_refcoco.jsonl",
+      "refcocoplus": "exp/out_extreme/records_refcocoplus.jsonl",
+      "refcocog": "exp/out_extreme/records_refcocog.jsonl"
+    },
+    "vision_cache": "/home/msj_team/Jacob/sys/glod_ris_repro/cache/vision",
+    "features": "cached G2L foreground/background CLIP ViT-B/16 features per SAM ViT-H mask (same npz the records were scored on)",
+    "validation": "per-record pool size and per-candidate areas are checked against the records before scoring"
+  },
+  "pool": "our exact records and SAM ViT-H pools with the cached G2L foreground/background CLIP ViT-B/16 features: exp/out_extreme/records_refcoco.jsonl, exp/out_extreme/records_refcocoplus.jsonl, exp/out_extreme/records_refcocog.jsonl; vision cache /home/msj_team/Jacob/sys/glod_ris_repro/cache/vision; cached G2L foreground/background CLIP ViT-B/16 features per SAM ViT-H mask (same npz the records were scored on); per-record pool size and per-candidate areas are checked against the records before scoring"
+}

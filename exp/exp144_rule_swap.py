@@ -140,13 +140,52 @@ def load_masks(fn, store, order, keep=8):
     return store[fn]
 
 
+def apply_gate_strings(doc):
+    """Gate schema: rule / guidance_source / pool must be non-empty strings.
+
+    The structured detail stays alongside under *_detail keys; idempotent so it
+    can be applied to an existing artifact without recomputing the splits.
+    """
+    if isinstance(doc.get("rule"), dict):
+        r = doc["rule"]
+        doc["rule_detail"] = r
+        doc["rule"] = (r["description"] + " Constants from the paper: " +
+                       ", ".join(f"{k}={v}" for k, v in r["constants_from_paper"].items()) +
+                       ". " + r["implementation"] + ". " + r["text_side"] + ". " +
+                       r["note"] + ".")
+    if isinstance(doc.get("guidance_source"), dict):
+        g = doc["guidance_source"]
+        doc["guidance_detail"] = g
+        doc["guidance_source"] = (
+            "GLM-4.1V-Thinking-Flash via the Zhipu API, category + 3x3 grid per "
+            "expression, read from the completed full-val reproduction cache at "
+            f"{g['cache']} (prompt_version {g['prompt_version']}); no new API calls "
+            "were needed for these three splits")
+    if isinstance(doc.get("pool_source"), dict):
+        ps = doc["pool_source"]
+        doc["pool_source_detail"] = ps
+        doc["pool"] = ("our exact records and SAM ViT-H pools with the cached G2L "
+                       "foreground/background CLIP ViT-B/16 features: " +
+                       ", ".join(ps["records"].values()) +
+                       f"; vision cache {ps['vision_cache']}; " + ps["features"] +
+                       "; " + ps["validation"])
+    return doc
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--datasets", nargs="+", default=["refcoco", "refcocoplus", "refcocog"])
     ap.add_argument("--limit", type=int, default=0)
     ap.add_argument("--device", default="cuda:0")
     ap.add_argument("--output", type=Path, default=OUTF / "rule_swap.json")
+    ap.add_argument("--finalize", action="store_true",
+                    help="apply the gate string fields to an existing artifact (no re-run)")
     args = ap.parse_args()
+    if args.finalize:
+        doc = json.loads(args.output.read_text())
+        args.output.write_text(json.dumps(apply_gate_strings(doc), indent=2))
+        print("finalized", args.output)
+        return 0
 
     import torch
     from glod.core import Config, decouple, gaussian_map, select_mask
@@ -343,6 +382,7 @@ def main() -> int:
         doc["datasets"][tag] = entry
         print(json.dumps(entry, indent=1), flush=True)
 
+    apply_gate_strings(doc)
     doc["causal_reading"] = (
         "identical rule and identical guidance, only the pool/components differ: if the "
         "rule underperforms on our pool while our box rule (same records, same pool, same "
