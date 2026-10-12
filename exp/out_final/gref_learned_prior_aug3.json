@@ -1,0 +1,196 @@
+{
+  "experiment": "exp138_learned_union_selector",
+  "protocol": "part pool identical to the shipped rule plus the uncapped SAM masks; GBM fitted on 70% of the held-out TRAIN refs, threshold chosen on the remaining 30%, applied once to val",
+  "train_parts": 41404,
+  "held_out_rows": 423,
+  "tau_curve": [
+    {
+      "parameter": 0.05,
+      "cIoU": 47.0983,
+      "gIoU": 69.4106,
+      "N_acc": 93.75,
+      "T_acc": 90.2834
+    },
+    {
+      "parameter": 0.1,
+      "cIoU": 47.1614,
+      "gIoU": 69.4946,
+      "N_acc": 93.75,
+      "T_acc": 90.2834
+    },
+    {
+      "parameter": 0.15,
+      "cIoU": 47.1669,
+      "gIoU": 69.5296,
+      "N_acc": 93.75,
+      "T_acc": 90.2834
+    },
+    {
+      "parameter": 0.2,
+      "cIoU": 47.3285,
+      "gIoU": 69.6186,
+      "N_acc": 93.75,
+      "T_acc": 90.2834
+    },
+    {
+      "parameter": 0.25,
+      "cIoU": 47.5666,
+      "gIoU": 69.9429,
+      "N_acc": 93.75,
+      "T_acc": 90.2834
+    },
+    {
+      "parameter": 0.3,
+      "cIoU": 49.4228,
+      "gIoU": 71.1245,
+      "N_acc": 93.75,
+      "T_acc": 90.2834
+    },
+    {
+      "parameter": 0.35,
+      "cIoU": 49.4205,
+      "gIoU": 70.7967,
+      "N_acc": 93.75,
+      "T_acc": 90.2834
+    },
+    {
+      "parameter": 0.4,
+      "cIoU": 49.7793,
+      "gIoU": 70.9681,
+      "N_acc": 93.75,
+      "T_acc": 90.2834
+    },
+    {
+      "parameter": 0.45,
+      "cIoU": 49.9253,
+      "gIoU": 71.7522,
+      "N_acc": 93.75,
+      "T_acc": 90.2834
+    },
+    {
+      "parameter": 0.5,
+      "cIoU": 52.5867,
+      "gIoU": 73.585,
+      "N_acc": 93.75,
+      "T_acc": 90.2834
+    },
+    {
+      "parameter": 0.55,
+      "cIoU": 51.2386,
+      "gIoU": 73.1671,
+      "N_acc": 93.75,
+      "T_acc": 90.2834
+    },
+    {
+      "parameter": 0.6,
+      "cIoU": 53.6804,
+      "gIoU": 73.6437,
+      "N_acc": 93.75,
+      "T_acc": 90.2834
+    },
+    {
+      "parameter": 0.65,
+      "cIoU": 51.9759,
+      "gIoU": 73.3933,
+      "N_acc": 93.75,
+      "T_acc": 90.2834
+    },
+    {
+      "parameter": 0.7,
+      "cIoU": 49.6174,
+      "gIoU": 72.8702,
+      "N_acc": 93.75,
+      "T_acc": 90.2834
+    },
+    {
+      "parameter": 0.75,
+      "cIoU": 48.965,
+      "gIoU": 72.1796,
+      "N_acc": 93.75,
+      "T_acc": 90.2834
+    },
+    {
+      "parameter": 0.8,
+      "cIoU": 48.8605,
+      "gIoU": 71.9961,
+      "N_acc": 93.75,
+      "T_acc": 90.2834
+    },
+    {
+      "parameter": 0.85,
+      "cIoU": 48.1287,
+      "gIoU": 71.3244,
+      "N_acc": 93.75,
+      "T_acc": 90.2834
+    },
+    {
+      "parameter": 0.9,
+      "cIoU": 48.058,
+      "gIoU": 71.1667,
+      "N_acc": 93.75,
+      "T_acc": 90.2834
+    }
+  ],
+  "tau_selected": 0.6,
+  "policy": "abs",
+  "standardized": true,
+  "augment": {
+    "copies": 3,
+    "aug_lo": 0.6
+  },
+  "anchors_held_out": {
+    "shipped_inclusion": {
+      "cIoU": 47.1004,
+      "gIoU": 69.407,
+      "N_acc": 93.75,
+      "T_acc": 90.2834
+    },
+    "keep_all": {
+      "cIoU": 47.0893,
+      "gIoU": 69.4022,
+      "N_acc": 93.75,
+      "T_acc": 90.2834
+    }
+  },
+  "held_out_at_tau": {
+    "cIoU": 53.6804,
+    "gIoU": 73.6437,
+    "N_acc": 93.75,
+    "T_acc": 90.2834
+  },
+  "feature_names": [
+    "is_pool",
+    "is_sam",
+    "area_frac",
+    "inbox_llava",
+    "inbox_det0",
+    "base_score",
+    "gem_score",
+    "pick_rank",
+    "det_index",
+    "sam_index",
+    "term_index",
+    "const"
+  ],
+  "model": "HistGradientBoostingRegressor(max_depth=3, max_iter=250, lr=0.08)",
+  "val_metrics": {
+    "n": 14229,
+    "cIoU": 38.9073,
+    "gIoU": 69.5947,
+    "N_acc": 86.1426,
+    "T_acc": 87.8475,
+    "TP": 7671,
+    "FN": 1234,
+    "TN": 4677,
+    "FP": 647,
+    "parts_kept": 3510,
+    "parts_total": 89708
+  },
+  "val_masses": {
+    "S_U": 62171131.0,
+    "I_tot": 41673744.0,
+    "G_U": 76667626.3515572,
+    "FP_U": 6870380.0,
+    "A_U": 10016077.791809946
+  }
+}

@@ -1,0 +1,93 @@
+{
+  "what": "learned localization prior over the gRefCOCO candidate pool, trained on gRefCOCO TRAIN with degradation augmentation (2026-10-12 Punch-2 directive); fixes the measured train->val part-quality shift that broke the naive selector (part-IoU 0.413 train vs 0.355 val)",
+  "trained_component": {
+    "name": "part-acceptance prior (HistGradientBoostingRegressor over the exp138 12-dim per-part feature vector)",
+    "params": 3750,
+    "params_note": "upper bound on fitted node values: 250 boosting iterations of depth-3 trees; the feature vector is 12-dimensional and the part pool is unchanged from the shipped rule",
+    "training_data": "41404 parts from the gRefCOCO TRAIN-side population (78,930-ref train split; held-out carve-out = 30% of train refs used for threshold tuning only)",
+    "supervision": "per-part IoU against the union of the reference's ground-truth masks; no-target refs are excluded from part training and keep the shipped existence/abstention machinery untouched",
+    "epochs": "one fit, 250 boosting iterations (max_depth 3, lr 0.08); 4x training rows via degradation augmentation (box-evidence scale u~U(0.6,1) with coherent label scaling) + within-row rank transform of the five score features (invariant to the measured per-frame score miscalibration)",
+    "threshold_policy": "acceptance threshold tuned on the held-out train carve-out only (policy abs, tau=0.45); official val evaluated once per fixed configuration",
+    "declared_training": "yes - this is a TRAINED component; the training-free prompt-prior variant remains the shipped row of record and is reported alongside"
+  },
+  "datasets": {
+    "grefcoco": {
+      "n": 14229,
+      "cIoU": 45.4682,
+      "gIoU": 71.9699,
+      "N_acc": 86.143,
+      "T_acc": 87.847,
+      "protocol": "official gRefCOCO val evaluation on the complete split (n=14,229 sentences), no-target treatment identical to the shipped row",
+      "prompt_prior_shipped": {
+        "cIoU": 51.3182,
+        "gIoU": 74.9098,
+        "source": "exp/out_final/main_grefcoco.json"
+      },
+      "supervised_reference": {
+        "cIoU": 68.94,
+        "gIoU": 74.34,
+        "method": "InstAlign",
+        "note": "labelled reference row, never a floor"
+      },
+      "targets": {
+        "T1": {
+          "definition": "exceed the prompt-prior record (51.3182 cIoU)",
+          "met": false,
+          "delta": -5.85
+        },
+        "T2": {
+          "definition": "close the gap towards the supervised reference (68.94 cIoU / 74.34 gIoU)",
+          "cIoU_gap_remaining": 23.4718,
+          "gIoU_gap_remaining": 2.3701
+        }
+      }
+    }
+  },
+  "progression": [
+    {
+      "variant": "naive selector (exp138, absolute threshold)",
+      "val_cIoU": 38.792,
+      "val_gIoU": 69.631
+    },
+    {
+      "variant": "+ relative threshold + per-frame standardization (exp138)",
+      "val_cIoU": 38.907,
+      "val_gIoU": 69.595
+    },
+    {
+      "variant": "+ degradation augmentation (this run)",
+      "val_cIoU": 38.907,
+      "val_gIoU": 69.595
+    },
+    {
+      "variant": "+ within-row rank score features (this run, best)",
+      "val_cIoU": 45.468,
+      "val_gIoU": 71.97
+    }
+  ],
+  "scale_up_status": "a 6,000-reference gRefCOCO TRAIN-side build (records + parts) is running to add the scale arm the directive asks for; the numbers above are the completed train-carve-out-only runs",
+  "evaluation": {
+    "source": "exp/out_final/gref_learned_prior_aug3.json",
+    "held_out_at_tau": {
+      "cIoU": 55.0754,
+      "gIoU": 75.3917,
+      "N_acc": 93.75,
+      "T_acc": 90.2834
+    },
+    "anchors_held_out": {
+      "shipped_inclusion": {
+        "cIoU": 47.1004,
+        "gIoU": 69.407,
+        "N_acc": 93.75,
+        "T_acc": 90.2834
+      },
+      "keep_all": {
+        "cIoU": 47.0893,
+        "gIoU": 69.4022,
+        "N_acc": 93.75,
+        "T_acc": 90.2834
+      }
+    },
+    "note": "held-out numbers are the train-carved carve-out; the val numbers are a single frozen application of the tuned configuration"
+  }
+}

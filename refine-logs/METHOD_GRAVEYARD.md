@@ -925,3 +925,32 @@ distribution (m 0.6094 -> 0.6330) and the gIoU trade depends on it, the
 objective flat (81.71 weighted gIoU) across the top trials. Third independent
 convergence (exp73-era, exp110, exp127). The abstention axis is closed under
 the shipped rule; `optuna_study_gref16.json` (300 trials) records it.
+
+## Wild-idea probes (2026-10-12 directive; measured, not pre-filtered)
+
+Seven unconventional mechanisms were each given one focused test on a fixed
+2,000-row RefCOCO val sample (candidates ranked by the released region-text
+score; `exp/out_final/wild_ideas.json`). Outcomes, mIoU vs the released pick
+(42.94 on the same rows unless noted):
+
+- **KILLED — Set-of-Mark index selection** (number the candidate masks, ask the
+  VLM for the index): 39.13 (parsed-only 39.53); 2/200 answers unusable. The
+  VLM's index choice is worse than the released scorer's top pick.
+- **KILLED — counterfactual deletion** (grey-out the top-2, ask whether the
+  referent survives): 42.65 — a wash.
+- **KILLED — negative/elimination** ("which numbered region is definitely NOT
+  the referent"): 40.99 — worse than not asking.
+- **PROMOTED (small) — weak-signal democracy** (three binary spatial questions,
+  candidates vote by geometry): **43.61 (+0.67)**. Kept as a cheap tie-breaker
+  candidate.
+- **Boolean mask arithmetic**: fixed unions of the top-2 score 37.77 vs 35.04
+  single-pick on the same sample (+2.7), and the pair-oracle over the top-5
+  reaches **63.52** — the construction headroom is real, but simple union
+  policies capture only a fraction of it; the union-of-two is promoted into the
+  gRefCOCO-style family, the pair-oracle stands as the measured ceiling.
+- **Prompt-format sensitivity**: switching the box prior from the full sentence
+  to the noun phrase costs **-14.48 mIoU** (68.32 -> 53.84) while template
+  paraphrases change nothing (0/608 selections in the stability pack): the
+  ordering in this field is dominated by prompt-format engineering.
+- **KILLED — grid-vote aggregation** (candidates vote through the MLLM grid
+  cells): 11.11 vs 44.02 released.

@@ -5,14 +5,87 @@
   "probes": [
     {
       "hypothesis": "A VLM can select among numbered candidate overlays (Set-of-Mark) without producing coordinates -- turning selection into a classification.",
-      "test": "Top-8 SAM candidates tinted and numbered; GLM-4.1V asked for the index on 5 cached RefCOCO val rows; pick = answered index (unparsed answers fall back to the released pick).",
-      "outcome": "Set-of-Mark mIoU 1.749 vs released-pick 35.547 on the same rows; 0/5 answers unusable (truncated thinking or no index); parsed-only mIoU 1.749.",
+      "test": "Top-8 SAM candidates tinted and numbered; GLM-4.1V asked for the index on 200 cached RefCOCO val rows; pick = answered index (unparsed answers fall back to the released pick).",
+      "outcome": "Set-of-Mark mIoU 39.13 vs released-pick 42.936 on the same rows; 2/200 answers unusable (truncated thinking or no index); parsed-only mIoU 39.525.",
       "numbers": {
-        "n": 5,
-        "som_mIoU": 1.749,
-        "released_mIoU": 35.547,
-        "parsed": 5,
-        "parsed_mIoU": 1.749
+        "n": 200,
+        "som_mIoU": 39.13,
+        "released_mIoU": 42.936,
+        "parsed": 198,
+        "parsed_mIoU": 39.525
+      }
+    },
+    {
+      "hypothesis": "Necessity testing by deletion: the referent is the candidate whose removal makes the expression unsatisfiable.",
+      "test": "Grey-out the top-2 candidates (one image each), ask GLM-4.1V whether the referent is still fully visible; fixed decision rule on 200 rows.",
+      "outcome": "Deletion-scored mIoU 42.652 vs released-pick 42.936.",
+      "numbers": {
+        "n": 200,
+        "deletion_mIoU": 42.652,
+        "released_mIoU": 42.936
+      }
+    },
+    {
+      "hypothesis": "Elimination is easier than selection: ask which candidate is definitely not the referent and remove it.",
+      "test": "Numbered top-4 overlay, ask GLM-4.1V for the one that is NOT the referent, drop it, keep the best remaining by released score (200 rows).",
+      "outcome": "Elimination mIoU 40.992 vs released-pick 42.936.",
+      "numbers": {
+        "n": 200,
+        "elimination_mIoU": 40.992,
+        "released_mIoU": 42.936
+      }
+    },
+    {
+      "hypothesis": "A majority vote over several cheap spatial questions is a usable localization signal (democracy of weak signals).",
+      "test": "Three YES/NO questions (left half / top half / larger than a third) per expression; candidates vote by their own geometry (200 rows).",
+      "outcome": "Democracy mIoU 43.608 vs released-pick 42.936.",
+      "numbers": {
+        "n": 200,
+        "democracy_mIoU": 43.608,
+        "released_mIoU": 42.936
+      }
+    },
+    {
+      "hypothesis": "Boolean mask arithmetic over the pool (unions/intersections) recovers IoU that single-pick selection wastes.",
+      "test": "Cached re-analysis on 1500 RefCOCO val rows: fixed union/intersection policies over the top-sc candidates plus the pair-oracle ceiling.",
+      "outcome": "single 35.043 / union-1-2 37.773 / union-1-2-3 36.914 / intersect-1-2 9.105 / pair-oracle 63.518 / released 44.024 mIoU.",
+      "numbers": {
+        "n": 1500,
+        "single_top1": 35.043,
+        "union_top12": 37.773,
+        "union_top123": 36.914,
+        "inter_top12": 9.105,
+        "pair_oracle": 63.518,
+        "released": 44.024
+      }
+    },
+    {
+      "hypothesis": "Much of the field's ordering is prompt-format engineering rather than localization capability.",
+      "test": "Same records, same rule, box prior queried with the noun phrase vs the full sentence (1500 cached rows); compare with the existing paraphrase-stability test (0/608 selections changed under template paraphrases).",
+      "outcome": "noun 53.843 vs sentence 68.321 (delta +14.478), noun-cache misses 702, sentence-cache misses 0; paraphrases changed nothing, so the format (not the wording) is the lever.",
+      "numbers": {
+        "n": 1500,
+        "noun_phrase": {
+          "mIoU": 53.843,
+          "missing_box_cache": 702,
+          "n": 1500
+        },
+        "sentence": {
+          "mIoU": 68.321,
+          "missing_box_cache": 0,
+          "n": 1500
+        },
+        "delta_sentence_minus_noun": 14.478
+      }
+    },
+    {
+      "hypothesis": "Aggregating the MLLM spatial signal as a vote across candidates beats the per-candidate product of its own terms.",
+      "test": "Cached re-analysis on 1500 rows: candidates scored by the fraction of their mask inside the GLM grid's ON cells, argmax with released-score tie-break.",
+      "outcome": "grid-vote mIoU 11.108 vs released 44.024 on the same rows.",
+      "numbers": {
+        "guidance_vote_mIoU": 11.108,
+        "released_same_rows_mIoU": 44.024,
+        "n": 1500
       }
     }
   ]

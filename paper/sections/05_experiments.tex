@@ -121,6 +121,64 @@ its single full-val pass (trained-vs-frozen declaration in the text).}
 \input{tables/gres}
 \end{table*}
 
+\subsection{Counterintuitive probes (measured, not pre-filtered)}
+\label{sec:wild}
+Seven unconventional mechanisms were each given one focused test on a fixed
+2{,}000-row RefCOCO val sample, with candidates ranked by the released
+region--text score and the released pick ($42.94$\,mIoU on those rows) as the
+baseline. Four lose and are recorded in the graveyard with their numbers:
+Set-of-Mark index selection (numbering the candidate masks and asking the MLLM
+for the index) $39.13$; counterfactual deletion (grey-out and ask whether the
+referent survives) $42.65$; negative/elimination selection $40.99$; and
+grid-vote aggregation (candidates vote through the MLLM grid cells) $11.11$.
+Three measure positive. (i)~\emph{Weak-signal democracy} --- three binary
+spatial questions per expression, candidates voting by their own geometry ---
+reaches $43.61$, $+0.67$ over the released pick, and is kept as a cheap
+tie-breaker. (ii)~\emph{Boolean mask arithmetic}: fixed unions of the top-2
+candidates score $37.77$ against $35.04$ for the single pick, and the pair
+oracle over the top-5 reaches $63.52$ --- the construction headroom that
+single-pick selection wastes is real, though simple union policies capture
+only a fraction of it (the union-of-two is promoted into the gRefCOCO family;
+the pair oracle stands as the measured ceiling). (iii)~\emph{Prompt-format
+sensitivity as a phenomenon}: querying the same box prior with the noun phrase
+instead of the full sentence costs $14.48$\,mIoU ($68.32 \to 53.84$) while
+template paraphrases change nothing, so much of the ordering in this field is
+prompt-format engineering rather than localization capability. All probes,
+positive and negative, are in \texttt{wild\_ideas.json}.
+
+\subsection{Learned localization prior}
+\label{sec:learned}
+The wall in \S\ref{sec:gref} is a realization problem: $0.883$ oracle
+realization is available while $0.6894$ is required at perfect abstention, and
+the shipped prompt-based rule realizes $0.489$. A trained prior over the same
+candidate pool was therefore built under the light-supervision allowance
+(gRefCOCO \emph{train} only; threshold tuned on a held-out carve-out of train;
+official val evaluated once per frozen configuration; the component is
+declared trained). The naive selector collapses in transfer --- held-out
+$+6.6$\,cIoU over the shipped inclusion anchor, val $38.79$ --- for a measured
+reason: the train-side part population looks better than val-time (predicted
+part-IoU $0.413$ vs $0.355$). Three fixes were applied in order and each is
+measured on the same full val split: per-frame standardization and a relative
+threshold ($41.63$), degradation-augmented training that discounts over-stated
+box evidence ($38.91$), and within-row rank transforms of the score features,
+which are invariant to the per-frame miscalibration ($45.47$; Table). The
+progression is monotone after the rank fix, but the learned prior still trails
+the hand-tuned prompt rule ($51.32$\,cIoU, $74.91$\,gIoU) on gRefCOCO: the
+staged target T1 is \emph{not} met, and the honest reading is that the
+hand-tuned inclusion rule over the same parts remains the best realization of
+this pool at the current training scale. A six-thousand-reference train-side
+build is running to add the scale arm; its outcome will be recorded here
+either way.
+
+\begin{table}[t]\centering\small
+\caption{Learned prior progression on the full official gRefCOCO val split
+($n{=}14{,}229$), a single frozen application per row. The shipped prompt
+prior is the row of record; the supervised reference (InstAlign) is a labelled
+row, never a floor.}
+\label{tab:learned}
+\input{tables/learned}
+\end{table}
+
 \subsection{Held-out studies}
 \label{sec:studies}
 Table~\ref{tab:studies} is the decisive ablation of the paper: identical

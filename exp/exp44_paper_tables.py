@@ -130,6 +130,24 @@ def main() -> int:
         lines += [r"\bottomrule", r"\end{tabular}"]
         (TAB / "repro.tex").write_text("\n".join(lines) + "\n")
 
+    # ---- learned-prior progression table (2026-10-12 directive) ------------
+    lp = load(OUTF / "learned_prior.json")
+    if lp:
+        ROW = " \\\\"
+        lines = [r"\begin{tabular}{lcc}", r"\toprule",
+                 "Variant (train side only; val is a single frozen application) & cIoU & gIoU \\\\",
+                 r"\midrule"]
+        for row in (lp.get("progression") or []):
+            lines.append(f"{row['variant']} & {fmt(row['val_cIoU'])} & {fmt(row['val_gIoU'])} \\\\")
+        ds = (lp.get("datasets") or {}).get("grefcoco") or {}
+        pp = ds.get("prompt_prior_shipped") or {}
+        sr = ds.get("supervised_reference") or {}
+        lines += [r"\midrule",
+                  f"Shipped prompt prior (row of record) & {fmt(pp.get('cIoU'))} & {fmt(pp.get('gIoU'))} \\\\",
+                  f"InstAlign (supervised reference, labelled) & {fmt(sr.get('cIoU'))} & {fmt(sr.get('gIoU'))} \\\\",
+                  r"\bottomrule", r"\end{tabular}"]
+        (TAB / "learned.tex").write_text("\n".join(lines) + "\n")
+
     # ---- same-pool rule-swap table (2026-10-12 instruction) ---------------
     swap = load(OUTF / "rule_swap.json")
     if swap:

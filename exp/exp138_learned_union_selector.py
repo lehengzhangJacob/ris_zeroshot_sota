@@ -161,6 +161,10 @@ def main() -> int:
     ap.add_argument("--policy", default="abs", choices=["abs", "rel", "topq"])
     ap.add_argument("--augment", type=int, default=0,
                     help="degraded copies per training part (exp147 directive)")
+    ap.add_argument("--rank-features", action="store_true",
+                    help="replace the raw score features (2-6) with within-row ranks; "
+                         "invariant to per-frame score miscalibration, the measured "
+                         "train->val shift")
     ap.add_argument("--aug-lo", type=float, default=0.6,
                     help="lower end of the box-evidence scale for the degraded copies")
     ap.add_argument("--sweep2", type=float, default=None,
@@ -221,6 +225,28 @@ def main() -> int:
         split_key.append((ri, len(masks)))
     X_all = np.asarray(X_all, np.float32); y_all = np.asarray(y_all, np.float32)
     print(f"train part table: {X_all.shape[0]} parts over {len(split_key)} rows", flush=True)
+
+    def rank_within_rows(X, row_of):
+        """Per-row rank transform of the score features (columns 2-6)."""
+        X = X.copy()
+        cols = [2, 3, 4, 5, 6]
+        by_row = {}
+        for i, (ri, _) in enumerate(row_of):
+            by_row.setdefault(ri, []).append(i)
+        for ri, idxs in by_row.items():
+            n = len(idxs)
+            if n <= 1:
+                X[np.asarray(idxs), cols] = 0.5
+                continue
+            sub = X[np.asarray(idxs)][:, cols]
+            for c in range(len(cols)):
+                order = np.argsort(np.argsort(sub[:, c]))
+                X[np.asarray(idxs)[order], cols[c]] = np.linspace(0, 1, n)
+        return X
+
+    if args.rank_features:
+        X_all = rank_within_rows(X_all, row_of)
+        print("rank features: score columns 2-6 replaced by within-row ranks", flush=True)
 
     # 70/30 split by REF (seeded), as the studies do
     rng = np.random.RandomState(0)
@@ -397,6 +423,7 @@ def main() -> int:
         tau_selected=best[0],
         policy=args.policy,
         standardized=bool(args.standardize),
+        rank_features=bool(args.rank_features),
         augment=dict(copies=args.augment, aug_lo=args.aug_lo) if args.augment else None,
         anchors_held_out=dict(
             shipped_inclusion={k: round(float(v), 4) for k, v in m_ship.items()},
@@ -441,6 +468,13 @@ def main() -> int:
             built = build_parts(r, fn_ts[0], fn_ts[1], cfg, train_side=False) if fn_ts else None
             if built is not None:
                 masks, X, meta = built
+                if args.rank_features:
+                    n_p = len(masks)
+                    for c in (2, 3, 4, 5, 6):
+                        if n_p > 1:
+                            X[:, c] = np.argsort(np.argsort(X[:, c])) / (n_p - 1)
+                        else:
+                            X[:, c] = 0.5
                 if scale is not None:
                     X = (X - scale[0]) / scale[1]
                 p_pred = model.predict(X)

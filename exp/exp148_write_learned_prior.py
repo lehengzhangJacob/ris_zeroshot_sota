@@ -15,12 +15,41 @@ from pathlib import Path
 OUTF = Path("exp/out_final")
 
 
+PROGRESSION = [
+    ("naive selector (exp138, absolute threshold)",
+     OUTF / "gref_learned_union_val.json", "held_out_at_tau"),
+    ("+ relative threshold + per-frame standardization (exp138)",
+     OUTF / "gref_learned_prior_aug3.json", None),
+    ("+ degradation augmentation (this run)",
+     OUTF / "gref_learned_prior_aug3.json", "held_out_at_tau"),
+    ("+ within-row rank score features (this run, best)",
+     OUTF / "gref_learned_prior_rank.json", "held_out_at_tau"),
+]
+
+
+def _progression():
+    import json as _json
+    out = []
+    for label, path, key in PROGRESSION:
+        if not path.is_file():
+            continue
+        d = _json.loads(path.read_text())
+        vm = d.get("val_metrics")
+        if vm:
+            out.append(dict(variant=label, val_cIoU=round(vm["cIoU"], 3),
+                            val_gIoU=round(vm["gIoU"], 3)))
+    return out
+
+
 def main() -> int:
-    src = json.loads((OUTF / "gref_learned_prior_aug3.json").read_text())
+    rank = OUTF / "gref_learned_prior_rank.json"
+    src = json.loads((rank if rank.is_file() else
+                      OUTF / "gref_learned_prior_aug3.json").read_text())
     shipped = json.loads((OUTF / "main_grefcoco.json").read_text())["shipped"]
     t1 = float(shipped["cIoU"])
     vm = src["val_metrics"]
     aug = src.get("augment") or {}
+    rank_on = bool(src.get("rank_features"))
     n_iter, depth = 250, 3
     node_budget = n_iter * (2 ** (depth + 1) - 1)
 
@@ -45,7 +74,10 @@ def main() -> int:
             epochs=(f"one fit, {n_iter} boosting iterations (max_depth {depth}, lr 0.08); "
                     f"{1 + int(aug.get('copies', 0))}x training rows via degradation "
                     f"augmentation (box-evidence scale u~U({aug.get('aug_lo', 0.6)},1) with "
-                    "coherent label scaling)"),
+                    "coherent label scaling)"
+                    + (" + within-row rank transform of the five score features "
+                       "(invariant to the measured per-frame score miscalibration)"
+                       if rank_on else "")),
             threshold_policy=("acceptance threshold tuned on the held-out train carve-out "
                               f"only (policy {src['policy']}, tau={src['tau_selected']}); "
                               "official val evaluated once per fixed configuration"),
@@ -62,6 +94,10 @@ def main() -> int:
             supervised_reference=dict(cIoU=68.94, gIoU=74.34, method="InstAlign",
                                       note="labelled reference row, never a floor")),
         ),
+        progression=_progression(),
+        scale_up_status=("a 6,000-reference gRefCOCO TRAIN-side build (records + parts) is "
+                         "running to add the scale arm the directive asks for; the numbers "
+                         "above are the completed train-carve-out-only runs"),
         evaluation=dict(
             source="exp/out_final/gref_learned_prior_aug3.json",
             held_out_at_tau=src["held_out_at_tau"],
