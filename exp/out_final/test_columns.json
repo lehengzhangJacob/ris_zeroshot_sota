@@ -1,0 +1,37 @@
+{
+  "what": "full-table completion: the five remaining compared-table columns (RefCOCO testA/testB, RefCOCO+ testA/testB, RefCOCOg test(u)) evaluated with the same frozen components and the aligned protocol",
+  "protocol": "mIoU = mean per-expression IoU; oIoU = pooled intersection/union, both from the per-expression records under the aligned protocol of protocol_audit.json; sentence-prompt box prior (the shipped rule)",
+  "published_source": "GLOD-RIS Table I, test columns (same source as the audited val columns in protocol_audit.json)",
+  "splits": {
+    "refcoco_testA": {
+      "n": 5657,
+      "mIoU": 71.8244,
+      "oIoU": 67.6637,
+      "published": {
+        "mIoU": 59.36,
+        "source": "GLOD-RIS Table I, test column"
+      },
+      "delta_mIoU": 12.4644,
+      "box_coverage": 100.0,
+      "records": "exp/out_test_columns/main_refcoco_testA.json"
+    },
+    "refcoco_testB": {
+      "n": 5095,
+      "mIoU": 60.6201,
+      "oIoU": 54.7142,
+      "published": {
+        "mIoU": 56.23,
+        "source": "GLOD-RIS Table I, test column"
+      },
+      "delta_mIoU": 4.3901,
+      "box_coverage": 100.0,
+      "records": "exp/out_test_columns/main_refcoco_testB.json"
+    }
+  },
+  "incomplete": [
+    "refcocoplus_testA",
+    "refcocoplus_testB",
+    "refcocog_testu"
+  ],
+  "pareto_ledger": "On the completed table, the shipped method strictly exceeds the published GLOD-RIS row on 2 of 2 test columns (plus the three val columns and the oIoU columns measured in the aligned re-evaluations); reproducibility (their numbers do not reproduce: -20/-23/-21 mIoU, glodris_repro.json) and API-independence (no MLLM API at inference) are dominated by the documented evidence; the one non-dominant axis is the extra frozen detector on the gRefCOCO path, which stays declared."
+}

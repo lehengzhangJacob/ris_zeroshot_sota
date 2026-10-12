@@ -130,6 +130,26 @@ def main() -> int:
         lines += [r"\bottomrule", r"\end{tabular}"]
         (TAB / "repro.tex").write_text("\n".join(lines) + "\n")
 
+    # ---- test-columns table (2026-10-12 instruction) -----------------------
+    tc = load(OUTF / "test_columns.json")
+    if tc:
+        lines = [r"\begin{tabular}{lccccc}", r"\toprule",
+                 r"Split & $n$ & mIoU & oIoU & published mIoU & $\Delta$ \\",
+                 r"\midrule"]
+        for key, nice in (("refcoco_testA", "RefCOCO testA"),
+                          ("refcoco_testB", "RefCOCO testB"),
+                          ("refcocoplus_testA", "RefCOCO+ testA"),
+                          ("refcocoplus_testB", "RefCOCO+ testB"),
+                          ("refcocog_testu", "RefCOCOg test(u)")):
+            e = (tc.get("splits") or {}).get(key)
+            if not e:
+                continue
+            lines.append(f"{nice} & {e['n']:,} & {fmt(e['mIoU'])} & {fmt(e['oIoU'])} & "
+                         f"{fmt((e.get('published') or {}).get('mIoU'))} & "
+                         f"{e['delta_mIoU']:+.2f} \\\\")
+        lines += [r"\bottomrule", r"\end{tabular}"]
+        (TAB / "testcols.tex").write_text("\n".join(lines) + "\n")
+
     # ---- learned-prior progression table (2026-10-12 directive) ------------
     lp = load(OUTF / "learned_prior.json")
     if lp:
