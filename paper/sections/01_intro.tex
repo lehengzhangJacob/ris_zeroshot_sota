@@ -71,11 +71,12 @@ train-carved held-out split, val evaluated once per frozen configuration. The
 naive version beats the shipped inclusion anchor on held-out by $+6.6$\,cIoU
 and then collapses in transfer ($38.79$ on val) for a measured reason --- the
 train-side part population looks better than val-time (predicted part-IoU
-$0.413$ vs $0.355$). Fixing exactly that shift, in three measured steps
-(per-frame standardization and a relative threshold, degradation-augmented
-training, within-row rank score features), recovers the transfer monotonically
-to $45.47$\,cIoU / $71.97$\,gIoU, over half of the gap the naive selector
-lost; but it does not exceed the hand-tuned prompt rule
+$0.413$ vs $0.355$). Fixing exactly that shift, in measured steps
+(per-frame standardization and a relative threshold: $41.63$; degradation
+augmentation alone: $38.91$, i.e.\ no help; adding within-row rank score
+features, which are invariant to the per-frame miscalibration: $45.47$\,cIoU /
+$71.97$\,gIoU, over half of the gap the naive selector lost), the learned
+prior still does not exceed the hand-tuned prompt rule
 ($51.32$/$74.91$), so the training-free variant remains the row of record and
 the learned component is reported as a declared, measured transfer study ---
 not as this paper's headline.

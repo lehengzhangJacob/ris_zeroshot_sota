@@ -19,10 +19,10 @@ PROGRESSION = [
     ("naive selector (exp138, absolute threshold)",
      OUTF / "gref_learned_union_val.json", "held_out_at_tau"),
     ("+ relative threshold + per-frame standardization (exp138)",
-     OUTF / "gref_learned_prior_aug3.json", None),
-    ("+ degradation augmentation (this run)",
+     OUTF / "gref_learned_union_val_rel.json", None),
+    ("+ degradation augmentation (this run; alone it does not help)",
      OUTF / "gref_learned_prior_aug3.json", "held_out_at_tau"),
-    ("+ within-row rank score features (this run, best)",
+    ("+ within-row rank features, with augmentation (this run, best)",
      OUTF / "gref_learned_prior_rank.json", "held_out_at_tau"),
 ]
 

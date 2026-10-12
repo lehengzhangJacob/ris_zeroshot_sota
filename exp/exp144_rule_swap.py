@@ -140,6 +140,32 @@ def load_masks(fn, store, order, keep=8):
     return store[fn]
 
 
+def add_shipped_rows(doc):
+    """Carry the ancestor's shipped row alongside the same-records reproduction
+    (review fix 2026-10-13) so the reproduces-to-the-decimal claim is verifiable
+    inside this artifact."""
+    sota_path = OUTF / "sota_table.json"
+    if not sota_path.is_file():
+        return doc
+    sota = json.loads(sota_path.read_text())
+    for m in sota.get("methods", []):
+        if m.get("name", "").startswith("HybridGL released"):
+            for key in ("refcoco", "refcocoplus", "refcocog"):
+                e = doc["datasets"].get(key)
+                if not e:
+                    continue
+                ship = m.get(key) or {}
+                rep = e.get("released_hybridgl_same_records") or {}
+                e["released_shipped_row"] = dict(
+                    mIoU=ship.get("mIoU"), oIoU=ship.get("oIoU"),
+                    source='exp/out_final/sota_table.json row "HybridGL released (our reproduction)"',
+                    matches_to_full_precision=bool(
+                        ship.get("mIoU") is not None and rep.get("mIoU") is not None
+                        and abs(round(float(ship["mIoU"]), 2) - round(float(rep["mIoU"]), 2)) < 0.005))
+            break
+    return doc
+
+
 def apply_gate_strings(doc):
     """Gate schema: rule / guidance_source / pool must be non-empty strings.
 
@@ -183,6 +209,7 @@ def main() -> int:
     args = ap.parse_args()
     if args.finalize:
         doc = json.loads(args.output.read_text())
+        doc = add_shipped_rows(doc)
         args.output.write_text(json.dumps(apply_gate_strings(doc), indent=2))
         print("finalized", args.output)
         return 0
@@ -383,11 +410,15 @@ def main() -> int:
         print(json.dumps(entry, indent=1), flush=True)
 
     apply_gate_strings(doc)
+    add_shipped_rows(doc)
+
     doc["causal_reading"] = (
         "identical rule and identical guidance, only the pool/components differ: if the "
         "rule underperforms on our pool while our box rule (same records, same pool, same "
         "released features) is far ahead, the separation is attributable to the selection "
-        "rule plus guidance usage, not to the candidate pool or the frozen components.")
+        "rule as transplanted (including its interaction with our feature geometry) and to "
+        "the way it consumes prompted guidance, not to the candidate pool or the frozen "
+        "components. The rule's constants come from the paper and were not fitted here.")
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(doc, indent=2))
     print("wrote", args.output)

@@ -51,16 +51,16 @@
     },
     {
       "variant": "+ relative threshold + per-frame standardization (exp138)",
+      "val_cIoU": 41.633,
+      "val_gIoU": 70.348
+    },
+    {
+      "variant": "+ degradation augmentation (this run; alone it does not help)",
       "val_cIoU": 38.907,
       "val_gIoU": 69.595
     },
     {
-      "variant": "+ degradation augmentation (this run)",
-      "val_cIoU": 38.907,
-      "val_gIoU": 69.595
-    },
-    {
-      "variant": "+ within-row rank score features (this run, best)",
+      "variant": "+ within-row rank features, with augmentation (this run, best)",
       "val_cIoU": 45.468,
       "val_gIoU": 71.97
     }

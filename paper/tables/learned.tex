@@ -3,9 +3,9 @@
 Variant (train side only; val is a single frozen application) & cIoU & gIoU \\
 \midrule
 naive selector (exp138, absolute threshold) & 38.79 & 69.63 \\
-+ relative threshold + per-frame standardization (exp138) & 38.91 & 69.59 \\
-+ degradation augmentation (this run) & 38.91 & 69.59 \\
-+ within-row rank score features (this run, best) & 45.47 & 71.97 \\
++ relative threshold + per-frame standardization (exp138) & 41.63 & 70.35 \\
++ degradation augmentation (this run; alone it does not help) & 38.91 & 69.59 \\
++ within-row rank features, with augmentation (this run, best) & 45.47 & 71.97 \\
 \midrule
 Shipped prompt prior (row of record) & 51.32 & 74.91 \\
 InstAlign (supervised reference, labelled) & 68.94 & 74.34 \\

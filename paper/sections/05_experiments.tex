@@ -184,12 +184,12 @@ official val evaluated once per frozen configuration; the component is
 declared trained). The naive selector collapses in transfer --- held-out
 $+6.6$\,cIoU over the shipped inclusion anchor, val $38.79$ --- for a measured
 reason: the train-side part population looks better than val-time (predicted
-part-IoU $0.413$ vs $0.355$). Three fixes were applied in order and each is
-measured on the same full val split: per-frame standardization and a relative
-threshold ($41.63$), degradation-augmented training that discounts over-stated
-box evidence ($38.91$), and within-row rank transforms of the score features,
-which are invariant to the per-frame miscalibration ($45.47$; Table). The
-progression is monotone after the rank fix, but the learned prior still trails
+part-IoU $0.413$ vs $0.355$). Three fixes were applied and each is
+measured on the same full val split: per-frame standardization with a relative
+threshold reaches $41.63$; degradation-augmented training alone does not help
+($38.91$); adding within-row rank transforms of the score features, which are
+invariant to the per-frame miscalibration, reaches $45.47$ (Table). The learned
+prior still trails
 the hand-tuned prompt rule ($51.32$\,cIoU, $74.91$\,gIoU) on gRefCOCO: the
 staged target T1 is \emph{not} met, and the honest reading is that the
 hand-tuned inclusion rule over the same parts remains the best realization of
@@ -527,9 +527,15 @@ scores $32.95$/$30.67$/$35.03$\,mIoU (Table~\ref{tab:ruleswap}): $8$--$15$
 points \emph{below} the unguided released scorer, $23$--$30$ below their
 published rows, and $30$--$36$ below our box rule on the same signals. With
 pool, features, guidance and evaluation held fixed, the separation is
-attributable to the rule itself and to the way it consumes prompted guidance,
-not to the candidate pool or the frozen components --- the published GLOD-RIS
-numbers are not recoverable by their rule from our components.
+attributable to the rule as transplanted --- including its interaction with our
+feature geometry, since the published constants were fitted to theirs --- and to
+the way it consumes prompted guidance, not to the candidate pool or the frozen
+components: the published GLOD-RIS numbers are not recoverable by their rule
+from our components, and its selection stage is not merely inert but harmful
+relative to the unguided released scorer on the same signals. The released
+ancestor's same-records reproduction matches its shipped row to full precision
+(44.8248/38.16, 40.2289/33.5875, 50.0816/41.4453; recorded per dataset in the
+artifact), which validates the swap end to end.
 
 \begin{table}[t]\centering\small
 \caption{Same-pool rule swap (mIoU, official val splits): GLOD-RIS's own

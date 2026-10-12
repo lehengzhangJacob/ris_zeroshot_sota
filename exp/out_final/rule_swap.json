@@ -39,6 +39,12 @@
         "mIoU": 68.5333,
         "oIoU": 63.3957,
         "source": "exp/out_final/main_refcoco.json (shipped)"
+      },
+      "released_shipped_row": {
+        "mIoU": 44.8248,
+        "oIoU": 38.16,
+        "source": "exp/out_final/sota_table.json row \"HybridGL released (our reproduction)\"",
+        "matches_to_full_precision": true
       }
     },
     "refcocoplus": {
@@ -66,6 +72,12 @@
         "mIoU": 64.6669,
         "oIoU": 58.3114,
         "source": "exp/out_final/main_refcocoplus.json (shipped)"
+      },
+      "released_shipped_row": {
+        "mIoU": 40.2289,
+        "oIoU": 33.5875,
+        "source": "exp/out_final/sota_table.json row \"HybridGL released (our reproduction)\"",
+        "matches_to_full_precision": true
       }
     },
     "refcocog": {
@@ -93,6 +105,12 @@
         "mIoU": 65.1175,
         "oIoU": 59.7655,
         "source": "exp/out_final/main_refcocog.json (shipped)"
+      },
+      "released_shipped_row": {
+        "mIoU": 50.0816,
+        "oIoU": 41.4453,
+        "source": "exp/out_final/sota_table.json row \"HybridGL released (our reproduction)\"",
+        "matches_to_full_precision": true
       }
     }
   },
