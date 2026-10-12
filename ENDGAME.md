@@ -303,3 +303,32 @@ RefCOCO testA, repaired; the rest <= 0.3%) are repaired by exp151 with a
 guarded decode and disclosed. One infrastructure note: the unbounded LLaVA
 image-feature cache OOM'd a 48 GB card on the 2,500-image RefCOCOg test(u)
 split; it is now bounded (vlm_boxes.py, 256 images) and the split completed.
+
+## Cycle review outcome (2026-10-13, ~01:30)
+
+Cross-family review of the four new artifacts (executor deepseek-flash, reviewer
+glm-5.3, thread 5a3ae650d057): **SHIP, 8.5/10**, no blocking must-fix, after
+three rounds that caught and fixed: a wrong-file progression entry (the learned
+prior's rel+std arm read 38.91 from the wrong artifact; true value 41.63 from
+gref_learned_union_val_rel.json), an over-scoped Pareto ledger (GLOD-RIS does
+not report gRefCOCO; published test-column oIoU was initially omitted — now
+transcribed with pinned provenance: 51.37/49.91/49.07/41.31/48.99, all
+dominated), a missing rank-only ablation that changed the result (rank-only
+50.52/73.91 is the best learned arm and the best on the held-out carve-out;
+degradation augmentation hurts in both arms), and unhedged probe promotions
+(democracy +0.67, 95% CI [-5.9,+7.2], 108/200 picks changed — null-consistent,
+diagnostic-only; union-of-two 6.25 below the shipped pick, headroom analysis
+only). Final dominance: 3/3 val mIoU + 3/3 val oIoU + 5/5 test mIoU + 5/5 test
+oIoU vs published GLOD-RIS (all margins recomputed by the reviewer); gRefCOCO
+scoped to same-class floors (PSALM ECCV 2024 Table 12; SELF1E-8B). Gate: 17
+checks, PASS.
+
+Open items for future cycles (non-blocking, reviewer-noted):
+1. Learned-prior scale arm: 6,000-ref train-side build has records (15,975, 0
+   skipped) but boxes/GDINO/SAM parts + training are pending; do not cite as
+   evidence until it lands and is gated.
+2. Gate retro: make the bar compare paper-quoted numbers against artifact
+   values directly (the wrong-file class of bug was caught by review, not the
+   gate).
+3. If the gRefCOCO table shows N_acc/T_acc for floor rows, transcribe their
+   sources the same way the test oIoU columns now are.
