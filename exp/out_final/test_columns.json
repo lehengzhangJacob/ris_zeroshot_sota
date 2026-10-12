@@ -9,9 +9,11 @@
       "oIoU": 67.6637,
       "published": {
         "mIoU": 59.36,
-        "source": "GLOD-RIS Table I, test column"
+        "oIoU": 51.37,
+        "source": "GLOD-RIS Table I, test columns"
       },
       "delta_mIoU": 12.4644,
+      "delta_oIoU": 16.2937,
       "box_coverage": 100.0,
       "records": "exp/out_test_columns/main_refcoco_testA.json"
     },
@@ -21,9 +23,11 @@
       "oIoU": 54.7142,
       "published": {
         "mIoU": 56.23,
-        "source": "GLOD-RIS Table I, test column"
+        "oIoU": 49.91,
+        "source": "GLOD-RIS Table I, test columns"
       },
       "delta_mIoU": 4.3901,
+      "delta_oIoU": 4.8042,
       "box_coverage": 100.0,
       "records": "exp/out_test_columns/main_refcoco_testB.json"
     },
@@ -33,9 +37,11 @@
       "oIoU": 66.6185,
       "published": {
         "mIoU": 57.33,
-        "source": "GLOD-RIS Table I, test column"
+        "oIoU": 49.07,
+        "source": "GLOD-RIS Table I, test columns"
       },
       "delta_mIoU": 13.3339,
+      "delta_oIoU": 17.5485,
       "box_coverage": 100.0,
       "records": "exp/out_test_columns/main_refcocoplus_testA.json"
     },
@@ -45,9 +51,11 @@
       "oIoU": 48.4307,
       "published": {
         "mIoU": 48.73,
-        "source": "GLOD-RIS Table I, test column"
+        "oIoU": 41.31,
+        "source": "GLOD-RIS Table I, test columns"
       },
       "delta_mIoU": 6.9051,
+      "delta_oIoU": 7.1207,
       "box_coverage": 100.0,
       "records": "exp/out_test_columns/main_refcocoplus_testB.json"
     },
@@ -57,12 +65,14 @@
       "oIoU": 59.6099,
       "published": {
         "mIoU": 57.03,
-        "source": "GLOD-RIS Table I, test column"
+        "oIoU": 48.99,
+        "source": "GLOD-RIS Table I, test columns"
       },
       "delta_mIoU": 7.511,
+      "delta_oIoU": 10.6199,
       "box_coverage": 100.0,
       "records": "exp/out_test_columns/main_refcocog_testu.json"
     }
   },
-  "pareto_ledger": "Scoped precisely: the shipped method strictly exceeds the published GLOD-RIS row on 5 of 5 test-column mIoU values, on the three val mIoU and three val oIoU values (aligned re-evaluations, protocol_audit.json). Published test-column oIoU is not transcribed here (the paper's table shows published mIoU only), so no oIoU dominance claim is made on the test columns. GLOD-RIS does not report gRefCOCO, so our gRefCOCO results are compared there against the same-class floors (PSALM 42.0/43.3, SELF1E 44.4 cIoU) and the run's own prior record, per the 2026-10-08 operator standard -- not against GLOD-RIS. Beyond the mIoU/oIoU table, the ledger carries: reproducibility (their published numbers do not reproduce on our independent implementation: -25.7/-23.1/-20.6 mIoU vs the val columns, glodris_repro.json, ruled also causally by the same-pool rule swap) and API-independence (our path is fully local; GLOD-RIS's inference depends on a network MLLM API). One axis is not dominated and stays declared: the gRefCOCO path adds a second frozen detector next to the VLM prior."
+  "pareto_ledger": "Scoped precisely: the shipped method strictly exceeds the published GLOD-RIS row on 5/5 test-column mIoU values and 5/5 test-column oIoU values (both transcribed from GLOD-RIS Table I test columns, the oIoU blocks verified against the known val oIoU before transcription), plus the three val mIoU and three val oIoU values (aligned re-evaluations, protocol_audit.json). GLOD-RIS does not report gRefCOCO, so our gRefCOCO results are compared there against the same-class floors (PSALM ECCV 2024 Table 12: 42.0 cIoU / 43.3 gIoU; SELF1E-8B CVPR 2026 arXiv:2603.19026: 44.4 cIoU, the higher cIoU floor per the 2026-10-08 escalation rule) and the run's own prior record, per the 2026-10-08 operator standard -- not against GLOD-RIS. Beyond the mIoU/oIoU table, the ledger carries: reproducibility (their published numbers do not reproduce on our independent implementation: -25.7/-23.1/-20.6 mIoU vs the val columns, glodris_repro.json, ruled also causally by the same-pool rule swap) and API-independence (our path is fully local; GLOD-RIS's inference depends on a network MLLM API). N_acc/T_acc for the shipped gRefCOCO row live in main_grefcoco.json (86.14/87.85). One axis is not dominated and stays declared: the gRefCOCO path adds a second frozen detector next to the VLM prior."
 }

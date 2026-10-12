@@ -133,8 +133,8 @@ def main() -> int:
     # ---- test-columns table (2026-10-12 instruction) -----------------------
     tc = load(OUTF / "test_columns.json")
     if tc:
-        lines = [r"\begin{tabular}{lccccc}", r"\toprule",
-                 r"Split & $n$ & mIoU & oIoU & published mIoU & $\Delta$ \\",
+        lines = [r"\begin{tabular}{lcccccc}", r"\toprule",
+                 r"Split & $n$ & mIoU & oIoU & pub.\ mIoU & pub.\ oIoU & $\Delta$mIoU \\",
                  r"\midrule"]
         for key, nice in (("refcoco_testA", "RefCOCO testA"),
                           ("refcoco_testB", "RefCOCO testB"),
@@ -146,6 +146,7 @@ def main() -> int:
                 continue
             lines.append(f"{nice} & {e['n']:,} & {fmt(e['mIoU'])} & {fmt(e['oIoU'])} & "
                          f"{fmt((e.get('published') or {}).get('mIoU'))} & "
+                         f"{fmt((e.get('published') or {}).get('oIoU'))} & "
                          f"{e['delta_mIoU']:+.2f} \\\\")
         lines += [r"\bottomrule", r"\end{tabular}"]
         (TAB / "testcols.tex").write_text("\n".join(lines) + "\n")

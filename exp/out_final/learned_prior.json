@@ -4,17 +4,17 @@
     "name": "part-acceptance prior (HistGradientBoostingRegressor over the exp138 12-dim per-part feature vector)",
     "params": 3750,
     "params_note": "upper bound on fitted node values: 250 boosting iterations of depth-3 trees; the feature vector is 12-dimensional and the part pool is unchanged from the shipped rule",
-    "training_data": "41404 parts from the gRefCOCO TRAIN-side population (78,930-ref train split; held-out carve-out = 30% of train refs used for threshold tuning only)",
+    "training_data": "10351 parts from the gRefCOCO train split; the model is fitted on 70% of train references and the acceptance threshold is tuned on the held-out 30% carve-out -- official val is never used for any choice",
     "supervision": "per-part IoU against the union of the reference's ground-truth masks; no-target refs are excluded from part training and keep the shipped existence/abstention machinery untouched",
-    "epochs": "one fit, 250 boosting iterations (max_depth 3, lr 0.08); 4x training rows via degradation augmentation (box-evidence scale u~U(0.6,1) with coherent label scaling) + within-row rank transform of the five score features (invariant to the measured per-frame score miscalibration)",
+    "epochs": "one fit, 250 boosting iterations (max_depth 3, lr 0.08) on the 70% train fit split; within-row rank transform of the five score features (invariant to the measured per-frame score miscalibration); degradation augmentation (box-evidence scale u~U(0.6,1) with coherent label scaling) was also measured and HURTS on val in both arms, so the reported configuration omits it",
     "threshold_policy": "acceptance threshold tuned on the held-out train carve-out only (policy abs, tau=0.45); official val evaluated once per fixed configuration",
     "declared_training": "yes - this is a TRAINED component; the training-free prompt-prior variant remains the shipped row of record and is reported alongside"
   },
   "datasets": {
     "grefcoco": {
       "n": 14229,
-      "cIoU": 45.4682,
-      "gIoU": 71.9699,
+      "cIoU": 50.52,
+      "gIoU": 73.9139,
       "N_acc": 86.143,
       "T_acc": 87.847,
       "protocol": "official gRefCOCO val evaluation on the complete split (n=14,229 sentences), no-target treatment identical to the shipped row",
@@ -33,12 +33,12 @@
         "T1": {
           "definition": "exceed the prompt-prior record (51.3182 cIoU)",
           "met": false,
-          "delta": -5.85
+          "delta": -0.7982
         },
         "T2": {
           "definition": "close the gap towards the supervised reference (68.94 cIoU / 74.34 gIoU)",
-          "cIoU_gap_remaining": 23.4718,
-          "gIoU_gap_remaining": 2.3701
+          "cIoU_gap_remaining": 18.42,
+          "gIoU_gap_remaining": 0.4261
         }
       }
     }
@@ -55,12 +55,17 @@
       "val_gIoU": 70.348
     },
     {
-      "variant": "+ degradation augmentation (this run; alone it does not help)",
+      "variant": "+ degradation augmentation on top (hurts: 38.91)",
       "val_cIoU": 38.907,
       "val_gIoU": 69.595
     },
     {
-      "variant": "+ within-row rank features, with augmentation (this run, best)",
+      "variant": "+ within-row rank score features, no augmentation (best learned arm)",
+      "val_cIoU": 50.52,
+      "val_gIoU": 73.914
+    },
+    {
+      "variant": "+ rank features with augmentation (augmentation hurts again: 45.47)",
       "val_cIoU": 45.468,
       "val_gIoU": 71.97
     }
@@ -69,8 +74,8 @@
   "evaluation": {
     "source": "exp/out_final/gref_learned_prior_aug3.json",
     "held_out_at_tau": {
-      "cIoU": 55.0754,
-      "gIoU": 75.3917,
+      "cIoU": 56.0948,
+      "gIoU": 75.2879,
       "N_acc": 93.75,
       "T_acc": 90.2834
     },

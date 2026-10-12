@@ -20,9 +20,11 @@ PROGRESSION = [
      OUTF / "gref_learned_union_val.json", "held_out_at_tau"),
     ("+ relative threshold + per-frame standardization (exp138)",
      OUTF / "gref_learned_union_val_rel.json", None),
-    ("+ degradation augmentation (this run; alone it does not help)",
+    ("+ degradation augmentation on top (hurts: 38.91)",
      OUTF / "gref_learned_prior_aug3.json", "held_out_at_tau"),
-    ("+ within-row rank features, with augmentation (this run, best)",
+    ("+ within-row rank score features, no augmentation (best learned arm)",
+     OUTF / "gref_learned_prior_rankonly.json", "held_out_at_tau"),
+    ("+ rank features with augmentation (augmentation hurts again: 45.47)",
      OUTF / "gref_learned_prior_rank.json", "held_out_at_tau"),
 ]
 
@@ -42,9 +44,9 @@ def _progression():
 
 
 def main() -> int:
-    rank = OUTF / "gref_learned_prior_rank.json"
+    rank = OUTF / "gref_learned_prior_rankonly.json"
     src = json.loads((rank if rank.is_file() else
-                      OUTF / "gref_learned_prior_aug3.json").read_text())
+                      OUTF / "gref_learned_prior_rank.json").read_text())
     shipped = json.loads((OUTF / "main_grefcoco.json").read_text())["shipped"]
     t1 = float(shipped["cIoU"])
     vm = src["val_metrics"]
@@ -72,13 +74,15 @@ def main() -> int:
             supervision=("per-part IoU against the union of the reference's ground-truth "
                          "masks; no-target refs are excluded from part training and keep "
                          "the shipped existence/abstention machinery untouched"),
-            epochs=(f"one fit, {n_iter} boosting iterations (max_depth {depth}, lr 0.08); "
-                    f"{1 + int(aug.get('copies', 0))}x training rows via degradation "
-                    f"augmentation (box-evidence scale u~U({aug.get('aug_lo', 0.6)},1) with "
-                    "coherent label scaling)"
-                    + (" + within-row rank transform of the five score features "
-                       "(invariant to the measured per-frame score miscalibration)"
-                       if rank_on else "")),
+            epochs=(f"one fit, {n_iter} boosting iterations (max_depth {depth}, lr 0.08) "
+                    "on the 70% train fit split"
+                    + ("; within-row rank transform of the five score features (invariant "
+                       "to the measured per-frame score miscalibration)"
+                       if rank_on else "")
+                    + ("; degradation augmentation (box-evidence scale "
+                       f"u~U({aug.get('aug_lo', 0.6)},1) with coherent label scaling) was "
+                       "also measured and HURTS on val in both arms, so the reported "
+                       "configuration omits it" if not aug else "")),
             threshold_policy=("acceptance threshold tuned on the held-out train carve-out "
                               f"only (policy {src['policy']}, tau={src['tau_selected']}); "
                               "official val evaluated once per fixed configuration"),

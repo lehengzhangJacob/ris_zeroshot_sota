@@ -127,13 +127,15 @@ The compared table's remaining columns --- RefCOCO testA/testB, RefCOCO+
 testA/testB, RefCOCOg test(u) --- are evaluated with the same frozen
 components and the aligned protocol on the full official splits
 (Table~\ref{tab:testcols}); the published numbers come from the same
-GLOD-RIS Table~I source as the audited val columns. Scoped precisely, the shipped
-method strictly exceeds the published GLOD-RIS row on the three val mIoU and
-three val oIoU columns of Table~\ref{tab:sota} and on all five test-column
-mIoU values here. Published test-column oIoU is not transcribed (the table
-shows published mIoU only), so no oIoU claim is made there. GLOD-RIS does not
-report gRefCOCO, so our gRefCOCO results are compared against the same-class
-floors and the run's own prior record (\S\ref{sec:gref}), not against them.
+GLOD-RIS Table~I source as the audited val columns. The shipped method strictly exceeds the
+published GLOD-RIS row on every column where both sides are reported: the
+three val mIoU and three val oIoU columns of Table~\ref{tab:sota} and all
+five test-column mIoU and oIoU values of Table~\ref{tab:testcols} (published
+test oIoU transcribed from the same Table~I source, the oIoU blocks verified
+against the audited val oIoU before transcription). GLOD-RIS does not report
+gRefCOCO, so our gRefCOCO results are compared against the same-class floors
+(PSALM ECCV~2024 Table~12; SELF1E-8B, the higher cIoU floor per the escalation
+rule) and the run's own prior record (\S\ref{sec:gref}), not against them.
 Beyond the table the ledger carries reproducibility --- their published
 numbers do not reproduce on our independent implementation (val deltas
 $-25.7$/$-23.1$/$-20.6$\,mIoU), ruled also causally by the same-pool rule swap
@@ -165,10 +167,10 @@ Three measure positive, all as diagnostic candidates only --- each is a
 few-tenths-to-few-points effect on a fixed sample, and \emph{none} is promoted
 into any shipped number without train-side re-validation. (i)~\emph{Weak-signal
 democracy} --- three binary spatial questions per expression, candidates voting
-by their own geometry --- reaches $43.61$, $+0.67$ over the released pick
-($[-1.0,+2.4]$ at one standard error on these rows; it also changes a large
-fraction of the picks, so the effect is not a rare tie-break), a candidate for
-the next training cycle rather than a component. (ii)~\emph{Boolean mask
+by their own geometry --- reaches $43.61$, $+0.67$ over the released pick, a
+null-consistent effect ($95\%$ CI $[-5.9,+7.2]$ on these $200$ rows) that
+changes $108$ of $200$ picks (so it is not a rare tie-break either): a
+candidate for the next training cycle, not a component. (ii)~\emph{Boolean mask
 arithmetic}: fixed unions of the top-2 candidates score $37.77$ against
 $35.04$ for the single pick, and the pair oracle over the top-5 reaches
 $63.52$; the construction headroom that single-pick selection wastes is real,
@@ -193,16 +195,20 @@ official val evaluated once per frozen configuration; the component is
 declared trained). The naive selector collapses in transfer --- held-out
 $+6.6$\,cIoU over the shipped inclusion anchor, val $38.79$ --- for a measured
 reason: the train-side part population looks better than val-time (predicted
-part-IoU $0.413$ vs $0.355$). Three fixes were applied and each is
-measured on the same full val split: per-frame standardization with a relative
-threshold reaches $41.63$; degradation-augmented training alone does not help
-($38.91$); adding within-row rank transforms of the score features, which are
-invariant to the per-frame miscalibration, reaches $45.47$ (Table). The learned
-prior still trails
-the hand-tuned prompt rule ($51.32$\,cIoU, $74.91$\,gIoU) on gRefCOCO: the
-staged target T1 is \emph{not} met, and the honest reading is that the
-hand-tuned inclusion rule over the same parts remains the best realization of
-this pool at the current training scale. A six-thousand-reference train-side
+part-IoU $0.413$ vs $0.355$). Four arms were measured on the same
+full val split, each a single frozen application: per-frame standardization
+with a relative threshold reaches $41.63$; degradation augmentation on top
+does not help ($38.91$); within-row rank transforms of the score features,
+which are invariant to the per-frame miscalibration, reach $50.52$ without
+augmentation --- also the best arm on the held-out train carve-out ($56.09$
+vs $55.08$), so its selection is held-out-based, not val-based --- and
+augmentation hurts again once rank features are in ($45.47$; Table). The best
+learned arm still trails the hand-tuned prompt rule ($51.32$\,cIoU,
+$74.91$\,gIoU) by $0.8$\,cIoU on gRefCOCO: the staged target T1 is
+\emph{not} met, and the honest reading is that degradation-augmented training
+was the wrong remedy for the measured shift while the rank transform was the
+right one, leaving the hand-tuned inclusion rule narrowly the best
+realization of this pool at the current training scale. A six-thousand-reference train-side
 build is running to add the scale arm; its outcome will be recorded here
 either way.
 

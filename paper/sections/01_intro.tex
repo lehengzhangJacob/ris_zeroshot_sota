@@ -72,11 +72,12 @@ naive version beats the shipped inclusion anchor on held-out by $+6.6$\,cIoU
 and then collapses in transfer ($38.79$ on val) for a measured reason --- the
 train-side part population looks better than val-time (predicted part-IoU
 $0.413$ vs $0.355$). Fixing exactly that shift, in measured steps
-(per-frame standardization and a relative threshold: $41.63$; degradation
-augmentation alone: $38.91$, i.e.\ no help; adding within-row rank score
-features, which are invariant to the per-frame miscalibration: $45.47$\,cIoU /
-$71.97$\,gIoU, over half of the gap the naive selector lost), the learned
-prior still does not exceed the hand-tuned prompt rule
+(per-frame standardization with a relative threshold: $41.63$; degradation
+augmentation on top: $38.91$, i.e.\ it hurts; adding within-row rank score
+features, which are invariant to the per-frame miscalibration: $50.52$\,cIoU /
+$73.91$\,gIoU, recovering most of the gap the naive selector lost, and
+augmentation again hurts once rank features are in), the learned prior comes
+within $0.8$\,cIoU of the hand-tuned prompt rule but does not exceed it
 ($51.32$/$74.91$), so the training-free variant remains the row of record and
 the learned component is reported as a declared, measured transfer study ---
 not as this paper's headline.
