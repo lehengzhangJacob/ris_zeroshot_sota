@@ -174,6 +174,7 @@ def last_answer_yesno(txt):
 
 def topk_by_sc(rec, k=CANDS):
     sc = np.asarray(rec["sc"], np.float32)
+    k = min(k, len(rec["gt_iou"]))
     return list(np.argsort(-sc)[:k])
 
 
@@ -215,12 +216,12 @@ def probe_a(recs, refs, files, limit):
     with ThreadPoolExecutor(max_workers=6) as pool:
         results = list(pool.map(one, rows))
     picks = [a for a, _ in results]
-    parsed = [b for _, b in results if b is not None]
+    parsed_pairs = [(r, b) for r, (_, b) in zip(recs[:len(results)], results)
+                    if b is not None]
     n = len(picks)
-    parsed_mIoU = (round(100.0 * float(np.mean([iou_of(r, j) for r, j in
-                                                zip(recs[:n], parsed)])), 3)
-                   if parsed else None)
-    return picks, n, len(parsed), parsed_mIoU
+    parsed_mIoU = (round(100.0 * float(np.mean([iou_of(r, j) for r, j in parsed_pairs])), 3)
+                   if parsed_pairs else None)
+    return picks, n, len(parsed_pairs), parsed_mIoU
 
 
 def probe_b(recs, files, limit):

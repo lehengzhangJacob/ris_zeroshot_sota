@@ -159,6 +159,10 @@ def main() -> int:
     ap.add_argument("--standardize", action="store_true",
                     help="z-score features per frame (label-free) before fitting/applying")
     ap.add_argument("--policy", default="abs", choices=["abs", "rel", "topq"])
+    ap.add_argument("--augment", type=int, default=0,
+                    help="degraded copies per training part (exp147 directive)")
+    ap.add_argument("--aug-lo", type=float, default=0.6,
+                    help="lower end of the box-evidence scale for the degraded copies")
     ap.add_argument("--sweep2", type=float, default=None,
                     help="fixed second-parameter value for the chosen policy (alpha or q)")
     args = ap.parse_args()
@@ -226,16 +230,45 @@ def main() -> int:
     fit_refs = set(refs[:n_fit])
     ri2rid = {ri: r["rid"] for ri, r in enumerate(tr)}
     fit_mask = np.array([ri2rid[ri] in fit_refs for ri, _ in row_of])
+    # ---------- degradation augmentation (exp147 directive) ----------
+    # val-time box evidence overstates quality (predicted part-IoU 0.413 train
+    # vs 0.355 val): augmented copies scale the two box-overlap features down by
+    # u~U(aug_lo,1) and degrade the label coherently, so the fitted prior stops
+    # trusting over-stated box evidence.  The clean table is kept for the
+    # held-out predictions and the val pass.
+    X_clean = X_all.copy()
+    fit_mask_all = fit_mask.copy()
+    n_rep = 1
+    if args.augment > 0 and len(X_all):
+        rng_a = np.random.RandomState(20261012)
+        Xa, ya = [X_all], [y_all]
+        for _ in range(args.augment):
+            Xc = X_all.copy(); yc = y_all.copy()
+            u = rng_a.uniform(args.aug_lo, 1.0, size=len(Xc)).astype(np.float32)
+            Xc[:, 3] *= u
+            Xc[:, 4] *= u
+            Xc[:, 2] = np.clip(Xc[:, 2] + rng_a.normal(0, 0.03, len(Xc)), 0, 1)
+            Xc[:, 5] = np.clip(Xc[:, 5] + rng_a.normal(0, 0.05, len(Xc)), 0, 1)
+            Xc[:, 6] = Xc[:, 6] + rng_a.normal(0, 0.05, len(Xc)).astype(np.float32)
+            yc = np.clip(yc * u, 0, 1)
+            Xa.append(Xc); ya.append(yc)
+        X_all = np.concatenate(Xa); y_all = np.concatenate(ya)
+        fit_mask_all = np.concatenate([fit_mask] * (1 + args.augment))
+        n_rep = 1 + args.augment
+        print(f"degradation augmentation: {n_rep}x rows, box-evidence scale "
+              f"u~U({args.aug_lo},1)", flush=True)
     scale = None
     if args.standardize:
         mu = X_all.mean(0); sd = X_all.std(0) + 1e-6
         scale = (mu, sd)
-        X_all = (X_all - mu) / sd
+        X_fit = (X_all - mu) / sd
+    else:
+        X_fit = X_all
     from sklearn.ensemble import HistGradientBoostingRegressor
     model = HistGradientBoostingRegressor(max_depth=3, max_iter=250, learning_rate=0.08,
                                           random_state=0)
-    model.fit(X_all[fit_mask], y_all[fit_mask])
-    pred = model.predict(X_all)
+    model.fit(X_fit[fit_mask_all], y_all[fit_mask_all])
+    pred = model.predict((X_clean - scale[0]) / scale[1] if scale is not None else X_clean)
     print(f"model fitted on {int(fit_mask.sum())} parts; held-out parts {int((~fit_mask).sum())}",
           flush=True)
 
@@ -364,6 +397,7 @@ def main() -> int:
         tau_selected=best[0],
         policy=args.policy,
         standardized=bool(args.standardize),
+        augment=dict(copies=args.augment, aug_lo=args.aug_lo) if args.augment else None,
         anchors_held_out=dict(
             shipped_inclusion={k: round(float(v), 4) for k, v in m_ship.items()},
             keep_all={k: round(float(v), 4) for k, v in m_all.items()}),
