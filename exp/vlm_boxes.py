@@ -85,7 +85,10 @@ class LlavaBoxer:
         CACHE_DIR.mkdir(parents=True, exist_ok=True)
 
     # --- image-feature cache: the vision pass runs once per image ----------
-    def _install_feature_cache(self):
+    def _install_feature_cache(self, max_images=256):
+        # The vision output per image is ~6 MB; unbounded caching OOM'd a
+        # 48 GB card on the 2,500-image RefCOCOg test(u) split (2026-10-12).
+        # Bounded FIFO: pairs sharing a recent image still hit the cache.
         model = self.model
         orig = model.get_image_features
 
@@ -96,6 +99,8 @@ class LlavaBoxer:
             out = orig(*args, **kwargs)
             if key is not None:
                 self._feat_cache[key] = out
+                while len(self._feat_cache) > max_images:
+                    self._feat_cache.pop(next(iter(self._feat_cache)))
             return out
 
         model.get_image_features = cached
