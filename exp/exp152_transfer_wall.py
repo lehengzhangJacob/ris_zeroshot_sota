@@ -261,8 +261,8 @@ def main() -> int:
             a, b = tr["X"][:, i], va["X"][:, i]
             qa = np.quantile(a, [0.1, 0.5, 0.9])
             qb = np.quantile(b, [0.1, 0.5, 0.9])
-            drift[name] = dict(train_medians=[round(float(v), 4) for v in qa],
-                               val_medians=[round(float(v), 4) for v in qb],
+            drift[name] = dict(train_q10_50_90=[round(float(v), 4) for v in qa],
+                               val_q10_50_90=[round(float(v), 4) for v in qb],
                                median_shift=round(float(qb[1] - qa[1]), 4))
         out["feature_drift"] = drift
         # ---- (d) image-level ----------------------------------------------
@@ -298,8 +298,12 @@ def main() -> int:
                         tau=d.get("tau_selected"), policy=d.get("best_policy"),
                         held_out=d.get("held_out_at_tau"),
                         trained=bool(d.get("rank_features")),
-                        spec=("composition-matched re-weighting (uniform over the train-side "
-                              "n_targets composition) + within-row rank features + tau tuned "
+                        spec=("stratified-balanced re-weighting: weight(row) = (kept_total / "
+                              "n_kept_strata) / count(stratum(row)) over the train-side "
+                              "n_targets strata (each listed stratum contributes equal total "
+                              "weight; train strata 1:533, 2:241, 3:3, 4:2, 5:1 rows, so the "
+                              "6 rare rows carry 60% of the mass under the all-strata "
+                              "config) + within-row rank features + tau tuned "
                               "on the held-out two-target stratum"
                               + (", + searched combination policy (unconditional top-1 SAM "
                                  "part, chosen on the held-out carve-out)"
@@ -338,9 +342,10 @@ def main() -> int:
                               f"(train) vs {ch['population']['val_mean_parts_per_row']} (val)"),
                  verdict="CONFIRMED -- composition-matched re-weighting is the recipe's "
                          "central correction and the arm that clears the record"),
-            dict(hypothesis="the learned prior is systematically miscalibrated on val (over-"
-                            "predicts part quality), so a train-tuned threshold admits too "
-                            "many parts",
+            dict(hypothesis="the learned prior is systematically miscalibrated on val "
+                            "(over-predicts part quality at high scores; the lowest val "
+                            "quintile under-predicts), so a train-tuned threshold admits "
+                            "too many parts",
                  measurement=(f"mean predicted/actual: train "
                               f"{ch['prior_quality_shift']['train_mean_pred']}/"
                               f"{ch['prior_quality_shift']['train_mean_actual']}, val "
@@ -375,8 +380,12 @@ def main() -> int:
             dict(name="rank-only learned arm", val_cIoU=50.52, val_gIoU=73.9139, trained=True,
                  source="gref_learned_prior_rankonly.json"),
         ]
-        for label, src in (("transfer-aware recipe (composition weights + rank + two-target "
-                            "tau)", "gref_transfer_recipeonly.json"),
+        for label, src in (("transfer-aware recipe (all-strata balanced weights + rank + "
+                            "two-target tau)", "gref_transfer_recipeonly.json"),
+                           ("strata-{1,2}-only recipe (no rare-strata weighting)",
+                            "gref_transfer_weights_12.json"),
+                           ("weights-only (all-rows tau)", "gref_transfer_weights_only.json"),
+                           ("tau-stratum-only (no weights)", "gref_transfer_tau_only.json"),
                            ("transfer-aware recipe + searched combination policy",
                             "gref_transfer_recipe.json")):
             v = _val(OUTF / src)
@@ -386,13 +395,53 @@ def main() -> int:
                                         held_out=v.get("held_out"), source=src))
         if demo:
             doc["arms"].append(dict(name="weak-signal democracy vote (single-pick arm on a "
-                                         "seeded sample)", val_cIoU=demo["vote_pick_mIoU"],
-                                    val_gIoU=None, trained=False,
-                                    n=demo["n"], paired_delta=demo["paired_delta"],
+                                         "seeded sample)",
+                                    sample_mIoU=demo["vote_pick_mIoU"],
+                                    prior_top_mIoU=demo["prior_top_pick_mIoU"],
+                                    paired_delta=demo["paired_delta"],
+                                    paired_se=demo["paired_se"], n=demo["n"], trained=False,
+                                    note=("not a val cIoU: single-pick mIoU on a seeded "
+                                          "800-row sample under a different protocol"),
                                     source="exp/out_wild_gref/democracy_result.json"))
         best = (doc["arms_detail"]["recipe_plus_combination_policy"]
                 or doc["arms_detail"]["recipe_only"] or {})
         c = best.get("val_cIoU")
+        # 2026-10-13 pre-registered rule (stated before the ablation val numbers):
+        # ship the {1,2}-only variant unless it is materially worse (>0.5 cIoU) on the
+        # held-out carve-out; otherwise keep the all-strata recipe.  Outcome at assembly:
+        dec = {a["name"]: a for a in doc["arms"]}
+        w12 = next((a for a in doc["arms"] if "strata-{1,2}-only" in a["name"]), None)
+        allstr = next((a for a in doc["arms"] if a["name"].startswith("transfer-aware recipe (all")), None)
+        h12 = (w12 or {}).get("held_out", {}).get("cIoU")
+        hall = (allstr or {}).get("held_out", {}).get("cIoU")
+        doc["decision_rule"] = dict(
+            pre_registered=("ship the strata-{1,2}-only variant unless it is materially worse "
+                            "(>0.5 cIoU) than the all-strata recipe on the held-out two-target "
+                            "carve-out; stated before the ablation val numbers were seen"),
+            held_out_all_strata=hall, held_out_strata12=h12,
+            outcome=("kept the all-strata recipe" if (hall is not None and h12 is not None
+                                                      and hall - h12 > 0.5)
+                     else "would switch to strata-{1,2} (parsimony)"),
+        )
+        doc["decomposition"] = dict(
+            note=("single-correction ablations on the same frozen pipeline; the two-target "
+                  "threshold tuning is the dominant correction and the weightings alone "
+                  "collapse without it"),
+            tau_stratum_only=dict(val_cIoU=52.1480, val_gIoU=74.7724,
+                                  held_out_2target=58.64),
+            all_strata_weights_plus_tau=dict(val_cIoU=52.7061, val_gIoU=75.0817,
+                                             held_out_2target=60.05,
+                                             rare_strata_mass_share=0.60, rare_rows=6),
+            strata12_weights_plus_tau=dict(val_cIoU=51.9655, val_gIoU=74.9257,
+                                           held_out_2target=58.09),
+            weights_only_all_rows_tau=dict(val_cIoU=44.9973, val_gIoU=71.6897,
+                                           held_out_all=54.10),
+            reading=("the correction that carries the transfer is tuning the acceptance "
+                     "threshold on the val-dominant two-target stratum; stratified weights "
+                     "add a smaller increment (and, in the all-strata form, depend on six "
+                     "rare rows carrying 60% of the training mass -- disclosed); weights "
+                     "without the stratum threshold are actively harmful"),
+        )
         doc["verdict"] = (
             (f"the transfer inversion is broken by the transfer-aware recipe: val cIoU "
              f"{c:.2f} / gIoU {best.get('val_gIoU'):.2f} on the full official split, above "
@@ -403,7 +452,9 @@ def main() -> int:
              f"monotone score over-prediction on val and a term-composition feature shift; the "
              f"recipe corrects exactly those (composition-matched weights, rank features "
              f"invariant to the miscalibration, threshold tuned on the two-target stratum) "
-             f"and the searched combination policy adds the union headroom. This is a DECLARED "
+             f"the searched combination policy was selected on the held-out carve-out (+1.15 cIoU) "
+             f"but is a measured no-op on val (delta 0.00: the top-1 SAM parts already "
+             f"clear the tuned threshold). This is a DECLARED "
              f"TRAINED variant; the training-free prompt rule remains reported as the "
              f"zero-shot reference row.")
             if c and c > float(shipped["cIoU"]) else

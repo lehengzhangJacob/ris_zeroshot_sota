@@ -170,6 +170,9 @@ def main() -> int:
     ap.add_argument("--sample-weight-composition", action="store_true",
                     help="reweight train parts to a uniform n_targets composition "
                          "(train-side metadata only; 2026-10-13 transfer recipe)")
+    ap.add_argument("--weight-strata", default="",
+                    help="comma list of n_targets strata to composition-balance; others keep "
+                         "weight 1 (default: all positive strata)")
     ap.add_argument("--tau-stratum", default="all", choices=["all", "two"],
                     help="tune the acceptance threshold on the held-out rows with "
                          "n_targets==2 only (the val-dominant population)")
@@ -284,13 +287,19 @@ def main() -> int:
             nt[int(rec["ref_id"])] = len([a for a in (rec.get("ann_ids") or [])
                                           if isinstance(a, int) and a >= 0])
         comp = _Counter(v for v in nt.values() if v > 0)
-        total = sum(comp.values())
+        keep_strata = set(comp)
+        if args.weight_strata:
+            keep_strata = {int(x) for x in args.weight_strata.split(",") if x.strip()}
+        tot_keep = sum(comp[k] for k in comp if k in keep_strata)
+        n_keep = max(1, sum(1 for k in comp if k in keep_strata))
         sw_all = np.ones(len(row_of), np.float32)
         for i, (ri, _) in enumerate(row_of):
             rid = tr[ri]["rid"]
             k = nt.get(rid, 0)
-            if k > 0 and comp.get(k):
-                sw_all[i] = (total / len(comp)) / comp[k]
+            if k > 0 and comp.get(k) and k in keep_strata:
+                sw_all[i] = (tot_keep / n_keep) / comp[k]
+        print(f"weight strata {sorted(keep_strata)} over counts "
+              f"{ {k: comp[k] for k in sorted(comp)} }", flush=True)
         sw_fit = sw_all
         print(f"composition weights: {dict(comp)} -> uniform", flush=True)
     n_rep = 1
@@ -484,6 +493,7 @@ def main() -> int:
         policy=args.policy,
         best_policy=best_policy if len(best) > 2 else None,
         sample_weight_composition=bool(args.sample_weight_composition),
+        weight_strata=(args.weight_strata or "all"),
         tau_stratum=args.tau_stratum,
         standardized=bool(args.standardize),
         rank_features=bool(args.rank_features),

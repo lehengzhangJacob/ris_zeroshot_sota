@@ -287,7 +287,7 @@
     "N_acc": 86.1426,
     "T_acc": 87.8475,
     "n": 14229,
-    "rule": "learned transfer-aware part-acceptance prior (DECLARED TRAINED component): the shipped candidate pool and abstention machinery unchanged; inclusion = HistGradientBoostingRegressor (250 iters, depth 3) over the 12-dim per-part features with within-row rank score features, fitted on 70% of gRefCOCO TRAIN references with composition-matched weights (uniform over the train-side n_targets composition), acceptance threshold tuned on the held-out 30% carve-out restricted to the two-target stratum; selected over all arms on the held-out split only (gref_transfer_recipe.json, transfer_wall.json)",
+    "rule": "learned transfer-aware part-acceptance prior (DECLARED TRAINED component): the shipped candidate pool and abstention machinery unchanged; inclusion = HistGradientBoostingRegressor (250 iters, depth 3) over the 12-dim per-part features with within-row rank score features; fitted on 70% of gRefCOCO TRAIN references with stratified-balanced part weights (weight = kept_total / n_kept_strata / count(stratum) over the train-side n_targets strata -- all strata: train counts 1:533, 2:241, 3:3, 4:2, 5:1, so the six rare rows carry 60% of the mass; the strata-{1,2}-only variant is reported as an arm); acceptance threshold tuned on the held-out 30% carve-out restricted to its two-target stratum; arm selection on the held-out split only, val applied once per frozen configuration (transfer_wall.json)",
     "best_published": {
       "cIoU": 51.3182,
       "gIoU": 74.9098,

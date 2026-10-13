@@ -393,7 +393,7 @@
         "gIoU": 75.0817
       },
       "n": 14229,
-      "setting": "light supervision: part-acceptance prior fitted on gRefCOCO train (70%) with composition-matched weights; threshold on the held-out 30% two-target stratum; official val evaluated once",
+      "setting": "light supervision: part-acceptance prior fitted on gRefCOCO train (70%) with stratified-balanced weights over the train-side n_targets strata (rare strata disclosed in transfer_wall.json); threshold on the held-out 30% two-target stratum; official val evaluated once",
       "note": "beats the previous training-free record (51.3182/74.9098) on both metrics; mechanism = the transfer-inversion recipe in transfer_wall.json"
     }
   ],

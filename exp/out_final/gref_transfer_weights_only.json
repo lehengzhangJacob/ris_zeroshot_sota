@@ -1,0 +1,200 @@
+{
+  "experiment": "exp138_learned_union_selector",
+  "protocol": "part pool identical to the shipped rule plus the uncapped SAM masks; GBM fitted on 70% of the held-out TRAIN refs, threshold chosen on the remaining 30%, applied once to val",
+  "train_parts": 10351,
+  "held_out_rows": 423,
+  "tau_curve": [
+    {
+      "parameter": 0.05,
+      "cIoU": 47.0896,
+      "gIoU": 69.4022,
+      "N_acc": 93.75,
+      "T_acc": 90.2834
+    },
+    {
+      "parameter": 0.1,
+      "cIoU": 47.0897,
+      "gIoU": 69.4022,
+      "N_acc": 93.75,
+      "T_acc": 90.2834
+    },
+    {
+      "parameter": 0.15,
+      "cIoU": 47.2623,
+      "gIoU": 69.4217,
+      "N_acc": 93.75,
+      "T_acc": 90.2834
+    },
+    {
+      "parameter": 0.2,
+      "cIoU": 48.2945,
+      "gIoU": 69.8389,
+      "N_acc": 93.75,
+      "T_acc": 90.2834
+    },
+    {
+      "parameter": 0.25,
+      "cIoU": 48.9944,
+      "gIoU": 70.0363,
+      "N_acc": 93.75,
+      "T_acc": 90.2834
+    },
+    {
+      "parameter": 0.3,
+      "cIoU": 49.4116,
+      "gIoU": 70.4053,
+      "N_acc": 93.75,
+      "T_acc": 90.2834
+    },
+    {
+      "parameter": 0.35,
+      "cIoU": 50.2289,
+      "gIoU": 71.7888,
+      "N_acc": 93.75,
+      "T_acc": 90.2834
+    },
+    {
+      "parameter": 0.4,
+      "cIoU": 51.994,
+      "gIoU": 73.4693,
+      "N_acc": 93.75,
+      "T_acc": 90.2834
+    },
+    {
+      "parameter": 0.45,
+      "cIoU": 53.132,
+      "gIoU": 74.0069,
+      "N_acc": 93.75,
+      "T_acc": 90.2834
+    },
+    {
+      "parameter": 0.5,
+      "cIoU": 54.1041,
+      "gIoU": 75.3276,
+      "N_acc": 93.75,
+      "T_acc": 90.2834
+    },
+    {
+      "parameter": 0.55,
+      "cIoU": 51.3349,
+      "gIoU": 74.0575,
+      "N_acc": 93.75,
+      "T_acc": 90.2834
+    },
+    {
+      "parameter": 0.6,
+      "cIoU": 52.8905,
+      "gIoU": 73.8604,
+      "N_acc": 93.75,
+      "T_acc": 90.2834
+    },
+    {
+      "parameter": 0.65,
+      "cIoU": 51.8855,
+      "gIoU": 73.5458,
+      "N_acc": 93.75,
+      "T_acc": 90.2834
+    },
+    {
+      "parameter": 0.7,
+      "cIoU": 50.6601,
+      "gIoU": 72.7052,
+      "N_acc": 93.75,
+      "T_acc": 90.2834
+    },
+    {
+      "parameter": 0.75,
+      "cIoU": 49.5434,
+      "gIoU": 71.796,
+      "N_acc": 93.75,
+      "T_acc": 90.2834
+    },
+    {
+      "parameter": 0.8,
+      "cIoU": 47.7351,
+      "gIoU": 71.0095,
+      "N_acc": 93.75,
+      "T_acc": 90.2834
+    },
+    {
+      "parameter": 0.85,
+      "cIoU": 47.7351,
+      "gIoU": 71.0095,
+      "N_acc": 93.75,
+      "T_acc": 90.2834
+    },
+    {
+      "parameter": 0.9,
+      "cIoU": 47.7351,
+      "gIoU": 71.0095,
+      "N_acc": 93.75,
+      "T_acc": 90.2834
+    }
+  ],
+  "tau_selected": 0.5,
+  "policy": "abs",
+  "best_policy": {
+    "policy": "abs",
+    "k": 0
+  },
+  "sample_weight_composition": true,
+  "tau_stratum": "all",
+  "standardized": true,
+  "rank_features": true,
+  "augment": null,
+  "anchors_held_out": {
+    "shipped_inclusion": {
+      "cIoU": 47.1004,
+      "gIoU": 69.407,
+      "N_acc": 93.75,
+      "T_acc": 90.2834
+    },
+    "keep_all": {
+      "cIoU": 47.0893,
+      "gIoU": 69.4022,
+      "N_acc": 93.75,
+      "T_acc": 90.2834
+    }
+  },
+  "held_out_at_tau": {
+    "cIoU": 54.1041,
+    "gIoU": 75.3276,
+    "N_acc": 93.75,
+    "T_acc": 90.2834
+  },
+  "feature_names": [
+    "is_pool",
+    "is_sam",
+    "area_frac",
+    "inbox_llava",
+    "inbox_det0",
+    "base_score",
+    "gem_score",
+    "pick_rank",
+    "det_index",
+    "sam_index",
+    "term_index",
+    "const"
+  ],
+  "model": "HistGradientBoostingRegressor(max_depth=3, max_iter=250, lr=0.08)",
+  "val_metrics": {
+    "n": 14229,
+    "cIoU": 44.9973,
+    "gIoU": 71.6897,
+    "N_acc": 86.1426,
+    "T_acc": 87.8475,
+    "TP": 7671,
+    "FN": 1234,
+    "TN": 4677,
+    "FP": 647,
+    "parts_kept": 14405,
+    "parts_total": 89708
+  },
+  "val_masses": {
+    "S_U": 63534372.0,
+    "I_tot": 46595530.0,
+    "G_U": 76667626.3515572,
+    "FP_U": 6870380.0,
+    "A_U": 10016077.791809946
+  }
+}

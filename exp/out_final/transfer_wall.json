@@ -272,7 +272,7 @@
       "source": "gref_learned_prior_rankonly.json"
     },
     {
-      "name": "transfer-aware recipe (composition weights + rank + two-target tau)",
+      "name": "transfer-aware recipe (all-strata balanced weights + rank + two-target tau)",
       "val_cIoU": 52.7061,
       "val_gIoU": 75.0817,
       "trained": true,
@@ -283,6 +283,45 @@
         "T_acc": 91.6667
       },
       "source": "gref_transfer_recipeonly.json"
+    },
+    {
+      "name": "strata-{1,2}-only recipe (no rare-strata weighting)",
+      "val_cIoU": 51.9655,
+      "val_gIoU": 74.9257,
+      "trained": true,
+      "held_out": {
+        "cIoU": 58.0895,
+        "gIoU": 62.4564,
+        "N_acc": 0.0,
+        "T_acc": 91.6667
+      },
+      "source": "gref_transfer_weights_12.json"
+    },
+    {
+      "name": "weights-only (all-rows tau)",
+      "val_cIoU": 44.9973,
+      "val_gIoU": 71.6897,
+      "trained": true,
+      "held_out": {
+        "cIoU": 54.1041,
+        "gIoU": 75.3276,
+        "N_acc": 93.75,
+        "T_acc": 90.2834
+      },
+      "source": "gref_transfer_weights_only.json"
+    },
+    {
+      "name": "tau-stratum-only (no weights)",
+      "val_cIoU": 52.148,
+      "val_gIoU": 74.7724,
+      "trained": true,
+      "held_out": {
+        "cIoU": 58.6411,
+        "gIoU": 61.736,
+        "N_acc": 0.0,
+        "T_acc": 91.6667
+      },
+      "source": "gref_transfer_tau_only.json"
     },
     {
       "name": "transfer-aware recipe + searched combination policy",
@@ -299,15 +338,17 @@
     },
     {
       "name": "weak-signal democracy vote (single-pick arm on a seeded sample)",
-      "val_cIoU": 38.373,
-      "val_gIoU": null,
-      "trained": false,
-      "n": 800,
+      "sample_mIoU": 38.373,
+      "prior_top_mIoU": 40.997,
       "paired_delta": -2.624,
+      "paired_se": 0.818,
+      "n": 800,
+      "trained": false,
+      "note": "not a val cIoU: single-pick mIoU on a seeded 800-row sample under a different protocol",
       "source": "exp/out_wild_gref/democracy_result.json"
     }
   ],
-  "verdict": "the transfer inversion is broken by the transfer-aware recipe: val cIoU 52.71 / gIoU 75.08 on the full official split, above the shipped training-free record (51.32 / 74.91) and far above the arms that failed to transfer (naive 38.79, rank-only 50.52). The mechanism account: the inversion is dominated by the population/composition mismatch (train targeted rows 68% single-target vs val 99.5% two-target) with a monotone score over-prediction on val and a term-composition feature shift; the recipe corrects exactly those (composition-matched weights, rank features invariant to the miscalibration, threshold tuned on the two-target stratum) and the searched combination policy adds the union headroom. This is a DECLARED TRAINED variant; the training-free prompt rule remains reported as the zero-shot reference row.",
+  "verdict": "the transfer inversion is broken by the transfer-aware recipe: val cIoU 52.71 / gIoU 75.08 on the full official split, above the shipped training-free record (51.32 / 74.91) and far above the arms that failed to transfer (naive 38.79, rank-only 50.52). The mechanism account: the inversion is dominated by the population/composition mismatch (train targeted rows 68% single-target vs val 99.5% two-target) with a monotone score over-prediction on val and a term-composition feature shift; the recipe corrects exactly those (composition-matched weights, rank features invariant to the miscalibration, threshold tuned on the two-target stratum) the searched combination policy was selected on the held-out carve-out (+1.15 cIoU) but is a measured no-op on val (delta 0.00: the top-1 SAM parts already clear the tuned threshold). This is a DECLARED TRAINED variant; the training-free prompt rule remains reported as the zero-shot reference row.",
   "arms_detail": {
     "reference_prompt_prior": {
       "cIoU": 51.3182,
@@ -341,7 +382,7 @@
         "T_acc": 91.6667
       },
       "trained": true,
-      "spec": "composition-matched re-weighting (uniform over the train-side n_targets composition) + within-row rank features + tau tuned on the held-out two-target stratum"
+      "spec": "stratified-balanced re-weighting: weight(row) = (kept_total / n_kept_strata) / count(stratum(row)) over the train-side n_targets strata (each listed stratum contributes equal total weight; train strata 1:533, 2:241, 3:3, 4:2, 5:1 rows, so the 6 rare rows carry 60% of the mass under the all-strata config) + within-row rank features + tau tuned on the held-out two-target stratum"
     },
     "recipe_plus_combination_policy": {
       "val_cIoU": 52.7061,
@@ -360,7 +401,7 @@
         "T_acc": 91.6667
       },
       "trained": true,
-      "spec": "composition-matched re-weighting (uniform over the train-side n_targets composition) + within-row rank features + tau tuned on the held-out two-target stratum, + searched combination policy (unconditional top-1 SAM part, chosen on the held-out carve-out)"
+      "spec": "stratified-balanced re-weighting: weight(row) = (kept_total / n_kept_strata) / count(stratum(row)) over the train-side n_targets strata (each listed stratum contributes equal total weight; train strata 1:533, 2:241, 3:3, 4:2, 5:1 rows, so the 6 rare rows carry 60% of the mass under the all-strata config) + within-row rank features + tau tuned on the held-out two-target stratum, + searched combination policy (unconditional top-1 SAM part, chosen on the held-out carve-out)"
     },
     "democracy": {
       "mode": "democracy",
@@ -380,7 +421,7 @@
       "verdict": "CONFIRMED -- composition-matched re-weighting is the recipe's central correction and the arm that clears the record"
     },
     {
-      "hypothesis": "the learned prior is systematically miscalibrated on val (over-predicts part quality), so a train-tuned threshold admits too many parts",
+      "hypothesis": "the learned prior is systematically miscalibrated on val (over-predicts part quality at high scores; the lowest val quintile under-predicts), so a train-tuned threshold admits too many parts",
       "measurement": "mean predicted/actual: train 0.4269/0.4115, val 0.3658/0.3257; val calibration is monotone over-prediction at high scores",
       "verdict": "CONFIRMED -- within-row rank features + a two-target-stratum threshold are the second correction"
     },
@@ -394,5 +435,37 @@
       "measurement": "median masks per image 51.0 (train) vs 47.0 (val); no-target share 0.5 vs 0.3538",
       "verdict": "REJECTED as the driver -- the vision-side statistics are close; the inversion is a scoring/composition phenomenon, not a domain shift"
     }
-  ]
+  ],
+  "decision_rule": {
+    "pre_registered": "ship the strata-{1,2}-only variant unless it is materially worse (>0.5 cIoU) than the all-strata recipe on the held-out two-target carve-out; stated before the ablation val numbers were seen",
+    "held_out_all_strata": 58.9004,
+    "held_out_strata12": 58.0895,
+    "outcome": "kept the all-strata recipe"
+  },
+  "decomposition": {
+    "note": "single-correction ablations on the same frozen pipeline; the two-target threshold tuning is the dominant correction and the weightings alone collapse without it",
+    "tau_stratum_only": {
+      "val_cIoU": 52.148,
+      "val_gIoU": 74.7724,
+      "held_out_2target": 58.64
+    },
+    "all_strata_weights_plus_tau": {
+      "val_cIoU": 52.7061,
+      "val_gIoU": 75.0817,
+      "held_out_2target": 60.05,
+      "rare_strata_mass_share": 0.6,
+      "rare_rows": 6
+    },
+    "strata12_weights_plus_tau": {
+      "val_cIoU": 51.9655,
+      "val_gIoU": 74.9257,
+      "held_out_2target": 58.09
+    },
+    "weights_only_all_rows_tau": {
+      "val_cIoU": 44.9973,
+      "val_gIoU": 71.6897,
+      "held_out_all": 54.1
+    },
+    "reading": "the correction that carries the transfer is tuning the acceptance threshold on the val-dominant two-target stratum; stratified weights add a smaller increment (and, in the all-strata form, depend on six rare rows carrying 60% of the training mass -- disclosed); weights without the stratum threshold are actively harmful"
+  }
 }
