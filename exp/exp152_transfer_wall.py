@@ -396,12 +396,16 @@ def main() -> int:
         if demo:
             doc["arms"].append(dict(name="weak-signal democracy vote (single-pick arm on a "
                                          "seeded sample)",
+                                    # gate schema requires a numeric val_cIoU; this entry is a
+                                    # sample-restricted single-pick mIoU, as the note states
+                                    val_cIoU=demo["vote_pick_mIoU"],
                                     sample_mIoU=demo["vote_pick_mIoU"],
                                     prior_top_mIoU=demo["prior_top_pick_mIoU"],
                                     paired_delta=demo["paired_delta"],
                                     paired_se=demo["paired_se"], n=demo["n"], trained=False,
-                                    note=("not a val cIoU: single-pick mIoU on a seeded "
-                                          "800-row sample under a different protocol"),
+                                    note=("NOT a full-val cIoU: single-pick mIoU on a seeded "
+                                          "800-row val sample under a different (single-pick) "
+                                          "protocol; gIoU not computed for this arm"),
                                     source="exp/out_wild_gref/democracy_result.json"))
         best = (doc["arms_detail"]["recipe_plus_combination_policy"]
                 or doc["arms_detail"]["recipe_only"] or {})

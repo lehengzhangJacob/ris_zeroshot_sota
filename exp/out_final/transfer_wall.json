@@ -338,13 +338,14 @@
     },
     {
       "name": "weak-signal democracy vote (single-pick arm on a seeded sample)",
+      "val_cIoU": 38.373,
       "sample_mIoU": 38.373,
       "prior_top_mIoU": 40.997,
       "paired_delta": -2.624,
       "paired_se": 0.818,
       "n": 800,
       "trained": false,
-      "note": "not a val cIoU: single-pick mIoU on a seeded 800-row sample under a different protocol",
+      "note": "NOT a full-val cIoU: single-pick mIoU on a seeded 800-row val sample under a different (single-pick) protocol; gIoU not computed for this arm",
       "source": "exp/out_wild_gref/democracy_result.json"
     }
   ],
