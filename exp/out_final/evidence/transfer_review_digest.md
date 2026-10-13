@@ -57,7 +57,13 @@ inversion" (new fourth act), the gres-table caption, `main.tex` abstract.
    composition-only controls (drop a held-out rare ref from the composition but
    not the fit set: k3 ref-64040, k4 ref-81979) and a base-perturbation-only
    control (drop the k6 ref with no parts). Paired differences give per-ref mass
-   effects with the normalization effect separated out.
+   effects with the normalization effect separated out. Reading (in
+   transfer_loo_rare.json and the paper): record-clearing is robust to any
+   single rare ref (51.83–52.86, all above 51.32), but the +0.56 weight
+   increment is not independently validated — it concentrates on the single
+   k4 ref, whose removal lands the recipe 0.32 BELOW the tau-only arm — and
+   the tau-only arm itself clears the record on cIoU only (gIoU 74.77 sits
+   at/below 74.91).
 6. **Reproducibility note** (found while running 5): re-running the exact shipped
    command must set `OMP_NUM_THREADS=4` (as the shipped runs did). Without it the
    logistic-regression fits drift in the last decimal, two margin-boundary rows

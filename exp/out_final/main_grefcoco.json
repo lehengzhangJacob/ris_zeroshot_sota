@@ -292,7 +292,7 @@
       "cIoU": 51.3182,
       "gIoU": 74.9098,
       "method": "previous shipped record (this run): training-free termbox union rule",
-      "note": "bar floor rule of 2026-10-09: raise best_published to the run's own record and strictly exceed it; the same-class floors (PSALM 42.0/43.3, SELF1E 44.4) remain exceeded as well"
+      "note": "bar floor rule of 2026-10-09: raise best_published to the run's own record and strictly exceed it -- satisfied on point estimates on both metrics (52.7061 > 51.3182; 75.0817 > 74.9098); the cluster bootstrap (exp158) makes the cIoU exceed decisive (+1.38 [+0.60, +2.21]) and puts the gIoU exceed at parity level (+0.17 [-0.03, +0.38]) -- and the same-class floors (PSALM 42.0/43.3, SELF1E 44.4) remain exceeded as well"
     },
     "trained": true,
     "trained_component": "part-acceptance prior (see transfer_wall.json arms)"

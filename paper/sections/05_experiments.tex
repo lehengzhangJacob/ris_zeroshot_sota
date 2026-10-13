@@ -507,9 +507,9 @@ the cIoU record is decisive, while gIoU is parity or slightly above. The arm is
 selected over all arms
 on the held-out split alone and applied to val once. Single-correction ablations
 decompose the gain: tuning the acceptance threshold on the two-target stratum
-alone reaches $52.15$ cIoU (the dominant correction; its gIoU $74.77$ sits at
-parity with the record), while stratified weights add $+0.56$ on top in the
-all-strata form. The weight strata are counted per reference from the tune
+alone reaches $52.15$ cIoU (the dominant correction; its gIoU $74.77$ sits
+at/below the record's $74.91$), while stratified weights add $+0.56$ on top in
+the all-strata form. The weight strata are counted per reference from the tune
 records file (strata $1{:}259$, $2{:}132$, $3{:}4$, $4{:}2$, $5{:}1$, $6{:}1$,
 $11{:}1$ over the $400$ targeted references --- a reference-level distribution,
 distinct from the row-level composition in~(i); base $400/7$; per-part weights
@@ -523,8 +523,10 @@ collapse to $44.99$. A leave-one-rare-ref-out study (pre-registered as
 diagnostics: the shipped row does not change on any outcome) locates the
 dependence: removing each rare fit ref in turn keeps every refit in
 $51.83$--$52.86$ val cIoU, all above the record, but the $+0.56$ weight
-increment concentrates on the single $n_{\mathrm{targets}}{=}4$ ref
-($-0.95$ when removed, also flipping the held-out threshold) while the
+increment concentrates on the single $n_{\mathrm{targets}}{=}4$ ref:
+removing it costs $0.95$, also flipping the held-out threshold, and lands the
+recipe $0.32$ below the tau-only arm --- the weights are not independently
+validated, they act only conditional on the stratum threshold --- while the
 $n_{\mathrm{targets}}{\in}\{3,5\}$ ref masses are neutral. The attributed
 mechanism is therefore the population
 correction (threshold on the val-dominant stratum) first, weighting second,
