@@ -511,7 +511,9 @@ alone reaches $52.15$ cIoU (the dominant correction; its gIoU $74.77$ sits at
 parity with the record), while stratified weights add $+0.56$ on top in the
 all-strata form. The weight strata are counted per reference from the tune
 records file (strata $1{:}259$, $2{:}132$, $3{:}4$, $4{:}2$, $5{:}1$, $6{:}1$,
-$11{:}1$; base $400/7$; per-part weights $0.221$/$0.433$/$14.29$/$28.57$/$57.14$),
+$11{:}1$ over the $400$ targeted references --- a reference-level distribution,
+distinct from the row-level composition in~(i); base $400/7$; per-part weights
+$0.221$/$0.433$/$14.29$/$28.57$/$57.14$),
 so each stratum carries equal total ref weight --- and, realized over the
 $7{,}443$ fit parts, the three rare refs with parts carry $37\%$ of the fit
 mass, the single $n_{\mathrm{targets}}{=}5$ ref alone $26\%$. Restricting the

@@ -510,7 +510,7 @@ def main() -> int:
              f"monotone score over-prediction on val and a term-composition feature shift; the "
              f"recipe corrects exactly those (an acceptance threshold tuned on the val-dominant "
              f"two-target stratum -- the dominant correction -- rank features invariant to the "
-             f"miscalibration, and composition-balanced weights as a smaller, rare-row-dependent "
+             f"miscalibration, and composition-balanced weights as a smaller, rare-ref-dependent "
              f"increment; see decomposition). The searched combination policy was selected on "
              f"the held-out carve-out (+1.15 cIoU) "
              f"but is a measured no-op on val (delta 0.00: the top-1 SAM parts already "

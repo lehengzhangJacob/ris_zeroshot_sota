@@ -11,7 +11,7 @@ inversion" (new fourth act), the gres-table caption, `main.tex` abstract.
 ## What was done (directive 2026-10-13: make the transfer inversion the object)
 
 1. **Characterization** (four falsifiable decompositions, measured on cached part
-   tables; train = held-out train carve-out 10,351 parts / 780 targeted rows,
+   tables; train (tune records file) = 10,351 parts / 780 targeted rows,
    val = 89,708 parts / 4,677 rows):
    - population/composition: train targeted rows 68.33% single-target / 30.90%
      two-target vs val 99.53% two-target; mean parts per row 13.27 vs 19.18;
@@ -23,7 +23,9 @@ inversion" (new fourth act), the gres-table caption, `main.tex` abstract.
    - image level: median masks/image 51 vs 47 (rejected as the driver).
 2. **Transfer-aware recipe** (one arm, train-side only): stratified-balanced part
    weights (uniform over the per-ref train-side n_targets composition: strata
-   1:259, 2:132, 3:4, 4:2, 5:1, 6:1, 11:1 over the 400 targeted tune refs, base
+   1:259, 2:132, 3:4, 4:2, 5:1, 6:1, 11:1 over the 400 targeted tune refs — a
+   reference-level distribution, whereas §1's composition is row-level over the
+   part table; same tune file, different units — base
    400/7 = 57.14; per-part weights 0.221 / 0.433 / 14.29 / 28.57 / 57.14; realized
    over the 7,443 fit parts the three rare refs with fit parts carry 37.1% of the
    fit mass, the single k=5 ref alone 25.7%) + within-row rank score features +
