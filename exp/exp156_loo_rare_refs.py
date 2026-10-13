@@ -188,6 +188,10 @@ def run_loo(parallel: int = 3) -> int:
         env = dict(os.environ)
         slot = gpus[next(counter) % len(gpus)]
         env["CUDA_VISIBLE_DEVICES"] = slot
+        # required for bit-reproduction of the shipped numbers: without it the
+        # logreg fits drift in the last decimal and two margin-boundary rows flip
+        # (10,352 vs 10,351 train parts; val 52.684 vs 52.706) -- verified recheck
+        env["OMP_NUM_THREADS"] = "4"
         print(f"[{label}] running (gpu {slot}): {' '.join(cmd)}", flush=True)
         r = subprocess.run(cmd, cwd=str(RIS), env=env)
         print(f"[{label}] rc={r.returncode}", flush=True)
