@@ -182,6 +182,9 @@ def main() -> int:
                          "chosen on the held-out carve-out and applied once to val")
     ap.add_argument("--sweep2", type=float, default=None,
                     help="fixed second-parameter value for the chosen policy (alpha or q)")
+    ap.add_argument("--dump-rows", type=Path, default=None,
+                    help="write per-row val records (file_name, rid, no_target, abstain, "
+                         "I, U, gt_area) as jsonl — cluster-bootstrap provenance")
     ap.add_argument("--drop-rids", default="",
                     help="comma list of train ref ids to exclude from the composition and "
                          "from the fit set (leave-one-out diagnostics; the split itself is "
@@ -532,8 +535,10 @@ def main() -> int:
     for r in val_rows:
         r["_bs"] = clf_base.predict_proba(r["X"])[:, 1]
     terms_val = {}
+    rid_fn = {}
     for line in open(VAL):
         rec = json.loads(line)
+        rid_fn[int(rec["ref_id"])] = rec["file_name"]
         if rec.get("no_target"):
             continue
         ts = terms_of(rec["parsed"])
@@ -543,6 +548,7 @@ def main() -> int:
     tp = fn_c = tn = fp = 0
     masses = dict(S_U=0.0, I_tot=0.0, G_U=0.0, FP_U=0.0, A_U=0.0)
     n_parts_kept = n_parts_total = 0
+    dump_rows = []
     t0 = time.time()
     for i, r in enumerate(val_rows):
         pp = pair_clf.predict_proba(build_candidates(r, r["_bs"], r["_box"], g8["K"])[0])[:, 1]
@@ -601,6 +607,15 @@ def main() -> int:
                 tp += 1; acc_iou += 1.0
             else:
                 fp += 1; acc_U += r["gt_area"]; masses["A_U"] += r["gt_area"]
+            if args.dump_rows is not None:
+                # I/U are the cIoU contributions (abstained targeted rows add gt_area
+                # to U via the empty prediction); iou is the gIoU contribution
+                # (no-target correct-empty = 1.0)
+                dump_rows.append(dict(fn=rid_fn.get(r["rid"], ""), rid=r["rid"],
+                                      no_target=bool(r["no_target"]), abstain=True,
+                                      I=0.0, U=0.0 if r["no_target"] else float(r["gt_area"]),
+                                      iou=1.0 if r["no_target"] else 0.0,
+                                      gt_area=float(r["gt_area"])))
             continue
         I = float(np.logical_and(pred_m, r["gt"]).sum())
         U = float(np.logical_or(pred_m, r["gt"]).sum())
@@ -613,6 +628,12 @@ def main() -> int:
             fn_c += 1; acc_U += U
         else:
             tn += 1; acc_iou += (I / U if U else 0.0); acc_I += I; acc_U += U
+        if args.dump_rows is not None:
+            dump_rows.append(dict(fn=rid_fn.get(r["rid"], ""), rid=r["rid"],
+                                  no_target=bool(r["no_target"]), abstain=False,
+                                  I=I, U=U,
+                                  iou=0.0 if r["no_target"] else (I / U if U else 0.0),
+                                  gt_area=float(r["gt_area"])))
         if (i + 1) % 2000 == 0:
             print(f"  {i+1}/{len(val_rows)} ({time.time()-t0:.0f}s)", flush=True)
     n = len(val_rows)
@@ -628,6 +649,11 @@ def main() -> int:
                           for k, v in valm.items() if k != "masses"}
     out["val_masses"] = valm["masses"]
     args.out.write_text(json.dumps(out, indent=2, ensure_ascii=False))
+    if args.dump_rows is not None:
+        with open(args.dump_rows, "w") as f:
+            for row in dump_rows:
+                f.write(json.dumps(row) + "\n")
+        print(f"dumped {len(dump_rows)} rows to {args.dump_rows}")
     print(f"wrote {args.out}")
     return 0
 

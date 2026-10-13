@@ -481,6 +481,11 @@ def main() -> int:
                      "rare_ref_loo); weights without the stratum threshold are actively "
                      "harmful"),
         )
+        # 2026-10-13 review must-fix: cluster bootstrap over images for the
+        # shipped-vs-record delta (exp158). Folded in when present.
+        bsp = OUTF / "bootstrap_shipped_vs_record.json"
+        if bsp.is_file():
+            doc["bootstrap_shipped_vs_record"] = json.loads(bsp.read_text())
         # 2026-10-13 review must-fix: leave-one-rare-ref-out diagnostics (exp156).
         # Folding in when present; the shipped row never changes on these outcomes.
         lrp = OUTF / "transfer_loo_rare.json"

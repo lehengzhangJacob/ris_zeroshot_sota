@@ -1,0 +1,52 @@
+{
+  "model": {
+    "kind": "GDINO-box + SAM-mask + pool-pick termbox union",
+    "study_params": {
+      "src": "bs",
+      "alpha": 1.8111644301883565,
+      "beta": 0.23434019563238434,
+      "topk": 1,
+      "margin": 0.6312676830144586,
+      "pick_box": "ll+d0",
+      "sam": "d0+d1",
+      "sam_area_cap": 0.5,
+      "gd_thresh": 0.25,
+      "box_src": "llava",
+      "pool_rule": "sxi"
+    },
+    "source_study": "exp/out_final/optuna_study_gref17.json"
+  },
+  "metrics": {
+    "n": 14229,
+    "cIoU": 51.318197849892066,
+    "gIoU": 74.90981429759611,
+    "N_acc": 86.14261650758002,
+    "T_acc": 87.84748309541698,
+    "TP": 7671,
+    "FN": 1234,
+    "TN": 4677,
+    "FP": 647,
+    "gdino_used": 4677,
+    "fallback_used": 1234,
+    "masses": {
+      "S_U": 104190202.0,
+      "I_tot": 64709157.0,
+      "G_U": 76667626.3515572,
+      "FP_U": 6870380.0,
+      "A_U": 10016077.791809946
+    },
+    "cIoU_val_prevalence": 51.3209971278335,
+    "gIoU_val_prevalence": 74.90277248680367
+  },
+  "history": {
+    "joint_v14": {
+      "cIoU": 49.593,
+      "gIoU": 74.7292
+    },
+    "gdino_sam_v13": {
+      "cIoU": 47.1442,
+      "gIoU": 73.9518
+    }
+  },
+  "generated": "exp124_fp_shrink_val.py"
+}

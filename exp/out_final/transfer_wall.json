@@ -471,7 +471,7 @@
       "val_gIoU": 71.6897,
       "held_out_all": 54.1
     },
-    "reading": "the correction that carries the transfer is tuning the acceptance threshold on the val-dominant two-target stratum; stratified weights add a smaller increment that is rare-ref dependent (three rare refs in the fit set carry 37.1% of the fit mass; the leave-one-out localizes the increment to the k4 fit ref, -0.95 when removed, while the k3 and k5 fit-ref masses are neutral -- see rare_ref_loo); weights without the stratum threshold are actively harmful. Leave-one-rare-ref-out (exp156, pre-registered as diagnostics only, no re-shipping): the mass effects are k3 0.0085, k4 -0.9519, k5 0.0017 val cIoU vs the paired composition-only/base-only controls (see rare_ref_loo)",
+    "reading": "the correction that carries the transfer is tuning the acceptance threshold on the val-dominant two-target stratum; stratified weights add a smaller increment that is rare-ref dependent (three rare refs in the fit set carry 37.1% of the fit mass; the leave-one-out localizes the increment to the k4 fit ref, -0.95 when removed, while the k3 and k5 fit-ref masses are neutral -- see rare_ref_loo); weights without the stratum threshold are actively harmful. Leave-one-rare-ref-out (exp156, pre-registered as diagnostics only, no re-shipping): all seven refits land in 51.8273-52.8551 val cIoU, every one still above the training-free record (51.32) -- record-clearing is robust to any single rare ref (see rare_ref_loo)",
     "rare_ref_loo_effects": {
       "fit_k3_mass_effect": 0.0085,
       "fit_k4_mass_effect": -0.9519,

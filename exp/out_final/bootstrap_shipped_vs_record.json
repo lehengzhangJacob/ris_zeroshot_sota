@@ -1,0 +1,37 @@
+{
+  "n_rows": 14229,
+  "n_images": 1501,
+  "reps": 10000,
+  "seed": 20261013,
+  "shipped": {
+    "cIoU": 52.7061,
+    "gIoU": 75.0817
+  },
+  "record": {
+    "cIoU": 51.3182,
+    "gIoU": 74.9098
+  },
+  "delta": {
+    "cIoU": 1.3879,
+    "gIoU": 0.1719
+  },
+  "bootstrap": {
+    "cIoU": {
+      "mean": 1.3827,
+      "lo": 0.5952,
+      "hi": 2.212,
+      "excludes_zero": true
+    },
+    "gIoU": {
+      "mean": 0.1708,
+      "lo": -0.0345,
+      "hi": 0.3753,
+      "excludes_zero": false
+    }
+  },
+  "note": "cluster bootstrap over the val images (resample images with replacement, keep all their rows); 2.5/97.5 percentiles of the delta distribution",
+  "sources": {
+    "shipped": "exp/out_final/dump_shipped_rows.jsonl",
+    "record": "exp/out_final/dump_record_rows.jsonl"
+  }
+}

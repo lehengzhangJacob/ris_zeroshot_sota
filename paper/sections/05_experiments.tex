@@ -513,7 +513,14 @@ $7{,}443$ fit parts, the three rare refs with parts carry $37\%$ of the fit
 mass, the single $n_{\mathrm{targets}}{=}5$ ref alone $26\%$. Restricting the
 weights to strata $\{1,2\}$ gives $51.97$ --- still above the record, but the
 rare-ref dependence is disclosed, and weights without the stratum threshold
-collapse to $44.99$. The attributed mechanism is therefore the population
+collapse to $44.99$. A leave-one-rare-ref-out study (pre-registered as
+diagnostics: the shipped row does not change on any outcome) locates the
+dependence: removing each rare fit ref in turn keeps every refit in
+$51.83$--$52.86$ val cIoU, all above the record, but the $+0.56$ weight
+increment concentrates on the single $n_{\mathrm{targets}}{=}4$ ref
+($-0.95$ when removed, also flipping the held-out threshold) while the
+$n_{\mathrm{targets}}{\in}\{3,5\}$ ref masses are neutral. The attributed
+mechanism is therefore the population
 correction (threshold on the val-dominant stratum) first, weighting second,
 with the miscalibration and drift measurements explaining why both are needed.
 The learned variant

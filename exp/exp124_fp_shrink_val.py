@@ -60,6 +60,9 @@ def main() -> int:
                     default=Path("exp/out_final/optuna_study_gref14.json"))
     ap.add_argument("--out", type=Path,
                     default=Path("exp/out_final/gref_gdino_full_val.json"))
+    ap.add_argument("--dump-rows", type=Path, default=None,
+                    help="write per-row val records (fn, rid, no_target, abstain, I, U, "
+                         "gt_area) as jsonl — cluster-bootstrap provenance")
     args = ap.parse_args()
 
     study = json.loads(args.study.read_text())
@@ -193,8 +196,10 @@ def main() -> int:
     for r in val:
         r["_bs"] = clf_base.predict_proba(r["X"])[:, 1]
     terms_by_rid = {}
+    rid_fn = {}
     for line in open(args.records):
         rec = json.loads(line)
+        rid_fn[int(rec["ref_id"])] = rec["file_name"]
         if rec.get("no_target"):
             continue
         terms_by_rid[rec["ref_id"]] = (rec["file_name"], terms_of(rec["parsed"]))
@@ -216,6 +221,7 @@ def main() -> int:
     tp = fn_c = tn = fp = 0
     n_gdino = n_fallback = 0
     per_row = []
+    dump_rows = []
     t1 = time.time()
     for k, r in enumerate(val):
         F, ids = build_candidates(r, r["_bs"], r["_box"], g8["K"])
@@ -230,6 +236,12 @@ def main() -> int:
                 fp += 1
                 acc_U += r["gt_area"]
                 masses["A_U"] += r["gt_area"]
+            if args.dump_rows is not None:
+                dump_rows.append(dict(fn=rid_fn.get(int(r["rid"]), ""), rid=r["rid"],
+                                      no_target=bool(r["no_target"]), abstain=True,
+                                      I=0.0, U=0.0 if r["no_target"] else float(r["gt_area"]),
+                                      iou=1.0 if r["no_target"] else 0.0,
+                                      gt_area=float(r["gt_area"])))
             continue
         pred_parts = []
         fn_, ts = terms_by_rid.get(r["rid"], (None, []))
@@ -283,6 +295,12 @@ def main() -> int:
             acc_iou += (I / U if U else 0.0)
             acc_I += I
             acc_U += U
+        if args.dump_rows is not None:
+            dump_rows.append(dict(fn=rid_fn.get(int(r["rid"]), ""), rid=r["rid"],
+                                  no_target=bool(r["no_target"]), abstain=False,
+                                  I=I, U=U,
+                                  iou=0.0 if r["no_target"] else (I / U if U else 0.0),
+                                  gt_area=float(r["gt_area"])))
         if (k + 1) % 2000 == 0:
             print(f"  {k+1}/{len(val)} ({time.time()-t1:.0f}s)", flush=True)
 
@@ -326,6 +344,11 @@ def main() -> int:
                         "gdino_sam_v13": {"cIoU": 47.1442, "gIoU": 73.9518}},
                generated="exp124_fp_shrink_val.py")
     args.out.write_text(json.dumps(out, indent=2))
+    if args.dump_rows is not None:
+        with open(args.dump_rows, "w") as f:
+            for row in dump_rows:
+                f.write(json.dumps(row) + "\n")
+        print(f"dumped {len(dump_rows)} rows to {args.dump_rows}")
     print(f"wrote {args.out}")
     return 0
 
