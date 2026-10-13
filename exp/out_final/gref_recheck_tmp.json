@@ -6,7 +6,7 @@
   "tau_curve": [
     {
       "parameter": 0.05,
-      "cIoU": 52.6451,
+      "cIoU": 52.6462,
       "gIoU": 58.4322,
       "N_acc": 0.0,
       "T_acc": 91.6667
@@ -20,85 +20,85 @@
     },
     {
       "parameter": 0.15,
-      "cIoU": 52.7105,
-      "gIoU": 58.4667,
+      "cIoU": 52.711,
+      "gIoU": 58.4676,
       "N_acc": 0.0,
       "T_acc": 91.6667
     },
     {
       "parameter": 0.2,
-      "cIoU": 55.7834,
-      "gIoU": 60.2887,
+      "cIoU": 56.0592,
+      "gIoU": 60.5513,
       "N_acc": 0.0,
       "T_acc": 91.6667
     },
     {
       "parameter": 0.25,
-      "cIoU": 57.5938,
-      "gIoU": 61.4505,
+      "cIoU": 57.0429,
+      "gIoU": 60.9883,
       "N_acc": 0.0,
       "T_acc": 91.6667
     },
     {
       "parameter": 0.3,
-      "cIoU": 56.9848,
-      "gIoU": 60.4462,
+      "cIoU": 57.5942,
+      "gIoU": 61.3339,
       "N_acc": 0.0,
       "T_acc": 91.6667
     },
     {
       "parameter": 0.35,
-      "cIoU": 60.0393,
-      "gIoU": 63.8679,
+      "cIoU": 58.5722,
+      "gIoU": 62.072,
       "N_acc": 0.0,
       "T_acc": 91.6667
     },
     {
       "parameter": 0.4,
-      "cIoU": 59.3746,
-      "gIoU": 62.2539,
+      "cIoU": 53.2968,
+      "gIoU": 57.5962,
       "N_acc": 0.0,
       "T_acc": 91.6667
     },
     {
       "parameter": 0.45,
-      "cIoU": 52.8869,
-      "gIoU": 55.6653,
+      "cIoU": 53.7717,
+      "gIoU": 55.9982,
       "N_acc": 0.0,
       "T_acc": 91.6667
     },
     {
       "parameter": 0.5,
-      "cIoU": 52.0626,
-      "gIoU": 54.0139,
+      "cIoU": 50.5511,
+      "gIoU": 50.9386,
       "N_acc": 0.0,
       "T_acc": 91.6667
     },
     {
       "parameter": 0.55,
-      "cIoU": 48.7631,
-      "gIoU": 48.5365,
+      "cIoU": 49.5563,
+      "gIoU": 50.7336,
       "N_acc": 0.0,
       "T_acc": 91.6667
     },
     {
       "parameter": 0.6,
-      "cIoU": 42.1734,
-      "gIoU": 43.0776,
+      "cIoU": 42.216,
+      "gIoU": 43.1029,
       "N_acc": 0.0,
       "T_acc": 91.6667
     },
     {
       "parameter": 0.65,
-      "cIoU": 42.5433,
-      "gIoU": 43.7671,
+      "cIoU": 43.0735,
+      "gIoU": 44.8127,
       "N_acc": 0.0,
       "T_acc": 91.6667
     },
     {
       "parameter": 0.7,
-      "cIoU": 41.8718,
-      "gIoU": 42.6858,
+      "cIoU": 42.4048,
+      "gIoU": 43.7408,
       "N_acc": 0.0,
       "T_acc": 91.6667
     },
@@ -140,7 +140,7 @@
   "sample_weight_composition": true,
   "weight_strata": "all",
   "tau_stratum": "two",
-  "standardized": false,
+  "standardized": true,
   "rank_features": true,
   "augment": null,
   "anchors_held_out": {
@@ -158,8 +158,8 @@
     }
   },
   "held_out_at_tau": {
-    "cIoU": 60.0393,
-    "gIoU": 63.8679,
+    "cIoU": 58.5722,
+    "gIoU": 62.072,
     "N_acc": 0.0,
     "T_acc": 91.6667
   },
@@ -177,25 +177,5 @@
     "term_index",
     "const"
   ],
-  "model": "HistGradientBoostingRegressor(max_depth=3, max_iter=250, lr=0.08)",
-  "val_metrics": {
-    "n": 14229,
-    "cIoU": 53.0199,
-    "gIoU": 75.1232,
-    "N_acc": 86.1426,
-    "T_acc": 87.8475,
-    "TP": 7671,
-    "FN": 1234,
-    "TN": 4677,
-    "FP": 647,
-    "parts_kept": 51969,
-    "parts_total": 89709
-  },
-  "val_masses": {
-    "S_U": 94116094.0,
-    "I_tot": 62620805.0,
-    "G_U": 76667626.3515572,
-    "FP_U": 6870380.0,
-    "A_U": 10016077.791809946
-  }
+  "model": "HistGradientBoostingRegressor(max_depth=3, max_iter=250, lr=0.08)"
 }

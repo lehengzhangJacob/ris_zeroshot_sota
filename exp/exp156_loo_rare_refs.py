@@ -177,8 +177,11 @@ def run_loo(parallel: int = 3) -> int:
         if out.is_file():
             print(f"[{label}] cached", flush=True)
             return label
+        # must match the shipped recipe invocation exactly (gref_transfer_recipeonly.json):
+        # --rank-features --standardize --augment 0 --sample-weight-composition --tau-stratum two
         cmd = [sys.executable, "exp/exp138_learned_union_selector.py",
-               "--rank-features", "--sample-weight-composition",
+               "--rank-features", "--standardize", "--augment", "0",
+               "--sample-weight-composition",
                "--tau-stratum", "two", "--apply-val", "--out", str(out)]
         if rid:
             cmd += ["--drop-rids", rid]
