@@ -503,11 +503,16 @@ val-dominant population. The result is the first arm to clear our own record:
 $+0.17$ over the training-free rule ($51.32$ / $74.91$), selected over all arms
 on the held-out split alone and applied to val once. Single-correction ablations
 decompose the gain: tuning the acceptance threshold on the two-target stratum
-alone reaches $52.15$ (the dominant correction); stratified weights add $+0.56$
-on top in the all-strata form but the six rare training rows ($n_{\mathrm{targets}}
-\in \{3,4,5\}$) carry $60\%$ of the training mass there, and restricting the
+alone reaches $52.15$ cIoU (the dominant correction; its gIoU $74.77$ sits at
+parity with the record), while stratified weights add $+0.56$ on top in the
+all-strata form. The weight strata are counted per reference from the tune
+records file (strata $1{:}259$, $2{:}132$, $3{:}4$, $4{:}2$, $5{:}1$, $6{:}1$,
+$11{:}1$; base $400/7$; per-part weights $0.221$/$0.433$/$14.29$/$28.57$/$57.14$),
+so each stratum carries equal total ref weight --- and, realized over the
+$7{,}443$ fit parts, the three rare refs with parts carry $37\%$ of the fit
+mass, the single $n_{\mathrm{targets}}{=}5$ ref alone $26\%$. Restricting the
 weights to strata $\{1,2\}$ gives $51.97$ --- still above the record, but the
-rare-row dependence is disclosed, and weights without the stratum threshold
+rare-ref dependence is disclosed, and weights without the stratum threshold
 collapse to $44.99$. The attributed mechanism is therefore the population
 correction (threshold on the val-dominant stratum) first, weighting second,
 with the miscalibration and drift measurements explaining why both are needed.

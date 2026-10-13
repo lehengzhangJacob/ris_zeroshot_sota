@@ -182,7 +182,12 @@ def main() -> int:
                          "chosen on the held-out carve-out and applied once to val")
     ap.add_argument("--sweep2", type=float, default=None,
                     help="fixed second-parameter value for the chosen policy (alpha or q)")
+    ap.add_argument("--drop-rids", default="",
+                    help="comma list of train ref ids to exclude from the composition and "
+                         "from the fit set (leave-one-out diagnostics; the split itself is "
+                         "unchanged) -- exp156")
     args = ap.parse_args()
+    drop_rids = {int(x) for x in args.drop_rids.split(",") if x.strip()}
 
     st5 = json.loads((OUTF / "optuna_study_gref5.json").read_text())["best_params"]
     g8 = json.loads((OUTF / "optuna_study_gref8.json").read_text())["best_params"]
@@ -269,6 +274,11 @@ def main() -> int:
     fit_refs = set(refs[:n_fit])
     ri2rid = {ri: r["rid"] for ri, r in enumerate(tr)}
     fit_mask = np.array([ri2rid[ri] in fit_refs for ri, _ in row_of])
+    if drop_rids:
+        keep_parts = np.array([ri2rid[ri] not in drop_rids for ri, _ in row_of])
+        fit_mask = fit_mask & keep_parts
+        print(f"drop-rids {sorted(drop_rids)}: fit parts after drop "
+              f"{int(fit_mask.sum())}", flush=True)
     # ---------- degradation augmentation (exp147 directive) ----------
     # val-time box evidence overstates quality (predicted part-IoU 0.413 train
     # vs 0.355 val): augmented copies scale the two box-overlap features down by
@@ -284,8 +294,11 @@ def main() -> int:
         nt = {}
         for line in open(TRAIN):
             rec = json.loads(line)
-            nt[int(rec["ref_id"])] = len([a for a in (rec.get("ann_ids") or [])
-                                          if isinstance(a, int) and a >= 0])
+            rid = int(rec["ref_id"])
+            if rid in drop_rids:
+                continue
+            nt[rid] = len([a for a in (rec.get("ann_ids") or [])
+                           if isinstance(a, int) and a >= 0])
         comp = _Counter(v for v in nt.values() if v > 0)
         keep_strata = set(comp)
         if args.weight_strata:

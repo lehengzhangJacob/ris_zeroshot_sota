@@ -298,12 +298,18 @@ def main() -> int:
                         tau=d.get("tau_selected"), policy=d.get("best_policy"),
                         held_out=d.get("held_out_at_tau"),
                         trained=bool(d.get("rank_features")),
-                        spec=("stratified-balanced re-weighting: weight(row) = (kept_total / "
-                              "n_kept_strata) / count(stratum(row)) over the train-side "
-                              "n_targets strata (each listed stratum contributes equal total "
-                              "weight; train strata 1:533, 2:241, 3:3, 4:2, 5:1 rows, so the "
-                              "6 rare rows carry 60% of the mass under the all-strata "
-                              "config) + within-row rank features + tau tuned "
+                        spec=("stratified-balanced re-weighting: weight(part) = (n_targeted_tune_refs "
+                              "/ n_strata) / count(stratum) with the composition taken per ref "
+                              "from the tune records file (400 targeted refs: strata 1:259, "
+                              "2:132, 3:4, 4:2, 5:1, 6:1, 11:1 -> base 400/7 = 57.14; per-part "
+                              "weights k=1 0.221, k=2 0.433, k=3 14.29, k=4 28.57, k=5/6/11 "
+                              "57.14), so each ref stratum carries equal total ref weight; "
+                              "realized over the 7,443 fit parts the stratum mass shares are "
+                              "22.9 / 40.0 / 3.8 / 7.6 / 25.7% and the three rare refs with fit "
+                              "parts carry 37.1% of the fit mass (one k=5 ref alone 25.7%; "
+                              "strata 6, 11 and one k=3 ref have no parts in the table but count "
+                              "in the normalization) "
+                              "+ within-row rank features + tau tuned "
                               "on the held-out two-target stratum"
                               + (", + searched combination policy (unconditional top-1 SAM "
                                  "part, chosen on the held-out carve-out)"
@@ -343,8 +349,9 @@ def main() -> int:
                  verdict="CONFIRMED -- the composition mismatch drives the inversion, but "
                          "the correction that carries the transfer is the acceptance threshold "
                          "tuned on the val-dominant two-target stratum (tau-stratum-only alone "
-                         "clears the record at 52.15); the composition-balanced weights add a "
-                         "smaller increment (52.71) and are rare-row dependent (see "
+                         "clears the cIoU record, 52.15 vs 51.32, with gIoU at parity, 74.77 vs "
+                         "74.91); the composition-balanced weights add a smaller increment "
+                         "(52.71, clearing both) and are rare-ref dependent (see "
                          "decomposition)"),
             dict(hypothesis="the learned prior is systematically miscalibrated on val "
                             "(over-predicts part quality at high scores; the lowest val "
@@ -358,8 +365,8 @@ def main() -> int:
                               "val calibration is monotone over-prediction at high scores"),
                  verdict="CONFIRMED -- within-row rank features remove the scale dependence "
                          "but alone do not clear the record (rank-only 50.52); the threshold "
-                         "re-tuned on the two-target stratum is the correction that does "
-                         "(tau-stratum-only 52.15)"),
+                         "re-tuned on the two-target stratum is the correction that does on "
+                         "cIoU (tau-stratum-only 52.15 vs 51.32; gIoU 74.77, at parity)"),
             dict(hypothesis="per-term feature drift between the populations (term count, "
                             "box-overlap evidence) breaks the fitted mapping",
                  measurement=("median term_index 0 (train) vs 1 (val); inbox_det0 p90 "
@@ -368,7 +375,7 @@ def main() -> int:
                          "shift (two-term rows dominate val); the stratum-restricted threshold "
                          "recovers the gap without a separate drift correction, so the drift is "
                          "not an independent obstacle (the all-strata weights' increment over it "
-                         "is rare-row dependent -- see decomposition)"),
+                         "is rare-ref dependent -- see decomposition)"),
             dict(hypothesis="image-level domain shift (different images/objects) drives the "
                             "inversion",
                  measurement=(f"median masks per image {ch['image_level']['train_masks_per_image_median']} "
@@ -448,22 +455,44 @@ def main() -> int:
         doc["decomposition"] = dict(
             note=("single-correction ablations on the same frozen pipeline; the two-target "
                   "threshold tuning is the dominant correction and the weightings alone "
-                  "collapse without it"),
+                  "collapse without it.  Composition per ref from the tune records file "
+                  "(400 targeted refs, 7 strata 1:259, 2:132, 3:4, 4:2, 5:1, 6:1, 11:1; "
+                  "base = 400/7 = 57.14).  Realized over the 7,443 fit parts: k=1 22.9%, "
+                  "k=2 40.0%, k=3 3.8%, k=4 7.6%, k=5 25.7% (k=6 and k=11 have no parts but "
+                  "count in the normalization).  Of the nine rare refs, six have parts "
+                  "(three in fit, three held-out) and three have none."),
             tau_stratum_only=dict(val_cIoU=52.1480, val_gIoU=74.7724,
                                   held_out_2target=58.64),
             all_strata_weights_plus_tau=dict(val_cIoU=52.7061, val_gIoU=75.0817,
                                              held_out_2target=60.05,
-                                             rare_strata_mass_share=0.60, rare_rows=6),
+                                             rare_fit_refs=3, rare_fit_parts=37,
+                                             rare_fit_mass_share=0.371,
+                                             largest_single_ref_mass_share=0.257),
             strata12_weights_plus_tau=dict(val_cIoU=51.9655, val_gIoU=74.9257,
                                            held_out_2target=58.09),
             weights_only_all_rows_tau=dict(val_cIoU=44.9973, val_gIoU=71.6897,
                                            held_out_all=54.10),
             reading=("the correction that carries the transfer is tuning the acceptance "
                      "threshold on the val-dominant two-target stratum; stratified weights "
-                     "add a smaller increment (and, in the all-strata form, depend on six "
-                     "rare rows carrying 60% of the training mass -- disclosed); weights "
-                     "without the stratum threshold are actively harmful"),
+                     "add a smaller increment that rides on the rare refs (three in the fit "
+                     "set carry 37.1% of the fit mass; the single k=5 ref alone 25.7% -- "
+                     "disclosed); weights without the stratum threshold are actively "
+                     "harmful"),
         )
+        # 2026-10-13 review must-fix: leave-one-rare-ref-out diagnostics (exp156).
+        # Folding in when present; the shipped row never changes on these outcomes.
+        lrp = OUTF / "transfer_loo_rare.json"
+        if lrp.is_file():
+            loo = json.loads(lrp.read_text())
+            doc["rare_ref_loo"] = loo
+            comp = loo.get("effects", {})
+            doc["decomposition"]["rare_ref_loo_effects"] = comp
+            doc["decomposition"]["reading"] += (
+                ". Leave-one-rare-ref-out (exp156, pre-registered as diagnostics only, no "
+                "re-shipping): the mass effects are "
+                f"k3 {comp.get('fit_k3_mass_effect')}, k4 {comp.get('fit_k4_mass_effect')}, "
+                f"k5 {comp.get('fit_k5_mass_over_base_effect')} val cIoU vs the paired "
+                "composition-only/base-only controls (see rare_ref_loo)")
         doc["verdict"] = (
             (f"the transfer inversion is broken by the transfer-aware recipe: val cIoU "
              f"{c:.2f} / gIoU {best.get('val_gIoU'):.2f} on the full official split, above "
