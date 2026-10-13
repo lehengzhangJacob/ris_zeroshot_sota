@@ -332,3 +332,50 @@ Open items for future cycles (non-blocking, reviewer-noted):
    gate).
 3. If the gRefCOCO table shows N_acc/T_acc for floor rows, transcribe their
    sources the same way the test oIoU columns now are.
+
+## Cycle review outcome (2026-10-13, ~23:00, transfer-wall)
+
+Cross-family review of the transfer-wall cycle (executor deepseek-flash,
+reviewer glm-5.3, thread 9ecc6d3c208b): **SHIP, 8.5/10**, three review rounds
+plus a final confirmation round. What survived and what it cost:
+
+- **Mechanism account**: survived as restated, threshold-first. The correction
+  that carries the transfer is the acceptance threshold tuned on the
+  val-dominant two-target stratum (tau-only alone clears the cIoU record,
+  52.15 vs 51.32; its gIoU 74.77 sits at/below 74.91); the stratified weights
+  are a smaller, non-independently-validated increment.
+- **Accounting correction (self-caught under review)**: the realized strata
+  are per-REF, not per-row — 400 targeted refs, counts 259/132/4/2/1/1/1,
+  base 400/7, per-part weights 0.221/0.433/14.29/28.57/57.14, 37.1% of fit
+  mass on the three rare refs with parts (one k=5 ref alone 25.7%). The
+  previously reported row-level 533/241/... numbers and "60% rare mass" were
+  wrong and are retracted in every artifact.
+- **LOO (exp156)**: paired drops with composition-only and base-only controls;
+  all seven refits stay 51.83-52.86 val cIoU (record-clearing robust to any
+  single rare ref), but the +0.56 weight increment concentrates on the single
+  n_targets=4 ref: removing it costs 0.95, flips the held-out tau, and lands
+  0.32 BELOW tau-only.
+- **Bootstrap (exp158)**: image-cluster bootstrap, 10k resamples — cIoU
+  +1.38 [+0.60,+2.21] decisive; gIoU +0.17 [-0.03,+0.38] -> gIoU stated as
+  "parity or slightly above" everywhere (paper, abstract, all artifacts).
+- **Consistency sweep** caught stale "row of record" language across the
+  earlier acts (intro, §5 learned-prior paragraph, learned table caption,
+  learned_prior.json) since change 17 made the recipe the shipped row; the
+  learned table now carries the recipe row between the zero-shot reference and
+  InstAlign. Also caught: exp148 was reading the CURRENT shipped row into its
+  `prompt_prior_shipped` field — fixed to read `prompt_prior_reference`
+  explicitly (T1 restored to the historical target, delta -0.7982).
+- **Miscalibration wording** qualified everywhere: over-prediction from the
+  second score quintile up; the lowest val quintile under-predicts.
+- **Reproduction pin**: re-running the shipped recipe bit-exactly requires
+  OMP_NUM_THREADS=4 (as the shipped runs used); without it the logreg fits
+  drift, two margin-boundary rows flip, the train table rebuilds 10,352 vs
+  10,351 parts (val 52.684 vs 52.706). Pin + val-pass ledger now in the
+  appendix.
+
+Open items for future cycles (from the reviewer's 9+ path):
+1. A pre-registered prospective application of the frozen recipe to a fresh
+   evaluation (unseen split or dataset) — the +1.39 is a post-diagnostic-design
+   margin, not a prospective estimate.
+2. Either a principled replacement for the rare-ref weighting or a held-out
+   case for shipping tau-only (the weights ride on one k=4 ref).
