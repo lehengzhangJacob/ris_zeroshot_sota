@@ -394,8 +394,8 @@
       },
       "n": 14229,
       "setting": "light supervision: part-acceptance prior fitted on gRefCOCO train (70%) with stratified-balanced weights over the train-side n_targets strata (rare strata disclosed in transfer_wall.json); threshold on the held-out 30% two-target stratum; official val evaluated once",
-      "note": "beats the previous training-free record (51.3182/74.9098) on both metrics; mechanism = the transfer-inversion recipe in transfer_wall.json"
+      "note": "beats the previous training-free record (51.3182/74.9098): cluster bootstrap over val images (10k resamples) gives cIoU +1.38 [+0.60, +2.21] (decisive) and gIoU +0.17 [-0.03, +0.38] (parity or slightly above); mechanism = the transfer-inversion recipe in transfer_wall.json"
     }
   ],
-  "metric_note": "Every RefCOCO-family row carries both mIoU and oIoU from the same source table (2026-10-09 fair-comparison instruction): published rows take the compared paper's own oIoU (GLOD-RIS Table I oIoU block, val columns); our rows take the aligned pooled re-evaluations (protocol_audit.json). oIoU = global pooled overlap sum|pred\u2229GT|/sum|pred\u222aGT|. Val columns only (testA/testB/test(u) not produced; stated in the paper)."
+  "metric_note": "Every RefCOCO-family row carries both mIoU and oIoU from the same source table (2026-10-09 fair-comparison instruction): published rows take the compared paper's own oIoU (GLOD-RIS Table I oIoU block, val columns); our rows take the aligned pooled re-evaluations (protocol_audit.json). oIoU = global pooled overlap sum|pred∩GT|/sum|pred∪GT|. Val columns only (testA/testB/test(u) not produced; stated in the paper)."
 }

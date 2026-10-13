@@ -564,5 +564,42 @@
     "tau_stratum_only_val_cIoU": 52.148,
     "training_free_record_cIoU": 51.3182,
     "reading": "record-clearing is robust to any single rare ref: all seven refits stay in 51.83-52.86 val cIoU, every one above the training-free record (51.32); worst case (k4 fit ref removed) is +0.51 over the record. The magnitude of the weight increment over tau-only (52.15) is NOT uniformly robust: it concentrates on the single k4 fit ref (removing it costs 0.95 and flips the held-out tau to 0.25, landing 0.32 below tau-only); the k3 and k5 fit-ref masses are neutral (+0.01, +0.002) and the composition/base perturbations move val by <= 0.14 (dropping a held-out rare ref from the composition alone slightly helps: +0.07 to +0.14)"
+  },
+  "bootstrap_shipped_vs_record": {
+    "n_rows": 14229,
+    "n_images": 1501,
+    "reps": 10000,
+    "seed": 20261013,
+    "shipped": {
+      "cIoU": 52.7061,
+      "gIoU": 75.0817
+    },
+    "record": {
+      "cIoU": 51.3182,
+      "gIoU": 74.9098
+    },
+    "delta": {
+      "cIoU": 1.3879,
+      "gIoU": 0.1719
+    },
+    "bootstrap": {
+      "cIoU": {
+        "mean": 1.3827,
+        "lo": 0.5952,
+        "hi": 2.212,
+        "excludes_zero": true
+      },
+      "gIoU": {
+        "mean": 0.1708,
+        "lo": -0.0345,
+        "hi": 0.3753,
+        "excludes_zero": false
+      }
+    },
+    "note": "cluster bootstrap over the val images (resample images with replacement, keep all their rows); 2.5/97.5 percentiles of the delta distribution",
+    "sources": {
+      "shipped": "exp/out_final/dump_shipped_rows.jsonl",
+      "record": "exp/out_final/dump_record_rows.jsonl"
+    }
   }
 }

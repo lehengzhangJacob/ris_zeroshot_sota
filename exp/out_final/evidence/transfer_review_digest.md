@@ -63,6 +63,11 @@ inversion" (new fourth act), the gres-table caption, `main.tex` abstract.
    (val 52.684 / held-out 58.57). With OMP=4 the control reproduces the shipped
    numbers exactly (10,351 parts, 7,443 fit parts, held-out 58.9004, val
    52.7061/75.0817) — verified by an independent recheck run (gref_recheck2.json).
+7. **Cluster bootstrap over images** for the shipped-vs-record margin (exp158;
+   per-row dumps from both frozen val passes): 10,000 image-cluster resamples.
+   cIoU delta +1.38 [+0.60, +2.21] (excludes 0 — the cIoU record claim is
+   decisive); gIoU delta +0.17 [-0.03, +0.38] (includes 0 — stated in the paper
+   as parity or slightly above, not a gIoU record claim).
 
 ## Review questions
 

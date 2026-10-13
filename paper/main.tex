@@ -60,8 +60,9 @@ of the art (N-acc \wallCombN{} vs.\ \wallTrainedNAcc{}), and the
 training-free rule \emph{beats} every same-class (zero-shot) published
 number on both metrics (\grefCIoU{}/\grefGIoU{} vs.\ \grefZeroShotCIoU{}/\grefZeroShotGIoU{}),
 and a declared-trained transfer-aware recipe then clears that record itself
-($52.71$/$75.08$, with the training-free rule retained as the zero-shot
-reference row)
+($52.71$/$75.08$; cluster-bootstrap cIoU delta $+1.38$ [$+0.60$, $+2.21$], gIoU
+at parity or slightly above, with the training-free rule retained as the
+zero-shot reference row)
 as well as the strongest supervised gIoU reference (\grefPubGIoU{}). The
 remaining constraint is the \emph{supervised} cIoU level, quantified rather
 than tuned around: at the shipped operating point it
