@@ -507,7 +507,12 @@ component; the training-free termbox rule stays reported as the zero-shot
 reference row. Folding in the probe leads: the searched combination policy
 (unconditional top-1 SAM part) changes the val outcome by $0.00$ --- the top-1
 SAM parts already clear the tuned threshold --- and the weak-signal democracy
-vote is reported as a separate arm in \texttt{transfer\_wall.json}. The recipe
+vote is a measured negative on this population: on a seeded $800$-row val
+sample (three fixed spatial questions per row, $2{,}400$ cached MLLM calls) the
+vote-pick scores $38.37$ against $41.00$ for the prior-only top part on the
+same rows, a paired delta of $-2.62 \pm 0.82$ (SE) with $310/800$ picks
+changed --- the vote does not transfer either, matching its null-consistent
+RefCOCO result. The recipe
 is a correction of transfer, not a capability jump: the supervised reference
 (InstAlign $68.94$) stays far, and everything here is measured on our own
 same-class ledger.

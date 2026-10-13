@@ -299,11 +299,11 @@
     },
     {
       "name": "weak-signal democracy vote (single-pick arm on a seeded sample)",
-      "val_cIoU": 44.566,
+      "val_cIoU": 38.373,
       "val_gIoU": null,
       "trained": false,
-      "n": 5,
-      "paired_delta": 7.96,
+      "n": 800,
+      "paired_delta": -2.624,
       "source": "exp/out_wild_gref/democracy_result.json"
     }
   ],
@@ -364,12 +364,12 @@
     },
     "democracy": {
       "mode": "democracy",
-      "n": 5,
-      "vote_pick_mIoU": 44.566,
-      "prior_top_pick_mIoU": 36.606,
-      "paired_delta": 7.96,
-      "paired_se": 7.96,
-      "changed_picks": 1,
+      "n": 800,
+      "vote_pick_mIoU": 38.373,
+      "prior_top_pick_mIoU": 40.997,
+      "paired_delta": -2.624,
+      "paired_se": 0.818,
+      "changed_picks": 310,
       "note": "three fixed spatial questions per row, parts vote by geometry, top by (votes, prior); paired against the prior-only top part on the same rows; single-pick arms, so the absolute numbers sit below the shipped union rule"
     }
   },
