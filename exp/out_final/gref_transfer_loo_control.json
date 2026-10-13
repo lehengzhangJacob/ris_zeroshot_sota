@@ -1,0 +1,201 @@
+{
+  "experiment": "exp138_learned_union_selector",
+  "protocol": "part pool identical to the shipped rule plus the uncapped SAM masks; GBM fitted on 70% of the held-out TRAIN refs, threshold chosen on the remaining 30%, applied once to val",
+  "train_parts": 10352,
+  "held_out_rows": 423,
+  "tau_curve": [
+    {
+      "parameter": 0.05,
+      "cIoU": 52.6462,
+      "gIoU": 58.4322,
+      "N_acc": 0.0,
+      "T_acc": 91.6667
+    },
+    {
+      "parameter": 0.1,
+      "cIoU": 52.6462,
+      "gIoU": 58.4322,
+      "N_acc": 0.0,
+      "T_acc": 91.6667
+    },
+    {
+      "parameter": 0.15,
+      "cIoU": 52.711,
+      "gIoU": 58.4676,
+      "N_acc": 0.0,
+      "T_acc": 91.6667
+    },
+    {
+      "parameter": 0.2,
+      "cIoU": 56.0592,
+      "gIoU": 60.5513,
+      "N_acc": 0.0,
+      "T_acc": 91.6667
+    },
+    {
+      "parameter": 0.25,
+      "cIoU": 57.0429,
+      "gIoU": 60.9883,
+      "N_acc": 0.0,
+      "T_acc": 91.6667
+    },
+    {
+      "parameter": 0.3,
+      "cIoU": 57.5942,
+      "gIoU": 61.3339,
+      "N_acc": 0.0,
+      "T_acc": 91.6667
+    },
+    {
+      "parameter": 0.35,
+      "cIoU": 58.5722,
+      "gIoU": 62.072,
+      "N_acc": 0.0,
+      "T_acc": 91.6667
+    },
+    {
+      "parameter": 0.4,
+      "cIoU": 53.2968,
+      "gIoU": 57.5962,
+      "N_acc": 0.0,
+      "T_acc": 91.6667
+    },
+    {
+      "parameter": 0.45,
+      "cIoU": 53.7717,
+      "gIoU": 55.9982,
+      "N_acc": 0.0,
+      "T_acc": 91.6667
+    },
+    {
+      "parameter": 0.5,
+      "cIoU": 50.5511,
+      "gIoU": 50.9386,
+      "N_acc": 0.0,
+      "T_acc": 91.6667
+    },
+    {
+      "parameter": 0.55,
+      "cIoU": 49.5563,
+      "gIoU": 50.7336,
+      "N_acc": 0.0,
+      "T_acc": 91.6667
+    },
+    {
+      "parameter": 0.6,
+      "cIoU": 42.216,
+      "gIoU": 43.1029,
+      "N_acc": 0.0,
+      "T_acc": 91.6667
+    },
+    {
+      "parameter": 0.65,
+      "cIoU": 43.0735,
+      "gIoU": 44.8127,
+      "N_acc": 0.0,
+      "T_acc": 91.6667
+    },
+    {
+      "parameter": 0.7,
+      "cIoU": 42.4048,
+      "gIoU": 43.7408,
+      "N_acc": 0.0,
+      "T_acc": 91.6667
+    },
+    {
+      "parameter": 0.75,
+      "cIoU": 42.4048,
+      "gIoU": 43.7408,
+      "N_acc": 0.0,
+      "T_acc": 91.6667
+    },
+    {
+      "parameter": 0.8,
+      "cIoU": 42.4048,
+      "gIoU": 43.7408,
+      "N_acc": 0.0,
+      "T_acc": 91.6667
+    },
+    {
+      "parameter": 0.85,
+      "cIoU": 42.4048,
+      "gIoU": 43.7408,
+      "N_acc": 0.0,
+      "T_acc": 91.6667
+    },
+    {
+      "parameter": 0.9,
+      "cIoU": 42.4048,
+      "gIoU": 43.7408,
+      "N_acc": 0.0,
+      "T_acc": 91.6667
+    }
+  ],
+  "tau_selected": 0.35,
+  "policy": "abs",
+  "best_policy": {
+    "policy": "abs",
+    "k": 0
+  },
+  "sample_weight_composition": true,
+  "weight_strata": "all",
+  "tau_stratum": "two",
+  "standardized": false,
+  "rank_features": true,
+  "augment": null,
+  "anchors_held_out": {
+    "shipped_inclusion": {
+      "cIoU": 47.0982,
+      "gIoU": 69.404,
+      "N_acc": 93.75,
+      "T_acc": 90.2834
+    },
+    "keep_all": {
+      "cIoU": 47.087,
+      "gIoU": 69.3992,
+      "N_acc": 93.75,
+      "T_acc": 90.2834
+    }
+  },
+  "held_out_at_tau": {
+    "cIoU": 58.5722,
+    "gIoU": 62.072,
+    "N_acc": 0.0,
+    "T_acc": 91.6667
+  },
+  "feature_names": [
+    "is_pool",
+    "is_sam",
+    "area_frac",
+    "inbox_llava",
+    "inbox_det0",
+    "base_score",
+    "gem_score",
+    "pick_rank",
+    "det_index",
+    "sam_index",
+    "term_index",
+    "const"
+  ],
+  "model": "HistGradientBoostingRegressor(max_depth=3, max_iter=250, lr=0.08)",
+  "val_metrics": {
+    "n": 14229,
+    "cIoU": 52.6841,
+    "gIoU": 75.0834,
+    "N_acc": 86.1426,
+    "T_acc": 87.8475,
+    "TP": 7671,
+    "FN": 1234,
+    "TN": 4677,
+    "FP": 647,
+    "parts_kept": 52859,
+    "parts_total": 89709
+  },
+  "val_masses": {
+    "S_U": 96216491.0,
+    "I_tot": 63085872.0,
+    "G_U": 76667626.3515572,
+    "FP_U": 6870380.0,
+    "A_U": 10016077.791809946
+  }
+}
