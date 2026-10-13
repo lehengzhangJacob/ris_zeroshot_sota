@@ -31,7 +31,9 @@ inversion" (new fourth act), the gres-table caption, `main.tex` abstract.
    fit mass, the single k=5 ref alone 25.7%) + within-row rank score features +
    acceptance threshold tuned on the held-out 30% carve-out RESTRICTED to its
    two-target stratum. Val (single frozen application): **cIoU 52.7061 / gIoU
-   75.0817** (n=14,229) — above the training-free record 51.3182 / 74.9098 and far
+   75.0817** (n=14,229) — above the training-free record on both point estimates
+   (51.3182 / 74.9098; cIoU-decisive and gIoU parity-level per the cluster
+   bootstrap, §7) and far
    above the arms that failed (naive 38.792, rank-only 50.52). Held-out two-target
    cIoU 58.90 (recipe) / 60.05 (+policy).
 3. **Probe leads folded in as arms**: the searched combination policy

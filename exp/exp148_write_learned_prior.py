@@ -2,7 +2,7 @@
 """EXP-148 — assemble exp/out_final/learned_prior.json from the augmented run.
 
 Reads the exp138 augmented-training output (val metrics on the full official
-gRefCOCO val split) and the shipped prompt-prior record, and writes the gated
+gRefCOCO val split) and the prompt-prior reference record, and writes the gated
 artifact with the trained-component spec, the per-dataset full-split metrics,
 and the staged-target comparison (T1 > prompt-prior 51.32 cIoU; T2 towards the
 supervised reference 68.94 cIoU / 74.34 gIoU, labelled, never a floor here).
@@ -22,7 +22,7 @@ PROGRESSION = [
      OUTF / "gref_learned_union_val_rel.json", None),
     ("+ degradation augmentation on top (hurts: 38.91)",
      OUTF / "gref_learned_prior_aug3.json", "held_out_at_tau"),
-    ("+ within-row rank score features, no augmentation (best learned arm)",
+    ("+ within-row rank score features, no augmentation (best arm of this study; best on the held-out carve-out)",
      OUTF / "gref_learned_prior_rankonly.json", "held_out_at_tau"),
     ("+ rank features with augmentation (augmentation hurts again: 45.47)",
      OUTF / "gref_learned_prior_rank.json", "held_out_at_tau"),
@@ -47,8 +47,14 @@ def main() -> int:
     rank = OUTF / "gref_learned_prior_rankonly.json"
     src = json.loads((rank if rank.is_file() else
                       OUTF / "gref_learned_prior_rank.json").read_text())
-    shipped = json.loads((OUTF / "main_grefcoco.json").read_text())["shipped"]
-    t1 = float(shipped["cIoU"])
+    mg = json.loads((OUTF / "main_grefcoco.json").read_text())
+    # the staged target T1 and the reference row of this study are the
+    # PROMPT-PRIOR record, which was the shipped row when this study ran; the
+    # shipped row since the transfer-wall cycle is the transfer-aware recipe
+    # (transfer_wall.json), so read the prompt-prior reference explicitly and
+    # fall back to `shipped` only if that key is absent (pre-change-17 files).
+    pp = mg.get("prompt_prior_reference") or mg["shipped"]
+    t1 = float(pp["cIoU"])
     vm = src["val_metrics"]
     aug = src.get("augment") or {}
     rank_on = bool(src.get("rank_features"))
@@ -87,15 +93,21 @@ def main() -> int:
                               f"only (policy {src['policy']}, tau={src['tau_selected']}); "
                               "official val evaluated once per fixed configuration"),
             declared_training="yes - this is a TRAINED component; the training-free "
-                              "prompt-prior variant remains the shipped row of record and "
-                              "is reported alongside"),
+                              "prompt-prior variant remains reported as the zero-shot "
+                              "reference row (it was the shipped row of record when this "
+                              "study ran; the shipped gRefCOCO row is now the "
+                              "declared-trained transfer-aware recipe, transfer_wall.json)"),
         datasets=dict(grefcoco=dict(
             n=vm["n"], cIoU=round(vm["cIoU"], 4), gIoU=round(vm["gIoU"], 4),
             N_acc=round(vm.get("N_acc", 0.0), 3), T_acc=round(vm.get("T_acc", 0.0), 3),
             protocol=("official gRefCOCO val evaluation on the complete split (n=14,229 "
                       "sentences), no-target treatment identical to the shipped row"),
-            prompt_prior_shipped=dict(cIoU=t1, gIoU=float(shipped["gIoU"]),
-                                      source="exp/out_final/main_grefcoco.json"),
+            prompt_prior_shipped=dict(cIoU=t1, gIoU=float(pp["gIoU"]),
+                                      source="exp/out_final/main_grefcoco.json "
+                                             "prompt_prior_reference",
+                                      note="the prompt-prior row that was the shipped row "
+                                           "of record when this study ran; now the "
+                                           "training-free zero-shot reference row"),
             supervised_reference=dict(cIoU=68.94, gIoU=74.34, method="InstAlign",
                                       note="labelled reference row, never a floor")),
         ),
@@ -121,8 +133,8 @@ def main() -> int:
     )
     (OUTF / "learned_prior.json").write_text(json.dumps(doc, indent=2))
     print("wrote", OUTF / "learned_prior.json")
-    print(f"val: n={ds['n']} cIoU={ds['cIoU']} gIoU={ds['gIoU']} | shipped {t1}/"
-          f"{shipped['gIoU']} | T1 {'MET' if ds['targets']['T1']['met'] else 'MISSED'}")
+    print(f"val: n={ds['n']} cIoU={ds['cIoU']} gIoU={ds['gIoU']} | prompt-prior {t1}/"
+          f"{pp['gIoU']} | T1 {'MET' if ds['targets']['T1']['met'] else 'MISSED'}")
     return 0
 
 

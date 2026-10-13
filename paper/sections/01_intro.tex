@@ -78,9 +78,14 @@ features, which are invariant to the per-frame miscalibration: $50.52$\,cIoU /
 $73.91$\,gIoU, recovering most of the gap the naive selector lost, and
 augmentation again hurts once rank features are in), the learned prior comes
 within $0.8$\,cIoU of the hand-tuned prompt rule but does not exceed it
-($51.32$/$74.91$), so the training-free variant remains the row of record and
-the learned component is reported as a declared, measured transfer study ---
-not as this paper's headline.
+($51.32$/$74.91$). We then make that transfer inversion itself the object of
+study (Section~\ref{sec:transferwall}): correcting exactly the measured causes
+with train-side data only clears the record ($52.71$/$75.08$; the cIoU margin
+is decisive under a cluster bootstrap over the val images, gIoU at parity),
+and that declared-trained recipe \emph{becomes} the shipped gRefCOCO row, with
+the training-free variant retained as the zero-shot reference row --- the
+learned component is reported as a declared, measured transfer study, not as
+this paper's headline.
 
 Finally, we report a benchmark where the comparison only makes sense within
 class, and we state the boundary to the supervised class exactly. On gRefCOCO,

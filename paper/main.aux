@@ -27,8 +27,8 @@
 \@writefile{toc}{\contentsline {paragraph}{Zero-shot / training-free RIS.}{3}{}\protected@file@percent }
 \@writefile{toc}{\contentsline {paragraph}{Mask selection and merging.}{3}{}\protected@file@percent }
 \@writefile{toc}{\contentsline {paragraph}{Structured resolution of spatial reference.}{3}{}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{Generalized referring (GRES).}{3}{}\protected@file@percent }
 \def\@LN@column{2}
+\@writefile{toc}{\contentsline {paragraph}{Generalized referring (GRES).}{3}{}\protected@file@percent }
 \@writefile{toc}{\contentsline {paragraph}{Benchmarks.}{3}{}\protected@file@percent }
 \@writefile{toc}{\contentsline {section}{\numberline {3}\hskip -1em.~Diagnosis: the bottleneck is selection}{3}{}\protected@file@percent }
 \newlabel{sec:diagnosis}{{3}{3}{}{section.3}{}}
@@ -72,8 +72,8 @@
 \@writefile{toc}{\contentsline {subsection}{\numberline {4.4}\hskip -1em.~Set-valued extension}{5}{}\protected@file@percent }
 \newlabel{sec:setvalued}{{4.4}{5}{}{subsection.4.4}{}}
 \newlabel{sec:setvalued@cref}{{[subsection][4][4]4.4}{[1][5][]5}{}{}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.5}\hskip -1em.~What is and is not trained}{5}{}\protected@file@percent }
 \def\@LN@column{1}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.5}\hskip -1em.~What is and is not trained}{6}{}\protected@file@percent }
 \@writefile{toc}{\contentsline {section}{\numberline {5}\hskip -1em.~Experiments}{6}{}\protected@file@percent }
 \newlabel{sec:experiments}{{5}{6}{}{section.5}{}}
 \newlabel{sec:experiments@cref}{{[section][5][]5}{[1][6][]6}{}{}{}}
@@ -100,10 +100,10 @@
 \@writefile{lot}{\contentsline {table}{\numberline {6}{\ignorespaces Component-matched MLLM swap (seeded samples, identical rows per column pair): the shipped path with GLOD-RIS's GLM-4.1V boxes vs the local LLaVA boxes.}}{7}{}\protected@file@percent }
 \newlabel{tab:glmswap}{{6}{7}{}{table.6}{}}
 \newlabel{tab:glmswap@cref}{{[table][6][]6}{[1][7][]7}{}{}{}}
+\def\@LN@column{2}
 \@writefile{toc}{\contentsline {subsection}{\numberline {5.3}\hskip -1em.~Full-table completion and the Pareto ledger}{7}{}\protected@file@percent }
 \newlabel{sec:testcols}{{5.3}{7}{}{subsection.5.3}{}}
 \newlabel{sec:testcols@cref}{{[subsection][3][5]5.3}{[1][7][]7}{}{}{}}
-\def\@LN@column{2}
 \@writefile{lot}{\contentsline {table}{\numberline {7}{\ignorespaces gRefCOCO (GRES) val, official cIoU/gIoU protocol. Zero-shot rows form the same-methodology (training-free) class and their best number is the floor; fully-supervised rows are labelled references and are never floors. $^\dagger $All base components are frozen off the shelf (released scorer, VLM, detector, SAM, existence probes). The training-free reference row fits only the selector's configuration on held-out rows carved from gRefCOCO \emph  {train} and is frozen before its single full-val pass. The shipped row additionally trains the part-acceptance prior on gRefCOCO train (70\%, composition-matched weights) with its threshold tuned on the held-out 30\% two-target stratum and is declared \emph  {trained}; it is not a zero-shot result (trained-vs-frozen declarations in the text and \texttt  {transfer\_wall.json}).}}{8}{}\protected@file@percent }
 \newlabel{tab:gres}{{7}{8}{}{table.7}{}}
 \newlabel{tab:gres@cref}{{[table][7][]7}{[1][7][]8}{}{}{}}
@@ -113,13 +113,13 @@
 \newlabel{tab:testcols@cref}{{[table][8][]8}{[1][7][]8}{}{}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {5.4}\hskip -1em.~Counterintuitive probes (measured, not pre-filtered)}{8}{}\protected@file@percent }
 \newlabel{sec:wild}{{5.4}{8}{}{subsection.5.4}{}}
-\newlabel{sec:wild@cref}{{[subsection][4][5]5.4}{[1][7][]8}{}{}{}}
+\newlabel{sec:wild@cref}{{[subsection][4][5]5.4}{[1][8][]8}{}{}{}}
 \def\@LN@column{2}
 \@writefile{toc}{\contentsline {subsection}{\numberline {5.5}\hskip -1em.~Learned localization prior}{8}{}\protected@file@percent }
 \newlabel{sec:learned}{{5.5}{8}{}{subsection.5.5}{}}
 \newlabel{sec:learned@cref}{{[subsection][5][5]5.5}{[1][8][]8}{}{}{}}
 \def\@LN@column{1}
-\@writefile{lot}{\contentsline {table}{\numberline {9}{\ignorespaces Learned prior progression on the full official gRefCOCO val split ($n{=}14{,}229$), a single frozen application per row. The shipped prompt prior is the row of record; the supervised reference (InstAlign) is a labelled row, never a floor.}}{9}{}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {9}{\ignorespaces Learned prior progression on the full official gRefCOCO val split ($n{=}14{,}229$), a single frozen application per row. The shipped row is the transfer-aware recipe of \S  \ref {sec:transferwall} (declared trained); the subsequent prompt-prior row is the training-free zero-shot reference, and the supervised reference (InstAlign) is a labelled row, never a floor.}}{9}{}\protected@file@percent }
 \newlabel{tab:learned}{{9}{9}{}{table.9}{}}
 \newlabel{tab:learned@cref}{{[table][9][]9}{[1][9][]9}{}{}{}}
 \@writefile{lot}{\contentsline {table}{\numberline {10}{\ignorespaces Box-prompt study, held-out split (train refs), best of 300{} Optuna trials each.}}{9}{}\protected@file@percent }
@@ -128,8 +128,8 @@
 \@writefile{toc}{\contentsline {subsection}{\numberline {5.6}\hskip -1em.~Held-out studies}{9}{}\protected@file@percent }
 \newlabel{sec:studies}{{5.6}{9}{}{subsection.5.6}{}}
 \newlabel{sec:studies@cref}{{[subsection][6][5]5.6}{[1][9][]9}{}{}{}}
-\@writefile{toc}{\contentsline {paragraph}{The box prior is the effect; the candidate set is a guardrail.}{9}{}\protected@file@percent }
 \def\@LN@column{2}
+\@writefile{toc}{\contentsline {paragraph}{The box prior is the effect; the candidate set is a guardrail.}{9}{}\protected@file@percent }
 \@writefile{toc}{\contentsline {paragraph}{Repairs.}{9}{}\protected@file@percent }
 \@writefile{toc}{\contentsline {paragraph}{A stronger encoder does not substitute for grounding.}{9}{}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {5.7}\hskip -1em.~Ablations}{9}{}\protected@file@percent }
@@ -181,10 +181,10 @@
 \def\@LN@column{1}
 \@writefile{lot}{\contentsline {table}{\numberline {16}{\ignorespaces Same-pool rule swap (mIoU, official val splits): GLOD-RIS's own selection rule run on our exact pools, features and guidance, against the released HybridGL scorer and our box rule on the same records, and the published rows. oIoU follows the same ordering ($28.18$/$25.92$/$30.06$ for their rule).}}{14}{}\protected@file@percent }
 \newlabel{tab:ruleswap}{{16}{14}{}{table.16}{}}
-\newlabel{tab:ruleswap@cref}{{[table][16][]16}{[1][13][]14}{}{}{}}
+\newlabel{tab:ruleswap@cref}{{[table][16][]16}{[1][14][]14}{}{}{}}
 \@writefile{toc}{\contentsline {section}{\numberline {6}\hskip -1em.~Limitations}{14}{}\protected@file@percent }
 \newlabel{sec:limitations}{{6}{14}{}{section.6}{}}
-\newlabel{sec:limitations@cref}{{[section][6][]6}{[1][13][]14}{}{}{}}
+\newlabel{sec:limitations@cref}{{[section][6][]6}{[1][14][]14}{}{}{}}
 \@writefile{toc}{\contentsline {paragraph}{The same-class floors are cleared; the supervised cIoU level is the measured boundary.}{14}{}\protected@file@percent }
 \@writefile{toc}{\contentsline {paragraph}{The gRefCOCO wall is measured on val, and part of it is transfer.}{14}{}\protected@file@percent }
 \def\@LN@column{2}
@@ -220,7 +220,6 @@
 \bibcite{lgd2025}{{5}{2025{}}{{Li et~al.}}{{Li, Xie, Gu, Xu, et~al.}}}
 \bibcite{bms2024}{{6}{2025{}}{{Li et~al.}}{{Li, Pang, et~al.}}}
 \bibcite{liu2023gres}{{7}{2023}{{Liu et~al.}}{{Liu, Ding, Jiang, et~al.}}}
-\bibcite{hybridgl2025}{{8}{2025}{{Liu and Li}}{{}}}
 \def\@LN@column{1}
 \@writefile{toc}{\contentsline {paragraph}{gRefCOCO rows.}{16}{}\protected@file@percent }
 \@writefile{toc}{\contentsline {paragraph}{Published-number transcription.}{16}{}\protected@file@percent }
@@ -236,6 +235,7 @@
 \newlabel{fig:qual@cref}{{[figure][3][]3}{[1][16][]17}{}{}{}}
 \def\@LN@column{1}
 \def\@LN@column{2}
+\bibcite{hybridgl2025}{{8}{2025}{{Liu and Li}}{{}}}
 \bibcite{mao2016generation}{{9}{2016}{{Mao et~al.}}{{Mao, Huang, Toshev, Camburu, Yuille, and Murphy}}}
 \bibcite{ni2023refdiff}{{10}{2023}{{Ni et~al.}}{{Ni, Zhang, Feng, Li, Guo, and Zuo}}}
 \bibcite{shu2023tas}{{11}{2023}{{Suo et~al.}}{{Suo, Zhu, and Yang}}}

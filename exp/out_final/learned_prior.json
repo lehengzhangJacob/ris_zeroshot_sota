@@ -8,7 +8,7 @@
     "supervision": "per-part IoU against the union of the reference's ground-truth masks; no-target refs are excluded from part training and keep the shipped existence/abstention machinery untouched",
     "epochs": "one fit, 250 boosting iterations (max_depth 3, lr 0.08) on the 70% train fit split; within-row rank transform of the five score features (invariant to the measured per-frame score miscalibration); degradation augmentation (box-evidence scale u~U(0.6,1) with coherent label scaling) was also measured and HURTS on val in both arms, so the reported configuration omits it",
     "threshold_policy": "acceptance threshold tuned on the held-out train carve-out only (policy abs, tau=0.45); official val evaluated once per fixed configuration",
-    "declared_training": "yes - this is a TRAINED component; the training-free prompt-prior variant remains the shipped row of record and is reported alongside"
+    "declared_training": "yes - this is a TRAINED component; the training-free prompt-prior variant remains reported as the zero-shot reference row (it was the shipped row of record when this study ran; the shipped gRefCOCO row is now the declared-trained transfer-aware recipe, transfer_wall.json)"
   },
   "datasets": {
     "grefcoco": {
@@ -21,7 +21,8 @@
       "prompt_prior_shipped": {
         "cIoU": 51.3182,
         "gIoU": 74.9098,
-        "source": "exp/out_final/main_grefcoco.json"
+        "source": "exp/out_final/main_grefcoco.json prompt_prior_reference",
+        "note": "the prompt-prior row that was the shipped row of record when this study ran; now the training-free zero-shot reference row"
       },
       "supervised_reference": {
         "cIoU": 68.94,
@@ -60,7 +61,7 @@
       "val_gIoU": 69.595
     },
     {
-      "variant": "+ within-row rank score features, no augmentation (best learned arm)",
+      "variant": "+ within-row rank score features, no augmentation (best arm of this study; best on the held-out carve-out)",
       "val_cIoU": 50.52,
       "val_gIoU": 73.914
     },

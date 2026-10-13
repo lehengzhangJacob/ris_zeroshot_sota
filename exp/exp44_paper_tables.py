@@ -163,8 +163,15 @@ def main() -> int:
         ds = (lp.get("datasets") or {}).get("grefcoco") or {}
         pp = ds.get("prompt_prior_shipped") or {}
         sr = ds.get("supervised_reference") or {}
+        tw = load(OUTF / "transfer_wall.json")
+        rec = ((tw or {}).get("arms_detail") or {}).get("recipe_only") or {}
+        rec_rows = []
+        if rec:
+            rec_rows = [f"Transfer-aware recipe (shipped row; declared trained) "
+                        f"& {fmt(rec.get('val_cIoU'))} & {fmt(rec.get('val_gIoU'))} \\\\"]
         lines += [r"\midrule",
-                  f"Shipped prompt prior (row of record) & {fmt(pp.get('cIoU'))} & {fmt(pp.get('gIoU'))} \\\\",
+                  f"Prompt prior (training-free zero-shot reference) & {fmt(pp.get('cIoU'))} & {fmt(pp.get('gIoU'))} \\\\",
+                  *rec_rows,
                   f"InstAlign (supervised reference, labelled) & {fmt(sr.get('cIoU'))} & {fmt(sr.get('gIoU'))} \\\\",
                   r"\bottomrule", r"\end{tabular}"]
         (TAB / "learned.tex").write_text("\n".join(lines) + "\n")

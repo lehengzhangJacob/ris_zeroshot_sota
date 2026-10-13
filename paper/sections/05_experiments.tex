@@ -208,20 +208,23 @@ which are invariant to the per-frame miscalibration, reach $50.52$ without
 augmentation --- also the best arm on the held-out train carve-out ($56.09$
 vs $55.08$), so its selection is held-out-based, not val-based --- and
 augmentation hurts again once rank features are in ($45.47$; Table). The best
-learned arm still trails the hand-tuned prompt rule ($51.32$\,cIoU,
+arm of this study still trails the hand-tuned prompt rule ($51.32$\,cIoU,
 $74.91$\,gIoU) by $0.8$\,cIoU on gRefCOCO: the staged target T1 is
-\emph{not} met, and the honest reading is that degradation-augmented training
+\emph{not} met at this training scale --- the transfer-inversion recipe of
+\S\ref{sec:transferwall} later clears the record --- and the honest reading is
+that degradation-augmented training
 was the wrong remedy for the measured shift while the rank transform was the
 right one, leaving the hand-tuned inclusion rule narrowly the best
-realization of this pool at the current training scale. A six-thousand-reference train-side
+realization of this pool at this training scale. A six-thousand-reference train-side
 build is running to add the scale arm; its outcome will be recorded here
 either way.
 
 \begin{table}[t]\centering\small
 \caption{Learned prior progression on the full official gRefCOCO val split
-($n{=}14{,}229$), a single frozen application per row. The shipped prompt
-prior is the row of record; the supervised reference (InstAlign) is a labelled
-row, never a floor.}
+($n{=}14{,}229$), a single frozen application per row. The shipped row is the
+transfer-aware recipe of \S\ref{sec:transferwall} (declared trained); the
+subsequent prompt-prior row is the training-free zero-shot reference, and the
+supervised reference (InstAlign) is a labelled row, never a floor.}
 \label{tab:learned}
 \input{tables/learned}
 \end{table}
