@@ -265,9 +265,21 @@ def main() -> int:
                                median_shift=round(float(qb[1] - qa[1]), 4))
         out["feature_drift"] = drift
         # ---- (d) image-level ----------------------------------------------
+        trm = record_meta(TRAIN)
+        vam = record_meta(VAL)
+        def _median_masks(meta, keep_rids):
+            vals = [meta[r]["n_masks"] for r in keep_rids
+                    if r in meta and meta[r].get("n_masks")]
+            return float(np.median(vals)) if vals else 0.0
         out["image_level"] = dict(
-            train_masks_per_image_median=float(np.median([v["n_masks"] or 0 for v in tr_t])),
-            val_masks_per_image_median=float(np.median([v["n_masks"] or 0 for v in va_t])),
+            train_masks_per_image_median=_median_masks(
+                trm, [v["rid"] for v in tr_t]),
+            val_masks_per_image_median=_median_masks(
+                vam, [v["rid"] for v in va_t]),
+            train_no_target_share=round(float(np.mean([1.0 if m["no_target"] else 0.0
+                                                       for m in trm.values()])), 4),
+            val_no_target_share=round(float(np.mean([1.0 if m["no_target"] else 0.0
+                                                     for m in vam.values()])), 4),
         )
         doc["modes"]["characterize"] = out
         (OUTF / "transfer_wall.json").write_text(json.dumps(doc, indent=2))

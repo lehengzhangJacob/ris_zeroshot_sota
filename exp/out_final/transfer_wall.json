@@ -1,0 +1,252 @@
+{
+  "what": "train->val transfer inversion (2026-10-13 directive)",
+  "modes": {
+    "characterize": {
+      "population": {
+        "train_targeted_rows": 780,
+        "val_targeted_rows": 4677,
+        "train_n_targets_composition": {
+          "1": 0.6833,
+          "2": 0.309,
+          "3": 0.0038,
+          "4": 0.0026,
+          "5": 0.0013
+        },
+        "val_n_targets_composition": {
+          "2": 0.9953,
+          "3": 0.0036,
+          "4": 0.0004,
+          "5": 0.0004,
+          "7": 0.0002
+        },
+        "train_mean_parts_per_row": 13.271,
+        "val_mean_parts_per_row": 19.181
+      },
+      "prior_quality_shift": {
+        "train_calibration": [
+          {
+            "pred": 0.2007,
+            "actual": 0.1889,
+            "n": 2067
+          },
+          {
+            "pred": 0.3184,
+            "actual": 0.2874,
+            "n": 2073
+          },
+          {
+            "pred": 0.4013,
+            "actual": 0.3609,
+            "n": 2071
+          },
+          {
+            "pred": 0.5212,
+            "actual": 0.5093,
+            "n": 2069
+          },
+          {
+            "pred": 0.6927,
+            "actual": 0.7109,
+            "n": 2071
+          }
+        ],
+        "val_calibration": [
+          {
+            "pred": 0.1736,
+            "actual": 0.2554,
+            "n": 17942
+          },
+          {
+            "pred": 0.2793,
+            "actual": 0.2601,
+            "n": 17940
+          },
+          {
+            "pred": 0.3575,
+            "actual": 0.3152,
+            "n": 17937
+          },
+          {
+            "pred": 0.4466,
+            "actual": 0.3744,
+            "n": 17942
+          },
+          {
+            "pred": 0.5716,
+            "actual": 0.4233,
+            "n": 17947
+          }
+        ],
+        "train_mean_pred": 0.4269,
+        "val_mean_pred": 0.3658,
+        "train_mean_actual": 0.4115,
+        "val_mean_actual": 0.3257,
+        "note": "predicted vs actual per-part IoU by predicted-score quintile; the gap between the two mean_actual columns at matched predicted scores is the prior-quality shift"
+      },
+      "feature_drift": {
+        "is_pool": {
+          "train_medians": [
+            0.0,
+            0.0,
+            1.0
+          ],
+          "val_medians": [
+            0.0,
+            0.0,
+            1.0
+          ],
+          "median_shift": 0.0
+        },
+        "is_sam": {
+          "train_medians": [
+            0.0,
+            1.0,
+            1.0
+          ],
+          "val_medians": [
+            0.0,
+            1.0,
+            1.0
+          ],
+          "median_shift": 0.0
+        },
+        "area_frac": {
+          "train_medians": [
+            0.0236,
+            0.0748,
+            0.2042
+          ],
+          "val_medians": [
+            0.0229,
+            0.0715,
+            0.2294
+          ],
+          "median_shift": -0.0033
+        },
+        "inbox_llava": {
+          "train_medians": [
+            0.0,
+            0.0,
+            0.1388
+          ],
+          "val_medians": [
+            0.0,
+            0.0,
+            0.3639
+          ],
+          "median_shift": 0.0
+        },
+        "inbox_det0": {
+          "train_medians": [
+            0.0,
+            0.0,
+            0.4098
+          ],
+          "val_medians": [
+            0.0,
+            0.0,
+            0.159
+          ],
+          "median_shift": 0.0
+        },
+        "base_score": {
+          "train_medians": [
+            0.0,
+            0.0,
+            0.9597
+          ],
+          "val_medians": [
+            0.0,
+            0.0,
+            0.9513
+          ],
+          "median_shift": 0.0
+        },
+        "gem_score": {
+          "train_medians": [
+            -1.4977,
+            0.0,
+            0.0
+          ],
+          "val_medians": [
+            -1.5228,
+            0.0,
+            0.0
+          ],
+          "median_shift": 0.0
+        },
+        "pick_rank": {
+          "train_medians": [
+            0.0,
+            0.0,
+            1.0
+          ],
+          "val_medians": [
+            0.0,
+            0.0,
+            1.0
+          ],
+          "median_shift": 0.0
+        },
+        "det_index": {
+          "train_medians": [
+            0.0,
+            0.0,
+            1.0
+          ],
+          "val_medians": [
+            0.0,
+            0.0,
+            1.0
+          ],
+          "median_shift": 0.0
+        },
+        "sam_index": {
+          "train_medians": [
+            0.0,
+            0.0,
+            2.0
+          ],
+          "val_medians": [
+            0.0,
+            0.0,
+            2.0
+          ],
+          "median_shift": 0.0
+        },
+        "term_index": {
+          "train_medians": [
+            0.0,
+            0.0,
+            1.0
+          ],
+          "val_medians": [
+            0.0,
+            1.0,
+            2.0
+          ],
+          "median_shift": 1.0
+        },
+        "const": {
+          "train_medians": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "val_medians": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "median_shift": 0.0
+        }
+      },
+      "image_level": {
+        "train_masks_per_image_median": 51.0,
+        "val_masks_per_image_median": 47.0,
+        "train_no_target_share": 0.5,
+        "val_no_target_share": 0.3538
+      }
+    }
+  }
+}

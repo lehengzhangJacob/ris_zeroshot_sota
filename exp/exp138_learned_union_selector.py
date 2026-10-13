@@ -167,6 +167,16 @@ def main() -> int:
                          "train->val shift")
     ap.add_argument("--aug-lo", type=float, default=0.6,
                     help="lower end of the box-evidence scale for the degraded copies")
+    ap.add_argument("--sample-weight-composition", action="store_true",
+                    help="reweight train parts to a uniform n_targets composition "
+                         "(train-side metadata only; 2026-10-13 transfer recipe)")
+    ap.add_argument("--tau-stratum", default="all", choices=["all", "two"],
+                    help="tune the acceptance threshold on the held-out rows with "
+                         "n_targets==2 only (the val-dominant population)")
+    ap.add_argument("--sweep-sam-topk", action="store_true",
+                    help="also try unconditionally accepting the top-1/2 SAM parts per "
+                         "held-out row (combination-policy headroom lead); the best k is "
+                         "chosen on the held-out carve-out and applied once to val")
     ap.add_argument("--sweep2", type=float, default=None,
                     help="fixed second-parameter value for the chosen policy (alpha or q)")
     args = ap.parse_args()
@@ -264,6 +274,25 @@ def main() -> int:
     # held-out predictions and the val pass.
     X_clean = X_all.copy()
     fit_mask_all = fit_mask.copy()
+    sw_fit = None
+    if args.sample_weight_composition:
+        # uniform over the train-side n_targets composition (train metadata only)
+        from collections import Counter as _Counter
+        nt = {}
+        for line in open(TRAIN):
+            rec = json.loads(line)
+            nt[int(rec["ref_id"])] = len([a for a in (rec.get("ann_ids") or [])
+                                          if isinstance(a, int) and a >= 0])
+        comp = _Counter(v for v in nt.values() if v > 0)
+        total = sum(comp.values())
+        sw_all = np.ones(len(row_of), np.float32)
+        for i, (ri, _) in enumerate(row_of):
+            rid = tr[ri]["rid"]
+            k = nt.get(rid, 0)
+            if k > 0 and comp.get(k):
+                sw_all[i] = (total / len(comp)) / comp[k]
+        sw_fit = sw_all
+        print(f"composition weights: {dict(comp)} -> uniform", flush=True)
     n_rep = 1
     if args.augment > 0 and len(X_all):
         rng_a = np.random.RandomState(20261012)
@@ -293,7 +322,10 @@ def main() -> int:
     from sklearn.ensemble import HistGradientBoostingRegressor
     model = HistGradientBoostingRegressor(max_depth=3, max_iter=250, learning_rate=0.08,
                                           random_state=0)
-    model.fit(X_fit[fit_mask_all], y_all[fit_mask_all])
+    w_fit = None
+    if sw_fit is not None:
+        w_fit = np.concatenate([sw_fit] * n_rep)[fit_mask_all]
+    model.fit(X_fit[fit_mask_all], y_all[fit_mask_all], sample_weight=w_fit)
     pred = model.predict((X_clean - scale[0]) / scale[1] if scale is not None else X_clean)
     print(f"model fitted on {int(fit_mask.sum())} parts; held-out parts {int((~fit_mask).sum())}",
           flush=True)
@@ -388,6 +420,16 @@ def main() -> int:
         grid = [round(float(a), 2) for a in np.arange(0.0, 1.01, 0.05)]
     else:
         grid = [round(float(q), 2) for q in np.arange(0.05, 1.01, 0.05)]
+    # 2026-10-13: optionally tune on the two-target stratum only (val-dominant)
+    sweep_rows = held_rows
+    if args.tau_stratum == "two":
+        nt2 = {}
+        for line in open(TRAIN):
+            rec = json.loads(line)
+            nt2[int(rec["ref_id"])] = len([a for a in (rec.get("ann_ids") or [])
+                                           if isinstance(a, int) and a >= 0])
+        sweep_rows = [(ri, r) for ri, r in held_rows if nt2.get(r["rid"], 0) == 2]
+        print(f"tau stratum: two-target held-out rows {len(sweep_rows)}", flush=True)
     for g in grid:
         if args.policy == "abs":
             def pol(predmap, masks, meta, tau=g):
@@ -405,12 +447,30 @@ def main() -> int:
                 vals.sort(reverse=True)
                 nk = max(1, int(np.ceil(q * len(vals))))
                 return [k for _, k in vals[:nk]]
-        m = eval_policy(pol, held_rows, preds_hold)
+        m = eval_policy(pol, sweep_rows, preds_hold)
         curves.append(dict(parameter=round(float(g), 2), **{k: round(float(v), 4) for k, v in m.items()}))
         print(f"  {args.policy} {g:.2f}: cIoU {m['cIoU']:.2f} gIoU {m['gIoU']:.2f}", flush=True)
+        if args.sweep_sam_topk:
+            # combination-policy lead (2026-10-13): also try unconditionally accepting the
+            # top-1 / top-2 SAM parts per row on top of the threshold policy; the best k is
+            # chosen on the same held-out carve-out and applied once to val.
+            for kk in (1, 2):
+                def pol_k(predmap, masks, meta, tau=g, kk=kk):
+                    keep = [k for k in range(len(masks)) if predmap.get(k, 1.0) >= tau]
+                    samk = [k for k in range(len(masks)) if meta[k][0] == "sam"]
+                    samk.sort(key=lambda k: -predmap.get(k, 1.0))
+                    keep += samk[:kk]
+                    return sorted(set(keep))
+                mk = eval_policy(pol_k, sweep_rows, preds_hold)
+                curves.append(dict(parameter=round(float(g), 2), sam_topk=kk,
+                                   **{k: round(float(v), 4) for k, v in mk.items()}))
+                print(f"  +sam_topk {kk} {g:.2f}: cIoU {mk['cIoU']:.2f}", flush=True)
+                if best is None or mk["cIoU"] > best[1]["cIoU"]:
+                    best = (float(g), mk, dict(policy="abs+sam_topk", k=kk))
         if best is None or m["cIoU"] > best[1]["cIoU"]:
-            best = (float(g), m)
+            best = (float(g), m, dict(policy="abs", k=0))
     print(f"best tau {best[0]:.2f}: cIoU {best[1]['cIoU']:.2f} gIoU {best[1]['gIoU']:.2f}", flush=True)
+    best_policy = best[2] if len(best) > 2 else dict(policy="abs", k=0)
 
     out = dict(
         experiment="exp138_learned_union_selector",
@@ -422,6 +482,9 @@ def main() -> int:
         tau_curve=curves,
         tau_selected=best[0],
         policy=args.policy,
+        best_policy=best_policy if len(best) > 2 else None,
+        sample_weight_composition=bool(args.sample_weight_composition),
+        tau_stratum=args.tau_stratum,
         standardized=bool(args.standardize),
         rank_features=bool(args.rank_features),
         augment=dict(copies=args.augment, aug_lo=args.aug_lo) if args.augment else None,
@@ -441,7 +504,7 @@ def main() -> int:
 
     # ---------- frozen application to val (single pass) ----------
     tau = best[0]
-    print(f"[val] applying frozen model with tau={tau}", flush=True)
+    print(f"[val] applying frozen model with tau={tau} policy={best_policy}", flush=True)
     val_rows = load_rows(VAL, "val", clf_base)
     for r in val_rows:
         r["_bs"] = clf_base.predict_proba(r["X"])[:, 1]
@@ -478,7 +541,13 @@ def main() -> int:
                 if scale is not None:
                     X = (X - scale[0]) / scale[1]
                 p_pred = model.predict(X)
-                if args.policy == "abs":
+                if best_policy.get("policy") == "abs+sam_topk":
+                    keep = [k for k in range(len(masks)) if p_pred[k] >= tau]
+                    samk = [k for k in range(len(masks)) if meta[k][0] == "sam"]
+                    samk.sort(key=lambda k: -p_pred[k])
+                    keep += samk[:best_policy.get("k", 0)]
+                    keep = sorted(set(keep))
+                elif args.policy == "abs":
                     keep = [k for k in range(len(masks)) if p_pred[k] >= tau]
                 elif args.policy == "rel":
                     thr = tau * float(p_pred.max()) if len(p_pred) else 0.0
