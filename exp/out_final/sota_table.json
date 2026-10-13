@@ -334,7 +334,7 @@
       "oIoU_source": "aligned pooled re-evaluation (exp40_final_eval.py; protocol_audit.json)"
     },
     {
-      "name": "Ours: joint boxes + SAM union + presence ensemble",
+      "name": "Ours: termbox union rule (training-free reference)",
       "venue": "this run",
       "measured_by_us": true,
       "evidence": "exp/out_final/evidence/sota_grefcoco.json",
@@ -344,7 +344,7 @@
       },
       "n": 14229,
       "setting": "training-free features; rule tuned on held-out gRefCOCO train (never val)",
-      "note": "shipped: per-term box selector, single pick per box (change 16, 2026-10-10, re-selected on the held-out train frame with SAM caches present), joint config change 14 + singles-only no-target fallback (exp124); complete official val split (n=14229) under the official gRefCOCO protocol (protocol_audit.json)"
+      "note": "shipped: per-term box selector, single pick per box (change 16, 2026-10-10, re-selected on the held-out train frame with SAM caches present), joint config change 14 + singles-only no-target fallback (exp124); complete official val split (n=14229) under the official gRefCOCO protocol (protocol_audit.json) | superseded as the shipped row by the transfer-aware learned recipe (change 17); retained as the training-free reference row"
     },
     {
       "name": "GLOD-RIS (our independent reproduction)",
@@ -382,6 +382,19 @@
         },
         "source": "independent reproduction, full official val split"
       }
+    },
+    {
+      "name": "Ours: transfer-aware learned recipe (shipped, declared trained)",
+      "venue": "this run",
+      "measured_by_us": true,
+      "evidence": "exp/out_final/transfer_wall.json",
+      "grefcoco": {
+        "cIoU": 52.7061,
+        "gIoU": 75.0817
+      },
+      "n": 14229,
+      "setting": "light supervision: part-acceptance prior fitted on gRefCOCO train (70%) with composition-matched weights; threshold on the held-out 30% two-target stratum; official val evaluated once",
+      "note": "beats the previous training-free record (51.3182/74.9098) on both metrics; mechanism = the transfer-inversion recipe in transfer_wall.json"
     }
   ],
   "metric_note": "Every RefCOCO-family row carries both mIoU and oIoU from the same source table (2026-10-09 fair-comparison instruction): published rows take the compared paper's own oIoU (GLOD-RIS Table I oIoU block, val columns); our rows take the aligned pooled re-evaluations (protocol_audit.json). oIoU = global pooled overlap sum|pred\u2229GT|/sum|pred\u222aGT|. Val columns only (testA/testB/test(u) not produced; stated in the paper)."

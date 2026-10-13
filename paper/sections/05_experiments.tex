@@ -114,9 +114,14 @@ LLaVA boxes.}\label{tab:glmswap}
 the same-methodology (training-free) class and their best number is the floor;
 fully-supervised rows are labelled references and are never floors.
 $^\dagger$All base components are frozen off the shelf (released scorer, VLM,
-detector, SAM, existence probes); the selector's configuration alone was
-fitted on held-out rows carved from gRefCOCO \emph{train} and frozen before
-its single full-val pass (trained-vs-frozen declaration in the text).}
+detector, SAM, existence probes). The training-free reference row fits only the
+selector's configuration on held-out rows carved from gRefCOCO \emph{train}
+and is frozen before its single full-val pass. The shipped row additionally
+trains the part-acceptance prior on gRefCOCO train (70\%, composition-matched
+weights) with its threshold tuned on the held-out 30\% two-target stratum and
+is declared \emph{trained}; it is not a zero-shot result
+(trained-vs-frozen declarations in the text and
+\texttt{transfer\_wall.json}).}
 \label{tab:gres}
 \input{tables/gres}
 \end{table*}
@@ -468,6 +473,44 @@ quality on two-object referents --- the capability the trained
 baselines buy with gRefCOCO supervision. Every published cIoU number above us
 on gRefCOCO comes from such a model; no same-class (zero-shot) number exceeds
 ours on either metric.
+
+\subsection{The transfer inversion: why light supervision fails, and what it takes}
+\label{sec:transferwall}
+The learned arms of \S\ref{sec:learned} invert in transfer: excellent on held-out
+train rows, worse than the hand rule on val (naive selector $+6.8$ held-out
+$\to$ $-12.5$ val; the best arm before this study, held-out $56.09$ $\to$ val
+$50.52$). We made that inversion the object of study and measured four
+falsifiable decompositions on the cached part tables (train: $10{,}351$ parts
+over $780$ targeted rows; val: $89{,}708$ parts over $4{,}677$).
+(i)~\emph{Population and composition dominate}: train targeted rows are $68.3\%$
+single-target and $30.9\%$ two-target, while val targeted rows are $99.5\%$
+two-target; val rows also carry more parts ($19.2$ vs $13.3$ on average).
+(ii)~\emph{Prior-quality miscalibration}: a train-fitted model is calibrated on
+train (predicted $0.52$ $\to$ actual $0.51$) but \emph{monotonically
+over-predicts} on val (predicted $0.45$--$0.57$ $\to$ actual $0.42$/$0.37$;
+mean predicted $0.366$ vs actual $0.326$), so a threshold tuned on train
+admits too many parts on val. (iii)~\emph{Term-composition feature drift}: the
+median term index shifts $0 \to 1$ and the upper box-overlap quantiles move
+(detector-box overlap p90 $0.41 \to 0.16$; VLM-box overlap p90 $0.14 \to 0.36$). (iv)~\emph{Image
+level} is not the driver (median masks per image $51$ vs $47$).
+The transfer-aware recipe corrects exactly the measured causes, using train-side
+data only: composition-matched part weights (uniform over the train-side
+$n_{\mathrm{targets}}$ composition), within-row rank score features (invariant
+to the per-frame miscalibration), and an acceptance threshold tuned on the
+held-out carve-out \emph{restricted to its two-target stratum} --- the
+val-dominant population. The result is the first arm to clear our own record:
+\textbf{cIoU $52.71$ / gIoU $75.08$} on the full official val split, $+1.39$ /
+$+0.17$ over the training-free rule ($51.32$ / $74.91$), selected over all arms
+on the held-out split alone and applied to val once. The learned variant
+therefore becomes the shipped gRefCOCO row as a \emph{declared trained}
+component; the training-free termbox rule stays reported as the zero-shot
+reference row. Folding in the probe leads: the searched combination policy
+(unconditional top-1 SAM part) changes the val outcome by $0.00$ --- the top-1
+SAM parts already clear the tuned threshold --- and the weak-signal democracy
+vote is reported as a separate arm in \texttt{transfer\_wall.json}. The recipe
+is a correction of transfer, not a capability jump: the supervised reference
+(InstAlign $68.94$) stays far, and everything here is measured on our own
+same-class ledger.
 
 \subsection{Reproduction audit}
 \label{sec:repro}

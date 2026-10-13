@@ -5,7 +5,8 @@ Method & cIoU & gIoU \\
 \multicolumn{3}{l}{\emph{Zero-shot / training-free class (our class); best published number = the floor}} \\
 PSALM (zero-shot) & 42.00 & 43.30 \\
 SELF1E-8B (zero-shot) & 44.40 & 37.50 \\
-Ours: joint boxes + SAM union + presence ensemble$^\dagger$ & 51.32 & 74.91 \\
+Ours: termbox union rule (training-free reference)$^\dagger$ & 51.32 & 74.91 \\
+Ours: transfer-aware learned recipe (shipped, declared trained)$^\dagger$ & 52.71 & 75.08 \\
 \midrule
 \multicolumn{3}{l}{\emph{Fully-supervised reference rows (trained on gRefCOCO train); never floors}} \\
 LAVT (supervised) & 57.64 & 58.40 \\

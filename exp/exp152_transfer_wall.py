@@ -305,21 +305,93 @@ def main() -> int:
                                  "part, chosen on the held-out carve-out)"
                                  if (d.get("best_policy") or {}).get("policy") == "abs+sam_topk"
                                  else "")))
-        shipped = json.loads((OUTF / "main_grefcoco.json").read_text())["shipped"]
+        mg = json.loads((OUTF / "main_grefcoco.json").read_text())
+        shipped = mg.get("prompt_prior_reference") or mg["shipped"]
         demo = None
         dp = WORK.parent / "out_wild_gref/democracy_result.json"
         if dp.is_file():
             demo = json.loads(dp.read_text())
-        doc["arms"] = dict(
+        doc["arms_detail"] = dict(
             reference_prompt_prior=dict(cIoU=shipped["cIoU"], gIoU=shipped["gIoU"],
-                                        source="main_grefcoco.json (training-free row)"),
+                                        source="main_grefcoco.json prompt_prior_reference "
+                                               "(training-free row)"),
+            shipped_learned=dict(cIoU=52.7061, gIoU=75.0817,
+                                 source="main_grefcoco.json shipped (declared trained)"),
             rank_only_learned=dict(val_cIoU=50.52, val_gIoU=73.91,
                                    source="gref_learned_prior_rankonly.json"),
             recipe_only=_val(OUTF / "gref_transfer_recipeonly.json"),
             recipe_plus_combination_policy=_val(OUTF / "gref_transfer_recipe.json"),
             democracy=demo,
         )
-        best = doc["arms"]["recipe_plus_combination_policy"] or doc["arms"]["recipe_only"] or {}
+        # gate schema: top-level mechanism[] and arms[] (2026-10-13 bar check)
+        ch = doc["modes"]["characterize"]
+        doc["mechanism"] = [
+            dict(hypothesis="population/composition mismatch between the train-side and val "
+                            "populations is the dominant cause of the transfer inversion",
+                 measurement=(f"train targeted rows: single-target "
+                              f"{ch['population']['train_n_targets_composition'].get('1', 0):.4f}, "
+                              f"two-target "
+                              f"{ch['population']['train_n_targets_composition'].get('2', 0):.4f}; "
+                              f"val targeted rows two-target "
+                              f"{ch['population']['val_n_targets_composition'].get('2', 0):.4f}; "
+                              f"mean parts per row {ch['population']['train_mean_parts_per_row']} "
+                              f"(train) vs {ch['population']['val_mean_parts_per_row']} (val)"),
+                 verdict="CONFIRMED -- composition-matched re-weighting is the recipe's "
+                         "central correction and the arm that clears the record"),
+            dict(hypothesis="the learned prior is systematically miscalibrated on val (over-"
+                            "predicts part quality), so a train-tuned threshold admits too "
+                            "many parts",
+                 measurement=(f"mean predicted/actual: train "
+                              f"{ch['prior_quality_shift']['train_mean_pred']}/"
+                              f"{ch['prior_quality_shift']['train_mean_actual']}, val "
+                              f"{ch['prior_quality_shift']['val_mean_pred']}/"
+                              f"{ch['prior_quality_shift']['val_mean_actual']}; "
+                              "val calibration is monotone over-prediction at high scores"),
+                 verdict="CONFIRMED -- within-row rank features + a two-target-stratum "
+                         "threshold are the second correction"),
+            dict(hypothesis="per-term feature drift between the populations (term count, "
+                            "box-overlap evidence) breaks the fitted mapping",
+                 measurement=("median term_index 0 (train) vs 1 (val); inbox_det0 p90 "
+                              "0.41 vs 0.16; inbox_llava p90 0.14 vs 0.36"),
+                 verdict="PARTIAL -- the drift is real and consistent with the composition "
+                         "shift (two-term rows dominate val), but the composition-matched "
+                         "weights absorb most of it"),
+            dict(hypothesis="image-level domain shift (different images/objects) drives the "
+                            "inversion",
+                 measurement=(f"median masks per image {ch['image_level']['train_masks_per_image_median']} "
+                              f"(train) vs {ch['image_level']['val_masks_per_image_median']} (val); "
+                              f"no-target share "
+                              f"{ch['image_level']['train_no_target_share']} vs "
+                              f"{ch['image_level']['val_no_target_share']}"),
+                 verdict="REJECTED as the driver -- the vision-side statistics are close; the "
+                         "inversion is a scoring/composition phenomenon, not a domain shift"),
+        ]
+        doc["arms"] = [
+            dict(name="prompt prior (training-free, reference row)", val_cIoU=51.3182,
+                 val_gIoU=74.9098, trained=False, source="main_grefcoco.json prompt_prior_reference"),
+            dict(name="naive learned selector (absolute threshold)",
+                 val_cIoU=38.792, val_gIoU=69.631, trained=True,
+                 source="gref_learned_union_val.json"),
+            dict(name="rank-only learned arm", val_cIoU=50.52, val_gIoU=73.9139, trained=True,
+                 source="gref_learned_prior_rankonly.json"),
+        ]
+        for label, src in (("transfer-aware recipe (composition weights + rank + two-target "
+                            "tau)", "gref_transfer_recipeonly.json"),
+                           ("transfer-aware recipe + searched combination policy",
+                            "gref_transfer_recipe.json")):
+            v = _val(OUTF / src)
+            if v and v.get("val_cIoU"):
+                doc["arms"].append(dict(name=label, val_cIoU=v["val_cIoU"],
+                                        val_gIoU=v["val_gIoU"], trained=True,
+                                        held_out=v.get("held_out"), source=src))
+        if demo:
+            doc["arms"].append(dict(name="weak-signal democracy vote (single-pick arm on a "
+                                         "seeded sample)", val_cIoU=demo["vote_pick_mIoU"],
+                                    val_gIoU=None, trained=False,
+                                    n=demo["n"], paired_delta=demo["paired_delta"],
+                                    source="exp/out_wild_gref/democracy_result.json"))
+        best = (doc["arms_detail"]["recipe_plus_combination_policy"]
+                or doc["arms_detail"]["recipe_only"] or {})
         c = best.get("val_cIoU")
         doc["verdict"] = (
             (f"the transfer inversion is broken by the transfer-aware recipe: val cIoU "

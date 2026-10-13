@@ -11,8 +11,8 @@
 \newcommand{\refcocogReleased}{50.08}  % RefCOCOg released
 \newcommand{\refcocogN}{4896}  % RefCOCOg val expressions
 \newcommand{\oracleRefcocog}{79.12}  % RefCOCOg oracle mIoU (rows.orc_single)
-\newcommand{\grefCIoU}{51.32}  % gRefCOCO val cIoU, ours (shipped)
-\newcommand{\grefGIoU}{74.91}  % gRefCOCO val gIoU, ours (shipped)
+\newcommand{\grefCIoU}{52.71}  % gRefCOCO val cIoU, ours (shipped)
+\newcommand{\grefGIoU}{75.08}  % gRefCOCO val gIoU, ours (shipped)
 \newcommand{\grefReleasedCIoU}{22.56}  % gRefCOCO released-pipeline cIoU
 \newcommand{\grefReleasedGIoU}{12.49}  % gRefCOCO released-pipeline gIoU
 \newcommand{\grefN}{14229}  % gRefCOCO val samples
@@ -21,10 +21,8 @@
 \newcommand{\grefTunedCIoU}{40.96}  % tuned set+abstain model, val cIoU
 \newcommand{\grefTunedGIoU}{71.11}  % tuned set+abstain model, val gIoU
 \newcommand{\grefTunedN}{14220}  % tuned model eval records
-\newcommand{\grefZeroShotCIoU}{50.99}  % best same-class (zero-shot) cIoU floor
-\newcommand{\grefZeroShotGIoU}{43.30}  % best same-class (zero-shot) gIoU floor
-\newcommand{\grefPubCIoU}{68.94}  % strongest SUPERVISED cIoU reference (InstAlign; labelled reference row, not a floor since 2026-10-08)
-\newcommand{\grefPubGIoU}{74.34}  % strongest SUPERVISED gIoU reference (InstAlign; exceeded by ours)
+\newcommand{\grefZeroShotCIoU}{51.32}  % best same-class (zero-shot) cIoU floor
+\newcommand{\grefZeroShotGIoU}{74.91}  % best same-class (zero-shot) gIoU floor
 \newcommand{\wallTwoTarget}{99.47}  % targeted samples that union exactly two objects
 \newcommand{\wallBoxIoU}{32.87}  % VLM box vs 2-object GT union, IoU
 \newcommand{\wallOrcInBox}{40.16}  % box-conditioned mean-IoU ceiling
@@ -97,6 +95,8 @@
 \newcommand{\glmRefcocogLLaVAMIoU}{65.37}  % refcocog mIoU under LLaVA boxes (same rows)
 \newcommand{\glmRefcocogDelta}{-2.00}  % refcocog GLM-minus-LLaVA mIoU
 \newcommand{\glmSwapN}{2000}  % GLM swap sample size per dataset
+\newcommand{\grefPubCIoU}{68.94}  % strongest SUPERVISED cIoU reference (InstAlign; labelled reference row, not a floor since 2026-10-08)
+\newcommand{\grefPubGIoU}{74.34}  % strongest SUPERVISED gIoU reference (InstAlign; exceeded by ours)
 \newcommand{\oracleRefCOCO}{82.21}  % RefCOCO oracle mIoU
 \newcommand{\oracleRefCOCOPlus}{82.40}  % RefCOCO+ oracle mIoU
 \newcommand{\oracleRefCOCOg}{79.12}  % RefCOCOg oracle mIoU

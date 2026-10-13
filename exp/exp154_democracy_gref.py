@@ -146,21 +146,23 @@ def main() -> int:
 
     delta_vote, delta_ship, n_used = [], [], 0
     t0 = time.time()
-    for ridx in sample:
+    from concurrent.futures import ThreadPoolExecutor
+
+    def process(ridx):
         parts = by_row.get(ridx)
         if not parts or ridx >= len(val_rows):
-            continue
+            return None
         r = val_rows[ridx]
         m = rows_meta[str(ridx)]
         fn_ts = terms_val.get(m["rid"])
         if not fn_ts:
-            continue
+            return None
         built = build_parts(r, fn_ts[0], fn_ts[1], cfg, train_side=False)
         if built is None:
-            continue
+            return None
         masks, X, meta = built
         if len(masks) != len(parts):
-            continue
+            return None
         geom = []
         for mk in masks:
             ys, xs = np.nonzero(mk)
@@ -194,12 +196,17 @@ def main() -> int:
             inter = float(np.logical_and(mm, gt).sum())
             union = float(np.logical_or(mm, gt).sum())
             return inter / union if union else 0.0
-        delta_vote.append(iou(masks[j_vote]))
-        delta_ship.append(iou(masks[j_prior]))
+        return iou(masks[j_vote]), iou(masks[j_prior])
+
+    with ThreadPoolExecutor(max_workers=6) as pool:
+        res = list(pool.map(process, sample))
+    for rr in res:
+        if rr is None:
+            continue
+        delta_vote.append(rr[0]); delta_ship.append(rr[1])
         n_used += 1
         if n_used % 100 == 0:
             print(f"  {n_used}/{len(sample)} ({time.time()-t0:.0f}s)", flush=True)
-
     d = np.array(delta_vote) - np.array(delta_ship)
     out = dict(
         mode="democracy",
