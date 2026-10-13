@@ -46,6 +46,24 @@ All scoring passes ran on 4$\times$RTX~4090. Per dataset the pass costs
 about 0.9--1.2 GPU-hours; the entire paper (four datasets, plus controls and
 ablations, which are CPU re-analyses) is under 6 GPU-hours.
 
+\paragraph{Val-pass ledger and reproduction pins.}
+Every arm in the learned-prior table and the transfer-inversion study is a
+single frozen application of the full official val split. Within the
+transfer-inversion study that is five new configurations (recipe,
+recipe$+$combination policy, strata-$\{1,2\}$, weights-only, tau-only), seven
+pre-registered leave-one-rare-ref-out refits (diagnostics only; the shipped
+row was declared unchanged on any outcome), and two bit-reproduction passes
+for the cluster bootstrap; the weak-signal democracy probe ran on a seeded
+$800$-row val sample under its own single-pick protocol (its number is a
+sample mIoU, never a full-val cIoU). Arm, threshold and weight selection used
+the held-out train carve-out only. Reproducing the shipped recipe bit-exactly
+requires \texttt{OMP\_NUM\_THREADS=4} (as the shipped runs used): under a
+different thread count the logistic-regression fits drift in the last decimal,
+two margin-boundary rows flip their rank-1 second part, and the train table
+rebuilds with $10{,}352$ parts instead of $10{,}351$ (val $52.684$ vs
+$52.706$); under the pin an independent control refit reproduces the shipped
+row exactly.
+
 \section{Appendix: per-dataset detail}
 \label{app:detail}
 

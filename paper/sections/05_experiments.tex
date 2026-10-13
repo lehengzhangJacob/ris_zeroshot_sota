@@ -489,10 +489,11 @@ over $780$ targeted rows; val: $89{,}708$ parts over $4{,}677$).
 single-target and $30.9\%$ two-target, while val targeted rows are $99.5\%$
 two-target; val rows also carry more parts ($19.2$ vs $13.3$ on average).
 (ii)~\emph{Prior-quality miscalibration}: a train-fitted model is calibrated on
-train (predicted $0.52$ $\to$ actual $0.51$) but \emph{monotonically
-over-predicts} on val (predicted $0.45$--$0.57$ $\to$ actual $0.42$/$0.37$;
-mean predicted $0.366$ vs actual $0.326$), so a threshold tuned on train
-admits too many parts on val. (iii)~\emph{Term-composition feature drift}: the
+train (predicted $0.52$ $\to$ actual $0.51$) but over-predicts at high scores
+on val, monotonically from the second score quintile up (predicted
+$0.45$--$0.57$ $\to$ actual $0.42$/$0.37$; mean predicted $0.366$ vs actual
+$0.326$; the lowest quintile under-predicts, $0.17$ vs.\ $0.26$), so a
+threshold tuned on train admits too many parts on val. (iii)~\emph{Term-composition feature drift}: the
 median term index shifts $0 \to 1$ and the upper box-overlap quantiles move
 (detector-box overlap p90 $0.41 \to 0.16$; VLM-box overlap p90 $0.14 \to 0.36$). (iv)~\emph{Image
 level} is not the driver (median masks per image $51$ vs $47$).

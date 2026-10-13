@@ -16,8 +16,9 @@ inversion" (new fourth act), the gres-table caption, `main.tex` abstract.
    - population/composition: train targeted rows 68.33% single-target / 30.90%
      two-target vs val 99.53% two-target; mean parts per row 13.27 vs 19.18;
    - prior-quality: train-fitted model calibrated on train (pred 0.427 / actual
-     0.412) but monotone over-prediction on val (pred 0.366 / actual 0.326;
-     high-score quintile pred 0.57 / actual 0.42);
+     0.412) but over-prediction on val from the second score quintile up
+     (pred 0.366 / actual 0.326; top quintile pred 0.57 / actual 0.42; the
+     lowest quintile under-predicts, pred 0.17 / actual 0.26);
    - feature drift: term_index median 0 -> 1; inbox_det0 p90 0.41 -> 0.16;
      inbox_llava p90 0.14 -> 0.36;
    - image level: median masks/image 51 vs 47 (rejected as the driver).
