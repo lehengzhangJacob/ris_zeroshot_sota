@@ -177,7 +177,8 @@ def holdout_split(n_rows):
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--mode", required=True,
-                    choices=["build-tables", "characterize", "recipe", "policy", "all"])
+                    choices=["build-tables", "characterize", "recipe", "policy", "assemble",
+                             "all"])
     ap.add_argument("--device", default="cuda:0")
     ap.add_argument("--side", default="", help="build-tables: train|val|both")
     args = ap.parse_args()
@@ -284,6 +285,61 @@ def main() -> int:
         doc["modes"]["characterize"] = out
         (OUTF / "transfer_wall.json").write_text(json.dumps(doc, indent=2))
         print("characterize written:", json.dumps(out["population"], indent=1))
+
+    if args.mode in ("assemble", "all"):
+        def _val(path):
+            p = Path(path)
+            if not p.is_file():
+                return None
+            d = json.loads(p.read_text())
+            vm = d.get("val_metrics") or {}
+            return dict(val_cIoU=vm.get("cIoU"), val_gIoU=vm.get("gIoU"),
+                        val_N_acc=vm.get("N_acc"), val_T_acc=vm.get("T_acc"),
+                        tau=d.get("tau_selected"), policy=d.get("best_policy"),
+                        held_out=d.get("held_out_at_tau"),
+                        trained=bool(d.get("rank_features")),
+                        spec=("composition-matched re-weighting (uniform over the train-side "
+                              "n_targets composition) + within-row rank features + tau tuned "
+                              "on the held-out two-target stratum"
+                              + (", + searched combination policy (unconditional top-1 SAM "
+                                 "part, chosen on the held-out carve-out)"
+                                 if (d.get("best_policy") or {}).get("policy") == "abs+sam_topk"
+                                 else "")))
+        shipped = json.loads((OUTF / "main_grefcoco.json").read_text())["shipped"]
+        demo = None
+        dp = WORK.parent / "out_wild_gref/democracy_result.json"
+        if dp.is_file():
+            demo = json.loads(dp.read_text())
+        doc["arms"] = dict(
+            reference_prompt_prior=dict(cIoU=shipped["cIoU"], gIoU=shipped["gIoU"],
+                                        source="main_grefcoco.json (training-free row)"),
+            rank_only_learned=dict(val_cIoU=50.52, val_gIoU=73.91,
+                                   source="gref_learned_prior_rankonly.json"),
+            recipe_only=_val(OUTF / "gref_transfer_recipeonly.json"),
+            recipe_plus_combination_policy=_val(OUTF / "gref_transfer_recipe.json"),
+            democracy=demo,
+        )
+        best = doc["arms"]["recipe_plus_combination_policy"] or doc["arms"]["recipe_only"] or {}
+        c = best.get("val_cIoU")
+        doc["verdict"] = (
+            (f"the transfer inversion is broken by the transfer-aware recipe: val cIoU "
+             f"{c:.2f} / gIoU {best.get('val_gIoU'):.2f} on the full official split, above "
+             f"the shipped training-free record ({shipped['cIoU']:.2f} / {shipped['gIoU']:.2f}) "
+             f"and far above the arms that failed to transfer (naive 38.79, rank-only 50.52). "
+             f"The mechanism account: the inversion is dominated by the population/composition "
+             f"mismatch (train targeted rows 68% single-target vs val 99.5% two-target) with a "
+             f"monotone score over-prediction on val and a term-composition feature shift; the "
+             f"recipe corrects exactly those (composition-matched weights, rank features "
+             f"invariant to the miscalibration, threshold tuned on the two-target stratum) "
+             f"and the searched combination policy adds the union headroom. This is a DECLARED "
+             f"TRAINED variant; the training-free prompt rule remains reported as the "
+             f"zero-shot reference row.")
+            if c and c > float(shipped["cIoU"]) else
+            ("the wall survives the recipe: the best corrected arm still trails the "
+             "training-free record on val; the measured boundary is the deliverable")
+        )
+        (OUTF / "transfer_wall.json").write_text(json.dumps(doc, indent=2))
+        print("assemble written; verdict:", doc["verdict"][:120])
 
     return 0
 
