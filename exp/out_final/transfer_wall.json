@@ -349,7 +349,7 @@
       "source": "exp/out_wild_gref/democracy_result.json"
     }
   ],
-  "verdict": "the transfer inversion is broken by the transfer-aware recipe: val cIoU 52.71 / gIoU 75.08 on the full official split, above the shipped training-free record (51.32 / 74.91) and far above the arms that failed to transfer (naive 38.79, rank-only 50.52). The mechanism account: the inversion is dominated by the population/composition mismatch (train targeted rows 68% single-target vs val 99.5% two-target) with a monotone score over-prediction on val and a term-composition feature shift; the recipe corrects exactly those (composition-matched weights, rank features invariant to the miscalibration, threshold tuned on the two-target stratum) the searched combination policy was selected on the held-out carve-out (+1.15 cIoU) but is a measured no-op on val (delta 0.00: the top-1 SAM parts already clear the tuned threshold). This is a DECLARED TRAINED variant; the training-free prompt rule remains reported as the zero-shot reference row.",
+  "verdict": "the transfer inversion is broken by the transfer-aware recipe: val cIoU 52.71 / gIoU 75.08 on the full official split, above the shipped training-free record (51.32 / 74.91) and far above the arms that failed to transfer (naive 38.79, rank-only 50.52). The mechanism account: the inversion is dominated by the population/composition mismatch (train targeted rows 68% single-target vs val 99.5% two-target) with a monotone score over-prediction on val and a term-composition feature shift; the recipe corrects exactly those (an acceptance threshold tuned on the val-dominant two-target stratum -- the dominant correction -- rank features invariant to the miscalibration, and composition-balanced weights as a smaller, rare-row-dependent increment; see decomposition). The searched combination policy was selected on the held-out carve-out (+1.15 cIoU) but is a measured no-op on val (delta 0.00: the top-1 SAM parts already clear the tuned threshold). This is a DECLARED TRAINED variant; the training-free prompt rule remains reported as the zero-shot reference row.",
   "arms_detail": {
     "reference_prompt_prior": {
       "cIoU": 51.3182,
@@ -419,17 +419,17 @@
     {
       "hypothesis": "population/composition mismatch between the train-side and val populations is the dominant cause of the transfer inversion",
       "measurement": "train targeted rows: single-target 0.6833, two-target 0.3090; val targeted rows two-target 0.9953; mean parts per row 13.271 (train) vs 19.181 (val)",
-      "verdict": "CONFIRMED -- composition-matched re-weighting is the recipe's central correction and the arm that clears the record"
+      "verdict": "CONFIRMED -- the composition mismatch drives the inversion, but the correction that carries the transfer is the acceptance threshold tuned on the val-dominant two-target stratum (tau-stratum-only alone clears the record at 52.15); the composition-balanced weights add a smaller increment (52.71) and are rare-row dependent (see decomposition)"
     },
     {
       "hypothesis": "the learned prior is systematically miscalibrated on val (over-predicts part quality at high scores; the lowest val quintile under-predicts), so a train-tuned threshold admits too many parts",
       "measurement": "mean predicted/actual: train 0.4269/0.4115, val 0.3658/0.3257; val calibration is monotone over-prediction at high scores",
-      "verdict": "CONFIRMED -- within-row rank features + a two-target-stratum threshold are the second correction"
+      "verdict": "CONFIRMED -- within-row rank features remove the scale dependence but alone do not clear the record (rank-only 50.52); the threshold re-tuned on the two-target stratum is the correction that does (tau-stratum-only 52.15)"
     },
     {
       "hypothesis": "per-term feature drift between the populations (term count, box-overlap evidence) breaks the fitted mapping",
       "measurement": "median term_index 0 (train) vs 1 (val); inbox_det0 p90 0.41 vs 0.16; inbox_llava p90 0.14 vs 0.36",
-      "verdict": "PARTIAL -- the drift is real and consistent with the composition shift (two-term rows dominate val), but the composition-matched weights absorb most of it"
+      "verdict": "PARTIAL -- the drift is real and consistent with the composition shift (two-term rows dominate val); the stratum-restricted threshold recovers the gap without a separate drift correction, so the drift is not an independent obstacle (the all-strata weights' increment over it is rare-row dependent -- see decomposition)"
     },
     {
       "hypothesis": "image-level domain shift (different images/objects) drives the inversion",
@@ -441,6 +441,8 @@
     "pre_registered": "ship the strata-{1,2}-only variant unless it is materially worse (>0.5 cIoU) than the all-strata recipe on the held-out two-target carve-out; stated before the ablation val numbers were seen",
     "held_out_all_strata": 58.9004,
     "held_out_strata12": 58.0895,
+    "compared_pair": "recipe-only held-out two-target cIoU, both arms policy-free (abs, k=0): 58.9004 vs 58.0895, gap 0.8109 > 0.5; the choice uses held-out numbers only, so no val information enters it; the policy-inclusive comparison (60.0462 vs 58.0895, gap 1.96) gives the same decision, so the outcome is robust to which pair is compared",
+    "val_gap_note": "the val gap 52.7061 vs 51.9655 = 0.74 compares policy-free arms on the {1,2} side and a policy-inclusive arm on the all-strata side whose policy is a measured val no-op (52.7061 with and without), so the gap is not attributable to the policy",
     "outcome": "kept the all-strata recipe"
   },
   "decomposition": {

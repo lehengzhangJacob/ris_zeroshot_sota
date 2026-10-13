@@ -340,8 +340,12 @@ def main() -> int:
                               f"{ch['population']['val_n_targets_composition'].get('2', 0):.4f}; "
                               f"mean parts per row {ch['population']['train_mean_parts_per_row']} "
                               f"(train) vs {ch['population']['val_mean_parts_per_row']} (val)"),
-                 verdict="CONFIRMED -- composition-matched re-weighting is the recipe's "
-                         "central correction and the arm that clears the record"),
+                 verdict="CONFIRMED -- the composition mismatch drives the inversion, but "
+                         "the correction that carries the transfer is the acceptance threshold "
+                         "tuned on the val-dominant two-target stratum (tau-stratum-only alone "
+                         "clears the record at 52.15); the composition-balanced weights add a "
+                         "smaller increment (52.71) and are rare-row dependent (see "
+                         "decomposition)"),
             dict(hypothesis="the learned prior is systematically miscalibrated on val "
                             "(over-predicts part quality at high scores; the lowest val "
                             "quintile under-predicts), so a train-tuned threshold admits "
@@ -352,15 +356,19 @@ def main() -> int:
                               f"{ch['prior_quality_shift']['val_mean_pred']}/"
                               f"{ch['prior_quality_shift']['val_mean_actual']}; "
                               "val calibration is monotone over-prediction at high scores"),
-                 verdict="CONFIRMED -- within-row rank features + a two-target-stratum "
-                         "threshold are the second correction"),
+                 verdict="CONFIRMED -- within-row rank features remove the scale dependence "
+                         "but alone do not clear the record (rank-only 50.52); the threshold "
+                         "re-tuned on the two-target stratum is the correction that does "
+                         "(tau-stratum-only 52.15)"),
             dict(hypothesis="per-term feature drift between the populations (term count, "
                             "box-overlap evidence) breaks the fitted mapping",
                  measurement=("median term_index 0 (train) vs 1 (val); inbox_det0 p90 "
                               "0.41 vs 0.16; inbox_llava p90 0.14 vs 0.36"),
                  verdict="PARTIAL -- the drift is real and consistent with the composition "
-                         "shift (two-term rows dominate val), but the composition-matched "
-                         "weights absorb most of it"),
+                         "shift (two-term rows dominate val); the stratum-restricted threshold "
+                         "recovers the gap without a separate drift correction, so the drift is "
+                         "not an independent obstacle (the all-strata weights' increment over it "
+                         "is rare-row dependent -- see decomposition)"),
             dict(hypothesis="image-level domain shift (different images/objects) drives the "
                             "inversion",
                  measurement=(f"median masks per image {ch['image_level']['train_masks_per_image_median']} "
@@ -423,6 +431,16 @@ def main() -> int:
                             "(>0.5 cIoU) than the all-strata recipe on the held-out two-target "
                             "carve-out; stated before the ablation val numbers were seen"),
             held_out_all_strata=hall, held_out_strata12=h12,
+            compared_pair=("recipe-only held-out two-target cIoU, both arms policy-free "
+                           "(abs, k=0): {:.4f} vs {:.4f}, gap {:.4f} > 0.5; the choice uses "
+                           "held-out numbers only, so no val information enters it; the "
+                           "policy-inclusive comparison (60.0462 vs 58.0895, gap 1.96) gives "
+                           "the same decision, so the outcome is robust to which pair is "
+                           "compared").format(hall or 0.0, h12 or 0.0, (hall or 0.0) - (h12 or 0.0)),
+            val_gap_note=("the val gap 52.7061 vs 51.9655 = 0.74 compares policy-free arms on "
+                          "the {1,2} side and a policy-inclusive arm on the all-strata side "
+                          "whose policy is a measured val no-op (52.7061 with and without), so "
+                          "the gap is not attributable to the policy"),
             outcome=("kept the all-strata recipe" if (hall is not None and h12 is not None
                                                       and hall - h12 > 0.5)
                      else "would switch to strata-{1,2} (parsimony)"),
@@ -454,9 +472,11 @@ def main() -> int:
              f"The mechanism account: the inversion is dominated by the population/composition "
              f"mismatch (train targeted rows 68% single-target vs val 99.5% two-target) with a "
              f"monotone score over-prediction on val and a term-composition feature shift; the "
-             f"recipe corrects exactly those (composition-matched weights, rank features "
-             f"invariant to the miscalibration, threshold tuned on the two-target stratum) "
-             f"the searched combination policy was selected on the held-out carve-out (+1.15 cIoU) "
+             f"recipe corrects exactly those (an acceptance threshold tuned on the val-dominant "
+             f"two-target stratum -- the dominant correction -- rank features invariant to the "
+             f"miscalibration, and composition-balanced weights as a smaller, rare-row-dependent "
+             f"increment; see decomposition). The searched combination policy was selected on "
+             f"the held-out carve-out (+1.15 cIoU) "
              f"but is a measured no-op on val (delta 0.00: the top-1 SAM parts already "
              f"clear the tuned threshold). This is a DECLARED "
              f"TRAINED variant; the training-free prompt rule remains reported as the "
