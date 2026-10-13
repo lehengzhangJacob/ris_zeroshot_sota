@@ -426,6 +426,47 @@ def test_columns():
     return True
 
 
+def transfer_wall():
+    """Transfer-inversion investigation (user directive 2026-10-13)."""
+    rel = "exp/out_final/transfer_wall.json"
+    if not newer(rel):
+        return False
+    try:
+        data = json.loads((ROOT / rel).read_text())
+    except Exception as exc:
+        return fail(f"bad json {rel}: {exc}")
+    if not isinstance(data, dict):
+        return fail("transfer_wall.json must be an object")
+    mech = data.get("mechanism")
+    if not isinstance(mech, list) or len(mech) < 3:
+        return fail("transfer_wall.json needs mechanism[] of length >= 3")
+    for i, m in enumerate(mech):
+        if not isinstance(m, dict):
+            return fail(f"transfer_wall mechanism {i} is not an object")
+        for field in ("hypothesis", "measurement", "verdict"):
+            v = m.get(field)
+            if not isinstance(v, str) or not v.strip():
+                return fail(f"transfer_wall mechanism {i} needs a non-empty {field}")
+    arms = data.get("arms")
+    if not isinstance(arms, list) or len(arms) < 2:
+        return fail("transfer_wall.json needs arms[] of length >= 2")
+    for i, a in enumerate(arms):
+        if not isinstance(a, dict):
+            return fail(f"transfer_wall arm {i} is not an object")
+        if not isinstance(a.get("name"), str) or not a.get("name").strip():
+            return fail(f"transfer_wall arm {i} needs a non-empty name")
+        if not isinstance(a.get("val_cIoU"), (int, float)):
+            return fail(f"transfer_wall arm {i} needs numeric val_cIoU")
+    verdict = data.get("verdict")
+    if not isinstance(verdict, str) or not verdict.strip():
+        return fail("transfer_wall.json needs a non-empty verdict string")
+    pdf_path = ROOT / "paper" / "main.pdf"
+    rel_path = ROOT / rel
+    if not pdf_path.is_file() or pdf_path.stat().st_mtime < rel_path.stat().st_mtime:
+        return fail("paper/main.pdf must be rebuilt after exp/out_final/transfer_wall.json")
+    return True
+
+
 def as_percent(value):
     value = float(value)
     if value <= 1.5:
@@ -506,7 +547,7 @@ def main():
     if not STAMP.is_file():
         print("FAIL: extreme_started.txt missing")
         return 1
-    checks = [tex_has_appendix, architecture, sota, ablation, mains, graveyard, protocol_audit, metrics_sota, analysis_pack, glm_swap, glodris_repro, rule_swap, wild_ideas, learned_prior, test_columns, sota_line, pdf]
+    checks = [tex_has_appendix, architecture, sota, ablation, mains, graveyard, protocol_audit, metrics_sota, analysis_pack, glm_swap, glodris_repro, rule_swap, wild_ideas, learned_prior, test_columns, transfer_wall, sota_line, pdf]
     passed = all(check() for check in checks)
     print("PASS" if passed else "NOT_READY")
     return 0 if passed else 1
