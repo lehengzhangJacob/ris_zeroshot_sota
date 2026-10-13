@@ -474,9 +474,11 @@ def main() -> int:
                                            held_out_all=54.10),
             reading=("the correction that carries the transfer is tuning the acceptance "
                      "threshold on the val-dominant two-target stratum; stratified weights "
-                     "add a smaller increment that rides on the rare refs (three in the fit "
-                     "set carry 37.1% of the fit mass; the single k=5 ref alone 25.7% -- "
-                     "disclosed); weights without the stratum threshold are actively "
+                     "add a smaller increment that is rare-ref dependent (three rare refs "
+                     "in the fit set carry 37.1% of the fit mass; the leave-one-out "
+                     "localizes the increment to the k4 fit ref, -0.95 when removed, "
+                     "while the k3 and k5 fit-ref masses are neutral -- see "
+                     "rare_ref_loo); weights without the stratum threshold are actively "
                      "harmful"),
         )
         # 2026-10-13 review must-fix: leave-one-rare-ref-out diagnostics (exp156).
@@ -489,10 +491,10 @@ def main() -> int:
             doc["decomposition"]["rare_ref_loo_effects"] = comp
             doc["decomposition"]["reading"] += (
                 ". Leave-one-rare-ref-out (exp156, pre-registered as diagnostics only, no "
-                "re-shipping): the mass effects are "
-                f"k3 {comp.get('fit_k3_mass_effect')}, k4 {comp.get('fit_k4_mass_effect')}, "
-                f"k5 {comp.get('fit_k5_mass_over_base_effect')} val cIoU vs the paired "
-                "composition-only/base-only controls (see rare_ref_loo)")
+                "re-shipping): all seven refits land in "
+                f"{loo.get('val_cIoU_min')}-{loo.get('val_cIoU_max')} val cIoU, every one "
+                "still above the training-free record (51.32) -- record-clearing is robust "
+                "to any single rare ref (see rare_ref_loo)")
         doc["verdict"] = (
             (f"the transfer inversion is broken by the transfer-aware recipe: val cIoU "
              f"{c:.2f} / gIoU {best.get('val_gIoU'):.2f} on the full official split, above "

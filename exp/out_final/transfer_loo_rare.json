@@ -1,0 +1,84 @@
+{
+  "pre_registered": "leave-one-rare-ref-out diagnostics; the shipped row does NOT change regardless of outcomes (no re-shipping)",
+  "design": "dropping a rare ref changes the fit set and the composition/base; the paired runs separate the two effects (see LOO_RUNS docstring)",
+  "results": [
+    {
+      "label": "control",
+      "dropped_rid": null,
+      "note": "no drop (reproduction control)",
+      "held_out_cIoU": 58.9004,
+      "val_cIoU": 52.7061,
+      "val_gIoU": 75.0817,
+      "tau": 0.35
+    },
+    {
+      "label": "k3_comp_only",
+      "dropped_rid": "64040",
+      "note": "held-out k3 ref leaves the composition",
+      "held_out_cIoU": 61.598,
+      "val_cIoU": 52.8466,
+      "val_gIoU": 75.1199,
+      "tau": 0.35
+    },
+    {
+      "label": "k3_fit",
+      "dropped_rid": "31716",
+      "note": "fit k3 ref removed: mass + composition",
+      "held_out_cIoU": 60.4679,
+      "val_cIoU": 52.8551,
+      "val_gIoU": 75.1166,
+      "tau": 0.35
+    },
+    {
+      "label": "k4_comp_only",
+      "dropped_rid": "81979",
+      "note": "held-out k4 ref leaves the composition",
+      "held_out_cIoU": 59.5147,
+      "val_cIoU": 52.7792,
+      "val_gIoU": 75.0951,
+      "tau": 0.35
+    },
+    {
+      "label": "k4_fit",
+      "dropped_rid": "45269",
+      "note": "fit k4 ref removed: mass + composition",
+      "held_out_cIoU": 58.2738,
+      "val_cIoU": 51.8273,
+      "val_gIoU": 74.8853,
+      "tau": 0.25
+    },
+    {
+      "label": "k5_fit",
+      "dropped_rid": "42328",
+      "note": "fit k5 ref removed: mass + base (n_keep 7->6)",
+      "held_out_cIoU": 59.9049,
+      "val_cIoU": 52.7078,
+      "val_gIoU": 75.0954,
+      "tau": 0.35
+    },
+    {
+      "label": "k6_base_only",
+      "dropped_rid": "24536",
+      "note": "no-parts k6 ref removed: base perturbation alone",
+      "held_out_cIoU": 58.9004,
+      "val_cIoU": 52.7061,
+      "val_gIoU": 75.0817,
+      "tau": 0.35
+    }
+  ],
+  "effects": {
+    "fit_k3_mass_effect": 0.0085,
+    "fit_k4_mass_effect": -0.9519,
+    "fit_k5_mass_over_base_effect": 0.0017,
+    "comp_k3_effect": 0.1405,
+    "comp_k4_effect": 0.0731,
+    "base_perturbation_effect": 0.0
+  },
+  "val_cIoU_min": 51.8273,
+  "val_cIoU_max": 52.8551,
+  "val_gIoU_min": 74.8853,
+  "shipped_val_cIoU": 52.7061,
+  "tau_stratum_only_val_cIoU": 52.148,
+  "training_free_record_cIoU": 51.3182,
+  "reading": "record-clearing is robust to any single rare ref: all seven refits stay in 51.83-52.86 val cIoU, every one above the training-free record (51.32); worst case (k4 fit ref removed) is +0.51 over the record. The magnitude of the weight increment over tau-only (52.15) is NOT uniformly robust: it concentrates on the single k4 fit ref (removing it costs 0.95 and flips the held-out tau to 0.25, landing 0.32 below tau-only); the k3 and k5 fit-ref masses are neutral (+0.01, +0.002) and the composition/base perturbations move val by <= 0.14 (dropping a held-out rare ref from the composition alone slightly helps: +0.07 to +0.14)"
+}

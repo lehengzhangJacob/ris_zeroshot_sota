@@ -221,6 +221,7 @@ def run_loo(parallel: int = 3) -> int:
         if not ra or not rb or ra["val_cIoU"] is None or rb["val_cIoU"] is None:
             return None
         return round(ra["val_cIoU"] - rb["val_cIoU"], 4)
+    vals = [r["val_cIoU"] for r in results if r["val_cIoU"] is not None]
     summary = dict(
         pre_registered="leave-one-rare-ref-out diagnostics; the shipped row does NOT "
                        "change regardless of outcomes (no re-shipping)",
@@ -235,11 +236,21 @@ def run_loo(parallel: int = 3) -> int:
             comp_k4_effect=_d("k4_comp_only", "control"),
             base_perturbation_effect=_d("k6_base_only", "control"),
         ),
+        val_cIoU_min=min(vals) if vals else None,
+        val_cIoU_max=max(vals) if vals else None,
+        val_gIoU_min=min(r["val_gIoU"] for r in results if r.get("val_gIoU") is not None),
         shipped_val_cIoU=52.7061, tau_stratum_only_val_cIoU=52.148,
-        reading=("each effect is the val-cIoU delta of the paired runs; the mass effects "
-                 "measure how much of the weight increment rests on the individual rare "
-                 "fit refs, the composition/base effects measure the normalization "
-                 "sensitivity to single refs leaving the train population"),
+        training_free_record_cIoU=51.3182,
+        reading=("record-clearing is robust to any single rare ref: all seven refits "
+                 "stay in 51.83-52.86 val cIoU, every one above the training-free "
+                 "record (51.32); worst case (k4 fit ref removed) is +0.51 over the "
+                 "record. The magnitude of the weight increment over tau-only (52.15) "
+                 "is NOT uniformly robust: it concentrates on the single k4 fit ref "
+                 "(removing it costs 0.95 and flips the held-out tau to 0.25, landing "
+                 "0.32 below tau-only); the k3 and k5 fit-ref masses are neutral "
+                 "(+0.01, +0.002) and the composition/base perturbations move val by "
+                 "<= 0.14 (dropping a held-out rare ref from the composition alone "
+                 "slightly helps: +0.07 to +0.14)"),
     )
     (OUTF / "transfer_loo_rare.json").write_text(json.dumps(summary, indent=2))
     print("written:", OUTF / "transfer_loo_rare.json")
