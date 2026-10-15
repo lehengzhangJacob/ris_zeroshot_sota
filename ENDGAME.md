@@ -379,3 +379,53 @@ Open items for future cycles (from the reviewer's 9+ path):
    margin, not a prospective estimate.
 2. Either a principled replacement for the rare-ref weighting or a held-out
    case for shipping tau-only (the weights ride on one k=4 ref).
+
+## Cycle outcome (2026-10-15, component-provenance escalation)
+
+Directive: the head's measured attribution showed released HybridGL quantities
+load-bearing (an adversarial read: "HybridGL plus a box"); account for every
+shipped component, rebuild the restriction stage from our own mechanisms,
+promote an ours-only arm if it holds parity, else publish both drop-one deltas
+without understating the released contribution. Review (thread edd918e01ac5,
+executor deepseek-flash / reviewer glm-5.3): **ACCEPT, 9/10** after two rounds
+that caught a box-prior model mislabel (LLaVA-OneVision-7B, not Qwen2.5-VL-7B),
+inverted tune-split signs in prose, and --- the substantive one --- that the
+promoted head had inherited the released top-1 fallback on box-missing
+records. Fixed at the measurement level: every arm now takes its own box-free
+analogue (the head predicts from its zeroed box features), so no released
+score enters the shipped head on any record.
+
+Delivered (gated: exp/out_final/component_provenance.json + head_rebuild.json,
+evidence exp/out_final/head_rebuild_parts/*.json):
+- 14-component provenance table (provenance in {ours, released_hybridgl,
+  generic_frozen}), including the text tower row (released modified CLIP
+  ViT-B/16) added on review;
+- head-rebuild arms on the three full val splits; the reference arm reproduces
+  the previously shipped released-score head bit-exactly (delta 0.0000). Both
+  drop-one deltas published: box given the restriction +25.2/+26.8/+17.6;
+  restriction given the box -1.45/-0.56/+0.29 on val (-2.5/-1.1/+8.4 on the
+  tune split: RefCOCOg-only value, why the min-over-datasets study keeps it);
+- the directive's quoted box-over-full-pool (50.20/40.24/49.48) could NOT be
+  reproduced under any tested configuration (iou/cover/inside x sentence/noun
+  x box source; measured 69.99/65.23/64.83) --- recorded as unreconciled with
+  the shape hypothesis (its ordering matches the released-scores-only arm);
+- PROMOTED HEAD: learned selector (HistGradientBoosting, depth 3, 250 iters,
+  seed 0, 8 of-ours terms; fitted on train-carved held-out rows only) ---
+  70.57/66.35/65.51 val (+2.03/+1.68/+0.39) and
+  +2.03/+1.93/+1.21/+1.26/+0.77 on the five test columns; declared trained;
+  the training-free realization retained as the reference row everywhere
+  (mains, sota_table, test_columns, protocol_audit);
+- platform disclosure: exactly two released components remain read by the
+  shipped head, both frozen representations (G2L masked-region extractor +
+  matching modified-CLIP text tower); the region-text term's marginal value
+  within the head is +0.60/+0.81/+0.93 mIoU over the best feature-free arm,
+  and no feature-free arm held parity (0.54 short on RefCOCOg). The promotion
+  rests on that declared platform.
+Paper: 20 pp; new §provenance with the head-rebuild table, method §head,
+"What is and is not trained" and complexity updated, appendix provenance
+listing; abstract reflects the promoted head.
+
+Open items for future cycles:
+1. Multi-seed std for the promoted head (single seed disclosed, non-blocking).
+2. Prospective application of the frozen promoted head to an unseen split
+   (carried over from the transfer-wall 9+ path).
