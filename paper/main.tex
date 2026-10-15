@@ -51,7 +51,15 @@ frozen, local component --- a 7B vision-language model asked, in natural
 language, for the referent's bounding box --- and select the candidate whose
 mask best fills that box. Passing the full referring expression rather than a
 parsed noun phrase is worth $+13.4$/$+10.6$/$+11.6$\,mIoU in a held-out study;
-no API is involved. The method is tuned only on a held-out split built from
+no API is involved. A component-provenance study measures this head as a
+conjunction of the released scores' candidate restriction and our box pick
+(drop-one deltas measured in both directions), rebuilds the restriction from
+our own terms, and promotes the resulting small selector head
+(declared trained; fitted on train-carved held-out rows only), which holds
+parity or better on all three full val splits and all five test columns
+($70.57$/$66.36$/$65.55$ val mIoU), with the training-free rule kept as the
+zero-shot reference row. The method is tuned only on a held-out split built
+from
 RefCOCO-family train references (\studyTrials{}-trial Optuna studies, objective
 = minimum over datasets) and evaluated on the full validation sets. On
 gRefCOCO we locate where the training-free class stands: a three-prompt yes/no

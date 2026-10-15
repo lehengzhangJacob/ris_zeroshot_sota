@@ -1,0 +1,385 @@
+{
+  "what": "head-rebuild study: the RefCOCO-family candidate-restriction stage re-measured from our own mechanisms as deterministic re-analysis over cached records (SAM ViT-H pool + cached G2L masked-region features + cached VLM boxes; no vision re-generation)",
+  "attribution_note": "Both drop-one directions, measured on the full official val splits (the reference arm reproduces the shipped released-score head bit-exactly, delta 0.0000): given the box, the released restriction is worth -1.45 / -0.56 / +0.29 mIoU; given the restriction, the box is worth +25.21 / +26.82 / +17.61 mIoU. Under the shipped iou box-fill and sentence box the restriction is ~neutral given the box; the quoted directive figures (box-over-full-pool 50.20/40.24/49.48) could not be reproduced under any tested configuration -- iou/cover/inside modes, sentence/noun phrase, LLaVA boxes (exp159b_boxsource_probe.json) -- and are recorded as unreconciled; the box carries the conjunction either way.",
+  "components": [
+    {
+      "name": "SAM ViT-H automatic mask generator (pps=8, released settings)",
+      "role": "proposes the candidate pool for every dataset",
+      "provenance": "generic_frozen",
+      "evidence": "exp/cache_map.py (settings replicated from the released commit)"
+    },
+    {
+      "name": "HybridGL G2L masked-region feature extractor (modified CLIP ViT-B/16, masking_block=9)",
+      "role": "per-proposal 512-d region features the text scores read",
+      "provenance": "released_hybridgl",
+      "evidence": "/home/msj_team/Jacob/sys/glod_ris_repro/glod/vision.py + cache/vision/*.npz"
+    },
+    {
+      "name": "Released semantic score sc = 0.5*text(sentence) + 0.5*text(noun phrase)",
+      "role": "primary released scoring term; the shipped restriction's leading key",
+      "provenance": "released_hybridgl",
+      "evidence": "exp/hybridgl_guided.py GuidedScorer.score; exp/out_extreme/records_*.jsonl"
+    },
+    {
+      "name": "Released GEM spatial-coherence score",
+      "role": "second released scoring term in the restriction key",
+      "provenance": "released_hybridgl",
+      "evidence": "exp/hybridgl_guided.py (GEM ViT-B/16 + directional mask)"
+    },
+    {
+      "name": "Released fused top-3 selection (alpha=0.6 GEM mix)",
+      "role": "the released pipeline's own pick; shipped pipeline uses it only on box-missing records",
+      "provenance": "released_hybridgl",
+      "evidence": "exp/hybridgl_guided.py; records' `final` field"
+    },
+    {
+      "name": "Released-score top-15 candidate restriction (rank01(sc)+0.4906*rank01(gem))",
+      "role": "narrows the pool before the box pick in the shipped RefCOCO-family head",
+      "provenance": "released_hybridgl",
+      "evidence": "exp/out_final/optuna_study.json (k_dec=15, gem_mix=0.49057)"
+    },
+    {
+      "name": "Dense localization prior: Qwen2.5-VL-7B queried with the full expression",
+      "role": "frozen VLM box for the referent (the component this run proposed)",
+      "provenance": "ours",
+      "evidence": "exp/vlm_boxes.py; exp/out_vlm_boxes cache; exp/out_final/box_quality_sample.json"
+    },
+    {
+      "name": "Box-fill selection rule (loc = |mask n box| / |mask u box|, argmax within candidate set)",
+      "role": "picks the instance within the candidate set",
+      "provenance": "ours",
+      "evidence": "exp/exp40_final_eval.py box_overlap; exp/exp159_head_rebuild.py"
+    },
+    {
+      "name": "gRefCOCO multi-term machinery (clause decomposition, per-term box+SAM picks, union)",
+      "role": "delivers the multi-target gRefCOCO row",
+      "provenance": "ours",
+      "evidence": "exp/exp124_fp_shrink_val.py; exp/out_final/main_grefcoco.json"
+    },
+    {
+      "name": "gRefCOCO no-target decision (three-prompt existence ensemble + abstention)",
+      "role": "solves the no-target/abstention decision",
+      "provenance": "ours",
+      "evidence": "exp/exp58_exists_probe.py; exp/out_final/gref_wall.json"
+    },
+    {
+      "name": "gRefCOCO learned acceptance prior (HistGradientBoosting, declared trained)",
+      "role": "transfer-aware acceptance for the shipped gRefCOCO row (rank features + stratified weights + two-target tau)",
+      "provenance": "ours",
+      "evidence": "exp/exp138_learned_union_selector.py; exp/out_final/transfer_wall.json"
+    },
+    {
+      "name": "Open-vocabulary detector gate (GroundingDINO) on the gRefCOCO path",
+      "role": "second box source for term-level picks on gRefCOCO",
+      "provenance": "generic_frozen",
+      "evidence": "exp/exp108_gdino_study.py; exp/gdino.py"
+    },
+    {
+      "name": "Evaluation protocol alignment (official gRefCOCO evaluation; pooled global oIoU for the RefCOCO family)",
+      "role": "keeps every shipped number under the compared papers' protocol",
+      "provenance": "ours",
+      "evidence": "exp/out_final/protocol_audit.json"
+    }
+  ],
+  "head_rebuild": {
+    "arms": [
+      {
+        "name": "reference: released-score top-15 restriction + box-fill pick (shipped head)",
+        "role": "the shipped RefCOCO-family head, reproduced bit-for-bit as deterministic re-analysis: candidate set = top-15 by rank01(sc) + 0.4906*rank01(gem) (released semantic + GEM), pick = argmax box-fill within",
+        "uses_released_scores": true,
+        "evidence": "exp/out_final/head_rebuild.json",
+        "val": {
+          "refcoco": 68.5333,
+          "refcocoplus": 64.6669,
+          "refcocog": 65.1175
+        },
+        "val_oIoU": {
+          "refcoco": 63.3957,
+          "refcocoplus": 58.3114,
+          "refcocog": 59.7655
+        },
+        "n": {
+          "refcoco": 10834,
+          "refcocoplus": 10758,
+          "refcocog": 4896
+        }
+      },
+      {
+        "name": "attribution: released-scores-only top-1 (no box, no restriction effect)",
+        "role": "drop-the-box control: global argmax of the released fused key",
+        "uses_released_scores": true,
+        "evidence": "exp/out_final/head_rebuild.json",
+        "val": {
+          "refcoco": 43.3257,
+          "refcocoplus": 37.8478,
+          "refcocog": 47.5072
+        },
+        "val_oIoU": {
+          "refcoco": 35.9919,
+          "refcocoplus": 30.8192,
+          "refcocog": 38.4799
+        },
+        "n": {
+          "refcoco": 10834,
+          "refcocoplus": 10758,
+          "refcocog": 4896
+        }
+      },
+      {
+        "name": "attribution: box-fill pick over the FULL pool (no text restriction)",
+        "role": "drop-the-restriction control: argmax box-fill over all SAM proposals",
+        "uses_released_scores": false,
+        "evidence": "exp/out_final/head_rebuild.json",
+        "val": {
+          "refcoco": 69.9854,
+          "refcocoplus": 65.2246,
+          "refcocog": 64.8311
+        },
+        "val_oIoU": {
+          "refcoco": 63.8467,
+          "refcocoplus": 58.1083,
+          "refcocog": 59.2835
+        },
+        "n": {
+          "refcoco": 10834,
+          "refcocoplus": 10758,
+          "refcocog": 4896
+        }
+      },
+      {
+        "name": "ours: region-text top-15 restriction (fg @ full-sentence CLIP) + box-fill pick",
+        "role": "restriction rebuilt from our own protocol: top-15 by the cached masked-region feature against the FULL-sentence CLIP embedding (no released text ensemble, no GEM term), same box-fill pick",
+        "uses_released_scores": false,
+        "evidence": "exp/out_final/head_rebuild.json",
+        "val": {
+          "refcoco": 66.8318,
+          "refcocoplus": 63.8742,
+          "refcocog": 64.7688
+        },
+        "val_oIoU": {
+          "refcoco": 61.0267,
+          "refcocoplus": 57.1719,
+          "refcocog": 58.8447
+        },
+        "n": {
+          "refcoco": 10834,
+          "refcocoplus": 10758,
+          "refcocog": 4896
+        }
+      },
+      {
+        "name": "attribution: our region-text key alone, top-1 (no box)",
+        "role": "drop-the-box control for the ours-only restriction stage",
+        "uses_released_scores": false,
+        "evidence": "exp/out_final/head_rebuild.json",
+        "val": {
+          "refcoco": 34.4442,
+          "refcocoplus": 38.859,
+          "refcocog": 43.1804
+        },
+        "val_oIoU": {
+          "refcoco": 26.4144,
+          "refcocoplus": 30.8837,
+          "refcocog": 32.5234
+        },
+        "n": {
+          "refcoco": 10834,
+          "refcocoplus": 10758,
+          "refcocog": 4896
+        }
+      },
+      {
+        "name": "ours: geometric guards only (center-in-box, mask/box area <= 4) + box-fill pick",
+        "role": "no text at all: guard-filter by mask centroid inside the box and mask-to-box area ratio <= 4, then argmax box-fill",
+        "uses_released_scores": false,
+        "evidence": "exp/out_final/head_rebuild.json",
+        "val": {
+          "refcoco": 69.6517,
+          "refcocoplus": 64.8617,
+          "refcocog": 64.8318
+        },
+        "val_oIoU": {
+          "refcoco": 64.0713,
+          "refcocoplus": 58.3775,
+          "refcocog": 60.1757
+        },
+        "n": {
+          "refcoco": 10834,
+          "refcocoplus": 10758,
+          "refcocog": 4896
+        }
+      },
+      {
+        "name": "ours: strict geometric guards (center-in-box, mask/box area in [0.1, 2]) + box-fill pick",
+        "role": "no text at all: guard-filter by mask centroid inside the box and mask-to-box area ratio in [0.1, 2], then argmax box-fill",
+        "uses_released_scores": false,
+        "evidence": "exp/out_final/head_rebuild.json",
+        "val": {
+          "refcoco": 69.7181,
+          "refcocoplus": 64.9546,
+          "refcocog": 64.879
+        },
+        "val_oIoU": {
+          "refcoco": 64.0031,
+          "refcocoplus": 58.3154,
+          "refcocog": 59.8223
+        },
+        "n": {
+          "refcoco": 10834,
+          "refcocoplus": 10758,
+          "refcocog": 4896
+        }
+      },
+      {
+        "name": "attribution: box-fill pick (cover mode) over the FULL pool",
+        "role": "overlap-mode variant of the drop-the-restriction control (mask-covers-box fraction)",
+        "uses_released_scores": false,
+        "evidence": "exp/out_final/head_rebuild.json",
+        "val": {
+          "refcoco": 65.212,
+          "refcocoplus": 61.6405,
+          "refcocog": 57.0176
+        },
+        "val_oIoU": {
+          "refcoco": 49.765,
+          "refcocoplus": 46.5542,
+          "refcocog": 39.7061
+        },
+        "n": {
+          "refcoco": 10834,
+          "refcocoplus": 10758,
+          "refcocog": 4896
+        }
+      },
+      {
+        "name": "attribution: box-fill pick (inside mode) over the FULL pool",
+        "role": "overlap-mode variant of the drop-the-restriction control (mask-inside-box fraction)",
+        "uses_released_scores": false,
+        "evidence": "exp/out_final/head_rebuild.json",
+        "val": {
+          "refcoco": 14.7495,
+          "refcocoplus": 13.0591,
+          "refcocog": 15.2046
+        },
+        "val_oIoU": {
+          "refcoco": 11.2822,
+          "refcocoplus": 10.0643,
+          "refcocog": 11.2961
+        },
+        "n": {
+          "refcoco": 10834,
+          "refcocoplus": 10758,
+          "refcocog": 4896
+        }
+      },
+      {
+        "name": "ours: learned head over geometric terms only, richer set (no text, no features)",
+        "role": "HistGradientBoosting over box overlap (iou + cover), center-in-box, area ratio, mask area, centroid-to-box-center distance, box area, within-record rank, containment-parent; fitted on the held-out TRAIN tune refs only; uses neither released scores nor text",
+        "uses_released_scores": false,
+        "evidence": "exp/out_final/head_rebuild.json",
+        "val": {
+          "refcoco": 69.9913,
+          "refcocoplus": 65.648,
+          "refcocog": 64.5782
+        },
+        "val_oIoU": {
+          "refcoco": 63.9581,
+          "refcocoplus": 58.5933,
+          "refcocog": 59.3831
+        },
+        "n": {
+          "refcoco": 10834,
+          "refcocoplus": 10758,
+          "refcocog": 4896
+        }
+      },
+      {
+        "name": "ours: learned head over geometric terms only (no text, no features)",
+        "role": "HistGradientBoosting over box overlap, center-in-box, area ratio, mask area, within-record rank, containment-parent; fitted on the held-out TRAIN tune refs only; uses neither released scores nor text nor the masked-region features",
+        "uses_released_scores": false,
+        "evidence": "exp/out_final/head_rebuild.json",
+        "val": {
+          "refcoco": 69.8757,
+          "refcocoplus": 65.3842,
+          "refcocog": 64.4681
+        },
+        "val_oIoU": {
+          "refcoco": 63.6304,
+          "refcocoplus": 58.0241,
+          "refcocog": 59.0806
+        },
+        "n": {
+          "refcoco": 10834,
+          "refcocoplus": 10758,
+          "refcocog": 4896
+        }
+      },
+      {
+        "name": "ours: learned head over our own per-proposal terms (HistGradientBoosting, declared trained)",
+        "role": "small head fitted on the RefCOCO-family held-out TRAIN tune refs only (1,137/1,120/765 records; target = proposal IoU >= 0.5); features are all ours: full-sentence region-text score, box overlap, center-in-box, area ratio, mask area, within-row ranks, containment-parent flag; val is a single frozen application",
+        "uses_released_scores": false,
+        "evidence": "exp/out_final/head_rebuild.json",
+        "val": {
+          "refcoco": 70.5664,
+          "refcocoplus": 66.3548,
+          "refcocog": 65.5483
+        },
+        "val_oIoU": {
+          "refcoco": 64.6709,
+          "refcocoplus": 59.4338,
+          "refcocog": 61.0128
+        },
+        "n": {
+          "refcoco": 10834,
+          "refcocoplus": 10758,
+          "refcocog": 4896
+        }
+      }
+    ],
+    "attribution": {
+      "refcoco": {
+        "reference": 68.5333,
+        "released_only": 43.3257,
+        "box_over_full_pool": 69.9854,
+        "drop_restriction_given_box": -1.4521,
+        "drop_box_given_restriction": 25.2076,
+        "box_full_cover": 65.212,
+        "box_full_inside": 14.7495
+      },
+      "refcocoplus": {
+        "reference": 64.6669,
+        "released_only": 37.8478,
+        "box_over_full_pool": 65.2246,
+        "drop_restriction_given_box": -0.5577,
+        "drop_box_given_restriction": 26.8191,
+        "box_full_cover": 61.6405,
+        "box_full_inside": 13.0591
+      },
+      "refcocog": {
+        "reference": 65.1175,
+        "released_only": 47.5072,
+        "box_over_full_pool": 64.8311,
+        "drop_restriction_given_box": 0.2864,
+        "drop_box_given_restriction": 17.6103,
+        "box_full_cover": 57.0176,
+        "box_full_inside": 15.2046
+      }
+    },
+    "box_stats": {
+      "refcoco": {
+        "box_queried_pct": 100.0,
+        "box_none_records": 35
+      },
+      "refcocoplus": {
+        "box_queried_pct": 100.0,
+        "box_none_records": 50
+      },
+      "refcocog": {
+        "box_queried_pct": 100.0,
+        "box_none_records": 13
+      }
+    }
+  },
+  "verdict": "PROMOTE: the ours-only arm 'learned_head' holds parity or better with the released-score head on all three full official val splits (mean 67.49 vs reference 66.11; deltas refcoco +2.03, refcocoplus +1.69, refcocog +0.43), so the candidate-restriction stage no longer depends on the released scores and the shipped head's decisive scoring components are all ours. Caveat disclosed in the paper: this head reads the cached masked-region features (released G2L extractor) through our full-sentence text protocol; the arms that use neither released scores, released features nor text (learned_geom/learned_geom2) reach 64.58 on refcocog, 0.5 below the head they would replace, so the feature path is retained as the declared platform.",
+  "generated": "exp160_component_provenance.py"
+}

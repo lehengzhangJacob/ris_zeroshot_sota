@@ -72,6 +72,13 @@ ARM_META = {
               "area ratio, mask area, centroid-to-box-center distance, box area, "
               "within-record rank, containment-parent; fitted on the held-out "
               "TRAIN tune refs only; uses neither released scores nor text")),
+    "learned_geom": dict(
+        name="ours: learned head over geometric terms only (no text, no features)",
+        uses_released_scores=False,
+        role=("HistGradientBoosting over box overlap, center-in-box, area ratio, "
+              "mask area, within-record rank, containment-parent; fitted on the "
+              "held-out TRAIN tune refs only; uses neither released scores nor "
+              "text nor the masked-region features")),
     "learned_head": dict(
         name="ours: learned head over our own per-proposal terms (HistGradientBoosting, declared trained)",
         uses_released_scores=False,
@@ -116,8 +123,6 @@ def main() -> int:
                    for ds in DATASETS},
         generated="exp160_component_provenance.py (from exp159_head_rebuild.py parts)",
     )
-    (OUTF / "head_rebuild.json").write_text(json.dumps(agg, indent=2))
-
     # ---- attribution deltas ------------------------------------------------
     attrib = {}
     for ds in DATASETS:
@@ -131,6 +136,8 @@ def main() -> int:
             box_full_cover=a["attrib_box_full_cover"]["mIoU"],
             box_full_inside=a["attrib_box_full_inside"]["mIoU"],
         )
+    agg["attribution"] = attrib
+    (OUTF / "head_rebuild.json").write_text(json.dumps(agg, indent=2))
 
     # ---- components --------------------------------------------------------
     comps = [

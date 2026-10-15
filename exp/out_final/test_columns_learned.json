@@ -1,0 +1,351 @@
+{
+  "what": "promoted learned head on the five compared-table test columns; same cached records, aligned protocol (mIoU = mean per-expression IoU; oIoU = pooled intersection/union)",
+  "splits": {
+    "refcoco_testA": {
+      "dataset": "refcoco",
+      "split": "testA",
+      "n": 5657,
+      "arms": {
+        "reference": {
+          "n": 5657,
+          "mIoU": 71.8244,
+          "oIoU": 67.6637
+        },
+        "attrib_released_only": {
+          "n": 5657,
+          "mIoU": 44.424,
+          "oIoU": 37.2776
+        },
+        "attrib_box_full": {
+          "n": 5657,
+          "mIoU": 73.3329,
+          "oIoU": 69.0446
+        },
+        "attrib_box_full_cover": {
+          "n": 5657,
+          "mIoU": 70.1413,
+          "oIoU": 57.4208
+        },
+        "attrib_box_full_inside": {
+          "n": 5657,
+          "mIoU": 13.5028,
+          "oIoU": 10.9513
+        },
+        "ours_region_text": {
+          "n": 5657,
+          "mIoU": 69.6945,
+          "oIoU": 64.6444
+        },
+        "ours_key_only": {
+          "n": 5657,
+          "mIoU": 36.7908,
+          "oIoU": 28.0906
+        },
+        "geom_guard": {
+          "n": 5657,
+          "mIoU": 73.016,
+          "oIoU": 69.421
+        },
+        "geom_guard_strict": {
+          "n": 5657,
+          "mIoU": 73.0929,
+          "oIoU": 69.285
+        },
+        "learned_head": {
+          "n": 5657,
+          "mIoU": 73.8585,
+          "oIoU": 69.543
+        },
+        "learned_geom": {
+          "n": 5657,
+          "mIoU": 73.2977,
+          "oIoU": 68.9889
+        },
+        "learned_geom2": {
+          "n": 5657,
+          "mIoU": 73.6211,
+          "oIoU": 69.6189
+        }
+      },
+      "box_queried_pct": 100.0,
+      "box_none_records": 23
+    },
+    "refcoco_testB": {
+      "dataset": "refcoco",
+      "split": "testB",
+      "n": 5095,
+      "arms": {
+        "reference": {
+          "n": 5095,
+          "mIoU": 60.6201,
+          "oIoU": 54.7142
+        },
+        "attrib_released_only": {
+          "n": 5095,
+          "mIoU": 42.606,
+          "oIoU": 35.6273
+        },
+        "attrib_box_full": {
+          "n": 5095,
+          "mIoU": 62.1539,
+          "oIoU": 55.4425
+        },
+        "attrib_box_full_cover": {
+          "n": 5095,
+          "mIoU": 57.4536,
+          "oIoU": 43.9036
+        },
+        "attrib_box_full_inside": {
+          "n": 5095,
+          "mIoU": 15.2049,
+          "oIoU": 11.4363
+        },
+        "ours_region_text": {
+          "n": 5095,
+          "mIoU": 59.6892,
+          "oIoU": 54.1237
+        },
+        "ours_key_only": {
+          "n": 5095,
+          "mIoU": 31.2836,
+          "oIoU": 24.6321
+        },
+        "geom_guard": {
+          "n": 5095,
+          "mIoU": 61.2774,
+          "oIoU": 55.3786
+        },
+        "geom_guard_strict": {
+          "n": 5095,
+          "mIoU": 61.6123,
+          "oIoU": 55.5472
+        },
+        "learned_head": {
+          "n": 5095,
+          "mIoU": 62.5614,
+          "oIoU": 55.5202
+        },
+        "learned_geom": {
+          "n": 5095,
+          "mIoU": 61.9887,
+          "oIoU": 54.7353
+        },
+        "learned_geom2": {
+          "n": 5095,
+          "mIoU": 62.2791,
+          "oIoU": 55.1919
+        }
+      },
+      "box_queried_pct": 100.0,
+      "box_none_records": 20
+    },
+    "refcocoplus_testA": {
+      "dataset": "refcocoplus",
+      "split": "testA",
+      "n": 5726,
+      "arms": {
+        "reference": {
+          "n": 5726,
+          "mIoU": 70.6639,
+          "oIoU": 66.6185
+        },
+        "attrib_released_only": {
+          "n": 5726,
+          "mIoU": 40.3444,
+          "oIoU": 33.058
+        },
+        "attrib_box_full": {
+          "n": 5726,
+          "mIoU": 71.1718,
+          "oIoU": 66.4628
+        },
+        "attrib_box_full_cover": {
+          "n": 5726,
+          "mIoU": 68.4158,
+          "oIoU": 55.9411
+        },
+        "attrib_box_full_inside": {
+          "n": 5726,
+          "mIoU": 13.1274,
+          "oIoU": 10.7342
+        },
+        "ours_region_text": {
+          "n": 5726,
+          "mIoU": 70.3752,
+          "oIoU": 65.9904
+        },
+        "ours_key_only": {
+          "n": 5726,
+          "mIoU": 42.8033,
+          "oIoU": 34.0653
+        },
+        "geom_guard": {
+          "n": 5726,
+          "mIoU": 70.9461,
+          "oIoU": 66.8759
+        },
+        "geom_guard_strict": {
+          "n": 5726,
+          "mIoU": 70.9128,
+          "oIoU": 66.6506
+        },
+        "learned_head": {
+          "n": 5726,
+          "mIoU": 71.9348,
+          "oIoU": 67.2293
+        },
+        "learned_geom": {
+          "n": 5726,
+          "mIoU": 71.3485,
+          "oIoU": 66.4411
+        },
+        "learned_geom2": {
+          "n": 5726,
+          "mIoU": 71.6443,
+          "oIoU": 66.7543
+        }
+      },
+      "box_queried_pct": 100.0,
+      "box_none_records": 16
+    },
+    "refcocoplus_testB": {
+      "dataset": "refcocoplus",
+      "split": "testB",
+      "n": 4889,
+      "arms": {
+        "reference": {
+          "n": 4889,
+          "mIoU": 55.6351,
+          "oIoU": 48.4307
+        },
+        "attrib_released_only": {
+          "n": 4889,
+          "mIoU": 34.1747,
+          "oIoU": 27.2178
+        },
+        "attrib_box_full": {
+          "n": 4889,
+          "mIoU": 56.1334,
+          "oIoU": 48.2025
+        },
+        "attrib_box_full_cover": {
+          "n": 4889,
+          "mIoU": 52.4115,
+          "oIoU": 39.285
+        },
+        "attrib_box_full_inside": {
+          "n": 4889,
+          "mIoU": 12.7721,
+          "oIoU": 9.6253
+        },
+        "ours_region_text": {
+          "n": 4889,
+          "mIoU": 55.0544,
+          "oIoU": 47.6962
+        },
+        "ours_key_only": {
+          "n": 4889,
+          "mIoU": 33.7093,
+          "oIoU": 26.3629
+        },
+        "geom_guard": {
+          "n": 4889,
+          "mIoU": 55.369,
+          "oIoU": 48.0768
+        },
+        "geom_guard_strict": {
+          "n": 4889,
+          "mIoU": 55.5152,
+          "oIoU": 47.9877
+        },
+        "learned_head": {
+          "n": 4889,
+          "mIoU": 56.9079,
+          "oIoU": 48.5482
+        },
+        "learned_geom": {
+          "n": 4889,
+          "mIoU": 56.1263,
+          "oIoU": 47.6505
+        },
+        "learned_geom2": {
+          "n": 4889,
+          "mIoU": 56.2638,
+          "oIoU": 47.7892
+        }
+      },
+      "box_queried_pct": 100.0,
+      "box_none_records": 23
+    },
+    "refcocog_testu": {
+      "dataset": "refcocog",
+      "split": "test",
+      "n": 9602,
+      "arms": {
+        "reference": {
+          "n": 9602,
+          "mIoU": 64.541,
+          "oIoU": 59.6099
+        },
+        "attrib_released_only": {
+          "n": 9602,
+          "mIoU": 48.5617,
+          "oIoU": 40.5406
+        },
+        "attrib_box_full": {
+          "n": 9602,
+          "mIoU": 64.2239,
+          "oIoU": 58.4961
+        },
+        "attrib_box_full_cover": {
+          "n": 9602,
+          "mIoU": 57.6659,
+          "oIoU": 41.8283
+        },
+        "attrib_box_full_inside": {
+          "n": 9602,
+          "mIoU": 14.877,
+          "oIoU": 10.631
+        },
+        "ours_region_text": {
+          "n": 9602,
+          "mIoU": 64.1895,
+          "oIoU": 58.5105
+        },
+        "ours_key_only": {
+          "n": 9602,
+          "mIoU": 43.8433,
+          "oIoU": 34.303
+        },
+        "geom_guard": {
+          "n": 9602,
+          "mIoU": 64.0761,
+          "oIoU": 59.5203
+        },
+        "geom_guard_strict": {
+          "n": 9602,
+          "mIoU": 64.2254,
+          "oIoU": 59.1607
+        },
+        "learned_head": {
+          "n": 9602,
+          "mIoU": 65.3115,
+          "oIoU": 60.3059
+        },
+        "learned_geom": {
+          "n": 9602,
+          "mIoU": 64.1359,
+          "oIoU": 59.302
+        },
+        "learned_geom2": {
+          "n": 9602,
+          "mIoU": 64.3057,
+          "oIoU": 59.8672
+        }
+      },
+      "box_queried_pct": 100.0,
+      "box_none_records": 18
+    }
+  },
+  "generated": "exp161_test_splits_learned_head.py"
+}

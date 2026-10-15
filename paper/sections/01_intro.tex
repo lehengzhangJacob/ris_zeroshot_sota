@@ -114,7 +114,12 @@ Contributions:
   \item A dense localization prior: a frozen local VLM queried with the full
   expression, used to select among the candidates the released scores
   propose. It is training-free, API-free, and orthogonal to the released
-  scoring machinery.
+  scoring machinery; a component-provenance study measures the shipped head's
+  released and ours-side contributions, rebuilds the candidate restriction
+  from our own terms, and promotes a small declared-trained selector head
+  (fitted on train-carved held-out rows only) as the shipped RefCOCO-family
+  head, with the training-free realization kept as the zero-shot reference
+  row (\S\ref{sec:provenance}).
   \item A held-out tuning protocol (\studyTrials{}-trial Optuna studies on
   train-derived refs, minimum-over-datasets objective) and a fully scripted
   evidence chain in which no number is transcribed by hand.

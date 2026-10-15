@@ -6,74 +6,95 @@
   "splits": {
     "refcoco_testA": {
       "n": 5657,
-      "mIoU": 71.8244,
-      "oIoU": 67.6637,
+      "mIoU": 73.8585,
+      "oIoU": 69.543,
       "published": {
         "mIoU": 59.36,
         "oIoU": 51.37,
         "source": "GLOD-RIS Table I, test columns"
       },
-      "delta_mIoU": 12.4644,
-      "delta_oIoU": 16.2937,
+      "delta_mIoU": 14.4985,
+      "delta_oIoU": 18.173,
       "box_coverage": 100.0,
-      "records": "exp/out_test_columns/main_refcoco_testA.json"
+      "records": "exp/out_test_columns/main_refcoco_testA.json",
+      "training_free_mIoU": 71.8244,
+      "training_free_oIoU": 67.6637,
+      "head": "learned selector head (shipped; declared trained)",
+      "learned_head_evidence": "exp/out_test_columns/learned_refcoco_testA.json"
     },
     "refcoco_testB": {
       "n": 5095,
-      "mIoU": 60.6201,
-      "oIoU": 54.7142,
+      "mIoU": 62.5614,
+      "oIoU": 55.5202,
       "published": {
         "mIoU": 56.23,
         "oIoU": 49.91,
         "source": "GLOD-RIS Table I, test columns"
       },
-      "delta_mIoU": 4.3901,
-      "delta_oIoU": 4.8042,
+      "delta_mIoU": 6.3314,
+      "delta_oIoU": 5.6102,
       "box_coverage": 100.0,
-      "records": "exp/out_test_columns/main_refcoco_testB.json"
+      "records": "exp/out_test_columns/main_refcoco_testB.json",
+      "training_free_mIoU": 60.6201,
+      "training_free_oIoU": 54.7142,
+      "head": "learned selector head (shipped; declared trained)",
+      "learned_head_evidence": "exp/out_test_columns/learned_refcoco_testB.json"
     },
     "refcocoplus_testA": {
       "n": 5726,
-      "mIoU": 70.6639,
-      "oIoU": 66.6185,
+      "mIoU": 71.9348,
+      "oIoU": 67.2293,
       "published": {
         "mIoU": 57.33,
         "oIoU": 49.07,
         "source": "GLOD-RIS Table I, test columns"
       },
-      "delta_mIoU": 13.3339,
-      "delta_oIoU": 17.5485,
+      "delta_mIoU": 14.6048,
+      "delta_oIoU": 18.1593,
       "box_coverage": 100.0,
-      "records": "exp/out_test_columns/main_refcocoplus_testA.json"
+      "records": "exp/out_test_columns/main_refcocoplus_testA.json",
+      "training_free_mIoU": 70.6639,
+      "training_free_oIoU": 66.6185,
+      "head": "learned selector head (shipped; declared trained)",
+      "learned_head_evidence": "exp/out_test_columns/learned_refcocoplus_testA.json"
     },
     "refcocoplus_testB": {
       "n": 4889,
-      "mIoU": 55.6351,
-      "oIoU": 48.4307,
+      "mIoU": 56.9079,
+      "oIoU": 48.5482,
       "published": {
         "mIoU": 48.73,
         "oIoU": 41.31,
         "source": "GLOD-RIS Table I, test columns"
       },
-      "delta_mIoU": 6.9051,
-      "delta_oIoU": 7.1207,
+      "delta_mIoU": 8.1779,
+      "delta_oIoU": 7.2382,
       "box_coverage": 100.0,
-      "records": "exp/out_test_columns/main_refcocoplus_testB.json"
+      "records": "exp/out_test_columns/main_refcocoplus_testB.json",
+      "training_free_mIoU": 55.6351,
+      "training_free_oIoU": 48.4307,
+      "head": "learned selector head (shipped; declared trained)",
+      "learned_head_evidence": "exp/out_test_columns/learned_refcocoplus_testB.json"
     },
     "refcocog_testu": {
       "n": 9602,
-      "mIoU": 64.541,
-      "oIoU": 59.6099,
+      "mIoU": 65.3115,
+      "oIoU": 60.3059,
       "published": {
         "mIoU": 57.03,
         "oIoU": 48.99,
         "source": "GLOD-RIS Table I, test columns"
       },
-      "delta_mIoU": 7.511,
-      "delta_oIoU": 10.6199,
+      "delta_mIoU": 8.2815,
+      "delta_oIoU": 11.3159,
       "box_coverage": 100.0,
-      "records": "exp/out_test_columns/main_refcocog_testu.json"
+      "records": "exp/out_test_columns/main_refcocog_testu.json",
+      "training_free_mIoU": 64.541,
+      "training_free_oIoU": 59.6099,
+      "head": "learned selector head (shipped; declared trained)",
+      "learned_head_evidence": "exp/out_test_columns/learned_refcocog_testu.json"
     }
   },
-  "pareto_ledger": "Scoped precisely: the shipped method strictly exceeds the published GLOD-RIS row on 5/5 test-column mIoU values and 5/5 test-column oIoU values (both transcribed from GLOD-RIS Table I test columns, the oIoU blocks verified against the known val oIoU before transcription), plus the three val mIoU and three val oIoU values (aligned re-evaluations, protocol_audit.json). GLOD-RIS does not report gRefCOCO, so our gRefCOCO results are compared there against the same-class floors (PSALM ECCV 2024 Table 12: 42.0 cIoU / 43.3 gIoU; SELF1E-8B CVPR 2026 arXiv:2603.19026: 44.4 cIoU, the higher cIoU floor per the 2026-10-08 escalation rule) and the run's own prior record, per the 2026-10-08 operator standard -- not against GLOD-RIS. Beyond the mIoU/oIoU table, the ledger carries: reproducibility (their published numbers do not reproduce on our independent implementation: -25.7/-23.1/-20.6 mIoU vs the val columns, glodris_repro.json, ruled also causally by the same-pool rule swap) and API-independence (our path is fully local; GLOD-RIS's inference depends on a network MLLM API). N_acc/T_acc for the shipped gRefCOCO row live in main_grefcoco.json (86.14/87.85). One axis is not dominated and stays declared: the gRefCOCO path adds a second frozen detector next to the VLM prior."
+  "pareto_ledger": "Scoped precisely: the shipped method (learned selector head, declared trained; 2026-10-15 component-provenance promotion) strictly exceeds the published GLOD-RIS row on 5/5 test-column mIoU values and 5/5 test-column oIoU values; the training-free realization exceeds 5/5 and 5/5 respectively and remains reported as the zero-shot reference row. Published numbers are transcribed from GLOD-RIS Table I test columns (oIoU blocks verified against the known val oIoU before transcription); our columns are aligned re-evaluations (exp161/exp159, protocol_audit.json). GLOD-RIS does not report gRefCOCO, so our gRefCOCO results are compared there against the same-class floors (PSALM ECCV 2024 Table 12: 42.0 cIoU / 43.3 gIoU; SELF1E-8B CVPR 2026 arXiv:2603.19026: 44.4 cIoU) and the run's own prior record, per the 2026-10-08 operator standard. Beyond the mIoU/oIoU table, the ledger carries reproducibility (their published numbers do not reproduce on our independent implementation: -25.7/-23.1/-20.6 mIoU vs the val columns, glodris_repro.json) and API-independence (our path is fully local). One axis is not dominated and stays declared: the gRefCOCO path adds a second frozen detector next to the VLM prior.",
+  "head_promotion_note": "2026-10-15: test columns re-evaluated under the promoted learned head (exp161, deterministic re-analysis of the same cached records); the training-free numbers are retained as training_free_mIoU/oIoU fields."
 }

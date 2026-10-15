@@ -56,7 +56,8 @@ def main() -> int:
         for tag, label in (("released", "Released HybridGL pipeline"),
                            ("snap", "+ containment growth"),
                            ("ctrl_no_box", "Ours, box prior removed (control)"),
-                           ("ours", r"\textbf{Ours: dense VLM box prior}")):
+                           ("ours", r"\textbf{Ours: dense VLM box prior (training-free reference)}"),
+                           ("learned_head", r"\textbf{Ours: learned selector head (shipped)}")):
             if tag in r:
                 lines.append(f"{label} & {fmt(r[tag])} & {fmt(o.get(tag))} \\\\")
         # oracle: the json carries it as rows.orc_single (percent units);
@@ -70,7 +71,10 @@ def main() -> int:
                   f"Oracle (best pool mask) & {fmt(_om)} & -- \\\\",
                   r"\bottomrule", r"\end{tabular}"]
         (TAB / f"main_{key}.tex").write_text("\n".join(lines) + "\n")
-        macros.append((f"\\{key}MIoU", fmt(r.get("ours")), f"{nice} val mIoU, ours"))
+        macros.append((f"\\{key}MIoU", fmt(r.get("ours")), f"{nice} val mIoU, training-free box rule"))
+        if "learned_head" in r:
+            macros.append((f"\\{key}LearnedMIoU", fmt(r.get("learned_head")),
+                           f"{nice} val mIoU, learned selector head (shipped)"))
         macros.append((f"\\{key}Released", fmt(r.get("released")), f"{nice} released"))
         macros.append((f"\\{key}N", f"{m.get('n')}", f"{nice} val expressions"))
         if _om:
@@ -150,6 +154,45 @@ def main() -> int:
                          f"{e['delta_mIoU']:+.2f} \\\\")
         lines += [r"\bottomrule", r"\end{tabular}"]
         (TAB / "testcols.tex").write_text("\n".join(lines) + "\n")
+
+    # ---- component-provenance / head-rebuild table (2026-10-15 directive) --
+    hr = load(OUTF / "head_rebuild.json")
+    if hr:
+        arms = hr.get("arms") or {}
+        order = ["reference", "attrib_released_only", "attrib_box_full",
+                 "ours_region_text", "geom_guard_strict", "learned_geom",
+                 "learned_geom2", "learned_head"]
+        short = {
+            "reference": "released top-15 restriction + box (training-free)",
+            "attrib_released_only": "released scores only (no box)",
+            "attrib_box_full": "box over the full pool (no restriction)",
+            "ours_region_text": "our region-text restriction + box",
+            "geom_guard_strict": "geometric guards + box (no text)",
+            "learned_geom": "learned head, geometric terms only",
+            "learned_geom2": "learned head, geometric terms, richer",
+            "learned_head": r"\textbf{learned head, our terms (shipped)}",
+        }
+        lines = [r"\begin{tabular}{lccc}", r"\toprule",
+                 r"Arm & RefCOCO & RefCOCO+ & RefCOCOg \\", r"\midrule"]
+        for key in order:
+            a = arms.get(key)
+            if not a:
+                continue
+            v = a.get("val") or {}
+            lines.append(f"{short.get(key, key)} & {fmt(v.get('refcoco'))} & "
+                         f"{fmt(v.get('refcocoplus'))} & {fmt(v.get('refcocog'))} \\\\")
+        att = (hr.get("attribution") or {})
+        if att:
+            dr = "/".join(f"{att[d]['drop_restriction_given_box']:+.2f}"
+                          for d in ("refcoco", "refcocoplus", "refcocog"))
+            db = "/".join(f"{att[d]['drop_box_given_restriction']:+.2f}"
+                          for d in ("refcoco", "refcocoplus", "refcocog"))
+            lines += [r"\midrule",
+                      r"\multicolumn{4}{l}{\emph{drop-one deltas (mIoU), RefCOCO/+/g:}} \\",
+                      f"restriction given the box & \multicolumn{{3}}{{l}}{{{dr}}} \\\\",
+                      f"box given the restriction & \multicolumn{{3}}{{l}}{{{db}}} \\\\"]
+        lines += [r"\bottomrule", r"\end{tabular}"]
+        (TAB / "provenance.tex").write_text("\n".join(lines) + "\n")
 
     # ---- learned-prior progression table (2026-10-12 directive) ------------
     lp = load(OUTF / "learned_prior.json")

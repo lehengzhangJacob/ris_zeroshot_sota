@@ -294,7 +294,7 @@
       "oIoU_source": "aligned pooled re-evaluation (exp40_final_eval.py; protocol_audit.json)"
     },
     {
-      "name": "Ours: dense VLM box prior (shipped)",
+      "name": "Ours: dense VLM box prior (training-free reference)",
       "venue": "this run",
       "measured_by_us": true,
       "evidence": "exp/out_final/evidence/sota_released_and_ours.json",
@@ -310,8 +310,28 @@
         "mIoU": 65.1175,
         "oIoU": 59.7655
       },
-      "setting": "zero-shot / training-free (frozen SAM+CLIP+VLM)",
+      "setting": "zero-shot / training-free (frozen SAM+CLIP+VLM); reference row -- the shipped head is the learned selector row below",
       "oIoU_source": "aligned pooled re-evaluation (exp40_final_eval.py; protocol_audit.json)"
+    },
+    {
+      "name": "Ours: learned selector head on RefCOCO family (shipped; declared trained)",
+      "venue": "this run",
+      "measured_by_us": true,
+      "evidence": "exp/out_final/head_rebuild.json",
+      "setting": "declared trained: head fitted on RefCOCO-family held-out TRAIN tune rows only; frozen SAM + VLM + cached masked-region features; official val/test evaluation-only",
+      "oIoU_source": "aligned pooled re-evaluation (exp159_head_rebuild.py; protocol_audit.json)",
+      "refcoco": {
+        "mIoU": 70.5664,
+        "oIoU": 64.6709
+      },
+      "refcocoplus": {
+        "mIoU": 66.3548,
+        "oIoU": 59.4338
+      },
+      "refcocog": {
+        "mIoU": 65.5483,
+        "oIoU": 61.0128
+      }
     },
     {
       "name": "Ours: no-box control",
@@ -397,5 +417,5 @@
       "note": "above the previous training-free record on cIoU, with gIoU at parity: cluster bootstrap over val images (10k resamples) gives cIoU +1.38 [+0.60, +2.21] (decisive) and gIoU +0.17 [-0.03, +0.38] (parity or slightly above); mechanism = the transfer-inversion recipe in transfer_wall.json"
     }
   ],
-  "metric_note": "Every RefCOCO-family row carries both mIoU and oIoU from the same source table (2026-10-09 fair-comparison instruction): published rows take the compared paper's own oIoU (GLOD-RIS Table I oIoU block, val columns); our rows take the aligned pooled re-evaluations (protocol_audit.json). oIoU = global pooled overlap sum|pred∩GT|/sum|pred∪GT|. Val columns only (testA/testB/test(u) not produced; stated in the paper)."
+  "metric_note": "Every RefCOCO-family row carries both mIoU and oIoU from the same source table (2026-10-09 fair-comparison instruction): published rows take the compared paper's own oIoU (GLOD-RIS Table I oIoU block, val columns); our rows take the aligned pooled re-evaluations (protocol_audit.json). oIoU = global pooled overlap sum|pred\u2229GT|/sum|pred\u222aGT|. Val columns only (testA/testB/test(u) not produced; stated in the paper)."
 }

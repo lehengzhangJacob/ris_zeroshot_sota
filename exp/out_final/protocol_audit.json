@@ -4,7 +4,7 @@
   "datasets": {
     "refcoco": {
       "protocol_source": "Original RefCOCO benchmark (unc val split) as used by GLOD-RIS (TCSVT 2026), whose Table I reports both oIoU and mIoU on this split; the compared published numbers (58.42 mIoU, 50.85 oIoU) are that table's RefCOCO val column.",
-      "definition": "mIoU = mean over the 10,834 val expressions of IoU(predicted mask, union of the expression's GT masks) -- 'mIoU averages IoU across all samples' in the compared paper's own definition; oIoU = global pooled overlap sum_j |pred_j ∩ GT_j| / sum_j |pred_j ∪ GT_j| -- 'oIoU measures global overlap between predicted and ground-truth masks'. Both metrics are computed per expression over the full official val split.",
+      "definition": "mIoU = mean over the 10,834 val expressions of IoU(predicted mask, union of the expression's GT masks) -- 'mIoU averages IoU across all samples' in the compared paper's own definition; oIoU = global pooled overlap sum_j |pred_j \u2229 GT_j| / sum_j |pred_j \u222a GT_j| -- 'oIoU measures global overlap between predicted and ground-truth masks'. Both metrics are computed per expression over the full official val split.",
       "split": "val (unc), 10,834 expressions, complete coverage (10,834/10,834 records)",
       "aligned": true,
       "re_evaluation": {
@@ -33,6 +33,11 @@
         "mIoU_floor": 58.42,
         "oIoU_published": 50.85,
         "source": "GLOD-RIS (TCSVT 2026), Table I (oIoU) and Table III (mIoU)"
+      },
+      "shipped_learned_head": {
+        "mIoU": 70.5664,
+        "oIoU": 64.6709,
+        "note": "2026-10-15 component-provenance promotion: the shipped head is the learned selector; the re_evaluation block above documents the training-free realization, reproduced bit-exactly as the exp159 reference arm"
       }
     },
     "refcocoplus": {
@@ -62,6 +67,11 @@
         "mIoU_floor": 54.01,
         "oIoU_published": 45.96,
         "source": "GLOD-RIS (TCSVT 2026), Table I/III"
+      },
+      "shipped_learned_head": {
+        "mIoU": 66.3548,
+        "oIoU": 59.4338,
+        "note": "2026-10-15 component-provenance promotion: the shipped head is the learned selector; the re_evaluation block above documents the training-free realization, reproduced bit-exactly as the exp159 reference arm"
       }
     },
     "refcocog": {
@@ -91,6 +101,11 @@
         "mIoU_floor": 57.85,
         "oIoU_published": 50.03,
         "source": "GLOD-RIS (TCSVT 2026), Table I/III (val(u))"
+      },
+      "shipped_learned_head": {
+        "mIoU": 65.5483,
+        "oIoU": 61.0128,
+        "note": "2026-10-15 component-provenance promotion: the shipped head is the learned selector; the re_evaluation block above documents the training-free realization, reproduced bit-exactly as the exp159 reference arm"
       }
     },
     "grefcoco": {
@@ -135,5 +150,6 @@
   "notes": [
     "The r-requirement / oracle-fraction analysis in gref_wall.json and the paper compares against the SUPERVISED cIoU level (InstAlign 68.94); the field names there ('for_floor', 0.6894) predate the 2026-10-08 standard change and denote that level, not the same-class floor.",
     "All re-evaluations are deterministic re-analyses of stored per-expression records and cached model outputs; no inference result was altered and no metric was recomputed under a different protocol to change a floor outcome."
-  ]
+  ],
+  "head_promotion_note": "2026-10-15: the shipped numbers on the three RefCOCO-family datasets are the learned-head columns (shipped_learned_head); every number remains under the same audited protocol (mIoU = mean per-expression IoU; oIoU = global pooled), re-measured by exp159/exp161 as deterministic re-analysis of the same saved records."
 }

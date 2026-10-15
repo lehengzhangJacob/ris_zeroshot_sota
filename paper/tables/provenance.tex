@@ -1,0 +1,18 @@
+\begin{tabular}{lccc}
+\toprule
+Arm & RefCOCO & RefCOCO+ & RefCOCOg \\
+\midrule
+released top-15 restriction + box (training-free) & 68.53 & 64.67 & 65.12 \\
+released scores only (no box) & 43.33 & 37.85 & 47.51 \\
+box over the full pool (no restriction) & 69.99 & 65.22 & 64.83 \\
+our region-text restriction + box & 66.83 & 63.87 & 64.77 \\
+geometric guards + box (no text) & 69.72 & 64.95 & 64.88 \\
+learned head, geometric terms only & 69.88 & 65.38 & 64.47 \\
+learned head, geometric terms, richer & 69.99 & 65.65 & 64.58 \\
+\textbf{learned head, our terms (shipped)} & 70.57 & 66.35 & 65.55 \\
+\midrule
+\multicolumn{4}{l}{\emph{drop-one deltas (mIoU), RefCOCO/+/g:}} \\
+restriction given the box & \multicolumn{3}{l}{-1.45/-0.56/+0.29} \\
+box given the restriction & \multicolumn{3}{l}{+25.21/+26.82/+17.61} \\
+\bottomrule
+\end{tabular}

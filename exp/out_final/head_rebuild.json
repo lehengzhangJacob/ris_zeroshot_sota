@@ -1,0 +1,301 @@
+{
+  "what": "head-rebuild study: the RefCOCO-family candidate-restriction stage re-measured from our own mechanisms as deterministic re-analysis over cached records (SAM ViT-H pool + cached G2L masked-region features + cached VLM boxes; no vision re-generation)",
+  "arms": {
+    "reference": {
+      "name": "reference: released-score top-15 restriction + box-fill pick (shipped head)",
+      "role": "the shipped RefCOCO-family head, reproduced bit-for-bit as deterministic re-analysis: candidate set = top-15 by rank01(sc) + 0.4906*rank01(gem) (released semantic + GEM), pick = argmax box-fill within",
+      "uses_released_scores": true,
+      "evidence": "exp/out_final/head_rebuild.json",
+      "val": {
+        "refcoco": 68.5333,
+        "refcocoplus": 64.6669,
+        "refcocog": 65.1175
+      },
+      "val_oIoU": {
+        "refcoco": 63.3957,
+        "refcocoplus": 58.3114,
+        "refcocog": 59.7655
+      },
+      "n": {
+        "refcoco": 10834,
+        "refcocoplus": 10758,
+        "refcocog": 4896
+      }
+    },
+    "attrib_released_only": {
+      "name": "attribution: released-scores-only top-1 (no box, no restriction effect)",
+      "role": "drop-the-box control: global argmax of the released fused key",
+      "uses_released_scores": true,
+      "evidence": "exp/out_final/head_rebuild.json",
+      "val": {
+        "refcoco": 43.3257,
+        "refcocoplus": 37.8478,
+        "refcocog": 47.5072
+      },
+      "val_oIoU": {
+        "refcoco": 35.9919,
+        "refcocoplus": 30.8192,
+        "refcocog": 38.4799
+      },
+      "n": {
+        "refcoco": 10834,
+        "refcocoplus": 10758,
+        "refcocog": 4896
+      }
+    },
+    "attrib_box_full": {
+      "name": "attribution: box-fill pick over the FULL pool (no text restriction)",
+      "role": "drop-the-restriction control: argmax box-fill over all SAM proposals",
+      "uses_released_scores": false,
+      "evidence": "exp/out_final/head_rebuild.json",
+      "val": {
+        "refcoco": 69.9854,
+        "refcocoplus": 65.2246,
+        "refcocog": 64.8311
+      },
+      "val_oIoU": {
+        "refcoco": 63.8467,
+        "refcocoplus": 58.1083,
+        "refcocog": 59.2835
+      },
+      "n": {
+        "refcoco": 10834,
+        "refcocoplus": 10758,
+        "refcocog": 4896
+      }
+    },
+    "ours_region_text": {
+      "name": "ours: region-text top-15 restriction (fg @ full-sentence CLIP) + box-fill pick",
+      "role": "restriction rebuilt from our own protocol: top-15 by the cached masked-region feature against the FULL-sentence CLIP embedding (no released text ensemble, no GEM term), same box-fill pick",
+      "uses_released_scores": false,
+      "evidence": "exp/out_final/head_rebuild.json",
+      "val": {
+        "refcoco": 66.8318,
+        "refcocoplus": 63.8742,
+        "refcocog": 64.7688
+      },
+      "val_oIoU": {
+        "refcoco": 61.0267,
+        "refcocoplus": 57.1719,
+        "refcocog": 58.8447
+      },
+      "n": {
+        "refcoco": 10834,
+        "refcocoplus": 10758,
+        "refcocog": 4896
+      }
+    },
+    "ours_key_only": {
+      "name": "attribution: our region-text key alone, top-1 (no box)",
+      "role": "drop-the-box control for the ours-only restriction stage",
+      "uses_released_scores": false,
+      "evidence": "exp/out_final/head_rebuild.json",
+      "val": {
+        "refcoco": 34.4442,
+        "refcocoplus": 38.859,
+        "refcocog": 43.1804
+      },
+      "val_oIoU": {
+        "refcoco": 26.4144,
+        "refcocoplus": 30.8837,
+        "refcocog": 32.5234
+      },
+      "n": {
+        "refcoco": 10834,
+        "refcocoplus": 10758,
+        "refcocog": 4896
+      }
+    },
+    "geom_guard": {
+      "name": "ours: geometric guards only (center-in-box, mask/box area <= 4) + box-fill pick",
+      "role": "no text at all: guard-filter by mask centroid inside the box and mask-to-box area ratio <= 4, then argmax box-fill",
+      "uses_released_scores": false,
+      "evidence": "exp/out_final/head_rebuild.json",
+      "val": {
+        "refcoco": 69.6517,
+        "refcocoplus": 64.8617,
+        "refcocog": 64.8318
+      },
+      "val_oIoU": {
+        "refcoco": 64.0713,
+        "refcocoplus": 58.3775,
+        "refcocog": 60.1757
+      },
+      "n": {
+        "refcoco": 10834,
+        "refcocoplus": 10758,
+        "refcocog": 4896
+      }
+    },
+    "geom_guard_strict": {
+      "name": "ours: strict geometric guards (center-in-box, mask/box area in [0.1, 2]) + box-fill pick",
+      "role": "no text at all: guard-filter by mask centroid inside the box and mask-to-box area ratio in [0.1, 2], then argmax box-fill",
+      "uses_released_scores": false,
+      "evidence": "exp/out_final/head_rebuild.json",
+      "val": {
+        "refcoco": 69.7181,
+        "refcocoplus": 64.9546,
+        "refcocog": 64.879
+      },
+      "val_oIoU": {
+        "refcoco": 64.0031,
+        "refcocoplus": 58.3154,
+        "refcocog": 59.8223
+      },
+      "n": {
+        "refcoco": 10834,
+        "refcocoplus": 10758,
+        "refcocog": 4896
+      }
+    },
+    "attrib_box_full_cover": {
+      "name": "attribution: box-fill pick (cover mode) over the FULL pool",
+      "role": "overlap-mode variant of the drop-the-restriction control (mask-covers-box fraction)",
+      "uses_released_scores": false,
+      "evidence": "exp/out_final/head_rebuild.json",
+      "val": {
+        "refcoco": 65.212,
+        "refcocoplus": 61.6405,
+        "refcocog": 57.0176
+      },
+      "val_oIoU": {
+        "refcoco": 49.765,
+        "refcocoplus": 46.5542,
+        "refcocog": 39.7061
+      },
+      "n": {
+        "refcoco": 10834,
+        "refcocoplus": 10758,
+        "refcocog": 4896
+      }
+    },
+    "attrib_box_full_inside": {
+      "name": "attribution: box-fill pick (inside mode) over the FULL pool",
+      "role": "overlap-mode variant of the drop-the-restriction control (mask-inside-box fraction)",
+      "uses_released_scores": false,
+      "evidence": "exp/out_final/head_rebuild.json",
+      "val": {
+        "refcoco": 14.7495,
+        "refcocoplus": 13.0591,
+        "refcocog": 15.2046
+      },
+      "val_oIoU": {
+        "refcoco": 11.2822,
+        "refcocoplus": 10.0643,
+        "refcocog": 11.2961
+      },
+      "n": {
+        "refcoco": 10834,
+        "refcocoplus": 10758,
+        "refcocog": 4896
+      }
+    },
+    "learned_geom2": {
+      "name": "ours: learned head over geometric terms only, richer set (no text, no features)",
+      "role": "HistGradientBoosting over box overlap (iou + cover), center-in-box, area ratio, mask area, centroid-to-box-center distance, box area, within-record rank, containment-parent; fitted on the held-out TRAIN tune refs only; uses neither released scores nor text",
+      "uses_released_scores": false,
+      "evidence": "exp/out_final/head_rebuild.json",
+      "val": {
+        "refcoco": 69.9913,
+        "refcocoplus": 65.648,
+        "refcocog": 64.5782
+      },
+      "val_oIoU": {
+        "refcoco": 63.9581,
+        "refcocoplus": 58.5933,
+        "refcocog": 59.3831
+      },
+      "n": {
+        "refcoco": 10834,
+        "refcocoplus": 10758,
+        "refcocog": 4896
+      }
+    },
+    "learned_geom": {
+      "name": "ours: learned head over geometric terms only (no text, no features)",
+      "role": "HistGradientBoosting over box overlap, center-in-box, area ratio, mask area, within-record rank, containment-parent; fitted on the held-out TRAIN tune refs only; uses neither released scores nor text nor the masked-region features",
+      "uses_released_scores": false,
+      "evidence": "exp/out_final/head_rebuild.json",
+      "val": {
+        "refcoco": 69.8757,
+        "refcocoplus": 65.3842,
+        "refcocog": 64.4681
+      },
+      "val_oIoU": {
+        "refcoco": 63.6304,
+        "refcocoplus": 58.0241,
+        "refcocog": 59.0806
+      },
+      "n": {
+        "refcoco": 10834,
+        "refcocoplus": 10758,
+        "refcocog": 4896
+      }
+    },
+    "learned_head": {
+      "name": "ours: learned head over our own per-proposal terms (HistGradientBoosting, declared trained)",
+      "role": "small head fitted on the RefCOCO-family held-out TRAIN tune refs only (1,137/1,120/765 records; target = proposal IoU >= 0.5); features are all ours: full-sentence region-text score, box overlap, center-in-box, area ratio, mask area, within-row ranks, containment-parent flag; val is a single frozen application",
+      "uses_released_scores": false,
+      "evidence": "exp/out_final/head_rebuild.json",
+      "val": {
+        "refcoco": 70.5664,
+        "refcocoplus": 66.3548,
+        "refcocog": 65.5483
+      },
+      "val_oIoU": {
+        "refcoco": 64.6709,
+        "refcocoplus": 59.4338,
+        "refcocog": 61.0128
+      },
+      "n": {
+        "refcoco": 10834,
+        "refcocoplus": 10758,
+        "refcocog": 4896
+      }
+    }
+  },
+  "box_stats": {
+    "refcoco": {
+      "box_queried_pct": 100.0,
+      "box_none_records": 35
+    },
+    "refcocoplus": {
+      "box_queried_pct": 100.0,
+      "box_none_records": 50
+    },
+    "refcocog": {
+      "box_queried_pct": 100.0,
+      "box_none_records": 13
+    }
+  },
+  "generated": "exp160_component_provenance.py (from exp159_head_rebuild.py parts)",
+  "attribution": {
+    "refcoco": {
+      "reference": 68.5333,
+      "released_only": 43.3257,
+      "box_over_full_pool": 69.9854,
+      "drop_restriction_given_box": -1.4521,
+      "drop_box_given_restriction": 25.2076,
+      "box_full_cover": 65.212,
+      "box_full_inside": 14.7495
+    },
+    "refcocoplus": {
+      "reference": 64.6669,
+      "released_only": 37.8478,
+      "box_over_full_pool": 65.2246,
+      "drop_restriction_given_box": -0.5577,
+      "drop_box_given_restriction": 26.8191,
+      "box_full_cover": 61.6405,
+      "box_full_inside": 13.0591
+    },
+    "refcocog": {
+      "reference": 65.1175,
+      "released_only": 47.5072,
+      "box_over_full_pool": 64.8311,
+      "drop_restriction_given_box": 0.2864,
+      "drop_box_given_restriction": 17.6103,
+      "box_full_cover": 57.0176,
+      "box_full_inside": 15.2046
+    }
+  }
+}

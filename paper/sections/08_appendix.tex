@@ -166,4 +166,31 @@ requirements behind the shipped row);
 exact oracle-realization requirement);
 \texttt{exp/out\_final/gref\_tuned\_val2000.json} and
 \texttt{exp/out\_final/gref\_full\_val.json} (the frozen gRefCOCO model's
-validation evaluation).
+validation evaluation);
+\texttt{exp/out\_final/component\_provenance.json} with
+\texttt{head\_rebuild.json}, \texttt{head\_rebuild\_parts/*.json} and
+\texttt{exp159b\_boxsource\_probe.json} (the component-provenance audit of
+\S\ref{sec:provenance}: per-component provenance, the head-rebuild arms, and
+the box-source/phrase probes used to reconcile the quoted attribution);
+\texttt{exp/out\_final/test\_columns\_learned.json} with
+\texttt{exp/out\_test\_columns/learned\_*.json} (the promoted head's
+test-column re-evaluation).
+
+\paragraph{Component provenance (\texttt{component\_provenance.json}).}
+Each shipped component is tagged by origin. \emph{Ours}: the VLM box prior
+and box-fill pick; the gRefCOCO multi-term machinery, the three-prompt
+existence ensemble, and the declared-trained acceptance prior; the learned
+selector head; the protocol alignment. \emph{Released HybridGL}: the masked-region
+feature extractor (modified CLIP ViT-B/16 with the G2L fusion), the released
+semantic score ($0.5$ sentence $+$ $0.5$ noun-phrase ensemble), the GEM
+coherence score, the fused selection, and the released-score candidate
+restriction --- used by the training-free reference realization and, as a
+feature path only, by the promoted head's region-text term. \emph{Generic
+frozen}: the SAM ViT-H pool and the GroundingDINO detector gate. The head
+rebuild behind the promotion, and both drop-one deltas
+(restriction-given-box $-1.45$/$-0.56$/$+0.29$;
+box-given-restriction $+25.2$/$+26.8$/$+17.6$ mIoU), are reported in
+Table~\ref{tab:provenance}; an independently quoted box-over-full-pool figure
+($50.20$/$40.24$/$49.48$) could not be reproduced under any tested
+configuration (overlap mode, box phrase, box source) and is recorded as
+unreconciled in the artifact; the measured drop-one deltas above stand.

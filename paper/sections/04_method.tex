@@ -74,10 +74,13 @@ j^\star = \argmax_{i \in \mathcal{C}} \; \mathrm{IoU}(m_i, B),
 \qquad
 \hat{M} = \begin{cases} m_{j^\star} & B \neq \texttt{none}\\ \emptyset & B = \texttt{none}\end{cases}
 \end{equation}
-the candidate that best fills the region the VLM points at. The released
-scores are still used --- but only to keep the box match away from same-class
-distractors: without the candidate restriction the box prior alone is worse
-(\S\ref{sec:ablations}).
+the candidate that best fills the region the VLM points at. In the
+\emph{training-free realization} the released scores are used only to keep the
+box match away from same-class distractors; its value is dataset-dependent and
+measured in \S\ref{sec:provenance} (the restriction is worth
+$+8.4$\,mIoU on RefCOCOg and about neutral elsewhere, which is why the
+min-over-datasets study keeps it). The shipped head replaces that restriction
+stage with the learned selector of \S\ref{sec:head}.
 
 Repairs from our earlier diagnosis remain available and are measured
 separately: \emph{containment growth} (replace the selection by its smallest
@@ -86,6 +89,28 @@ parsed spatial expressions, re-rank the category-score top-$8$ by the
 coherence score within the side selected by the relation). Both are
 \emph{off} in the shipped configuration --- the VLM prior subsumes them ---
 and appear as ablations.
+
+\subsection{Learned selector head (shipped for the RefCOCO family)}
+\label{sec:head}
+The component-provenance study of \S\ref{sec:provenance} measures the head as
+a conjunction: the box pick inside a candidate set that the released scores
+restrict. We rebuilt the restriction from our own terms and promoted the
+result: a HistGradientBoostingClassifier (depth $3$, $250$ iterations) over
+eight per-proposal terms --- the full-sentence region-text score on the cached
+masked-region features (our text protocol; no released text ensemble, no GEM
+term), box-overlap IoU, center-inside-box, log mask-to-box area ratio, log
+mask area, within-record ranks of the region-text score and of the box
+overlap, and the containment-parent flag --- fitted on the RefCOCO-family
+held-out \emph{train} tune refs only (\mbox{$1{,}137$/$1{,}120$/$765$
+records}; target = proposal $\mathrm{IoU}\ge0.5$); official val and test are
+evaluation-only. It holds parity or better on all three full val splits
+($70.57$/$66.36$/$65.55$ mIoU vs the training-free realization's
+$68.53$/$64.67$/$65.12$) and on all five compared-table test columns
+($+2.03$/$+1.94$/$+1.27$/$+1.27$/$+0.77$ mIoU). The head uses no released
+scores; it reads the cached masked-region features through our full-sentence
+text protocol, and the arms that avoid those features entirely (geometric-only
+learned heads) fail parity on RefCOCOg by $0.5$\,mIoU, so the feature
+extractor is retained as the declared platform, not the decisive scorer.
 
 \subsection{Set-valued extension}
 \label{sec:setvalued}
@@ -99,12 +124,18 @@ reports what this buys and why the remaining gap on that benchmark is a
 property of the comparison class, not of the selector.
 
 \subsection{What is and is not trained}
-Nothing is trained, fine-tuned, or adapted on referring data: SAM, CLIP, GEM
-and the VLM are used frozen, exactly as released. The only fitted quantities
-are five scalars (candidate base, $k$, $\gamma$, overlap mode, growth
-flag) selected by Optuna on a held-out split built from RefCOCO-family
-\emph{train} references; the official validation and test splits are never
-used for tuning (\S\ref{sec:studies}). The VLM is a local checkpoint
+Every base component --- SAM, CLIP, GEM and the VLM --- is used frozen, exactly
+as released, and no referring-data val/test signal enters any fit. The
+training-free realization fits five scalars (candidate base, $k$, $\gamma$,
+overlap mode, growth flag) by Optuna on a held-out split built from
+RefCOCO-family \emph{train} references (\S\ref{sec:studies}), plus the shipped
+head of \S\ref{sec:head}, which is a \emph{declared-trained} component (a small
+gradient-boosted selector fitted on the train-carved held-out rows only; the
+official validation and test splits are evaluation-only for every component).
+On gRefCOCO the shipped row is likewise declared trained
+(\S\ref{sec:transferwall}). Trained-vs-frozen declarations are carried in
+\texttt{main\_refcoco.json}, \texttt{component\_provenance.json} and
+\texttt{transfer\_wall.json}. The VLM is a local checkpoint
 (15\,GB) served at $0.6$--$1.8$\,s per expression on one RTX 4090; we also
 ran it 8-bit quantised ($9.4$\,GB, producing the same boxes on our sample) so
 that extractions fit alongside other work.

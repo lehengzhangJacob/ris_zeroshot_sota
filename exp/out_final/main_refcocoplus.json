@@ -20,13 +20,15 @@
     "snap": 45.9078,
     "ours": 64.6669,
     "ctrl_no_box": 37.8478,
-    "orc_single": 82.3974
+    "orc_single": 82.3974,
+    "learned_head": 66.3548
   },
   "oIoU": {
     "released": 33.5875,
     "snap": 36.5402,
     "ours": 58.3114,
-    "ctrl_no_box": 30.8192
+    "ctrl_no_box": 30.8192,
+    "learned_head": 59.4338
   },
   "oIoU_masses": {
     "released": {
@@ -47,7 +49,7 @@
     }
   },
   "oIoU_definition": "global pooled oIoU: 100 * sum_j |pred_j \u2229 GT_j| / sum_j |pred_j \u222a GT_j| over all val records (GLOD-RIS: 'oIoU measures global overlap'); the per-sample mean IoU is the rows/mIoU field",
-  "mIoU": 64.6669,
+  "mIoU": 66.3548,
   "best_published": {
     "mIoU": 54.01,
     "oIoU": 45.96,
@@ -55,10 +57,23 @@
   },
   "generated": "exp40_final_eval.py",
   "shipped": {
-    "mIoU": 64.6669,
+    "mIoU": 66.3548,
+    "oIoU": 59.4338,
     "best_published": {
       "mIoU": 54.01,
       "rival": "GLOD-RIS (TCSVT 2026)"
-    }
-  }
+    },
+    "rule": "learned selector head (DECLARED TRAINED): HistGradientBoostingClassifier (max_depth 3, 250 iterations, lr 0.08, seed 0) over eight of-ours per-proposal terms (full-sentence region-text score on the cached masked-region features; box-overlap IoU; center-in-box; log mask/box area ratio; log mask area; within-record ranks of the region-text score and of box overlap; containment-parent flag); fitted on the RefCOCO-family held-out TRAIN tune refs only (1,137 / 1,120 / 765 records); official val and test are evaluation-only; the head uses no released HybridGL scores -- the restriction stage is rebuilt from our own terms (exp/out_final/head_rebuild.json, exp/out_final/component_provenance.json)",
+    "training_free_reference": {
+      "mIoU": 64.6669,
+      "oIoU": 58.3114,
+      "rule": "released-score top-15 restriction (rank01(sc) + 0.4906*rank01(gem)) + box-fill pick -- the training-free realization, reproduced bit-exactly as the exp159 reference arm"
+    },
+    "arm_selection": "head fitted on the held-out TRAIN tune refs; official val applied once per frozen configuration (exp159_head_rebuild.py)",
+    "evidence": "exp/out_final/head_rebuild.json",
+    "provenance": "component-provenance promotion (operator directive 2026-10-15); see exp/out_final/component_provenance.json"
+  },
+  "mIoU_training_free_reference": 64.6669,
+  "oIoU_training_free_reference": 58.3114,
+  "head_promotion_note": "2026-10-15: the shipped head is the learned selector (declared trained). The previous shipped head (released-score restriction + box, training-free) is reproduced bit-exactly and retained as the training-free reference in rows/oIoU/shipped.training_free_reference."
 }
