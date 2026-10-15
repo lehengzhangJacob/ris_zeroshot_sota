@@ -1,51 +1,66 @@
 {
   "dataset": "refcoco",
   "split": "val",
-  "n": 150,
+  "n": 300,
   "box_queried_pct": 100.0,
   "box_none_records": 0,
   "arms": {
     "reference": {
-      "n": 150,
-      "mIoU": 73.761,
-      "oIoU": 66.685
+      "n": 300,
+      "mIoU": 73.5032,
+      "oIoU": 69.3868
     },
     "attrib_released_only": {
-      "n": 150,
-      "mIoU": 47.4336,
-      "oIoU": 40.5209
+      "n": 300,
+      "mIoU": 40.9878,
+      "oIoU": 34.2649
     },
     "attrib_box_full": {
-      "n": 150,
-      "mIoU": 75.2647,
-      "oIoU": 71.0968
+      "n": 300,
+      "mIoU": 75.777,
+      "oIoU": 72.9208
+    },
+    "attrib_box_full_cover": {
+      "n": 300,
+      "mIoU": 69.6514,
+      "oIoU": 58.7507
+    },
+    "attrib_box_full_inside": {
+      "n": 300,
+      "mIoU": 16.2625,
+      "oIoU": 13.2284
     },
     "ours_region_text": {
-      "n": 150,
-      "mIoU": 72.8716,
-      "oIoU": 65.2896
+      "n": 300,
+      "mIoU": 72.4054,
+      "oIoU": 68.0938
     },
     "ours_key_only": {
-      "n": 150,
-      "mIoU": 37.4962,
-      "oIoU": 27.5828
+      "n": 300,
+      "mIoU": 34.7381,
+      "oIoU": 25.2708
     },
     "geom_guard": {
-      "n": 150,
-      "mIoU": 73.5782,
-      "oIoU": 70.1875
+      "n": 300,
+      "mIoU": 74.9337,
+      "oIoU": 72.7999
     },
     "geom_guard_strict": {
-      "n": 150,
-      "mIoU": 73.5782,
-      "oIoU": 70.1875
+      "n": 300,
+      "mIoU": 74.9337,
+      "oIoU": 72.4892
     },
     "learned_head": {
-      "n": 150,
-      "mIoU": 75.1256,
-      "oIoU": 72.7865
+      "n": 300,
+      "mIoU": 75.6695,
+      "oIoU": 73.6865
+    },
+    "learned_geom": {
+      "n": 300,
+      "mIoU": 75.0427,
+      "oIoU": 72.3835
     }
   },
   "generated": "exp159_head_rebuild.py",
-  "notes": "deterministic re-analysis over cached records (SAM ViT-H pool + G2L masked-region features + cached VLM boxes); reference arm reproduces the shipped head (released top-15 restriction by rank01(sc)+0.4906*rank01(gem), box-fill pick); ours_* arms use top-15 by fg @ t_sentence (full sentence, no ensemble, no GEM); geom_* arms use no text; learned_head is fitted on the RefCOCO-family held-out TRAIN tune refs only; box-missing records use the shipped no-box fallback (released top-1) in every arm"
+  "notes": "deterministic re-analysis over cached records (SAM ViT-H pool + G2L masked-region features + cached VLM boxes); reference arm reproduces the shipped head (released top-15 restriction by rank01(sc)+0.4906*rank01(gem), box-fill pick); ours_* arms use top-15 by fg @ t_sentence (full sentence, no ensemble, no GEM); geom_* arms use no text; learned_head (all our terms incl. the region-text score) and learned_geom (geometric terms only, no text, no features) are fitted on the RefCOCO-family held-out TRAIN tune refs only; attrib_box_full_cover/inside are the full-pool box pick under the other overlap modes; box-missing records use the shipped no-box fallback (released top-1) in every arm"
 }

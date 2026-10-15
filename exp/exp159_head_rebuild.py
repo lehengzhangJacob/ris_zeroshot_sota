@@ -38,9 +38,17 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import sys
 import time
 from pathlib import Path
+
+# shipped-run convention (see the transfer-wall cycle): 4 BLAS threads keeps
+# the tiny per-proposal matvecs from paying a 185-thread OpenBLAS spin storm
+# under machine load, and matches the threading the shipped runs used.
+for _v in ("OMP_NUM_THREADS", "OPENBLAS_NUM_THREADS", "MKL_NUM_THREADS",
+           "NUMEXPR_NUM_THREADS"):
+    os.environ.setdefault(_v, "4")
 
 import numpy as np
 
@@ -144,7 +152,7 @@ def load_image(fn, store, order):
     return store[fn]
 
 
-def arm_c_features(masks, fg, r, box, our):
+def arm_c_features(masks, fg, r, box, our, loc=None):
     """Our own per-proposal terms (no released scores)."""
     n = len(masks)
     H, W = masks.shape[1], masks.shape[2]
@@ -157,7 +165,8 @@ def arm_c_features(masks, fg, r, box, our):
     feats = dict(our=our, ps_parent=parent, log_area=np.log1p(area * npix))
     if box is not None:
         x0, y0, x1, y1 = [int(round(v)) for v in box]
-        loc = box_overlap(masks, box, "iou")
+        if loc is None:
+            loc = box_overlap(masks, box, "iou")
         x0, x1 = max(0, x0), min(W, x1)
         y0, y1 = max(0, y0), min(H, y1)
         center_in = ((cx * W >= x0) & (cx * W <= x1) &
@@ -174,14 +183,23 @@ def arm_c_features(masks, fg, r, box, our):
     return feats
 
 
-def feat_matrix(feats):
-    cols = ["our", "loc", "center_in", "log_ratio", "log_area",
+ALL_COLS = ["our", "loc", "center_in", "log_ratio", "log_area",
             "our_rank", "loc_rank", "ps_parent"]
+GEOM_COLS = ["loc", "center_in", "log_ratio", "log_area", "loc_rank", "ps_parent"]
+
+
+def feat_matrix(feats, cols=ALL_COLS):
     return np.stack([feats[c] for c in cols], axis=1).astype(np.float32)
 
 
-def picks_for_record(masks, fg, r, box, t_sent, model_c):
-    """All arm picks for one record.  Returns dict arm -> (pick, used_box)."""
+ALL_ARMS = ("reference", "attrib_released_only", "attrib_box_full",
+            "attrib_box_full_cover", "attrib_box_full_inside",
+            "ours_region_text", "ours_key_only",
+            "geom_guard", "geom_guard_strict", "learned_head", "learned_geom")
+
+
+def picks_for_record(masks, fg, r, box, t_sent, model_c, model_g):
+    """All arm picks for one record.  Returns dict arm -> pick."""
     n = len(fg)
     sc = np.asarray(r["sc"][:n], np.float32)
     gem = np.asarray(r["score_gem"][:n], np.float32)
@@ -194,18 +212,18 @@ def picks_for_record(masks, fg, r, box, t_sent, model_c):
     if box is None:
         # shipped no-box behavior for every arm (disclosed; identical fallback)
         j = int(idx[0])
-        for arm in ("reference", "attrib_released_only", "attrib_box_full",
-                    "ours_region_text", "ours_key_only",
-                    "geom_guard", "geom_guard_strict", "learned_head"):
+        for arm in ALL_ARMS:
             out[arm] = j
         return out, False
     loc = box_overlap(masks, box, "iou")
     out["reference"] = int(idx[int(np.argmax(loc[idx]))])
     out["attrib_released_only"] = int(idx[0])
     out["attrib_box_full"] = int(np.argmax(loc))
+    out["attrib_box_full_cover"] = int(np.argmax(box_overlap(masks, box, "cover")))
+    out["attrib_box_full_inside"] = int(np.argmax(box_overlap(masks, box, "inside")))
     out["ours_region_text"] = int(idxA[int(np.argmax(loc[idxA]))])
     out["ours_key_only"] = int(idxA[0])
-    feats = arm_c_features(masks, fg, r, box, our)
+    feats = arm_c_features(masks, fg, r, box, our, loc=loc)
     H, W = masks.shape[1], masks.shape[2]
     x0, y0, x1, y1 = [int(round(v)) for v in box]
     x0, x1 = max(0, x0), min(W, x1)
@@ -220,8 +238,11 @@ def picks_for_record(masks, fg, r, box, t_sent, model_c):
             cand = np.arange(n)
         out[name] = int(cand[int(np.argmax(loc[cand]))])
     if model_c is not None:
-        proba = model_c.predict_proba(feat_matrix(feats))[:, 1]
-        out["learned_head"] = int(np.argmax(proba))
+        out["learned_head"] = int(np.argmax(
+            model_c.predict_proba(feat_matrix(feats, ALL_COLS))[:, 1]))
+    if model_g is not None:
+        out["learned_geom"] = int(np.argmax(
+            model_g.predict_proba(feat_matrix(feats, GEOM_COLS))[:, 1]))
     return out, True
 
 
@@ -256,7 +277,7 @@ def fit_learned_head(dataset, te):
     ref_by_id = {r["ref_id"]: r for r in ds.refs}
     store, order = {}, []
     boxer = QwenBoxer.__new__(QwenBoxer)
-    Xs, ys = [], []
+    Fs, ys = [], []          # per-record feature dicts + labels
     n_rec = 0
     for r, fn, masks, fg in iterate_records(dataset, "tune", ref_by_id, ds,
                                             store, order, te, None):
@@ -265,17 +286,23 @@ def fit_learned_head(dataset, te):
         our = fg @ te(r["parsed"]["sentence"])
         feats = arm_c_features(masks, fg, r, box, our)
         gt = np.asarray(r["gt_iou"][:len(fg)], np.float32)
-        Xs.append(feat_matrix(feats))
+        Fs.append(feats)
         ys.append((gt >= 0.5).astype(np.int8))
         n_rec += 1
-    X = np.concatenate(Xs)
     y = np.concatenate(ys)
-    clf = HistGradientBoostingClassifier(max_depth=3, max_iter=250,
-                                         learning_rate=0.08, random_state=0)
-    clf.fit(X, y)
+
+    def _fit(cols):
+        X = np.concatenate([feat_matrix(F, cols) for F in Fs])
+        clf = HistGradientBoostingClassifier(max_depth=3, max_iter=250,
+                                             learning_rate=0.08, random_state=0)
+        clf.fit(X, y)
+        return clf
+
+    model_c = _fit(ALL_COLS)
+    model_g = _fit(GEOM_COLS)
     print(f"  [fit] {dataset}: {n_rec} tune records, {len(y)} proposals, "
           f"positive rate {y.mean():.4f}", flush=True)
-    return clf
+    return model_c, model_g
 
 
 def evaluate(dataset, split="val", limit=0):
@@ -285,16 +312,14 @@ def evaluate(dataset, split="val", limit=0):
     ref_by_id = {r["ref_id"]: r for r in ds.refs}
     build_map([ds.images[r["image_id"]]["file_name"] for r in ds.refs])
     te = TextEncoder()
-    print(f"[{dataset}] fitting learned head on tune refs", flush=True)
+    print(f"[{dataset}] fitting learned heads on tune refs", flush=True)
     t0 = time.time()
-    model_c = fit_learned_head(dataset, te)
-    print(f"[{dataset}] head fitted ({time.time()-t0:.0f}s); val pass", flush=True)
+    model_c, model_g = fit_learned_head(dataset, te)
+    print(f"[{dataset}] heads fitted ({time.time()-t0:.0f}s); val pass", flush=True)
 
     boxer = QwenBoxer.__new__(QwenBoxer)
     store, order = {}, []
-    arms = ("reference", "attrib_released_only", "attrib_box_full",
-            "ours_region_text", "ours_key_only",
-            "geom_guard", "geom_guard_strict", "learned_head")
+    arms = ALL_ARMS
     acc = {a: dict(iou=0.0, inter=0.0, union=0.0) for a in arms}
     n_used = n_box = n_box_none = 0
     t1 = time.time()
@@ -305,7 +330,7 @@ def evaluate(dataset, split="val", limit=0):
         n_box += int(bp.is_file())
         n_box_none += int(box is None)
         picks, used_box = picks_for_record(masks, fg, r, box,
-                                           te(r["parsed"]["sentence"]), model_c)
+                                           te(r["parsed"]["sentence"]), model_c, model_g)
         gt = np.asarray(r["gt_iou"][:len(fg)], np.float64)
         inter = np.asarray(r["inter_gt"][:len(fg)], np.float64)
         union = np.asarray(r["union_gt"][:len(fg)], np.float64)
@@ -314,6 +339,8 @@ def evaluate(dataset, split="val", limit=0):
             acc[a]["inter"] += float(inter[j])
             acc[a]["union"] += float(union[j])
         n_used += 1
+        if (i + 1) % 500 == 0:
+            (OUTDIR / f"{dataset}.progress").write_text(f"{i+1}")
         if (i + 1) % 2000 == 0:
             print(f"  {i+1} records ({time.time()-t1:.0f}s)", flush=True)
     res = {}
@@ -333,8 +360,11 @@ def evaluate(dataset, split="val", limit=0):
                "reproduces the shipped head (released top-15 restriction by "
                "rank01(sc)+0.4906*rank01(gem), box-fill pick); ours_* arms use "
                "top-15 by fg @ t_sentence (full sentence, no ensemble, no GEM); "
-               "geom_* arms use no text; learned_head is fitted on the "
-               "RefCOCO-family held-out TRAIN tune refs only; box-missing "
+               "geom_* arms use no text; learned_head (all our terms incl. the "
+               "region-text score) and learned_geom (geometric terms only, no "
+               "text, no features) are fitted on the RefCOCO-family held-out "
+               "TRAIN tune refs only; attrib_box_full_cover/inside are the "
+               "full-pool box pick under the other overlap modes; box-missing "
                "records use the shipped no-box fallback (released top-1) in "
                "every arm"),
     )

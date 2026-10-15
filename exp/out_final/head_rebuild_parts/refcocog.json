@@ -1,0 +1,66 @@
+{
+  "dataset": "refcocog",
+  "split": "val",
+  "n": 4896,
+  "box_queried_pct": 100.0,
+  "box_none_records": 13,
+  "arms": {
+    "reference": {
+      "n": 4896,
+      "mIoU": 65.1175,
+      "oIoU": 59.7655
+    },
+    "attrib_released_only": {
+      "n": 4896,
+      "mIoU": 47.5072,
+      "oIoU": 38.4799
+    },
+    "attrib_box_full": {
+      "n": 4896,
+      "mIoU": 64.8311,
+      "oIoU": 59.2835
+    },
+    "attrib_box_full_cover": {
+      "n": 4896,
+      "mIoU": 57.0176,
+      "oIoU": 39.7061
+    },
+    "attrib_box_full_inside": {
+      "n": 4896,
+      "mIoU": 15.2046,
+      "oIoU": 11.2961
+    },
+    "ours_region_text": {
+      "n": 4896,
+      "mIoU": 64.7688,
+      "oIoU": 58.8447
+    },
+    "ours_key_only": {
+      "n": 4896,
+      "mIoU": 43.1804,
+      "oIoU": 32.5234
+    },
+    "geom_guard": {
+      "n": 4896,
+      "mIoU": 64.8318,
+      "oIoU": 60.1757
+    },
+    "geom_guard_strict": {
+      "n": 4896,
+      "mIoU": 64.879,
+      "oIoU": 59.8223
+    },
+    "learned_head": {
+      "n": 4896,
+      "mIoU": 65.5483,
+      "oIoU": 61.0128
+    },
+    "learned_geom": {
+      "n": 4896,
+      "mIoU": 64.4681,
+      "oIoU": 59.0806
+    }
+  },
+  "generated": "exp159_head_rebuild.py",
+  "notes": "deterministic re-analysis over cached records (SAM ViT-H pool + G2L masked-region features + cached VLM boxes); reference arm reproduces the shipped head (released top-15 restriction by rank01(sc)+0.4906*rank01(gem), box-fill pick); ours_* arms use top-15 by fg @ t_sentence (full sentence, no ensemble, no GEM); geom_* arms use no text; learned_head (all our terms incl. the region-text score) and learned_geom (geometric terms only, no text, no features) are fitted on the RefCOCO-family held-out TRAIN tune refs only; attrib_box_full_cover/inside are the full-pool box pick under the other overlap modes; box-missing records use the shipped no-box fallback (released top-1) in every arm"
+}
