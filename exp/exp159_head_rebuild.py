@@ -220,10 +220,30 @@ def picks_for_record(masks, fg, r, box, t_sent, model_c, model_g, model_g2):
     idx = np.argsort(base)[::-1][:k] if k < n else np.arange(n)
     idxA = np.argsort(our)[::-1][:k] if k < n else np.arange(n)
     if box is None:
-        # shipped no-box behavior for every arm (disclosed; identical fallback)
-        j = int(idx[0])
-        for arm in ALL_ARMS:
-            out[arm] = j
+        # No box (the VLM answered "none"): each arm takes its own box-free
+        # analogue so no ours-only arm borrows a released score here.  The
+        # reference keeps the shipped system's own no-box behavior (released
+        # top-1); the attribution rows have no box-free analogue and share it;
+        # the learned heads predict from their box-free features (the box
+        # terms are zeroed, exactly as in the tune fit).
+        for arm in ("reference", "attrib_released_only", "attrib_box_full",
+                    "attrib_box_full_cover", "attrib_box_full_inside"):
+            out[arm] = int(idx[0])
+        for arm in ("ours_region_text", "ours_key_only", "geom_guard",
+                    "geom_guard_strict"):
+            out[arm] = int(idxA[0])
+        if model_c is not None:
+            feats0 = arm_c_features(masks, fg, r, None, our)
+            out["learned_head"] = int(np.argmax(
+                model_c.predict_proba(feat_matrix(feats0, ALL_COLS))[:, 1]))
+        if model_g is not None:
+            feats0 = arm_c_features(masks, fg, r, None, our)
+            out["learned_geom"] = int(np.argmax(
+                model_g.predict_proba(feat_matrix(feats0, GEOM_COLS))[:, 1]))
+        if model_g2 is not None:
+            feats0 = arm_c_features(masks, fg, r, None, our)
+            out["learned_geom2"] = int(np.argmax(
+                model_g2.predict_proba(feat_matrix(feats0, GEOM2_COLS))[:, 1]))
         return out, False
     loc = box_overlap(masks, box, "iou")
     out["reference"] = int(idx[int(np.argmax(loc[idx]))])
