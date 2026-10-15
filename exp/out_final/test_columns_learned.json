@@ -33,38 +33,38 @@
         },
         "ours_region_text": {
           "n": 5657,
-          "mIoU": 69.6945,
-          "oIoU": 64.6444
+          "mIoU": 69.6973,
+          "oIoU": 64.667
         },
         "ours_key_only": {
           "n": 5657,
-          "mIoU": 36.7908,
-          "oIoU": 28.0906
+          "mIoU": 36.7936,
+          "oIoU": 28.0974
         },
         "geom_guard": {
           "n": 5657,
-          "mIoU": 73.016,
-          "oIoU": 69.421
+          "mIoU": 73.0187,
+          "oIoU": 69.4458
         },
         "geom_guard_strict": {
           "n": 5657,
-          "mIoU": 73.0929,
-          "oIoU": 69.285
+          "mIoU": 73.0957,
+          "oIoU": 69.3097
         },
         "learned_head": {
           "n": 5657,
-          "mIoU": 73.8585,
-          "oIoU": 69.543
+          "mIoU": 73.8559,
+          "oIoU": 69.4598
         },
         "learned_geom": {
           "n": 5657,
-          "mIoU": 73.2977,
-          "oIoU": 68.9889
+          "mIoU": 73.2461,
+          "oIoU": 68.8724
         },
         "learned_geom2": {
           "n": 5657,
-          "mIoU": 73.6211,
-          "oIoU": 69.6189
+          "mIoU": 73.587,
+          "oIoU": 69.5277
         }
       },
       "box_queried_pct": 100.0,
@@ -102,38 +102,38 @@
         },
         "ours_region_text": {
           "n": 5095,
-          "mIoU": 59.6892,
-          "oIoU": 54.1237
+          "mIoU": 59.6829,
+          "oIoU": 54.0731
         },
         "ours_key_only": {
           "n": 5095,
-          "mIoU": 31.2836,
-          "oIoU": 24.6321
+          "mIoU": 31.2773,
+          "oIoU": 24.6
         },
         "geom_guard": {
           "n": 5095,
-          "mIoU": 61.2774,
-          "oIoU": 55.3786
+          "mIoU": 61.2711,
+          "oIoU": 55.3278
         },
         "geom_guard_strict": {
           "n": 5095,
-          "mIoU": 61.6123,
-          "oIoU": 55.5472
+          "mIoU": 61.606,
+          "oIoU": 55.4962
         },
         "learned_head": {
           "n": 5095,
-          "mIoU": 62.5614,
-          "oIoU": 55.5202
+          "mIoU": 62.5465,
+          "oIoU": 55.4178
         },
         "learned_geom": {
           "n": 5095,
-          "mIoU": 61.9887,
-          "oIoU": 54.7353
+          "mIoU": 61.925,
+          "oIoU": 54.6292
         },
         "learned_geom2": {
           "n": 5095,
-          "mIoU": 62.2791,
-          "oIoU": 55.1919
+          "mIoU": 62.2124,
+          "oIoU": 55.0849
         }
       },
       "box_queried_pct": 100.0,
@@ -171,38 +171,38 @@
         },
         "ours_region_text": {
           "n": 5726,
-          "mIoU": 70.3752,
-          "oIoU": 65.9904
+          "mIoU": 70.3561,
+          "oIoU": 65.9597
         },
         "ours_key_only": {
           "n": 5726,
-          "mIoU": 42.8033,
-          "oIoU": 34.0653
+          "mIoU": 42.7842,
+          "oIoU": 34.0447
         },
         "geom_guard": {
           "n": 5726,
-          "mIoU": 70.9461,
-          "oIoU": 66.8759
+          "mIoU": 70.927,
+          "oIoU": 66.845
         },
         "geom_guard_strict": {
           "n": 5726,
-          "mIoU": 70.9128,
-          "oIoU": 66.6506
+          "mIoU": 70.8936,
+          "oIoU": 66.6198
         },
         "learned_head": {
           "n": 5726,
-          "mIoU": 71.9348,
-          "oIoU": 67.2293
+          "mIoU": 71.877,
+          "oIoU": 67.0957
         },
         "learned_geom": {
           "n": 5726,
-          "mIoU": 71.3485,
-          "oIoU": 66.4411
+          "mIoU": 71.2566,
+          "oIoU": 66.2974
         },
         "learned_geom2": {
           "n": 5726,
-          "mIoU": 71.6443,
-          "oIoU": 66.7543
+          "mIoU": 71.5395,
+          "oIoU": 66.6313
         }
       },
       "box_queried_pct": 100.0,
@@ -240,38 +240,38 @@
         },
         "ours_region_text": {
           "n": 4889,
-          "mIoU": 55.0544,
-          "oIoU": 47.6962
+          "mIoU": 55.0667,
+          "oIoU": 47.7005
         },
         "ours_key_only": {
           "n": 4889,
-          "mIoU": 33.7093,
-          "oIoU": 26.3629
+          "mIoU": 33.7216,
+          "oIoU": 26.3687
         },
         "geom_guard": {
           "n": 4889,
-          "mIoU": 55.369,
-          "oIoU": 48.0768
+          "mIoU": 55.3813,
+          "oIoU": 48.0811
         },
         "geom_guard_strict": {
           "n": 4889,
-          "mIoU": 55.5152,
-          "oIoU": 47.9877
+          "mIoU": 55.5275,
+          "oIoU": 47.992
         },
         "learned_head": {
           "n": 4889,
-          "mIoU": 56.9079,
-          "oIoU": 48.5482
+          "mIoU": 56.8989,
+          "oIoU": 48.5108
         },
         "learned_geom": {
           "n": 4889,
-          "mIoU": 56.1263,
-          "oIoU": 47.6505
+          "mIoU": 56.0618,
+          "oIoU": 47.5817
         },
         "learned_geom2": {
           "n": 4889,
-          "mIoU": 56.2638,
-          "oIoU": 47.7892
+          "mIoU": 56.183,
+          "oIoU": 47.7349
         }
       },
       "box_queried_pct": 100.0,
@@ -309,38 +309,38 @@
         },
         "ours_region_text": {
           "n": 9602,
-          "mIoU": 64.1895,
-          "oIoU": 58.5105
+          "mIoU": 64.2013,
+          "oIoU": 58.5736
         },
         "ours_key_only": {
           "n": 9602,
-          "mIoU": 43.8433,
-          "oIoU": 34.303
+          "mIoU": 43.8551,
+          "oIoU": 34.3394
         },
         "geom_guard": {
           "n": 9602,
-          "mIoU": 64.0761,
-          "oIoU": 59.5203
+          "mIoU": 64.0878,
+          "oIoU": 59.5854
         },
         "geom_guard_strict": {
           "n": 9602,
-          "mIoU": 64.2254,
-          "oIoU": 59.1607
+          "mIoU": 64.2372,
+          "oIoU": 59.2251
         },
         "learned_head": {
           "n": 9602,
-          "mIoU": 65.3115,
-          "oIoU": 60.3059
+          "mIoU": 65.3153,
+          "oIoU": 60.3557
         },
         "learned_geom": {
           "n": 9602,
-          "mIoU": 64.1359,
-          "oIoU": 59.302
+          "mIoU": 64.1273,
+          "oIoU": 59.3008
         },
         "learned_geom2": {
           "n": 9602,
-          "mIoU": 64.3057,
-          "oIoU": 59.8672
+          "mIoU": 64.2891,
+          "oIoU": 59.8573
         }
       },
       "box_queried_pct": 100.0,

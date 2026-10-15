@@ -10,31 +10,31 @@
     },
     {
       "name": "HybridGL G2L masked-region feature extractor (modified CLIP ViT-B/16, masking_block=9)",
-      "role": "per-proposal 512-d region features the text scores read",
+      "role": "per-proposal 512-d region features; read by the training-free reference realization and, as a feature path only (via our full-sentence text protocol), by the promoted head's region-text term -- declared platform",
       "provenance": "released_hybridgl",
       "evidence": "/home/msj_team/Jacob/sys/glod_ris_repro/glod/vision.py + cache/vision/*.npz"
     },
     {
       "name": "Released semantic score sc = 0.5*text(sentence) + 0.5*text(noun phrase)",
-      "role": "primary released scoring term; the shipped restriction's leading key",
+      "role": "primary released scoring term of the training-free reference realization's restriction key; not used by the promoted head",
       "provenance": "released_hybridgl",
       "evidence": "exp/hybridgl_guided.py GuidedScorer.score; exp/out_extreme/records_*.jsonl"
     },
     {
       "name": "Released GEM spatial-coherence score",
-      "role": "second released scoring term in the restriction key",
+      "role": "second released scoring term in the training-free reference realization's restriction key; not used by the promoted head",
       "provenance": "released_hybridgl",
       "evidence": "exp/hybridgl_guided.py (GEM ViT-B/16 + directional mask)"
     },
     {
       "name": "Released fused top-3 selection (alpha=0.6 GEM mix)",
-      "role": "the released pipeline's own pick; shipped pipeline uses it only on box-missing records",
+      "role": "the released pipeline's own pick; used by the training-free reference realization (and its box-missing no-box fallback); not used by the promoted head, whose box-missing records take the head's own prediction",
       "provenance": "released_hybridgl",
       "evidence": "exp/hybridgl_guided.py; records' `final` field"
     },
     {
       "name": "Released-score top-15 candidate restriction (rank01(sc)+0.4906*rank01(gem))",
-      "role": "narrows the pool before the box pick in the shipped RefCOCO-family head",
+      "role": "narrows the pool before the box pick in the training-free reference realization; replaced by the learned head in the shipped realization",
       "provenance": "released_hybridgl",
       "evidence": "exp/out_final/optuna_study.json (k_dec=15, gem_mix=0.49057)"
     },
@@ -152,14 +152,14 @@
         "uses_released_scores": false,
         "evidence": "exp/out_final/head_rebuild.json",
         "val": {
-          "refcoco": 66.8318,
-          "refcocoplus": 63.8742,
-          "refcocog": 64.7688
+          "refcoco": 66.8143,
+          "refcocoplus": 63.8743,
+          "refcocog": 64.719
         },
         "val_oIoU": {
-          "refcoco": 61.0267,
-          "refcocoplus": 57.1719,
-          "refcocog": 58.8447
+          "refcoco": 61.0357,
+          "refcocoplus": 57.1858,
+          "refcocog": 58.8081
         },
         "n": {
           "refcoco": 10834,
@@ -173,14 +173,14 @@
         "uses_released_scores": false,
         "evidence": "exp/out_final/head_rebuild.json",
         "val": {
-          "refcoco": 34.4442,
-          "refcocoplus": 38.859,
-          "refcocog": 43.1804
+          "refcoco": 34.4268,
+          "refcocoplus": 38.8591,
+          "refcocog": 43.1306
         },
         "val_oIoU": {
-          "refcoco": 26.4144,
-          "refcocoplus": 30.8837,
-          "refcocog": 32.5234
+          "refcoco": 26.4016,
+          "refcocoplus": 30.8934,
+          "refcocog": 32.4966
         },
         "n": {
           "refcoco": 10834,
@@ -194,14 +194,14 @@
         "uses_released_scores": false,
         "evidence": "exp/out_final/head_rebuild.json",
         "val": {
-          "refcoco": 69.6517,
-          "refcocoplus": 64.8617,
-          "refcocog": 64.8318
+          "refcoco": 69.6342,
+          "refcocoplus": 64.8618,
+          "refcocog": 64.7821
         },
         "val_oIoU": {
-          "refcoco": 64.0713,
-          "refcocoplus": 58.3775,
-          "refcocog": 60.1757
+          "refcoco": 64.0824,
+          "refcocoplus": 58.3916,
+          "refcocog": 60.1381
         },
         "n": {
           "refcoco": 10834,
@@ -215,14 +215,14 @@
         "uses_released_scores": false,
         "evidence": "exp/out_final/head_rebuild.json",
         "val": {
-          "refcoco": 69.7181,
-          "refcocoplus": 64.9546,
-          "refcocog": 64.879
+          "refcoco": 69.7007,
+          "refcocoplus": 64.9547,
+          "refcocog": 64.8292
         },
         "val_oIoU": {
-          "refcoco": 64.0031,
-          "refcocoplus": 58.3154,
-          "refcocog": 59.8223
+          "refcoco": 64.0141,
+          "refcocoplus": 58.3294,
+          "refcocog": 59.7849
         },
         "n": {
           "refcoco": 10834,
@@ -278,14 +278,14 @@
         "uses_released_scores": false,
         "evidence": "exp/out_final/head_rebuild.json",
         "val": {
-          "refcoco": 69.9913,
-          "refcocoplus": 65.648,
-          "refcocog": 64.5782
+          "refcoco": 69.9695,
+          "refcocoplus": 65.5422,
+          "refcocog": 64.5745
         },
         "val_oIoU": {
-          "refcoco": 63.9581,
-          "refcocoplus": 58.5933,
-          "refcocog": 59.3831
+          "refcoco": 63.92,
+          "refcocoplus": 58.4971,
+          "refcocog": 59.3937
         },
         "n": {
           "refcoco": 10834,
@@ -299,14 +299,14 @@
         "uses_released_scores": false,
         "evidence": "exp/out_final/head_rebuild.json",
         "val": {
-          "refcoco": 69.8757,
-          "refcocoplus": 65.3842,
-          "refcocog": 64.4681
+          "refcoco": 69.8372,
+          "refcocoplus": 65.2721,
+          "refcocog": 64.4461
         },
         "val_oIoU": {
-          "refcoco": 63.6304,
-          "refcocoplus": 58.0241,
-          "refcocog": 59.0806
+          "refcoco": 63.5541,
+          "refcocoplus": 57.8981,
+          "refcocog": 59.068
         },
         "n": {
           "refcoco": 10834,
@@ -320,14 +320,14 @@
         "uses_released_scores": false,
         "evidence": "exp/out_final/head_rebuild.json",
         "val": {
-          "refcoco": 70.5664,
-          "refcocoplus": 66.3548,
-          "refcocog": 65.5483
+          "refcoco": 70.5673,
+          "refcocoplus": 66.3513,
+          "refcocog": 65.5059
         },
         "val_oIoU": {
-          "refcoco": 64.6709,
-          "refcocoplus": 59.4338,
-          "refcocog": 61.0128
+          "refcoco": 64.6642,
+          "refcocoplus": 59.3997,
+          "refcocog": 60.9347
         },
         "n": {
           "refcoco": 10834,
@@ -380,6 +380,6 @@
       }
     }
   },
-  "verdict": "PROMOTE: the ours-only arm 'learned_head' holds parity or better with the released-score head on all three full official val splits (mean 67.49 vs reference 66.11; deltas refcoco +2.03, refcocoplus +1.69, refcocog +0.43), so the candidate-restriction stage no longer depends on the released scores and the shipped head's decisive scoring components are all ours. Caveat disclosed in the paper: this head reads the cached masked-region features (released G2L extractor) through our full-sentence text protocol; the arms that use neither released scores, released features nor text (learned_geom/learned_geom2) reach 64.58 on refcocog, 0.5 below the head they would replace, so the feature path is retained as the declared platform.",
+  "verdict": "PROMOTE: the ours-only arm 'learned_head' holds parity or better with the released-score head on all three full official val splits (mean 67.47 vs reference 66.11; deltas refcoco +2.03, refcocoplus +1.68, refcocog +0.39), so the candidate-restriction stage no longer depends on the released scores and the shipped head's decisive scoring components are all ours. Wording held precise: all scoring rules and learned weights are ours and no released score enters the promoted head on any record (box-missing records take the head's own prediction). One input representation is computed by the released G2L extractor (declared platform): within the promoted head the region-text term's marginal value over the best feature-free learned arm is +0.60 / +0.81 / +0.93 mIoU, and without it the best feature-free arm falls 0.54 mIoU short of the reference on refcocog.",
   "generated": "exp160_component_provenance.py"
 }

@@ -321,16 +321,16 @@
       "setting": "declared trained: head fitted on RefCOCO-family held-out TRAIN tune rows only; frozen SAM + VLM + cached masked-region features; official val/test evaluation-only",
       "oIoU_source": "aligned pooled re-evaluation (exp159_head_rebuild.py; protocol_audit.json)",
       "refcoco": {
-        "mIoU": 70.5664,
-        "oIoU": 64.6709
+        "mIoU": 70.5673,
+        "oIoU": 64.6642
       },
       "refcocoplus": {
-        "mIoU": 66.3548,
-        "oIoU": 59.4338
+        "mIoU": 66.3513,
+        "oIoU": 59.3997
       },
       "refcocog": {
-        "mIoU": 65.5483,
-        "oIoU": 61.0128
+        "mIoU": 65.5059,
+        "oIoU": 60.9347
       }
     },
     {

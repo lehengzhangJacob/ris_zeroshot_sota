@@ -107,9 +107,9 @@ evaluation-only. On records where the VLM answered \texttt{none} (a few dozen
 in each split) the head predicts from its box-free features (box terms zeroed,
 exactly as in fitting), so no released score enters it on any record. It holds
 parity or better on all three full val splits
-($70.57$/$66.36$/$65.55$ mIoU vs the training-free realization's
+($70.57$/$66.35$/$65.51$ mIoU vs the training-free realization's
 $68.53$/$64.67$/$65.12$) and on all five compared-table test columns
-($+2.03$/$+1.94$/$+1.27$/$+1.27$/$+0.77$ mIoU). The head uses no released
+($+2.03$/$+1.93$/$+1.21$/$+1.26$/$+0.77$ mIoU). The head uses no released
 scores; it reads the cached masked-region features through our full-sentence
 text protocol, and the arms that avoid those features entirely (geometric-only
 learned heads) fail parity on RefCOCOg by $0.5$\,mIoU, so the feature

@@ -35,8 +35,8 @@
         "source": "GLOD-RIS (TCSVT 2026), Table I (oIoU) and Table III (mIoU)"
       },
       "shipped_learned_head": {
-        "mIoU": 70.5664,
-        "oIoU": 64.6709,
+        "mIoU": 70.5673,
+        "oIoU": 64.6642,
         "note": "2026-10-15 component-provenance promotion: the shipped head is the learned selector; the re_evaluation block above documents the training-free realization, reproduced bit-exactly as the exp159 reference arm"
       }
     },
@@ -69,8 +69,8 @@
         "source": "GLOD-RIS (TCSVT 2026), Table I/III"
       },
       "shipped_learned_head": {
-        "mIoU": 66.3548,
-        "oIoU": 59.4338,
+        "mIoU": 66.3513,
+        "oIoU": 59.3997,
         "note": "2026-10-15 component-provenance promotion: the shipped head is the learned selector; the re_evaluation block above documents the training-free realization, reproduced bit-exactly as the exp159 reference arm"
       }
     },
@@ -103,8 +103,8 @@
         "source": "GLOD-RIS (TCSVT 2026), Table I/III (val(u))"
       },
       "shipped_learned_head": {
-        "mIoU": 65.5483,
-        "oIoU": 61.0128,
+        "mIoU": 65.5059,
+        "oIoU": 60.9347,
         "note": "2026-10-15 component-provenance promotion: the shipped head is the learned selector; the re_evaluation block above documents the training-free realization, reproduced bit-exactly as the exp159 reference arm"
       }
     },

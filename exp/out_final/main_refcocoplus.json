@@ -21,14 +21,14 @@
     "ours": 64.6669,
     "ctrl_no_box": 37.8478,
     "orc_single": 82.3974,
-    "learned_head": 66.3548
+    "learned_head": 66.3513
   },
   "oIoU": {
     "released": 33.5875,
     "snap": 36.5402,
     "ours": 58.3114,
     "ctrl_no_box": 30.8192,
-    "learned_head": 59.4338
+    "learned_head": 59.3997
   },
   "oIoU_masses": {
     "released": {
@@ -49,7 +49,7 @@
     }
   },
   "oIoU_definition": "global pooled oIoU: 100 * sum_j |pred_j \u2229 GT_j| / sum_j |pred_j \u222a GT_j| over all val records (GLOD-RIS: 'oIoU measures global overlap'); the per-sample mean IoU is the rows/mIoU field",
-  "mIoU": 66.3548,
+  "mIoU": 66.3513,
   "best_published": {
     "mIoU": 54.01,
     "oIoU": 45.96,
@@ -57,8 +57,8 @@
   },
   "generated": "exp40_final_eval.py",
   "shipped": {
-    "mIoU": 66.3548,
-    "oIoU": 59.4338,
+    "mIoU": 66.3513,
+    "oIoU": 59.3997,
     "best_published": {
       "mIoU": 54.01,
       "rival": "GLOD-RIS (TCSVT 2026)"

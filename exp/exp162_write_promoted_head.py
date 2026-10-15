@@ -89,6 +89,9 @@ def main() -> int:
     # ---- 2. sota_table -----------------------------------------------------
     st = json.loads((OUTF / "sota_table.json").read_text())
     methods = st["methods"]
+    # idempotence: drop any learned-head row from an earlier run before inserting
+    methods[:] = [m for m in methods
+                  if not m.get("name", "").startswith("Ours: learned selector head")]
     idx = None
     for i, meth in enumerate(methods):
         if meth.get("name", "").startswith("Ours: dense VLM box prior"):
