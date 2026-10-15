@@ -1,0 +1,51 @@
+{
+  "dataset": "refcoco",
+  "split": "val",
+  "n": 150,
+  "box_queried_pct": 100.0,
+  "box_none_records": 0,
+  "arms": {
+    "reference": {
+      "n": 150,
+      "mIoU": 73.761,
+      "oIoU": 66.685
+    },
+    "attrib_released_only": {
+      "n": 150,
+      "mIoU": 47.4336,
+      "oIoU": 40.5209
+    },
+    "attrib_box_full": {
+      "n": 150,
+      "mIoU": 75.2647,
+      "oIoU": 71.0968
+    },
+    "ours_region_text": {
+      "n": 150,
+      "mIoU": 72.8716,
+      "oIoU": 65.2896
+    },
+    "ours_key_only": {
+      "n": 150,
+      "mIoU": 37.4962,
+      "oIoU": 27.5828
+    },
+    "geom_guard": {
+      "n": 150,
+      "mIoU": 73.5782,
+      "oIoU": 70.1875
+    },
+    "geom_guard_strict": {
+      "n": 150,
+      "mIoU": 73.5782,
+      "oIoU": 70.1875
+    },
+    "learned_head": {
+      "n": 150,
+      "mIoU": 75.1256,
+      "oIoU": 72.7865
+    }
+  },
+  "generated": "exp159_head_rebuild.py",
+  "notes": "deterministic re-analysis over cached records (SAM ViT-H pool + G2L masked-region features + cached VLM boxes); reference arm reproduces the shipped head (released top-15 restriction by rank01(sc)+0.4906*rank01(gem), box-fill pick); ours_* arms use top-15 by fg @ t_sentence (full sentence, no ensemble, no GEM); geom_* arms use no text; learned_head is fitted on the RefCOCO-family held-out TRAIN tune refs only; box-missing records use the shipped no-box fallback (released top-1) in every arm"
+}
