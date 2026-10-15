@@ -103,7 +103,10 @@ mask area, within-record ranks of the region-text score and of the box
 overlap, and the containment-parent flag --- fitted on the RefCOCO-family
 held-out \emph{train} tune refs only (\mbox{$1{,}137$/$1{,}120$/$765$
 records}; target = proposal $\mathrm{IoU}\ge0.5$); official val and test are
-evaluation-only. It holds parity or better on all three full val splits
+evaluation-only. On records where the VLM answered \texttt{none} (a few dozen
+in each split) the head predicts from its box-free features (box terms zeroed,
+exactly as in fitting), so no released score enters it on any record. It holds
+parity or better on all three full val splits
 ($70.57$/$66.36$/$65.55$ mIoU vs the training-free realization's
 $68.53$/$64.67$/$65.12$) and on all five compared-table test columns
 ($+2.03$/$+1.94$/$+1.27$/$+1.27$/$+0.77$ mIoU). The head uses no released

@@ -181,15 +181,19 @@ region-text key, geometric guards, both with the same box pick) stay near the
 reference but do not hold parity on every dataset. The \emph{learned selector
 head} over our own per-proposal terms (\S\ref{sec:head}, fitted on
 train-carved held-out rows only) holds parity or better everywhere
-($+2.03$/$+1.69$/$+0.43$ val mIoU; $+0.77$ to $+2.03$ on the five test
-columns) and uses no released scores, so it is promoted into the shipped
-head; the released-score head is retained as the training-free reference row.
-The component-provenance audit (\texttt{component\_provenance.json}; appendix)
-accounts for every shipped component, and the one residual dependency is
-declared: the head's region-text term reads the cached masked-region features
-(the released extractor), and the arms that drop both text and those features
-(geometric-only learned heads) fall $0.5$\,mIoU short of the promoted head on
-RefCOCOg --- HybridGL's feature path is the platform, not the decisive
+($+2.03$/$+1.68$/$+0.39$ val mIoU; $+0.77$ to $+2.03$ on the five test
+columns) with no released score entering the head on any record --- the few
+box-missing records ($35$/$50$/$13$) take the head's own prediction from its
+box-free features, not the released fallback --- so it is promoted into the
+shipped head; the released-score head is retained as the training-free
+reference row. The component-provenance audit
+(\texttt{component\_provenance.json}; appendix) accounts for every shipped
+component, and the one residual dependency is declared: the head's region-text
+term reads the cached masked-region features (the released G2L extractor,
+declared platform). Its marginal value within the promoted head is
+$+0.60$/$+0.81$/$+0.93$ mIoU over the best feature-free learned arm, and
+without it that arm falls $0.54$\,mIoU short of the reference on RefCOCOg,
+which is why the feature path is kept --- as the platform, not the decisive
 scorer.
 
 \begin{table}[t]\centering\small

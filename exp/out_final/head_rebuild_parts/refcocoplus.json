@@ -1,6 +1,7 @@
 {
   "dataset": "refcocoplus",
   "split": "val",
+  "records": null,
   "n": 10758,
   "box_queried_pct": 100.0,
   "box_none_records": 50,
@@ -32,38 +33,38 @@
     },
     "ours_region_text": {
       "n": 10758,
-      "mIoU": 63.8742,
-      "oIoU": 57.1719
+      "mIoU": 63.8743,
+      "oIoU": 57.1858
     },
     "ours_key_only": {
       "n": 10758,
-      "mIoU": 38.859,
-      "oIoU": 30.8837
+      "mIoU": 38.8591,
+      "oIoU": 30.8934
     },
     "geom_guard": {
       "n": 10758,
-      "mIoU": 64.8617,
-      "oIoU": 58.3775
+      "mIoU": 64.8618,
+      "oIoU": 58.3916
     },
     "geom_guard_strict": {
       "n": 10758,
-      "mIoU": 64.9546,
-      "oIoU": 58.3154
+      "mIoU": 64.9547,
+      "oIoU": 58.3294
     },
     "learned_head": {
       "n": 10758,
-      "mIoU": 66.3548,
-      "oIoU": 59.4338
+      "mIoU": 66.3513,
+      "oIoU": 59.3997
     },
     "learned_geom": {
       "n": 10758,
-      "mIoU": 65.3842,
-      "oIoU": 58.0241
+      "mIoU": 65.2721,
+      "oIoU": 57.8981
     },
     "learned_geom2": {
       "n": 10758,
-      "mIoU": 65.648,
-      "oIoU": 58.5933
+      "mIoU": 65.5422,
+      "oIoU": 58.4971
     }
   },
   "generated": "exp159_head_rebuild.py",

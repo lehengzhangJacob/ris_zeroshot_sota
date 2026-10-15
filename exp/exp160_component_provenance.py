@@ -146,23 +146,31 @@ def main() -> int:
              provenance="generic_frozen",
              evidence="exp/cache_map.py (settings replicated from the released commit)"),
         dict(name="HybridGL G2L masked-region feature extractor (modified CLIP ViT-B/16, masking_block=9)",
-             role="per-proposal 512-d region features the text scores read",
+             role=("per-proposal 512-d region features; read by the training-free "
+              "reference realization and, as a feature path only (via our full-sentence "
+              "text protocol), by the promoted head's region-text term -- declared "
+              "platform"),
              provenance="released_hybridgl",
              evidence="/home/msj_team/Jacob/sys/glod_ris_repro/glod/vision.py + cache/vision/*.npz"),
         dict(name="Released semantic score sc = 0.5*text(sentence) + 0.5*text(noun phrase)",
-             role="primary released scoring term; the shipped restriction's leading key",
+             role=("primary released scoring term of the training-free reference "
+              "realization's restriction key; not used by the promoted head"),
              provenance="released_hybridgl",
              evidence="exp/hybridgl_guided.py GuidedScorer.score; exp/out_extreme/records_*.jsonl"),
         dict(name="Released GEM spatial-coherence score",
-             role="second released scoring term in the restriction key",
+             role=("second released scoring term in the training-free reference "
+              "realization's restriction key; not used by the promoted head"),
              provenance="released_hybridgl",
              evidence="exp/hybridgl_guided.py (GEM ViT-B/16 + directional mask)"),
         dict(name="Released fused top-3 selection (alpha=0.6 GEM mix)",
-             role="the released pipeline's own pick; shipped pipeline uses it only on box-missing records",
+             role=("the released pipeline's own pick; used by the training-free reference "
+              "realization (and its box-missing no-box fallback); not used by the "
+              "promoted head, whose box-missing records take the head's own prediction"),
              provenance="released_hybridgl",
              evidence="exp/hybridgl_guided.py; records' `final` field"),
         dict(name="Released-score top-15 candidate restriction (rank01(sc)+0.4906*rank01(gem))",
-             role="narrows the pool before the box pick in the shipped RefCOCO-family head",
+             role=("narrows the pool before the box pick in the training-free reference "
+              "realization; replaced by the learned head in the shipped realization"),
              provenance="released_hybridgl",
              evidence="exp/out_final/optuna_study.json (k_dec=15, gem_mix=0.49057)"),
         dict(name="Dense localization prior: LLaVA-OneVision-7B (local checkpoint) queried with the full expression",
@@ -211,14 +219,18 @@ def main() -> int:
     db = " / ".join(f"{attrib[ds]['drop_box_given_restriction']:+.2f}" for ds in DATASETS)
     caveat = ""
     if key in ("learned_head",):
-        caveat = (" Caveat disclosed in the paper: this head reads the cached "
-                  "masked-region features (released G2L extractor) through our "
-                  "full-sentence text protocol; the arms that use neither "
-                  "released scores, released features nor text "
-                  "(learned_geom/learned_geom2) reach "
-                  f"{hr_arms['learned_geom2']['val']['refcocog']:.2f} on refcocog, "
-                  "0.5 below the head they would replace, so the feature path is "
-                  "retained as the declared platform.")
+        lg2 = hr_arms["learned_geom2"]["val"]
+        lh = hr_arms["learned_head"]["val"]
+        marg = " / ".join(f"{lh[d] - lg2[d]:+.2f}" for d in DATASETS)
+        caveat = (" Wording held precise: all scoring rules and learned weights "
+                  "are ours and no released score enters the promoted head on any "
+                  "record (box-missing records take the head's own prediction). "
+                  "One input representation is computed by the released G2L "
+                  "extractor (declared platform): within the promoted head the "
+                  "region-text term's marginal value over the best feature-free "
+                  "learned arm is " + marg + " mIoU, and without it the best "
+                  f"feature-free arm falls {hr_arms['reference']['val']['refcocog'] - lg2['refcocog']:.2f} "
+                  "mIoU short of the reference on refcocog.")
     if min(deltas.values()) >= -0.05 and (best_mean - ref_mean) >= 0:
         verdict = (
             f"PROMOTE: the ours-only arm '{key}' holds parity or better with the "
