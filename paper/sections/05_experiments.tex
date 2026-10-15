@@ -193,8 +193,10 @@ term reads the cached masked-region features (the released G2L extractor,
 declared platform). Its marginal value within the promoted head is
 $+0.60$/$+0.81$/$+0.93$ mIoU over the best feature-free learned arm, and
 without it that arm falls $0.54$\,mIoU short of the reference on RefCOCOg,
-which is why the feature path is kept --- as the platform, not the decisive
-scorer.
+which is why the feature path is kept. The promotion therefore rests on the
+platform declaration: the shipped head is \emph{ours-only scoring on a declared
+released-feature platform}, no feature-free arm held parity, and the gap is
+published beside the gain rather than hidden.
 
 \begin{table}[t]\centering\small
 \caption{Head rebuild on the three full official val splits (deterministic

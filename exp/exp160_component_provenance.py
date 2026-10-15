@@ -152,6 +152,12 @@ def main() -> int:
               "platform"),
              provenance="released_hybridgl",
              evidence="/home/msj_team/Jacob/sys/glod_ris_repro/glod/vision.py + cache/vision/*.npz"),
+        dict(name="Full-sentence text embedding tower (released modified CLIP ViT-B/16 text encoder)",
+             role=("computes the full-sentence text embedding the promoted head's "
+                   "region-text term and the training-free reference realization "
+                   "score against; frozen, from third_party/modified_CLIP"),
+             provenance="released_hybridgl",
+             evidence="exp/exp159_head_rebuild.py TextEncoder (modified_CLIP clip.load, checkpoint ViT-B-16.pt)"),
         dict(name="Released semantic score sc = 0.5*text(sentence) + 0.5*text(noun phrase)",
              role=("primary released scoring term of the training-free reference "
               "realization's restriction key; not used by the promoted head"),
@@ -237,7 +243,11 @@ def main() -> int:
             f"released-score head on all three full official val splits (mean "
             f"{best_mean:.2f} vs reference {ref_mean:.2f}; deltas {dstr}), so the "
             f"candidate-restriction stage no longer depends on the released scores "
-            f"and the shipped head's decisive scoring components are all ours."
+            f"-- ours-only scoring on a declared released-feature platform -- and "
+            f"the promotion rests on that platform declaration: no feature-free "
+            f"arm held parity (the best, learned_geom2, falls 0.54 below the "
+            f"reference on refcocog), so the dependency is quantified, not "
+            f"removed."
             + caveat)
     else:
         verdict = (
@@ -249,6 +259,22 @@ def main() -> int:
             f"refcocog); given the restriction, the box is worth {db} mIoU -- the "
             f"conjunction (released scores narrow the instance class, our box picks "
             f"the instance) is the honest attribution and the paper states it.")
+    # feature-path marginal, traceable to its source arms
+    lg2 = hr_arms["learned_geom2"]["val"]
+    lh = hr_arms["learned_head"]["val"]
+    marginal = dict(
+        definition=("marginal value of the feature-derived region-text term within "
+                    "the promoted head = learned_head mIoU minus learned_geom2 mIoU "
+                    "(the best feature-free learned arm), full official val splits"),
+        source_arms=dict(minuend="learned_head (exp/out_final/head_rebuild.json)",
+                         subtrahend="learned_geom2 (exp/out_final/head_rebuild.json)"),
+        per_dataset={ds: dict(learned_head=lh[ds], learned_geom2=lg2[ds],
+                              marginal=round(lh[ds] - lg2[ds], 4)) for ds in DATASETS},
+        reference_shortfall_on_refcocog=round(
+            hr_arms["reference"]["val"]["refcocog"] - lg2["refcocog"], 4),
+        seed_note=("single seed (random_state 0) for all fitted heads; a "
+                   "multi-seed std is not yet measured (disclosed, non-blocking)"))
+
     # component scoreboard
     doc = dict(
         what=agg["what"],
@@ -267,9 +293,12 @@ def main() -> int:
             "(highest refcoco, lowest refcocoplus, refcocog between) matches the "
             "released-scores-only arm (43.33/37.85/47.51), suggesting the quoted "
             "figure may have originated from a different arm/iteration or an older "
-            "box cache rather than the shipped configuration."),
+            "box cache rather than the shipped configuration. GroundingDINO boxes "
+            "exist only on the gRefCOCO path and were not probed on this family; "
+            "the measured deltas stand as recorded."),
         components=comps,
         head_rebuild=dict(arms=list(hr_arms.values()), attribution=attrib,
+                          feature_path_marginal=marginal,
                           box_stats=agg["box_stats"]),
         verdict=verdict,
         generated="exp160_component_provenance.py",
