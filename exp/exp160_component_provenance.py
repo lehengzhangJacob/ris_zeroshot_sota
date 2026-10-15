@@ -57,6 +57,21 @@ ARM_META = {
         name="ours: strict geometric guards (center-in-box, mask/box area in [0.1, 2]) + box-fill pick",
         uses_released_scores=False,
         role="no text at all: guard-filter by mask centroid inside the box and mask-to-box area ratio in [0.1, 2], then argmax box-fill"),
+    "attrib_box_full_cover": dict(
+        name="attribution: box-fill pick (cover mode) over the FULL pool",
+        uses_released_scores=False,
+        role="overlap-mode variant of the drop-the-restriction control (mask-covers-box fraction)"),
+    "attrib_box_full_inside": dict(
+        name="attribution: box-fill pick (inside mode) over the FULL pool",
+        uses_released_scores=False,
+        role="overlap-mode variant of the drop-the-restriction control (mask-inside-box fraction)"),
+    "learned_geom2": dict(
+        name="ours: learned head over geometric terms only, richer set (no text, no features)",
+        uses_released_scores=False,
+        role=("HistGradientBoosting over box overlap (iou + cover), center-in-box, "
+              "area ratio, mask area, centroid-to-box-center distance, box area, "
+              "within-record rank, containment-parent; fitted on the held-out "
+              "TRAIN tune refs only; uses neither released scores nor text")),
     "learned_head": dict(
         name="ours: learned head over our own per-proposal terms (HistGradientBoosting, declared trained)",
         uses_released_scores=False,
@@ -113,6 +128,8 @@ def main() -> int:
             box_over_full_pool=a["attrib_box_full"]["mIoU"],
             drop_restriction_given_box=round(a["reference"]["mIoU"] - a["attrib_box_full"]["mIoU"], 4),
             drop_box_given_restriction=round(a["reference"]["mIoU"] - a["attrib_released_only"]["mIoU"], 4),
+            box_full_cover=a["attrib_box_full_cover"]["mIoU"],
+            box_full_inside=a["attrib_box_full_inside"]["mIoU"],
         )
 
     # ---- components --------------------------------------------------------
@@ -173,7 +190,8 @@ def main() -> int:
 
     # ---- verdict -----------------------------------------------------------
     best_ours = None
-    for key in ("learned_head", "ours_region_text", "geom_guard", "geom_guard_strict"):
+    for key in ("learned_head", "learned_geom", "learned_geom2", "ours_region_text",
+                "geom_guard", "geom_guard_strict"):
         deltas = {ds: round(hr_arms[key]["val"][ds] - hr_arms["reference"]["val"][ds], 4)
                   for ds in DATASETS}
         if best_ours is None or min(deltas.values()) > min(best_ours[1].values()):
@@ -184,13 +202,24 @@ def main() -> int:
     best_mean = sum(hr_arms[key]["val"][ds] for ds in DATASETS) / 3
     dr = " / ".join(f"{attrib[ds]['drop_restriction_given_box']:+.2f}" for ds in DATASETS)
     db = " / ".join(f"{attrib[ds]['drop_box_given_restriction']:+.2f}" for ds in DATASETS)
+    caveat = ""
+    if key in ("learned_head",):
+        caveat = (" Caveat disclosed in the paper: this head reads the cached "
+                  "masked-region features (released G2L extractor) through our "
+                  "full-sentence text protocol; the arms that use neither "
+                  "released scores, released features nor text "
+                  "(learned_geom/learned_geom2) reach "
+                  f"{hr_arms['learned_geom2']['val']['refcocog']:.2f} on refcocog, "
+                  "0.5 below the head they would replace, so the feature path is "
+                  "retained as the declared platform.")
     if min(deltas.values()) >= -0.05 and (best_mean - ref_mean) >= 0:
         verdict = (
             f"PROMOTE: the ours-only arm '{key}' holds parity or better with the "
             f"released-score head on all three full official val splits (mean "
             f"{best_mean:.2f} vs reference {ref_mean:.2f}; deltas {dstr}), so the "
             f"candidate-restriction stage no longer depends on the released scores "
-            f"and the shipped head's decisive components are all ours.")
+            f"and the shipped head's decisive scoring components are all ours."
+            + caveat)
     else:
         verdict = (
             f"MEASURED GAP: no ours-only arm reaches parity with the released-score "
@@ -204,6 +233,17 @@ def main() -> int:
     # component scoreboard
     doc = dict(
         what=agg["what"],
+        attribution_note=(
+            "Both drop-one directions, measured on the full official val splits "
+            "(the reference arm reproduces the shipped released-score head "
+            "bit-exactly, delta 0.0000): given the box, the released restriction "
+            f"is worth {dr} mIoU; given the restriction, the box is worth {db} "
+            "mIoU. Under the shipped iou box-fill and sentence box the "
+            "restriction is ~neutral given the box; the quoted directive figures "
+            "(box-over-full-pool 50.20/40.24/49.48) could not be reproduced under "
+            "any tested configuration -- iou/cover/inside modes, sentence/noun "
+            "phrase, LLaVA boxes (exp159b_boxsource_probe.json) -- and are "
+            "recorded as unreconciled; the box carries the conjunction either way."),
         components=comps,
         head_rebuild=dict(arms=list(hr_arms.values()), attribution=attrib,
                           box_stats=agg["box_stats"]),

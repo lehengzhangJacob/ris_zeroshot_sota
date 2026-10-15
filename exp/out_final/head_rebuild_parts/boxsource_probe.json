@@ -1,0 +1,14 @@
+{
+  "dataset": "refcoco",
+  "probe": {
+    "llava_sent": {
+      "n": 10799,
+      "mIoU": 70.0961
+    },
+    "llava_noun": {
+      "n": 5650,
+      "mIoU": 70.0766
+    }
+  },
+  "generated": "exp159b_boxsource_probe.py"
+}

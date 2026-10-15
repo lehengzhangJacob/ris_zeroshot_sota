@@ -173,11 +173,19 @@ def arm_c_features(masks, fg, r, box, our, loc=None):
                      (cy * H >= y0) & (cy * H <= y1)).astype(np.float32)
         box_area = float(max(1, (x1 - x0) * (y1 - y0)))
         ratio = area * npix / box_area
+        bcx = 0.5 * (x0 + x1) / W
+        bcy = 0.5 * (y0 + y1) / H
+        dist = np.sqrt((cx - bcx) ** 2 + (cy - bcy) ** 2).astype(np.float32)
         feats.update(loc=loc, center_in=center_in,
-                     log_ratio=np.log1p(ratio), mask_box_ratio=ratio)
+                     log_ratio=np.log1p(ratio), mask_box_ratio=ratio,
+                     loc_cover=box_overlap(masks, box, "cover"),
+                     dist_center=dist,
+                     log_box_area=np.full(n, np.log1p(box_area), np.float32))
     else:
         feats.update(loc=np.zeros(n, np.float32), center_in=np.zeros(n, np.float32),
-                     log_ratio=np.zeros(n, np.float32), mask_box_ratio=np.zeros(n, np.float32))
+                     log_ratio=np.zeros(n, np.float32), mask_box_ratio=np.zeros(n, np.float32),
+                     loc_cover=np.zeros(n, np.float32), dist_center=np.zeros(n, np.float32),
+                     log_box_area=np.zeros(n, np.float32))
     feats["our_rank"] = rank01(feats["our"])
     feats["loc_rank"] = rank01(feats["loc"])
     return feats
@@ -186,6 +194,7 @@ def arm_c_features(masks, fg, r, box, our, loc=None):
 ALL_COLS = ["our", "loc", "center_in", "log_ratio", "log_area",
             "our_rank", "loc_rank", "ps_parent"]
 GEOM_COLS = ["loc", "center_in", "log_ratio", "log_area", "loc_rank", "ps_parent"]
+GEOM2_COLS = GEOM_COLS + ["loc_cover", "dist_center", "log_box_area"]
 
 
 def feat_matrix(feats, cols=ALL_COLS):
@@ -195,10 +204,11 @@ def feat_matrix(feats, cols=ALL_COLS):
 ALL_ARMS = ("reference", "attrib_released_only", "attrib_box_full",
             "attrib_box_full_cover", "attrib_box_full_inside",
             "ours_region_text", "ours_key_only",
-            "geom_guard", "geom_guard_strict", "learned_head", "learned_geom")
+            "geom_guard", "geom_guard_strict", "learned_head",
+            "learned_geom", "learned_geom2")
 
 
-def picks_for_record(masks, fg, r, box, t_sent, model_c, model_g):
+def picks_for_record(masks, fg, r, box, t_sent, model_c, model_g, model_g2):
     """All arm picks for one record.  Returns dict arm -> pick."""
     n = len(fg)
     sc = np.asarray(r["sc"][:n], np.float32)
@@ -243,12 +253,16 @@ def picks_for_record(masks, fg, r, box, t_sent, model_c, model_g):
     if model_g is not None:
         out["learned_geom"] = int(np.argmax(
             model_g.predict_proba(feat_matrix(feats, GEOM_COLS))[:, 1]))
+    if model_g2 is not None:
+        out["learned_geom2"] = int(np.argmax(
+            model_g2.predict_proba(feat_matrix(feats, GEOM2_COLS))[:, 1]))
     return out, True
 
 
 def iterate_records(dataset, split, ref_by_id, ds, store, order, te, model_c,
-                    limit=0):
-    path = RECORDS[dataset] if split == "val" else TUNE[dataset]
+                    limit=0, records_path=None):
+    path = Path(records_path) if records_path else (
+        RECORDS[dataset] if split == "val" else TUNE[dataset])
     recs = [json.loads(l) for l in open(path)]
     if limit:
         recs = recs[:limit]
@@ -300,22 +314,27 @@ def fit_learned_head(dataset, te):
 
     model_c = _fit(ALL_COLS)
     model_g = _fit(GEOM_COLS)
+    model_g2 = _fit(GEOM2_COLS)
     print(f"  [fit] {dataset}: {n_rec} tune records, {len(y)} proposals, "
           f"positive rate {y.mean():.4f}", flush=True)
-    return model_c, model_g
+    return model_c, model_g, model_g2
 
 
-def evaluate(dataset, split="val", limit=0):
+def evaluate(dataset, split="val", limit=0, records_path=None, out_path=None,
+             te=None, models=None):
     from glod.data import RefDataset
     from vlm_boxes import QwenBoxer
     ds = RefDataset(REPRO / "data/refer", DS_NAME[dataset], split)
     ref_by_id = {r["ref_id"]: r for r in ds.refs}
     build_map([ds.images[r["image_id"]]["file_name"] for r in ds.refs])
-    te = TextEncoder()
-    print(f"[{dataset}] fitting learned heads on tune refs", flush=True)
-    t0 = time.time()
-    model_c, model_g = fit_learned_head(dataset, te)
-    print(f"[{dataset}] heads fitted ({time.time()-t0:.0f}s); val pass", flush=True)
+    if te is None:
+        te = TextEncoder()
+    if models is None:
+        print(f"[{dataset}] fitting learned heads on tune refs", flush=True)
+        t0 = time.time()
+        models = fit_learned_head(dataset, te)
+        print(f"[{dataset}] heads fitted ({time.time()-t0:.0f}s); val pass", flush=True)
+    model_c, model_g, model_g2 = models
 
     boxer = QwenBoxer.__new__(QwenBoxer)
     store, order = {}, []
@@ -324,13 +343,15 @@ def evaluate(dataset, split="val", limit=0):
     n_used = n_box = n_box_none = 0
     t1 = time.time()
     for i, (r, fn, masks, fg) in enumerate(iterate_records(
-            dataset, split, ref_by_id, ds, store, order, te, model_c, limit)):
+            dataset, split, ref_by_id, ds, store, order, te, model_c, limit,
+            records_path=records_path)):
         bp = boxer._path(fn, r["parsed"]["sentence"].strip())
         box = json.loads(bp.read_text())["box"] if bp.is_file() else None
         n_box += int(bp.is_file())
         n_box_none += int(box is None)
         picks, used_box = picks_for_record(masks, fg, r, box,
-                                           te(r["parsed"]["sentence"]), model_c, model_g)
+                                           te(r["parsed"]["sentence"]), model_c,
+                                           model_g, model_g2)
         gt = np.asarray(r["gt_iou"][:len(fg)], np.float64)
         inter = np.asarray(r["inter_gt"][:len(fg)], np.float64)
         union = np.asarray(r["union_gt"][:len(fg)], np.float64)
@@ -350,7 +371,8 @@ def evaluate(dataset, split="val", limit=0):
                       mIoU=round(100.0 * v["iou"] / n_used, 4),
                       oIoU=round(100.0 * v["inter"] / v["union"], 4) if v["union"] else 0.0)
     payload = dict(
-        dataset=dataset, split=split, n=n_used,
+        dataset=dataset, split=split, records=str(records_path) if records_path else None,
+        n=n_used,
         box_queried_pct=round(100.0 * n_box / max(1, n_used), 3),
         box_none_records=n_box_none,
         arms=res,
@@ -368,8 +390,8 @@ def evaluate(dataset, split="val", limit=0):
                "records use the shipped no-box fallback (released top-1) in "
                "every arm"),
     )
-    OUTDIR.mkdir(parents=True, exist_ok=True)
-    out = OUTDIR / f"{dataset}.json"
+    out = Path(out_path) if out_path else OUTDIR / f"{dataset}.json"
+    out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(json.dumps(payload, indent=2))
     print(f"[{dataset}] wrote {out}")
     for a in arms:
@@ -380,9 +402,13 @@ def evaluate(dataset, split="val", limit=0):
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--dataset", default="refcoco", choices=list(RECORDS))
+    ap.add_argument("--split", default="val")
+    ap.add_argument("--records", type=Path, default=None)
+    ap.add_argument("--out", type=Path, default=None)
     ap.add_argument("--limit", type=int, default=0)
     args = ap.parse_args()
-    return evaluate(args.dataset, limit=args.limit)
+    return evaluate(args.dataset, split=args.split, limit=args.limit,
+                    records_path=args.records, out_path=args.out)
 
 
 if __name__ == "__main__":

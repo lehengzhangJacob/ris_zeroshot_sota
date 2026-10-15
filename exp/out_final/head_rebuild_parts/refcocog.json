@@ -59,6 +59,11 @@
       "n": 4896,
       "mIoU": 64.4681,
       "oIoU": 59.0806
+    },
+    "learned_geom2": {
+      "n": 4896,
+      "mIoU": 64.5782,
+      "oIoU": 59.3831
     }
   },
   "generated": "exp159_head_rebuild.py",
