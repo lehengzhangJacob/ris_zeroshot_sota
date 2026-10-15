@@ -189,8 +189,10 @@ shipped head; the released-score head is retained as the training-free
 reference row. The component-provenance audit
 (\texttt{component\_provenance.json}; appendix) accounts for every shipped
 component, and the one residual dependency is declared: the head's region-text
-term reads the cached masked-region features (the released G2L extractor,
-declared platform). Its marginal value within the promoted head is
+term reads exactly two released components, both frozen representations ---
+the G2L masked-region extractor and the matching modified-CLIP text tower ---
+with no released score entering on any record. Its marginal value within the
+promoted head is
 $+0.60$/$+0.81$/$+0.93$ mIoU over the best feature-free learned arm, and
 without it that arm falls $0.54$\,mIoU short of the reference on RefCOCOg,
 which is why the feature path is kept. The promotion therefore rests on the

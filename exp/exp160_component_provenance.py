@@ -229,10 +229,11 @@ def main() -> int:
         lh = hr_arms["learned_head"]["val"]
         marg = " / ".join(f"{lh[d] - lg2[d]:+.2f}" for d in DATASETS)
         caveat = (" Wording held precise: all scoring rules and learned weights "
-                  "are ours and no released score enters the promoted head on any "
-                  "record (box-missing records take the head's own prediction). "
-                  "One input representation is computed by the released G2L "
-                  "extractor (declared platform): within the promoted head the "
+                  "are ours; exactly two released components are still read, both "
+                  "frozen representations (the G2L masked-region extractor and the "
+                  "matching modified-CLIP text tower), and no released score enters "
+                  "the promoted head on any record (box-missing records take the "
+                  "head's own prediction). Within the promoted head the "
                   "region-text term's marginal value over the best feature-free "
                   "learned arm is " + marg + " mIoU, and without it the best "
                   f"feature-free arm falls {hr_arms['reference']['val']['refcocog'] - lg2['refcocog']:.2f} "
@@ -271,7 +272,8 @@ def main() -> int:
         per_dataset={ds: dict(learned_head=lh[ds], learned_geom2=lg2[ds],
                               marginal=round(lh[ds] - lg2[ds], 4)) for ds in DATASETS},
         reference_shortfall_on_refcocog=round(
-            hr_arms["reference"]["val"]["refcocog"] - lg2["refcocog"], 4),
+            round(hr_arms["reference"]["val"]["refcocog"], 4)
+            - round(lg2["refcocog"], 4), 4),
         seed_note=("single seed (random_state 0) for all fitted heads; a "
                    "multi-seed std is not yet measured (disclosed, non-blocking)"))
 
