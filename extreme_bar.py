@@ -467,6 +467,64 @@ def transfer_wall():
     return True
 
 
+def component_provenance():
+    """Contribution provenance audit (operator directive 2026-10-15)."""
+    rel = "exp/out_final/component_provenance.json"
+    if not newer(rel):
+        return False
+    try:
+        data = json.loads((ROOT / rel).read_text())
+    except Exception as exc:
+        return fail(f"bad json {rel}: {exc}")
+    if not isinstance(data, dict):
+        return fail("component_provenance.json must be an object")
+    comps = data.get("components")
+    if not isinstance(comps, list) or len(comps) < 8:
+        return fail("component_provenance.json needs components[] of length >= 8")
+    allowed = {"ours", "released_hybridgl", "generic_frozen"}
+    for i, c in enumerate(comps):
+        if not isinstance(c, dict):
+            return fail(f"component_provenance component {i} is not an object")
+        for field in ("name", "role", "evidence"):
+            v = c.get(field)
+            if not isinstance(v, str) or not v.strip():
+                return fail(f"component_provenance component {i} needs a non-empty {field}")
+        if c.get("provenance") not in allowed:
+            return fail(f"component_provenance component {i} provenance must be one of {sorted(allowed)}")
+    hb = data.get("head_rebuild")
+    arms = hb.get("arms") if isinstance(hb, dict) else None
+    if not isinstance(arms, list) or len(arms) < 2:
+        return fail("component_provenance.json needs head_rebuild.arms[] of length >= 2")
+    ours_only = 0
+    for i, a in enumerate(arms):
+        if not isinstance(a, dict):
+            return fail(f"head_rebuild arm {i} is not an object")
+        if not isinstance(a.get("name"), str) or not a["name"].strip():
+            return fail(f"head_rebuild arm {i} needs a non-empty name")
+        if not isinstance(a.get("uses_released_scores"), bool):
+            return fail(f"head_rebuild arm {i} needs uses_released_scores bool")
+        ev = a.get("evidence")
+        if not isinstance(ev, str) or not newer(ev):
+            return fail(f"head_rebuild arm {i} needs fresh evidence")
+        val = a.get("val")
+        if not isinstance(val, dict):
+            return fail(f"head_rebuild arm {i} needs val{{}}")
+        for key in ("refcoco", "refcocoplus", "refcocog"):
+            if not isinstance(val.get(key), (int, float)):
+                return fail(f"head_rebuild arm {i} val.{key} must be numeric")
+        if a["uses_released_scores"] is False:
+            ours_only += 1
+    if ours_only < 1:
+        return fail("head_rebuild needs at least one arm with uses_released_scores=false")
+    verdict = data.get("verdict")
+    if not isinstance(verdict, str) or not verdict.strip():
+        return fail("component_provenance.json needs a non-empty verdict string")
+    pdf_path = ROOT / "paper" / "main.pdf"
+    if not pdf_path.is_file() or pdf_path.stat().st_mtime < (ROOT / rel).stat().st_mtime:
+        return fail("paper/main.pdf must be rebuilt after exp/out_final/component_provenance.json")
+    return True
+
+
 def as_percent(value):
     value = float(value)
     if value <= 1.5:
@@ -547,7 +605,7 @@ def main():
     if not STAMP.is_file():
         print("FAIL: extreme_started.txt missing")
         return 1
-    checks = [tex_has_appendix, architecture, sota, ablation, mains, graveyard, protocol_audit, metrics_sota, analysis_pack, glm_swap, glodris_repro, rule_swap, wild_ideas, learned_prior, test_columns, transfer_wall, sota_line, pdf]
+    checks = [tex_has_appendix, architecture, sota, ablation, mains, graveyard, protocol_audit, metrics_sota, analysis_pack, glm_swap, glodris_repro, rule_swap, wild_ideas, learned_prior, test_columns, transfer_wall, component_provenance, sota_line, pdf]
     passed = all(check() for check in checks)
     print("PASS" if passed else "NOT_READY")
     return 0 if passed else 1
