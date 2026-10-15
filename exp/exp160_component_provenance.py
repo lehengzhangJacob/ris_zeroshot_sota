@@ -165,7 +165,7 @@ def main() -> int:
              role="narrows the pool before the box pick in the shipped RefCOCO-family head",
              provenance="released_hybridgl",
              evidence="exp/out_final/optuna_study.json (k_dec=15, gem_mix=0.49057)"),
-        dict(name="Dense localization prior: Qwen2.5-VL-7B queried with the full expression",
+        dict(name="Dense localization prior: LLaVA-OneVision-7B (local checkpoint) queried with the full expression",
              role="frozen VLM box for the referent (the component this run proposed)",
              provenance="ours",
              evidence="exp/vlm_boxes.py; exp/out_vlm_boxes cache; exp/out_final/box_quality_sample.json"),
@@ -250,7 +250,12 @@ def main() -> int:
             "(box-over-full-pool 50.20/40.24/49.48) could not be reproduced under "
             "any tested configuration -- iou/cover/inside modes, sentence/noun "
             "phrase, LLaVA boxes (exp159b_boxsource_probe.json) -- and are "
-            "recorded as unreconciled; the box carries the conjunction either way."),
+            "recorded as unreconciled; the box carries the conjunction either way. "
+            "Shape note (reviewer hypothesis, recorded): the quoted triple's ordering "
+            "(highest refcoco, lowest refcocoplus, refcocog between) matches the "
+            "released-scores-only arm (43.33/37.85/47.51), suggesting the quoted "
+            "figure may have originated from a different arm/iteration or an older "
+            "box cache rather than the shipped configuration."),
         components=comps,
         head_rebuild=dict(arms=list(hr_arms.values()), attribution=attrib,
                           box_stats=agg["box_stats"]),

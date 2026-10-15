@@ -294,11 +294,11 @@ Removing the box (\texttt{ctrl\_no\_box}) returns the pipeline to selection by
 the released scores alone and loses most of the gain
 ($-25.2$/$-26.8$/$-17.6$\,mIoU). Removing the \emph{candidate restriction}
 (letting the box match against the whole pool) is dataset-dependent ---
-$-1.45$/$-0.56$/$+0.29$ against the restricted pick on the three val splits,
-and $+2.5$/$+1.1$/$-8.4$ on the train-carved tuning split: the restriction is
-worth several mIoU only on RefCOCOg, which is why the min-over-datasets study
-keeps it --- a measured boundary, not an unconditional gain
-(\S\ref{sec:provenance}).
+$-1.45$/$-0.56$/$+0.29$ against the restricted pick on the three val splits
+(restriction minus full-pool), and $-2.5$/$-1.1$/$+8.4$ on the train-carved
+tuning split: the restriction is worth several mIoU only on RefCOCOg, which is
+why the min-over-datasets study keeps it --- a measured boundary, not an
+unconditional gain (\S\ref{sec:provenance}).
 
 \paragraph{Repairs.} Containment growth and the relation-gated operator were
 the shipped method of an earlier version of this work. On top of the box

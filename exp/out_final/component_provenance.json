@@ -1,6 +1,6 @@
 {
   "what": "head-rebuild study: the RefCOCO-family candidate-restriction stage re-measured from our own mechanisms as deterministic re-analysis over cached records (SAM ViT-H pool + cached G2L masked-region features + cached VLM boxes; no vision re-generation)",
-  "attribution_note": "Both drop-one directions, measured on the full official val splits (the reference arm reproduces the shipped released-score head bit-exactly, delta 0.0000): given the box, the released restriction is worth -1.45 / -0.56 / +0.29 mIoU; given the restriction, the box is worth +25.21 / +26.82 / +17.61 mIoU. Under the shipped iou box-fill and sentence box the restriction is ~neutral given the box; the quoted directive figures (box-over-full-pool 50.20/40.24/49.48) could not be reproduced under any tested configuration -- iou/cover/inside modes, sentence/noun phrase, LLaVA boxes (exp159b_boxsource_probe.json) -- and are recorded as unreconciled; the box carries the conjunction either way.",
+  "attribution_note": "Both drop-one directions, measured on the full official val splits (the reference arm reproduces the shipped released-score head bit-exactly, delta 0.0000): given the box, the released restriction is worth -1.45 / -0.56 / +0.29 mIoU; given the restriction, the box is worth +25.21 / +26.82 / +17.61 mIoU. Under the shipped iou box-fill and sentence box the restriction is ~neutral given the box; the quoted directive figures (box-over-full-pool 50.20/40.24/49.48) could not be reproduced under any tested configuration -- iou/cover/inside modes, sentence/noun phrase, LLaVA boxes (exp159b_boxsource_probe.json) -- and are recorded as unreconciled; the box carries the conjunction either way. Shape note (reviewer hypothesis, recorded): the quoted triple's ordering (highest refcoco, lowest refcocoplus, refcocog between) matches the released-scores-only arm (43.33/37.85/47.51), suggesting the quoted figure may have originated from a different arm/iteration or an older box cache rather than the shipped configuration.",
   "components": [
     {
       "name": "SAM ViT-H automatic mask generator (pps=8, released settings)",
@@ -39,7 +39,7 @@
       "evidence": "exp/out_final/optuna_study.json (k_dec=15, gem_mix=0.49057)"
     },
     {
-      "name": "Dense localization prior: Qwen2.5-VL-7B queried with the full expression",
+      "name": "Dense localization prior: LLaVA-OneVision-7B (local checkpoint) queried with the full expression",
       "role": "frozen VLM box for the referent (the component this run proposed)",
       "provenance": "ours",
       "evidence": "exp/vlm_boxes.py; exp/out_vlm_boxes cache; exp/out_final/box_quality_sample.json"

@@ -77,10 +77,10 @@ j^\star = \argmax_{i \in \mathcal{C}} \; \mathrm{IoU}(m_i, B),
 the candidate that best fills the region the VLM points at. In the
 \emph{training-free realization} the released scores are used only to keep the
 box match away from same-class distractors; its value is dataset-dependent and
-measured in \S\ref{sec:provenance} (the restriction is worth
-$+8.4$\,mIoU on RefCOCOg and about neutral elsewhere, which is why the
-min-over-datasets study keeps it). The shipped head replaces that restriction
-stage with the learned selector of \S\ref{sec:head}.
+measured in \S\ref{sec:provenance} (on the tuning split the restriction is
+worth $+8.4$\,mIoU on RefCOCOg and slightly negative on the other two, which
+is why the min-over-datasets study keeps it). The shipped head replaces that
+restriction stage with the learned selector of \S\ref{sec:head}.
 
 Repairs from our earlier diagnosis remain available and are measured
 separately: \emph{containment growth} (replace the selection by its smallest
