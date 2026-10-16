@@ -42,7 +42,7 @@ for _v in ("OMP_NUM_THREADS", "OPENBLAS_NUM_THREADS", "MKL_NUM_THREADS",
 import numpy as np
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from cache_map import cache_file  # noqa: E402
+from cache_map import cache_file, _image_path  # noqa: E402
 import exp159_head_rebuild as e159  # noqa: E402
 
 REPRO = Path("/home/msj_team/Jacob/sys/glod_ris_repro")
@@ -72,7 +72,7 @@ def _saml_settings():
 def saml_cache_file(fn):
     from glod.io import digest, file_sha256
     settings = _saml_settings()
-    h = file_sha256(IMAGES / fn)
+    h = file_sha256(_image_path(fn))
     return SAML_CACHE / (digest(dict(image_sha256=h, settings=settings)) + ".npz")
 
 
@@ -120,7 +120,7 @@ class PlainEncoder:
         if fn in self.cache:
             return self.cache[fn]
         from PIL import Image
-        rgb = np.asarray(Image.open(IMAGES / fn).convert("RGB")).copy()
+        rgb = np.asarray(Image.open(_image_path(fn)).convert("RGB")).copy()
         if rgb.shape[:2] != masks.shape[1:]:
             from PIL import Image as I2
             rgb = np.asarray(I2.fromarray(rgb).resize(
@@ -151,11 +151,43 @@ class PlainEncoder:
 
 
 # ---- SAM-L extraction ------------------------------------------------------
+def _encoder_for_ckpt(sam_path, device, cache_dir, points_per_side=8,
+                      min_region_area=800, batch_size=8):
+    """VisionEncoder replica for a smaller SAM: glod.vision hardcodes vit_h,
+    so the model is built from registry["vit_b"] while the settings (and thus
+    the cache key) match exp165's _saml_settings exactly."""
+    import torch
+    import torchvision.transforms as T
+    from glod.vision import VisionEncoder, load_upstream
+    enc = VisionEncoder.__new__(VisionEncoder)
+    enc.device = torch.device(device)
+    enc.batch_size = batch_size
+    enc.cache_dir = Path(cache_dir)
+    enc.settings = _saml_settings()
+    clip, registry, generator, backbone = load_upstream()
+    enc.clip = clip
+    enc.encoder = backbone.__new__(backbone)
+    torch.nn.Module.__init__(enc.encoder)
+    enc.encoder.last_layer, enc.encoder.num_heads = 10, 12
+    enc.encoder.model, _ = clip.load(str(CLIP_CKPT), device=enc.device, jit=False)
+    enc.encoder.eval().requires_grad_(False)
+    sam = registry["vit_b"](checkpoint=str(sam_path)).to(enc.device).eval()
+    sam.requires_grad_(False)
+    enc.generator = generator(sam, points_per_side=points_per_side,
+                              pred_iou_thresh=0.7, stability_score_thresh=0.7,
+                              crop_n_layers=0, crop_n_points_downscale_factor=1,
+                              min_mask_region_area=min_region_area)
+    enc.resize = T.Resize((224, 224), antialias=None)
+    enc.normalize = T.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
+    enc.fill = torch.tensor([0.48145466, 0.4578275, 0.40821073]).reshape(3, 1, 1)
+    return enc
+
+
 def extract_saml(dataset, split, shard, nshards, device):
     from glod.data import RefDataset
     from glod.io import file_sha256
-    from glod.vision import VisionEncoder
-    ds = RefDataset(REPRO / "data/refer", e159.DS_NAME[dataset], split)
+    ds_split = "train" if split == "tune" else split
+    ds = RefDataset(REPRO / "data/refer", e159.DS_NAME[dataset], ds_split)
     fns, seen = [], set()
     for r in ds.refs:
         fn = ds.images[r["image_id"]]["file_name"]
@@ -164,16 +196,23 @@ def extract_saml(dataset, split, shard, nshards, device):
             fns.append(fn)
     fns = [f for i, f in enumerate(sorted(fns)) if i % nshards == shard]
     SAML_CACHE.mkdir(parents=True, exist_ok=True)
-    todo = [fn for fn in fns if not saml_cache_file(fn).is_file()]
-    print(f"{dataset}/{split}: {len(fns)} images, {len(todo)} to extract", flush=True)
+    todo, missing_imgs = [], 0
+    for fn in fns:
+        try:
+            if not saml_cache_file(fn).is_file():
+                todo.append(fn)
+        except FileNotFoundError:
+            missing_imgs += 1
+    print(f"{dataset}/{split}: {len(fns)} images, {len(todo)} to extract, "
+          f"{missing_imgs} skipped (image file absent from the repro tree)",
+          flush=True)
     if not todo:
         return 0
-    enc = VisionEncoder(SAML_CKPT, CLIP_CKPT, device=device,
-                        cache_dir=SAML_CACHE, points_per_side=8)
+    enc = _encoder_for_ckpt(SAML_CKPT, device, SAML_CACHE)
     t0 = time.time()
     for k, fn in enumerate(todo):
         from PIL import Image
-        ip = IMAGES / fn
+        ip = _image_path(fn)
         im = Image.open(ip).convert("RGB")
         enc.extract(im, file_sha256(ip))
         if (k + 1) % 25 == 0:

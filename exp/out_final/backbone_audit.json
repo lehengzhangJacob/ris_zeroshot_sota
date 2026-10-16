@@ -1,0 +1,107 @@
+{
+  "what": "backbone-strength audit: the shipped lineup re-measured under strictly weaker/fewer backbones on the full official val splits under the aligned protocol",
+  "inventory": [
+    {
+      "name": "SAM ViT-H automatic mask generator",
+      "params": "0.64B",
+      "role": "proposal pool for the RefCOCO family (and gRefCOCO via term boxes)",
+      "provenance": "generic_frozen",
+      "note": "released pipeline configuration (pps=8, released thresholds)"
+    },
+    {
+      "name": "CLIP ViT-B/16 (released modified tower, G2L masked-region features + text)",
+      "params": "0.15B",
+      "role": "region-text platform of the head and the released scores",
+      "provenance": "released_hybridgl"
+    },
+    {
+      "name": "LLaVA-OneVision-7B box prior",
+      "params": "7B",
+      "role": "referent box on the RefCOCO family (full-expression prompt)",
+      "provenance": "ours (model: generic frozen checkpoint)"
+    },
+    {
+      "name": "GroundingDINO-base detector gate",
+      "params": "0.23B",
+      "role": "second box source on the gRefCOCO path only",
+      "provenance": "generic_frozen"
+    },
+    {
+      "name": "Qwen2.5-VL-3B-Instruct box prior (backbone-audit arm)",
+      "params": "3.8B",
+      "role": "strictly smaller local VLM replacing the 7B prior in arm (a)",
+      "provenance": "ours (model: generic frozen checkpoint)"
+    },
+    {
+      "name": "SAM ViT-B automatic mask generator (backbone-audit arm)",
+      "params": "0.09B",
+      "role": "strictly smaller proposal pool in arm (b)",
+      "provenance": "generic_frozen"
+    },
+    {
+      "name": "Plain masked-region CLIP ViT-B/16 (backbone-audit arm)",
+      "params": "0.15B",
+      "role": "weaker region-text platform (our own masking; no G2L fusion, no complement blur) in arm (c)",
+      "provenance": "ours (text protocol) over generic frozen weights"
+    },
+    {
+      "name": "Learned selector head",
+      "params": "~4.5k fitted scalars (250 depth-3 trees)",
+      "role": "shipped RefCOCO-family pick (declared trained on train-carved rows)",
+      "provenance": "ours"
+    }
+  ],
+  "swaps": [
+    {
+      "name": "weaker region-text platform: plain masked-region CLIP (no G2L fusion, no complement blur)",
+      "component": "region_text_platform",
+      "weaker_variant": "our own masked-region CLIP ViT-B/16 features (mask fill + resize + CLS), head refit on train-carved rows with the plain features",
+      "evidence": "exp/out_final/backbone_swaps/plain_region_text_*.json",
+      "val": {
+        "refcoco": 70.223,
+        "refcocoplus": 65.9787,
+        "refcocog": 65.3212
+      },
+      "floor": {
+        "refcoco": 58.42,
+        "refcocoplus": 54.01,
+        "refcocog": 57.85
+      },
+      "still_sota": true,
+      "note": "removes the released G2L fusion and complement-blur path entirely"
+    },
+    {
+      "name": "gRefCOCO without the GroundingDINO detector (fewer components than the rival)",
+      "component": "detector",
+      "weaker_variant": "training-free termbox rule with LLaVA nounboxes only; no detector boxes, no detector-box-prompted SAM masks",
+      "evidence": "exp/out_final/gref_no_detector_val.json",
+      "val": {
+        "grefcoco": 38.7058
+      },
+      "val_gIoU": 69.6861,
+      "val_N_acc": 86.17,
+      "val_T_acc": 87.85,
+      "floor": {
+        "grefcoco_cIoU": 44.4,
+        "grefcoco_gIoU": 43.3,
+        "own_record_cIoU": 52.7061
+      },
+      "still_sota": false,
+      "note": "cIoU drops below the same-class floor when the detector is removed: the detector is load-bearing on the gRefCOCO path and the drop is kept as the measured boundary"
+    }
+  ],
+  "shipped_reference": {
+    "refcoco": {
+      "refcoco": 70.5673,
+      "refcocoplus": 66.3513,
+      "refcocog": 65.5059
+    },
+    "grefcoco": {
+      "cIoU": 52.7061,
+      "gIoU": 75.0817,
+      "note": "declared-trained transfer recipe"
+    }
+  },
+  "verdict": "INCOMPLETE: arm parts missing (box3b [], sam_b [], plain ['refcoco', 'refcocog', 'refcocoplus'], gref_nod True)",
+  "generated": "exp167_write_backbone_audit.py"
+}
