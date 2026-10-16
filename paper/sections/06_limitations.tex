@@ -56,7 +56,10 @@ VLM we could obtain and verify (Qwen2.5-VL-7B, 2026-10-07) improved on this
 checkpoint's boxes ($0.580\to0.6325$ term-box IoU) but stayed below the
 detector already in the configuration ($0.7046$) and its forced-choice
 discrimination was below the incumbent's, so a stronger grounder would
-plausibly help every number, but not trivially.
+plausibly help every number, but not trivially. The weaker-lineup audit below
+additionally measures a \emph{smaller} 3B prior from the same Qwen family,
+which outperforms the shipped checkpoint --- the family's grounding advantage,
+not its size, is what the measurement isolates.
 
 \paragraph{The VLM is pretrained on COCO images.}
 LLaVA-OneVision's pretraining data includes COCO (the source of the
