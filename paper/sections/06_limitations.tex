@@ -65,14 +65,26 @@ API; no referring annotations are used by either. This is the standard
 training-free setting in this literature, but it is a weaker notion of
 ``zero-shot'' than a model that has never seen the image pool.
 
-\paragraph{One proposal generator, one backbone.}
-All results use SAM ViT-H and CLIP ViT-B/16, the released configuration. The
-pool-density axis was varied (\textsc{points\_per\_side} $8\to16$,
-\ppsProposalDelta\,\% more proposals) and the diagnosis survives
-(\ppsWiEight\,$\to$\,\ppsWiSixteen); other generators and backbones were not
-varied. The box prior should be less sensitive to pool density than the
-score-only selector, because the box fixes \emph{where} to look --- an
-untested prediction.
+\paragraph{Which backbones are load-bearing: a measured weaker-lineup audit.}
+The shipped lineup (SAM ViT-H, CLIP ViT-B/16, LLaVA-OneVision-7B boxes, the
+learned head; plus GroundingDINO on the gRefCOCO path only) was re-measured
+under strictly weaker replacements on the full val splits
+(\texttt{backbone\_audit.json}). Swapping the region-text platform for our own
+plain masked-region CLIP features (no G2L fusion, no complement blur) costs
+only $0.34$/$0.37$/$0.19$\,mIoU ($70.22$/$65.98$/$65.32$) and keeps full-table
+SOTA. The smaller-model boundary is real and measured: with SAM
+ViT-B (0.09B) the pool's own oracle drops from $79.1$ to $71.4$\,mIoU on
+RefCOCOg and the head refit on train-carved rows lands $57.57$, $0.28$
+\emph{below} the published GLOD-RIS floor --- the ViT-H pool is load-bearing
+for that dataset, and the drop is reported, not tuned around. On gRefCOCO the
+detector-free variant (LLaVA boxes only, no detector-box-prompted SAM masks)
+fails the same-class cIoU floor ($38.71$ vs $44.4$), so the extra detector is
+load-bearing there. In short: the prior and the scoring platform can be
+weakened for free, the pool and the detector cannot --- stated per component
+rather than claimed globally. The pool-density axis was additionally varied
+($\textsc{points\_per\_side}$ $8\to16$, \ppsProposalDelta\,\% more proposals)
+and the diagnosis survives
+(\ppsWiEight\,$\to$\,\ppsWiSixteen).
 
 \paragraph{Reproduction gap.}
 Absolute rows are not comparable to the published HybridGL table: the

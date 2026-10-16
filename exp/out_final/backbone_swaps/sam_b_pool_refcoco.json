@@ -1,23 +1,23 @@
 {
   "arm": "sam_b_pool",
   "dataset": "refcoco",
-  "n": 809,
-  "box_none_records": 0,
+  "n": 10834,
+  "box_none_records": 35,
   "arms": {
     "learned_head_saml": {
-      "n": 809,
-      "mIoU": 59.2894,
-      "oIoU": 48.6822
+      "n": 10834,
+      "mIoU": 62.0602,
+      "oIoU": 55.0333
     },
     "learned_geom2_saml": {
-      "n": 809,
-      "mIoU": 53.9582,
-      "oIoU": 41.1307
+      "n": 10834,
+      "mIoU": 61.6781,
+      "oIoU": 54.1903
     },
     "geom2_only_saml": {
-      "n": 809,
-      "mIoU": 64.4917,
-      "oIoU": 55.3835
+      "n": 10834,
+      "mIoU": 62.3536,
+      "oIoU": 55.0075
     }
   },
   "generated": "exp165_backbone_swaps.py eval-saml"
