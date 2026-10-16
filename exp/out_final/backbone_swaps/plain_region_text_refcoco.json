@@ -1,0 +1,19 @@
+{
+  "arm": "plain_region_text",
+  "dataset": "refcoco",
+  "n": 10834,
+  "box_none_records": 35,
+  "arms": {
+    "learned_head_clipw": {
+      "n": 10834,
+      "mIoU": 70.223,
+      "oIoU": 64.1496
+    },
+    "learned_geom2_clipw": {
+      "n": 10834,
+      "mIoU": 69.9695,
+      "oIoU": 63.92
+    }
+  },
+  "generated": "exp165_backbone_swaps.py eval-clipw"
+}

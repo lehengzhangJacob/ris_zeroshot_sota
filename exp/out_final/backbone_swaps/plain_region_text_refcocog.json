@@ -1,18 +1,18 @@
 {
   "arm": "plain_region_text",
   "dataset": "refcocog",
-  "n": 150,
-  "box_none_records": 0,
+  "n": 4896,
+  "box_none_records": 13,
   "arms": {
     "learned_head_clipw": {
-      "n": 150,
-      "mIoU": 57.5907,
-      "oIoU": 43.8365
+      "n": 4896,
+      "mIoU": 65.3212,
+      "oIoU": 61.0466
     },
     "learned_geom2_clipw": {
-      "n": 150,
-      "mIoU": 57.6642,
-      "oIoU": 44.1252
+      "n": 4896,
+      "mIoU": 64.5745,
+      "oIoU": 59.3937
     }
   },
   "generated": "exp165_backbone_swaps.py eval-clipw"
