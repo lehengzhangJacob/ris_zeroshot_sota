@@ -91,8 +91,12 @@ def main() -> int:
                             "family-limited, not size-limited"),
             evidence="exp/out_final/backbone_swaps/box3b_refcoco.json",
             val=val, val_training_free_reference=ref,
+            box_none_records={ds: d.get("box_none_records")
+                              for ds, d in parts["box3b"].items()},
             floor=FLOORS, still_sota=ok,
-            note="strictly smaller than both the incumbent 7B and the rival's cloud MLLM"))
+            note=("strictly smaller than both the incumbent 7B and the rival's cloud "
+                  "MLLM; head and reference both refit/rerun on train-carved rows "
+                  "with the 3B boxes")))
     # (b) smaller SAM
     if "sam_b_pool" in parts:
         val, ok = {}, True
@@ -111,7 +115,10 @@ def main() -> int:
             floor=FLOORS, still_sota=ok,
             note=("ViT-L was the first choice; the original-format ViT-L checkpoint "
                   "is not reachable offline (HF port restructures the prompt "
-                  "encoder), so the strictly smaller ViT-B is the measured arm")))
+                  "encoder), so the strictly smaller ViT-B is the measured arm. "
+                  "Under SAM-B the learned head is within \u00b10.4 mIoU of the "
+                  "geom-only argmax pick on every dataset (mixed signs), i.e. the "
+                  "pool itself is the binding constraint at this strength")))
     # (c) weaker region-text platform
     if "plain_region_text" in parts:
         val, ok = {}, True
@@ -133,7 +140,14 @@ def main() -> int:
         swaps.append(dict(
             name="gRefCOCO without the GroundingDINO detector (fewer components than the rival)",
             component="detector",
-            weaker_variant="training-free termbox rule with LLaVA nounboxes only; no detector boxes, no detector-box-prompted SAM masks",
+            weaker_variant=("detector-free realization: the training-free termbox rule with "
+                            "LLaVA nounboxes only. Structural note: the shipped declared-trained "
+                            "recipe's candidate substrate on this path is built from detector "
+                            "boxes and detector-box-prompted SAM masks, so removing the detector "
+                            "necessarily removes the trained recipe with it; no intermediate "
+                            "(nounbox-prompted SAM masks + transferred head) was measured, and "
+                            "the boundary below is therefore scoped to the detector-free "
+                            "realization, not to the detector in isolation"),
             evidence="exp/out_final/gref_no_detector_val.json",
             val={"grefcoco": round(m["cIoU"], 4)},
             val_gIoU=round(m["gIoU"], 4),
@@ -141,9 +155,10 @@ def main() -> int:
             floor={"grefcoco_cIoU": GREFC_FLOOR_CIOU, "grefcoco_gIoU": GREFC_FLOOR_GIOU,
                    "own_record_cIoU": 52.7061},
             still_sota=ok,
-            note=("cIoU drops below the same-class floor when the detector is "
-                  "removed: the detector is load-bearing on the gRefCOCO path "
-                  "and the drop is kept as the measured boundary")))
+            note=("cIoU drops below the same-class floor for the detector-free "
+                  "realization (38.71 vs 44.4): the detector-bearing path (with "
+                  "its trained recipe) is load-bearing on gRefCOCO, and the drop "
+                  "is kept as the measured boundary")))
 
     n_sota = sum(1 for s in swaps if s["still_sota"])
     verdict = (
@@ -162,7 +177,10 @@ def main() -> int:
         "published GLOD-RIS floor -- the ViT-H pool is load-bearing there; and "
         "(d) the detector-free gRefCOCO rule scores 38.71 cIoU, below the "
         "same-class 44.4 floor -- the extra detector is load-bearing there. "
-        f"{n_sota}/{len(swaps)} swap arms still clear their floors.")
+        f"{n_sota}/{len(swaps)} swap arms still clear their floors. The "
+        "detector-free boundary is scoped to the detector-free REALIZATION "
+        "(training-free termbox rule): the shipped trained recipe's substrate "
+        "is detector-derived, so the two cannot be separated in this arm.")
     if not (len(parts.get("box3b", {})) == 3 and len(parts.get("sam_b_pool", {})) == 3
             and len(parts.get("plain_region_text", {})) == 3 and gref_nod):
         verdict = ("INCOMPLETE: arm parts missing ("

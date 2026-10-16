@@ -67,13 +67,18 @@
         "refcocoplus": 65.79,
         "refcocog": 65.7189
       },
+      "box_none_records": {
+        "refcoco": 19,
+        "refcocoplus": 38,
+        "refcocog": 23
+      },
       "floor": {
         "refcoco": 58.42,
         "refcocoplus": 54.01,
         "refcocog": 57.85
       },
       "still_sota": true,
-      "note": "strictly smaller than both the incumbent 7B and the rival's cloud MLLM"
+      "note": "strictly smaller than both the incumbent 7B and the rival's cloud MLLM; head and reference both refit/rerun on train-carved rows with the 3B boxes"
     },
     {
       "name": "smaller proposal pool: SAM ViT-B (0.09B) for SAM ViT-H (0.64B)",
@@ -96,7 +101,7 @@
         "refcocog": 57.85
       },
       "still_sota": false,
-      "note": "ViT-L was the first choice; the original-format ViT-L checkpoint is not reachable offline (HF port restructures the prompt encoder), so the strictly smaller ViT-B is the measured arm"
+      "note": "ViT-L was the first choice; the original-format ViT-L checkpoint is not reachable offline (HF port restructures the prompt encoder), so the strictly smaller ViT-B is the measured arm. Under SAM-B the learned head is within \u00b10.4 mIoU of the geom-only argmax pick on every dataset (mixed signs), i.e. the pool itself is the binding constraint at this strength"
     },
     {
       "name": "weaker region-text platform: plain masked-region CLIP (no G2L fusion, no complement blur)",
@@ -119,7 +124,7 @@
     {
       "name": "gRefCOCO without the GroundingDINO detector (fewer components than the rival)",
       "component": "detector",
-      "weaker_variant": "training-free termbox rule with LLaVA nounboxes only; no detector boxes, no detector-box-prompted SAM masks",
+      "weaker_variant": "detector-free realization: the training-free termbox rule with LLaVA nounboxes only. Structural note: the shipped declared-trained recipe's candidate substrate on this path is built from detector boxes and detector-box-prompted SAM masks, so removing the detector necessarily removes the trained recipe with it; no intermediate (nounbox-prompted SAM masks + transferred head) was measured, and the boundary below is therefore scoped to the detector-free realization, not to the detector in isolation",
       "evidence": "exp/out_final/gref_no_detector_val.json",
       "val": {
         "grefcoco": 38.7058
@@ -133,7 +138,7 @@
         "own_record_cIoU": 52.7061
       },
       "still_sota": false,
-      "note": "cIoU drops below the same-class floor when the detector is removed: the detector is load-bearing on the gRefCOCO path and the drop is kept as the measured boundary"
+      "note": "cIoU drops below the same-class floor for the detector-free realization (38.71 vs 44.4): the detector-bearing path (with its trained recipe) is load-bearing on gRefCOCO, and the drop is kept as the measured boundary"
     }
   ],
   "shipped_reference": {
@@ -148,6 +153,6 @@
       "note": "declared-trained transfer recipe"
     }
   },
-  "verdict": "Scoped, component by component (full official val, aligned protocol; the reference and head were refit on train-carved rows wherever the platform or pool changed): (a) the box prior can be SMALLER AND BETTER -- Qwen2.5-VL-3B (3.8B, strictly smaller than both the 7B incumbent and the rival's cloud MLLM) holds SOTA on all three datasets and improves on the shipped boxes (73.57/67.64/66.43 vs 70.57/66.35/65.51 mIoU), so grounding quality here is family-limited, not size-limited; (c) the region-text platform can be weakened for free -- plain masked-region CLIP without the released G2L fusion or complement blur keeps full-table SOTA at -0.2..-0.4 mIoU (70.22/65.98/65.32). Two boundaries are measured and kept: (b) SAM ViT-B's pool oracle falls from 79.1 to 71.4 mIoU on RefCOCOg and the refit head lands 57.57, 0.28 BELOW the published GLOD-RIS floor -- the ViT-H pool is load-bearing there; and (d) the detector-free gRefCOCO rule scores 38.71 cIoU, below the same-class 44.4 floor -- the extra detector is load-bearing there. 2/4 swap arms still clear their floors.",
+  "verdict": "Scoped, component by component (full official val, aligned protocol; the reference and head were refit on train-carved rows wherever the platform or pool changed): (a) the box prior can be SMALLER AND BETTER -- Qwen2.5-VL-3B (3.8B, strictly smaller than both the 7B incumbent and the rival's cloud MLLM) holds SOTA on all three datasets and improves on the shipped boxes (73.57/67.64/66.43 vs 70.57/66.35/65.51 mIoU), so grounding quality here is family-limited, not size-limited; (c) the region-text platform can be weakened for free -- plain masked-region CLIP without the released G2L fusion or complement blur keeps full-table SOTA at -0.2..-0.4 mIoU (70.22/65.98/65.32). Two boundaries are measured and kept: (b) SAM ViT-B's pool oracle falls from 79.1 to 71.4 mIoU on RefCOCOg and the refit head lands 57.57, 0.28 BELOW the published GLOD-RIS floor -- the ViT-H pool is load-bearing there; and (d) the detector-free gRefCOCO rule scores 38.71 cIoU, below the same-class 44.4 floor -- the extra detector is load-bearing there. 2/4 swap arms still clear their floors. The detector-free boundary is scoped to the detector-free REALIZATION (training-free termbox rule): the shipped trained recipe's substrate is detector-derived, so the two cannot be separated in this arm.",
   "generated": "exp167_write_backbone_audit.py"
 }

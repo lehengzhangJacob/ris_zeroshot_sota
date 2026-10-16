@@ -81,9 +81,11 @@ $0.34$/$0.37$/$0.19$\,mIoU ($70.22$/$65.98$/$65.32$) while keeping SOTA. Two
 boundaries are real and measured: with SAM ViT-B (0.09B) the pool's own oracle
 drops from $79.1$ to $71.4$\,mIoU on RefCOCOg and the refit head lands
 $57.57$, $0.28$ \emph{below} the published GLOD-RIS floor, so the ViT-H pool
-is load-bearing for that dataset; and the detector-free gRefCOCO variant
-(LLaVA boxes only, no detector-box-prompted SAM masks) fails the same-class
-cIoU floor ($38.71$ vs $44.4$), so the extra detector is load-bearing there.
+is load-bearing for that dataset; and the detector-free gRefCOCO realization
+(LLaVA boxes only, which necessarily drops the trained recipe: its candidate
+substrate is detector-derived) fails the same-class cIoU floor
+($38.71$ vs $44.4$), so the detector-bearing path is load-bearing there ---
+scoped to that realization, the intermediate arm being unmeasured.
 The boundaries are reported per component, not tuned around. The pool-density
 axis was additionally varied
 ($\textsc{points\_per\_side}$ $8\to16$, \ppsProposalDelta\,\% more proposals)
