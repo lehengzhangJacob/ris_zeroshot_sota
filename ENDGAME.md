@@ -429,3 +429,47 @@ Open items for future cycles:
 1. Multi-seed std for the promoted head (single seed disclosed, non-blocking).
 2. Prospective application of the frozen promoted head to an unseen split
    (carried over from the transfer-wall 9+ path).
+
+## Cycle outcome (2026-10-16, backbone-strength audit)
+
+Directive: measure the strictly weaker side so the paper can claim
+"fewer/weaker backbones than the rival, still SOTA" — four swap arms, each
+under a deployment-consistent head (refit on train-carved rows wherever a
+changed component feeds the head's inputs), full official val, aligned
+protocol; drops below floors are kept as measured boundaries. Review (thread
+f10b27fc1f61, executor deepseek-flash / reviewer glm-5.3): **ACCEPT, 9/10**,
+after one round that caught the arm (d) attribution confound (detector removal
+necessarily removes the detector-derived trained recipe; boundary rescoped,
+intermediate arm marked unmeasured) and requested the single-seed noise hedge
+on the SAM-B margin.
+
+Measured (`exp/out_final/backbone_audit.json`; parts in
+`exp/out_final/backbone_swaps/`):
+- (a) smaller VLM: Qwen2.5-VL-3B (3.8B) boxes, head+reference refit on
+  train-carved rows — 73.57/67.64/66.43 vs shipped 70.57/66.35/65.51: SMALLER
+  AND BETTER on all three (grounding advantage tracks family, not size, in
+  this two-point comparison; not shipped — audit arm only).
+- (b) smaller pool: SAM ViT-B pools + G2L features regenerated, per-proposal
+  arrays re-derived (records' arrays belong to SAM-H), head refit — 62.06/58.75/57.57;
+  RefCOCOg 0.28 below the 57.85 floor (within single-seed noise; the robust
+  evidence is the pool-oracle drop 79.1->71.4). ViT-L unmeasured (original
+  checkpoint unreachable offline; HF port restructure incompatible).
+- (c) weaker region-text platform: our plain masked-region CLIP (no G2L
+  fusion, no complement blur), head refit — 70.22/65.98/65.32 (-0.18..-0.37);
+  full-table SOTA. The released fusion path costs ~0.3 mIoU.
+- (d) gRefCOCO without GroundingDINO (training-free realization; the trained
+  recipe's substrate is detector-derived) — cIoU 38.71 vs same-class floor
+  44.4: boundary kept, scoped to the detector-free realization.
+
+Paper: limitations and complexity sections carry the per-component result;
+appendix evidence map updated; 20-page PDF, gate PASS (backbone_audit check),
+latest push fb1236d.
+
+Open items for future cycles:
+1. A within-family box-prior size sweep (the 3B>7B cross-family result does
+   not rule out within-family size effects), and optionally a Qwen2.5-VL-7B
+   box arm on the RefCOCO family.
+2. The intermediate gRefCOCO arm (nounbox-prompted SAM masks + transferred
+   recipe) if the detector-isolation question is ever revisited.
+3. Carried: multi-seed std for the promoted head; prospective application of
+   the frozen recipe to an unseen split.
