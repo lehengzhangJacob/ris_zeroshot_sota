@@ -86,6 +86,35 @@ def load_npz_masks_fg(path):
     return masks, fg
 
 
+def derive_arrays(masks, device="cuda:0"):
+    """Per-proposal area/cx/cy/containment-parent from a mask pool, exp4
+    semantics (needed because the records' arrays belong to the SAM-H pool)."""
+    import torch
+    n = len(masks)
+    H, W = masks.shape[1], masks.shape[2]
+    mflat = masks.reshape(n, -1)
+    cnt = mflat.sum(1).astype(np.float64)
+    ys, xs = np.mgrid[0:H, 0:W]
+    xs_f = xs.reshape(-1).astype(np.float64)
+    ys_f = ys.reshape(-1).astype(np.float64)
+    cx = (mflat * xs_f).sum(1) / np.maximum(cnt, 1) / W
+    cy = (mflat * ys_f).sum(1) / np.maximum(cnt, 1) / H
+    area = cnt / float(mflat.shape[1])
+    flat = torch.from_numpy(mflat).to(device, torch.float32)
+    inter = flat @ flat.T
+    ar = flat.sum(1)
+    cont = (inter / ar.clamp(min=1)[:, None]).cpu().numpy()
+    area_all = (ar / flat.shape[1]).cpu().numpy()
+    del flat, inter
+    ps = np.arange(n)
+    for i in range(n):
+        jj = np.flatnonzero((cont[i] >= 0.95) & (area_all > area_all[i]))
+        if len(jj):
+            ps[i] = int(jj[np.argmin(area_all[jj])])
+    return dict(area=area.astype(np.float32), cx=cx.astype(np.float32),
+                cy=cy.astype(np.float32), ps_idx=ps)
+
+
 def gt_arrays(masks, gt):
     inter = np.logical_and(masks, gt).sum((1, 2)).astype(np.float64)
     union = np.logical_or(masks, gt).sum((1, 2)).astype(np.float64)
@@ -188,12 +217,27 @@ def extract_saml(dataset, split, shard, nshards, device):
     from glod.io import file_sha256
     ds_split = "train" if split == "tune" else split
     ds = RefDataset(REPRO / "data/refer", e159.DS_NAME[dataset], ds_split)
-    fns, seen = [], set()
-    for r in ds.refs:
-        fn = ds.images[r["image_id"]]["file_name"]
-        if fn not in seen:
-            seen.add(fn)
-            fns.append(fn)
+    if split == "tune":
+        # only the images the tune RECORDS touch (the whole train split is
+        # 17k images, most of it irrelevant to the refit)
+        ref_by_id = {r["ref_id"]: r for r in ds.refs}
+        fns, seen = [], set()
+        for line in open(e159.TUNE[dataset]):
+            r = json.loads(line)
+            ref = ref_by_id.get(r["ref_id"])
+            if ref is None:
+                continue
+            fn = ds.images[ref["image_id"]]["file_name"]
+            if fn not in seen:
+                seen.add(fn)
+                fns.append(fn)
+    else:
+        fns, seen = [], set()
+        for r in ds.refs:
+            fn = ds.images[r["image_id"]]["file_name"]
+            if fn not in seen:
+                seen.add(fn)
+                fns.append(fn)
     fns = [f for i, f in enumerate(sorted(fns)) if i % nshards == shard]
     SAML_CACHE.mkdir(parents=True, exist_ok=True)
     todo, missing_imgs = [], 0
@@ -236,6 +280,7 @@ def _fit_saml_heads(dataset, te, limit=0):
         recs = recs[:limit]
     te.batch([r["parsed"]["sentence"] for r in recs])
     Fs, ys, n_rec = [], [], 0
+    arr_cache = {}
     for r in recs:
         ref = ref_by_id.get(r["ref_id"])
         if ref is None:
@@ -245,16 +290,19 @@ def _fit_saml_heads(dataset, te, limit=0):
         if not p.is_file():
             continue
         masks, fg = load_npz_masks_fg(p)
-        if len(masks) != len(r["gt_iou"]):
-            continue
         gt = ds.ground_truth(ref)
         if gt.shape != masks.shape[1:]:
             continue
         iou, _, _ = gt_arrays(masks, gt)
+        if fn not in arr_cache:
+            arr_cache[fn] = derive_arrays(masks)
+            if len(arr_cache) > 6:
+                arr_cache.pop(next(iter(arr_cache)))
+        rr = arr_cache[fn]
         bp = boxer._path(fn, r["parsed"]["sentence"].strip())
         box = json.loads(bp.read_text())["box"] if bp.is_file() else None
         our = fg @ te(r["parsed"]["sentence"])
-        feats = e159.arm_c_features(masks, fg, r, box, our)
+        feats = e159.arm_c_features(masks, fg, rr, box, our)
         Fs.append(feats)
         ys.append((iou >= 0.5).astype(np.int8))
         n_rec += 1
@@ -287,6 +335,7 @@ def eval_saml(dataset, te, models, split="val", records_path=None, limit=0):
     arms = ("learned_head_saml", "learned_geom2_saml", "geom2_only_saml")
     acc = {a: dict(iou=0.0, inter=0.0, union=0.0) for a in arms}
     n_used = n_box_none = 0
+    arr_cache = {}
     t0 = time.time()
     for k, r in enumerate(recs):
         ref = ref_by_id.get(r["ref_id"])
@@ -297,17 +346,20 @@ def eval_saml(dataset, te, models, split="val", records_path=None, limit=0):
         if not p.is_file():
             continue
         masks, fg = load_npz_masks_fg(p)
-        if len(masks) != len(r["gt_iou"]):
-            continue
         gt = ds.ground_truth(ref)
         if gt.shape != masks.shape[1:]:
             continue
         iou, inter, union = gt_arrays(masks, gt)
+        if fn not in arr_cache:
+            arr_cache[fn] = derive_arrays(masks)
+            if len(arr_cache) > 6:
+                arr_cache.pop(next(iter(arr_cache)))
+        rr = arr_cache[fn]
         bp = boxer._path(fn, r["parsed"]["sentence"].strip())
         box = json.loads(bp.read_text())["box"] if bp.is_file() else None
         n_box_none += int(box is None)
         our = fg @ te(r["parsed"]["sentence"])
-        feats = e159.arm_c_features(masks, fg, r, box, our)
+        feats = e159.arm_c_features(masks, fg, rr, box, our)
         if box is None:
             picks = {a: int(np.argmax(model_c.predict_proba(
                 e159.feat_matrix(feats, e159.ALL_COLS))[:, 1])) for a in arms}

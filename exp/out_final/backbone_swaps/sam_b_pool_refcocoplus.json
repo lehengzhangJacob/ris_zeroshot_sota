@@ -1,0 +1,24 @@
+{
+  "arm": "sam_b_pool",
+  "dataset": "refcocoplus",
+  "n": 801,
+  "box_none_records": 2,
+  "arms": {
+    "learned_head_saml": {
+      "n": 801,
+      "mIoU": 53.6918,
+      "oIoU": 45.8017
+    },
+    "learned_geom2_saml": {
+      "n": 801,
+      "mIoU": 52.6576,
+      "oIoU": 42.9331
+    },
+    "geom2_only_saml": {
+      "n": 801,
+      "mIoU": 59.5028,
+      "oIoU": 49.2587
+    }
+  },
+  "generated": "exp165_backbone_swaps.py eval-saml"
+}
