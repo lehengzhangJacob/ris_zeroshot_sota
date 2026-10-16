@@ -89,7 +89,7 @@ def main() -> int:
                             "(deployment-consistent); measured BETTER than the 7B LLaVA "
                             "boxes on all three datasets -- grounding quality here is "
                             "family-limited, not size-limited"),
-            evidence="exp/out_final/backbone_swaps/box3b_*.json",
+            evidence="exp/out_final/backbone_swaps/box3b_refcoco.json",
             val=val, val_training_free_reference=ref,
             floor=FLOORS, still_sota=ok,
             note="strictly smaller than both the incumbent 7B and the rival's cloud MLLM"))
@@ -104,7 +104,7 @@ def main() -> int:
             name="smaller proposal pool: SAM ViT-B (0.09B) for SAM ViT-H (0.64B)",
             component="sam_pool",
             weaker_variant="SAM ViT-B automatic masks (pps=8, same released thresholds), G2L features re-extracted, head refit on SAM-B train-carved rows",
-            evidence="exp/out_final/backbone_swaps/sam_b_pool_*.json",
+            evidence="exp/out_final/backbone_swaps/sam_b_pool_refcocog.json",
             val=val,
             val_geom_only={ds: d["arms"]["geom2_only_saml"]["mIoU"]
                            for ds, d in parts["sam_b_pool"].items()},
@@ -123,7 +123,7 @@ def main() -> int:
             name="weaker region-text platform: plain masked-region CLIP (no G2L fusion, no complement blur)",
             component="region_text_platform",
             weaker_variant="our own masked-region CLIP ViT-B/16 features (mask fill + resize + CLS), head refit on train-carved rows with the plain features",
-            evidence="exp/out_final/backbone_swaps/plain_region_text_*.json",
+            evidence="exp/out_final/backbone_swaps/plain_region_text_refcoco.json",
             val=val, floor=FLOORS, still_sota=ok,
             note="removes the released G2L fusion and complement-blur path entirely"))
     # (d) gRefCOCO without the detector

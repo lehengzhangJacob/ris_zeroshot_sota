@@ -56,7 +56,7 @@
       "name": "smaller VLM box source: Qwen2.5-VL-3B-Instruct (3.8B) for the 7B LLaVA-OneVision prior",
       "component": "vlm_box_prior",
       "weaker_variant": "Qwen2.5-VL-3B-Instruct (strictly fewer parameters), same prompt template; head refit on train-carved rows with the 3B boxes (deployment-consistent); measured BETTER than the 7B LLaVA boxes on all three datasets -- grounding quality here is family-limited, not size-limited",
-      "evidence": "exp/out_final/backbone_swaps/box3b_*.json",
+      "evidence": "exp/out_final/backbone_swaps/box3b_refcoco.json",
       "val": {
         "refcoco": 73.5704,
         "refcocoplus": 67.6439,
@@ -79,7 +79,7 @@
       "name": "smaller proposal pool: SAM ViT-B (0.09B) for SAM ViT-H (0.64B)",
       "component": "sam_pool",
       "weaker_variant": "SAM ViT-B automatic masks (pps=8, same released thresholds), G2L features re-extracted, head refit on SAM-B train-carved rows",
-      "evidence": "exp/out_final/backbone_swaps/sam_b_pool_*.json",
+      "evidence": "exp/out_final/backbone_swaps/sam_b_pool_refcocog.json",
       "val": {
         "refcoco": 62.0602,
         "refcocoplus": 58.7498,
@@ -102,7 +102,7 @@
       "name": "weaker region-text platform: plain masked-region CLIP (no G2L fusion, no complement blur)",
       "component": "region_text_platform",
       "weaker_variant": "our own masked-region CLIP ViT-B/16 features (mask fill + resize + CLS), head refit on train-carved rows with the plain features",
-      "evidence": "exp/out_final/backbone_swaps/plain_region_text_*.json",
+      "evidence": "exp/out_final/backbone_swaps/plain_region_text_refcoco.json",
       "val": {
         "refcoco": 70.223,
         "refcocoplus": 65.9787,
