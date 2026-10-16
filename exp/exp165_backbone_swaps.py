@@ -6,8 +6,10 @@ backbones than the rival, still SOTA":
 
   box-3b     LLaVA-OneVision-7B -> Qwen2.5-VL-3B-Instruct boxes (arm a; run
              exp164_boxer3b.py first, then `eval-3b`)
-  sam-l      SAM ViT-H -> SAM ViT-L proposal pool, G2L features re-extracted,
-             head refit on SAM-L tune rows (arm b; `extract-saml` then
+  sam-b      SAM ViT-H -> SAM ViT-B proposal pool (ViT-L tried: the HF port
+             restructures the prompt encoder and the original-format ViT-L
+             checkpoint is not reachable offline), G2L features re-extracted,
+             head refit on SAM-B tune rows (arm b; `extract-saml` then
              `eval-saml`)
   clipw      released G2L region-text platform -> plain masked-region CLIP
              features (no G2L fusion, no complement blur; same ViT-B/16
@@ -45,8 +47,8 @@ import exp159_head_rebuild as e159  # noqa: E402
 
 REPRO = Path("/home/msj_team/Jacob/sys/glod_ris_repro")
 sys.path.insert(0, str(REPRO))
-SAML_CKPT = REPRO / "checkpoints/sam_vit_l_0b3195.pth"
-SAML_CACHE = REPRO / "cache/vision_saml"
+SAML_CKPT = REPRO / "checkpoints/sam_vit_b_01ec64.pth"
+SAML_CACHE = REPRO / "cache/vision_samb"
 CLIP_CKPT = REPRO / "checkpoints/ViT-B-16.pt"
 PARTS = Path("exp/out_final/backbone_swaps")
 IMAGES = REPRO / "data/refer/images/train2014"
@@ -60,7 +62,7 @@ def _saml_settings():
     clip = CLIP_CKPT
     return dict(upstream_commit="f7eb19bb618353076f1da19485c1d9c6236a6f31",
                 feature_version=1, preprocessing="official-hybridgl",
-                fusion_mode="G2L", masking_block=9, sam_backbone="vit_l",
+                fusion_mode="G2L", masking_block=9, sam_backbone="vit_b",
                 points_per_side=8, pred_iou_thresh=0.7,
                 stability_score_thresh=0.7, min_mask_region_area=800,
                 checkpoints=[(str(p.resolve()), p.stat().st_size, p.stat().st_mtime_ns)
@@ -419,7 +421,7 @@ def main() -> int:
         models = _fit_saml_heads(args.dataset, te, limit=args.limit)
         print(f"  saml heads fitted ({time.time()-t0:.0f}s)", flush=True)
         res, n, none = eval_saml(args.dataset, te, models, limit=args.limit)
-        payload = dict(arm="sam_l_pool", dataset=args.dataset, n=n,
+        payload = dict(arm="sam_b_pool", dataset=args.dataset, n=n,
                        box_none_records=none, arms=res,
                        generated="exp165_backbone_swaps.py eval-saml")
     else:  # eval-clipw
