@@ -121,7 +121,10 @@ def main() -> int:
                   "pool itself is the binding constraint at this strength. The "
                   "head-level 0.28 margin below the floor is within unquantified "
                   "single-seed refit noise; the load-bearing conclusion rests on "
-                  "the pool-oracle gap (79.1 -> 71.4 mIoU), which is robust")))
+                  "the pool-oracle gap (79.1 -> 71.4 mIoU), which is robust. "
+                  "ViT-L between ViT-B and ViT-H is unmeasured (original-format "
+                  "checkpoint unreachable offline), so the RefCOCOg bracket is "
+                  "[ViT-B 57.57, ViT-H 65.51]")))
     # (c) weaker region-text platform
     if "plain_region_text" in parts:
         val, ok = {}, True

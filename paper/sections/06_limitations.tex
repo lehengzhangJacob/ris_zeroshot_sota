@@ -76,8 +76,9 @@ refit on train-carved rows wherever the platform changed
 (\texttt{backbone\_audit.json}). Two components can be weakened for free ---
 one of them profitably: the box prior gets \emph{smaller and better}
 (Qwen2.5-VL-3B, 3.8B, holds full-table SOTA and improves on the 7B boxes:
-$73.57$/$67.64$/$66.43$ vs $70.57$/$66.35$/$65.51$\,mIoU --- grounding quality
-on this task is family-limited, not size-limited), and replacing the released
+$73.57$/$67.64$/$66.43$ vs $70.57$/$66.35$/$65.51$\,mIoU --- in this
+two-point comparison the advantage tracks the model family, not its size;
+a within-family size sweep is not measured), and replacing the released
 G2L region-text platform with our own plain masked-region CLIP features (no
 fusion, no complement blur) costs only
 $0.34$/$0.37$/$0.19$\,mIoU ($70.22$/$65.98$/$65.32$) while keeping SOTA. Two
@@ -85,7 +86,9 @@ boundaries are real and measured: with SAM ViT-B (0.09B) the pool's own oracle
 drops from $79.1$ to $71.4$\,mIoU on RefCOCOg and the refit head lands
 $57.57$, $0.28$ \emph{below} the published GLOD-RIS floor --- a margin that
 is within unquantified single-seed refit noise, so the load-bearing
-conclusion rests on the pool-oracle gap, not on the $0.28$; and the detector-free gRefCOCO realization
+conclusion rests on the pool-oracle gap, not on the $0.28$ (the ViT-L point
+between them is unmeasured: its original-format checkpoint was unreachable
+offline, its HF port restructure being incompatible); and the detector-free gRefCOCO realization
 (LLaVA boxes only, which necessarily drops the trained recipe: its candidate
 substrate is detector-derived) fails the same-class cIoU floor
 ($38.71$ vs $44.4$), so the detector-bearing path is load-bearing there ---
