@@ -68,20 +68,24 @@ training-free setting in this literature, but it is a weaker notion of
 \paragraph{Which backbones are load-bearing: a measured weaker-lineup audit.}
 The shipped lineup (SAM ViT-H, CLIP ViT-B/16, LLaVA-OneVision-7B boxes, the
 learned head; plus GroundingDINO on the gRefCOCO path only) was re-measured
-under strictly weaker replacements on the full val splits
-(\texttt{backbone\_audit.json}). Swapping the region-text platform for our own
-plain masked-region CLIP features (no G2L fusion, no complement blur) costs
-only $0.34$/$0.37$/$0.19$\,mIoU ($70.22$/$65.98$/$65.32$) and keeps full-table
-SOTA. The smaller-model boundary is real and measured: with SAM
-ViT-B (0.09B) the pool's own oracle drops from $79.1$ to $71.4$\,mIoU on
-RefCOCOg and the head refit on train-carved rows lands $57.57$, $0.28$
-\emph{below} the published GLOD-RIS floor --- the ViT-H pool is load-bearing
-for that dataset, and the drop is reported, not tuned around. On gRefCOCO the
-detector-free variant (LLaVA boxes only, no detector-box-prompted SAM masks)
-fails the same-class cIoU floor ($38.71$ vs $44.4$), so the extra detector is
-load-bearing there. In short: the prior and the scoring platform can be
-weakened for free, the pool and the detector cannot --- stated per component
-rather than claimed globally. The pool-density axis was additionally varied
+under strictly weaker replacements on the full val splits, each under a head
+refit on train-carved rows wherever the platform changed
+(\texttt{backbone\_audit.json}). Two components can be weakened for free ---
+one of them profitably: the box prior gets \emph{smaller and better}
+(Qwen2.5-VL-3B, 3.8B, holds full-table SOTA and improves on the 7B boxes:
+$73.57$/$67.64$/$66.43$ vs $70.57$/$66.35$/$65.51$\,mIoU --- grounding quality
+on this task is family-limited, not size-limited), and replacing the released
+G2L region-text platform with our own plain masked-region CLIP features (no
+fusion, no complement blur) costs only
+$0.34$/$0.37$/$0.19$\,mIoU ($70.22$/$65.98$/$65.32$) while keeping SOTA. Two
+boundaries are real and measured: with SAM ViT-B (0.09B) the pool's own oracle
+drops from $79.1$ to $71.4$\,mIoU on RefCOCOg and the refit head lands
+$57.57$, $0.28$ \emph{below} the published GLOD-RIS floor, so the ViT-H pool
+is load-bearing for that dataset; and the detector-free gRefCOCO variant
+(LLaVA boxes only, no detector-box-prompted SAM masks) fails the same-class
+cIoU floor ($38.71$ vs $44.4$), so the extra detector is load-bearing there.
+The boundaries are reported per component, not tuned around. The pool-density
+axis was additionally varied
 ($\textsc{points\_per\_side}$ $8\to16$, \ppsProposalDelta\,\% more proposals)
 and the diagnosis survives
 (\ppsWiEight\,$\to$\,\ppsWiSixteen).

@@ -421,7 +421,12 @@ RefCOCO-family selector head of \S\ref{sec:head} (one gradient-boosted fit on
 train-carved held-out rows; seconds per dataset) and the gRefCOCO acceptance
 prior of \S\ref{sec:transferwall}; on top of those, the only fitting is the
 selector's configuration from six 300-trial Optuna studies on held-out rows,
-on the order of ten GPU-hours.
+on the order of ten GPU-hours. \emph{Weaker lineups} (\S\ref{sec:limitations},
+\texttt{backbone\_audit.json}): the same full-table SOTA holds with a
+strictly smaller 3.8B box VLM (which also improves the numbers) and with our
+own plain masked-region CLIP features replacing the released G2L platform;
+the SAM ViT-B pool and the detector-free gRefCOCO variant fall below their
+floors and are reported as the measured boundaries.
 
 \begin{table}[t]\centering\small
 \caption{Model Complexity: parameters, estimated FLOPs per query, peak memory

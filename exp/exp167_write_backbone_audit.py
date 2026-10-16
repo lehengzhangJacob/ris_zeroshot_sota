@@ -84,7 +84,11 @@ def main() -> int:
         swaps.append(dict(
             name="smaller VLM box source: Qwen2.5-VL-3B-Instruct (3.8B) for the 7B LLaVA-OneVision prior",
             component="vlm_box_prior",
-            weaker_variant="Qwen2.5-VL-3B-Instruct, same prompt template; head refit on train-carved rows with the 3B boxes (deployment-consistent); reference arm re-run for context",
+            weaker_variant=("Qwen2.5-VL-3B-Instruct (strictly fewer parameters), same prompt "
+                            "template; head refit on train-carved rows with the 3B boxes "
+                            "(deployment-consistent); measured BETTER than the 7B LLaVA "
+                            "boxes on all three datasets -- grounding quality here is "
+                            "family-limited, not size-limited"),
             evidence="exp/out_final/backbone_swaps/box3b_*.json",
             val=val, val_training_free_reference=ref,
             floor=FLOORS, still_sota=ok,
@@ -143,17 +147,22 @@ def main() -> int:
 
     n_sota = sum(1 for s in swaps if s["still_sota"])
     verdict = (
-        f"SOTA holds under strictly weaker backbones on the RefCOCO family: "
-        f"{n_sota}/{len(swaps)} swap arms remain above the GLOD-RIS published "
-        f"floors on all three datasets. The smaller-VLM arm (Qwen2.5-VL-3B, 3.8B "
-        f"vs the incumbent 7B and the rival's cloud MLLM), the smaller-pool arm "
-        f"(SAM ViT-B vs ViT-H) and the weaker region-text platform (plain "
-        f"masked-region CLIP, no G2L fusion) all keep full-table SOTA with the "
-        f"head refit on train-carved rows; the no-detector gRefCOCO arm falls "
-        f"below the same-class cIoU floor (38.71 vs 44.4) and is kept as the "
-        f"measured boundary, so the audit's claim is scoped: every RefCOCO-family "
-        f"column survives a strictly weaker lineup, while the gRefCOCO row "
-        f"requires the declared extra detector.")
+        "Scoped, component by component (full official val, aligned protocol; "
+        "the reference and head were refit on train-carved rows wherever the "
+        "platform or pool changed): (a) the box prior can be SMALLER AND BETTER "
+        "-- Qwen2.5-VL-3B (3.8B, strictly smaller than both the 7B incumbent and "
+        "the rival's cloud MLLM) holds SOTA on all three datasets and improves "
+        "on the shipped boxes (73.57/67.64/66.43 vs 70.57/66.35/65.51 mIoU), so "
+        "grounding quality here is family-limited, not size-limited; (c) the "
+        "region-text platform can be weakened for free -- plain masked-region "
+        "CLIP without the released G2L fusion or complement blur keeps full-table "
+        "SOTA at -0.2..-0.4 mIoU (70.22/65.98/65.32). Two boundaries are "
+        "measured and kept: (b) SAM ViT-B's pool oracle falls from 79.1 to 71.4 "
+        "mIoU on RefCOCOg and the refit head lands 57.57, 0.28 BELOW the "
+        "published GLOD-RIS floor -- the ViT-H pool is load-bearing there; and "
+        "(d) the detector-free gRefCOCO rule scores 38.71 cIoU, below the "
+        "same-class 44.4 floor -- the extra detector is load-bearing there. "
+        f"{n_sota}/{len(swaps)} swap arms still clear their floors.")
     if not (len(parts.get("box3b", {})) == 3 and len(parts.get("sam_b_pool", {})) == 3
             and len(parts.get("plain_region_text", {})) == 3 and gref_nod):
         verdict = ("INCOMPLETE: arm parts missing ("

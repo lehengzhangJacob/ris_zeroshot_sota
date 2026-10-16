@@ -1,0 +1,72 @@
+{
+  "dataset": "refcocog",
+  "split": "val",
+  "records": null,
+  "n": 4896,
+  "box_queried_pct": 100.0,
+  "box_none_records": 23,
+  "arms": {
+    "reference": {
+      "n": 4896,
+      "mIoU": 65.7189,
+      "oIoU": 58.0784
+    },
+    "attrib_released_only": {
+      "n": 4896,
+      "mIoU": 47.5072,
+      "oIoU": 38.4799
+    },
+    "attrib_box_full": {
+      "n": 4896,
+      "mIoU": 65.7031,
+      "oIoU": 57.4289
+    },
+    "attrib_box_full_cover": {
+      "n": 4896,
+      "mIoU": 58.4897,
+      "oIoU": 40.5978
+    },
+    "attrib_box_full_inside": {
+      "n": 4896,
+      "mIoU": 21.5951,
+      "oIoU": 16.6404
+    },
+    "ours_region_text": {
+      "n": 4896,
+      "mIoU": 65.2281,
+      "oIoU": 57.0312
+    },
+    "ours_key_only": {
+      "n": 4896,
+      "mIoU": 43.1306,
+      "oIoU": 32.4966
+    },
+    "geom_guard": {
+      "n": 4896,
+      "mIoU": 65.8615,
+      "oIoU": 58.2631
+    },
+    "geom_guard_strict": {
+      "n": 4896,
+      "mIoU": 65.8792,
+      "oIoU": 58.2774
+    },
+    "learned_head": {
+      "n": 4896,
+      "mIoU": 66.4265,
+      "oIoU": 59.5616
+    },
+    "learned_geom": {
+      "n": 4896,
+      "mIoU": 66.3936,
+      "oIoU": 60.1065
+    },
+    "learned_geom2": {
+      "n": 4896,
+      "mIoU": 66.2871,
+      "oIoU": 59.9921
+    }
+  },
+  "generated": "exp159_head_rebuild.py",
+  "notes": "deterministic re-analysis over cached records (SAM ViT-H pool + G2L masked-region features + cached VLM boxes); reference arm reproduces the shipped head (released top-15 restriction by rank01(sc)+0.4906*rank01(gem), box-fill pick); ours_* arms use top-15 by fg @ t_sentence (full sentence, no ensemble, no GEM); geom_* arms use no text; learned_head (all our terms incl. the region-text score) and learned_geom (geometric terms only, no text, no features) are fitted on the RefCOCO-family held-out TRAIN tune refs only; attrib_box_full_cover/inside are the full-pool box pick under the other overlap modes; box-missing records use the shipped no-box fallback (released top-1) in every arm"
+}

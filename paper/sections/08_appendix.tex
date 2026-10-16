@@ -174,7 +174,12 @@ validation evaluation);
 the box-source/phrase probes used to reconcile the quoted attribution);
 \texttt{exp/out\_final/test\_columns\_learned.json} with
 \texttt{exp/out\_test\_columns/learned\_*.json} (the promoted head's
-test-column re-evaluation).
+test-column re-evaluation);
+\texttt{exp/out\_final/backbone\_audit.json} with
+\texttt{backbone\_swaps/*.json} and \texttt{gref\_no\_detector\_val.json}
+(the weaker-lineup audit of \S\ref{sec:limitations}: per-component swap arms
+on the full val splits, each under a head refit on train-carved rows where
+the platform changed).
 
 \paragraph{Component provenance (\texttt{component\_provenance.json}).}
 Each shipped component is tagged by origin. \emph{Ours}: the VLM box prior
