@@ -101,7 +101,7 @@
         "refcocog": 57.85
       },
       "still_sota": false,
-      "note": "ViT-L was the first choice; the original-format ViT-L checkpoint is not reachable offline (HF port restructures the prompt encoder), so the strictly smaller ViT-B is the measured arm. Under SAM-B the learned head is within \u00b10.4 mIoU of the geom-only argmax pick on every dataset (mixed signs), i.e. the pool itself is the binding constraint at this strength"
+      "note": "ViT-L was the first choice; the original-format ViT-L checkpoint is not reachable offline (HF port restructures the prompt encoder), so the strictly smaller ViT-B is the measured arm. Under SAM-B the learned head is within \u00b10.4 mIoU of the geom-only argmax pick on every dataset (mixed signs), i.e. the pool itself is the binding constraint at this strength. The head-level 0.28 margin below the floor is within unquantified single-seed refit noise; the load-bearing conclusion rests on the pool-oracle gap (79.1 -> 71.4 mIoU), which is robust"
     },
     {
       "name": "weaker region-text platform: plain masked-region CLIP (no G2L fusion, no complement blur)",
