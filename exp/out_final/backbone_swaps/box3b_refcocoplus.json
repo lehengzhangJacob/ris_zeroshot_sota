@@ -1,0 +1,72 @@
+{
+  "dataset": "refcocoplus",
+  "split": "val",
+  "records": null,
+  "n": 10758,
+  "box_queried_pct": 100.0,
+  "box_none_records": 38,
+  "arms": {
+    "reference": {
+      "n": 10758,
+      "mIoU": 65.79,
+      "oIoU": 59.0083
+    },
+    "attrib_released_only": {
+      "n": 10758,
+      "mIoU": 37.8478,
+      "oIoU": 30.8192
+    },
+    "attrib_box_full": {
+      "n": 10758,
+      "mIoU": 66.9972,
+      "oIoU": 59.2222
+    },
+    "attrib_box_full_cover": {
+      "n": 10758,
+      "mIoU": 62.7242,
+      "oIoU": 47.3228
+    },
+    "attrib_box_full_inside": {
+      "n": 10758,
+      "mIoU": 19.6224,
+      "oIoU": 15.5079
+    },
+    "ours_region_text": {
+      "n": 10758,
+      "mIoU": 65.2653,
+      "oIoU": 57.88
+    },
+    "ours_key_only": {
+      "n": 10758,
+      "mIoU": 38.8591,
+      "oIoU": 30.8934
+    },
+    "geom_guard": {
+      "n": 10758,
+      "mIoU": 67.0542,
+      "oIoU": 59.7633
+    },
+    "geom_guard_strict": {
+      "n": 10758,
+      "mIoU": 67.0274,
+      "oIoU": 59.5548
+    },
+    "learned_head": {
+      "n": 10758,
+      "mIoU": 67.6439,
+      "oIoU": 59.9179
+    },
+    "learned_geom": {
+      "n": 10758,
+      "mIoU": 67.0852,
+      "oIoU": 59.2296
+    },
+    "learned_geom2": {
+      "n": 10758,
+      "mIoU": 67.1363,
+      "oIoU": 59.3563
+    }
+  },
+  "generated": "exp159_head_rebuild.py",
+  "notes": "deterministic re-analysis over cached records (SAM ViT-H pool + G2L masked-region features + cached VLM boxes); reference arm reproduces the shipped head (released top-15 restriction by rank01(sc)+0.4906*rank01(gem), box-fill pick); ours_* arms use top-15 by fg @ t_sentence (full sentence, no ensemble, no GEM); geom_* arms use no text; learned_head (all our terms incl. the region-text score) and learned_geom (geometric terms only, no text, no features) are fitted on the RefCOCO-family held-out TRAIN tune refs only; attrib_box_full_cover/inside are the full-pool box pick under the other overlap modes; box-missing records use the shipped no-box fallback (released top-1) in every arm"
+}

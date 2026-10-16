@@ -1,0 +1,72 @@
+{
+  "dataset": "refcoco",
+  "split": "val",
+  "records": null,
+  "n": 10834,
+  "box_queried_pct": 100.0,
+  "box_none_records": 19,
+  "arms": {
+    "reference": {
+      "n": 10834,
+      "mIoU": 71.0932,
+      "oIoU": 65.8345
+    },
+    "attrib_released_only": {
+      "n": 10834,
+      "mIoU": 43.3257,
+      "oIoU": 35.9919
+    },
+    "attrib_box_full": {
+      "n": 10834,
+      "mIoU": 73.1482,
+      "oIoU": 66.9659
+    },
+    "attrib_box_full_cover": {
+      "n": 10834,
+      "mIoU": 67.606,
+      "oIoU": 52.0698
+    },
+    "attrib_box_full_inside": {
+      "n": 10834,
+      "mIoU": 22.0522,
+      "oIoU": 17.3189
+    },
+    "ours_region_text": {
+      "n": 10834,
+      "mIoU": 69.2099,
+      "oIoU": 63.0127
+    },
+    "ours_key_only": {
+      "n": 10834,
+      "mIoU": 34.4268,
+      "oIoU": 26.4016
+    },
+    "geom_guard": {
+      "n": 10834,
+      "mIoU": 73.2098,
+      "oIoU": 67.4939
+    },
+    "geom_guard_strict": {
+      "n": 10834,
+      "mIoU": 73.2087,
+      "oIoU": 67.3717
+    },
+    "learned_head": {
+      "n": 10834,
+      "mIoU": 73.5704,
+      "oIoU": 67.9401
+    },
+    "learned_geom": {
+      "n": 10834,
+      "mIoU": 73.1489,
+      "oIoU": 67.2647
+    },
+    "learned_geom2": {
+      "n": 10834,
+      "mIoU": 73.4902,
+      "oIoU": 67.9406
+    }
+  },
+  "generated": "exp159_head_rebuild.py",
+  "notes": "deterministic re-analysis over cached records (SAM ViT-H pool + G2L masked-region features + cached VLM boxes); reference arm reproduces the shipped head (released top-15 restriction by rank01(sc)+0.4906*rank01(gem), box-fill pick); ours_* arms use top-15 by fg @ t_sentence (full sentence, no ensemble, no GEM); geom_* arms use no text; learned_head (all our terms incl. the region-text score) and learned_geom (geometric terms only, no text, no features) are fitted on the RefCOCO-family held-out TRAIN tune refs only; attrib_box_full_cover/inside are the full-pool box pick under the other overlap modes; box-missing records use the shipped no-box fallback (released top-1) in every arm"
+}
