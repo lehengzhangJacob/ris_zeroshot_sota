@@ -56,7 +56,9 @@ def main() -> int:
     args = ap.parse_args()
 
     from glod.data import RefDataset
-    from vlm_boxes import IMAGES, PROMPT, parse_box
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+    from cache_map import _image_path
+    from vlm_boxes import PROMPT, parse_box
 
     ds_name = {"refcoco": "refcoco", "refcocoplus": "refcoco+",
                "refcocog": "refcocog"}[args.dataset]
@@ -94,30 +96,51 @@ def main() -> int:
 
     boxer = Qwen2Boxer(device=args.device)
     t0 = time.time()
-    n_done = 0
+    n_done = n_parked = 0
     for fn, ph in todo:
         p = path3b(fn, ph)
-        image = Image.open(IMAGES / fn).convert("RGB")
-        msgs = [{"role": "user", "content": [
-            {"type": "image"},
-            {"type": "text", "text": PROMPT.format(phrase=ph)}]}]
-        prompt = boxer.proc.apply_chat_template(msgs, tokenize=False,
-                                                add_generation_prompt=True)
-        inp = boxer.proc(text=[prompt], images=[image],
-                         return_tensors="pt").to(args.device)
-        with torch.inference_mode():
-            out = boxer.model.generate(**inp, max_new_tokens=48, do_sample=False)
-        raw = boxer.proc.batch_decode(out[:, inp["input_ids"].shape[1]:],
-                                      skip_special_tokens=True)[0]
-        box = parse_box(raw, image.width, image.height)
+        image = Image.open(_image_path(fn)).convert("RGB")
+        box, raw = None, ""
+        for attempt in range(2):
+            try:
+                if attempt == 1:
+                    # pin the pixel bounds: the default processor can produce
+                    # a token grid that mismatches the vision features on
+                    # some aspect ratios (Qwen2.5-VL processor quirk)
+                    boxer.proc = type(boxer.proc).from_pretrained(
+                        boxer.model_id, min_pixels=4 * 28 * 28,
+                        max_pixels=1280 * 28 * 28)
+                msgs = [{"role": "user", "content": [
+                    {"type": "image"},
+                    {"type": "text", "text": PROMPT.format(phrase=ph)}]}]
+                prompt = boxer.proc.apply_chat_template(
+                    msgs, tokenize=False, add_generation_prompt=True)
+                inp = boxer.proc(text=[prompt], images=[image],
+                                 return_tensors="pt").to(args.device)
+                with torch.inference_mode():
+                    out = boxer.model.generate(**inp, max_new_tokens=48,
+                                               do_sample=False)
+                raw = boxer.proc.batch_decode(
+                    out[:, inp["input_ids"].shape[1]:],
+                    skip_special_tokens=True)[0]
+                box = parse_box(raw, image.width, image.height)
+                break
+            except Exception as exc:  # noqa: BLE001
+                raw = f"error:{type(exc).__name__}"
+        parked = box is None
+        n_parked += int(parked)
         p.write_text(json.dumps(dict(box=box, raw=raw[:200],
-                                     w=image.width, h=image.height)))
+                                     w=image.width, h=image.height,
+                                     parked=parked)))
         n_done += 1
+        if parked:
+            print(f"  PARKED {fn} :: {ph[:40]!r} ({raw[:60]})", flush=True)
         if n_done % 250 == 0:
             rate = n_done / (time.time() - t0)
             print(f"  {n_done}/{len(todo)} ({rate:.2f}/s, eta "
                   f"{(len(todo)-n_done)/max(rate,1e-9)/60:.1f} min)", flush=True)
-    print(f"done {n_done} in {time.time()-t0:.0f}s", flush=True)
+    print(f"done {n_done} ({n_parked} parked) in {time.time()-t0:.0f}s",
+          flush=True)
     return 0
 
 
