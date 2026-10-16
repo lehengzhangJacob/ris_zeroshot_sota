@@ -50,18 +50,8 @@
 \end{itemize}
 \end{frame}
 
-% ---------- 3 诊断一 ----------
-\begin{frame}{诊断一：旗舰方法不可复现，规则本身有害}
-\begin{itemize}
-  \item 独立复现 GLOD-RIS（两套实现、同款 GLM-4.1V 引导）：\textbf{32.68 / 30.96 / 37.24}——差 \textbf{--20$\sim$--26}
-  \item 因果隔离（rule-swap）：把它的选择规则放到\textbf{我们完全相同的候选池与特征}上 $\rightarrow$ 仍不如无引导 scorer（\textbf{32.9 vs 44.8}，同池同特征）
-  \item 结论：坏的不是环境，是``选''的机制本身
-  \item 其 MLLM API 输出在高负载下解析失败（运行至第 223 条即中止）
-\end{itemize}
-\end{frame}
-
-% ---------- 4 诊断二 ----------
-\begin{frame}{诊断二：瓶颈是 selection，不是 mask 质量}
+% ---------- 3 诊断 ----------
+\begin{frame}{诊断：瓶颈是 selection，不是 mask 质量}
 \begin{itemize}
   \item oracle：池中最好 mask 达 \textbf{82.21 mIoU}（82\% 表达式池里已有好 mask）；所基于的 HybridGL released pipeline 只拿到 \textbf{44.82}
   \item 可回收 IoU 的构成：\textbf{wrong-instance（选错实例）主导}；under-segmentation 只占小头 —— 而现有工作多聚焦 mask 质量与合并
@@ -123,7 +113,8 @@ GLOD-RIS（published） & 58.42 / 50.85 & 54.01 / 45.96 & 57.85 / 50.03 \\
 \begin{frame}{诚实边界与进行中工作}
 \begin{itemize}
   \item 全监督 cIoU 仍有差距：52.71 vs 68.94（InstAlign）—— 已\textbf{量化}，不声称
-  \item 复现口径差异、VLM 延迟（0.6$\sim$1.8 s/句）均已在论文声明
+  \item 对比口径：GLOD-RIS 无公开代码；引用其 \textbf{published} 数字做跨环境对比，本地复现与余项在论文附录如实记录（不对其方法作评断）
+  \item VLM 延迟（0.6$\sim$1.8 s/句）已在论文声明
   \item 进行中：\textbf{backbone 削弱实验}——更小的 VLM / 更小的 SAM / 更弱编码器 / 去掉额外检测器
   \item 目标：\textbf{比对手更弱、更少的 backbone 仍然 SOTA}（堵死``靠 backbone''的质疑）
 \end{itemize}

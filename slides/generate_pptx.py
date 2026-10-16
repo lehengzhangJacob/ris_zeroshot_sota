@@ -113,16 +113,7 @@ bullets(s, [
 ], top=1.55)
 
 # ---------------- Slide 3 ----------------
-s = new(); title(s, "诊断一：旗舰方法不可复现，规则本身有害")
-bullets(s, [
-    "独立复现 GLOD-RIS（两套实现、同款 GLM-4.1V 引导）：**32.68 / 30.96 / 37.24**——差 **−20 ~ −26**",
-    "因果隔离（rule-swap）：把它的选择规则放到**我们完全相同的候选池与特征**上 → 仍不如无引导 scorer（**32.9 vs 44.8**，同池同特征）",
-    "结论：坏的不是环境，是“选”的机制本身",
-    "其 MLLM API 输出在高负载下解析失败（运行至第 223 条即中止）",
-], top=1.55)
-
-# ---------------- Slide 4 ----------------
-s = new(); title(s, "诊断二：瓶颈是 selection，不是 mask 质量")
+s = new(); title(s, "诊断：瓶颈是 selection，不是 mask 质量")
 bullets(s, [
     "oracle：池中最好 mask 达 **82.21 mIoU**（82% 表达式池里已有好 mask）；所基于的 HybridGL released pipeline 只拿到 **44.82**",
     "可回收 IoU 的构成：**wrong-instance（选错实例）主导**；under-segmentation 只占小头——现有工作多聚焦 mask 质量与合并",
@@ -182,7 +173,8 @@ bullets(s, [
 s = new(); title(s, "诚实边界与进行中工作")
 bullets(s, [
     "全监督 cIoU 仍有差距：52.71 vs 68.94（InstAlign）——已**量化**，不声称",
-    "复现口径差异、VLM 延迟（0.6~1.8 s/句）均已在论文声明",
+    "对比口径：GLOD-RIS 无公开代码；引用其 **published** 数字做跨环境对比，本地复现与余项在论文附录如实记录（不对其方法作评断）",
+    "VLM 延迟（0.6~1.8 s/句）已在论文声明",
     "进行中：**backbone 削弱实验**——更小的 VLM / 更小的 SAM / 更弱编码器 / 去掉额外检测器",
     "目标：**比对手更弱、更少的 backbone 仍然 SOTA**（堵死“靠 backbone”的质疑）",
 ], top=1.55)
