@@ -525,6 +525,60 @@ def component_provenance():
     return True
 
 
+def backbone_audit():
+    """Backbone-strength audit (operator directive 2026-10-16)."""
+    rel = "exp/out_final/backbone_audit.json"
+    if not newer(rel):
+        return False
+    try:
+        data = json.loads((ROOT / rel).read_text())
+    except Exception as exc:
+        return fail(f"bad json {rel}: {exc}")
+    if not isinstance(data, dict):
+        return fail("backbone_audit.json must be an object")
+    inv = data.get("inventory")
+    if not isinstance(inv, list) or len(inv) < 4:
+        return fail("backbone_audit.json needs inventory[] of length >= 4")
+    for i, c in enumerate(inv):
+        if not isinstance(c, dict):
+            return fail(f"inventory row {i} is not an object")
+        for field in ("name", "role", "provenance"):
+            v = c.get(field)
+            if not isinstance(v, str) or not v.strip():
+                return fail(f"inventory row {i} needs a non-empty {field}")
+        if "params" not in c:
+            return fail(f"inventory row {i} needs params")
+    swaps = data.get("swaps")
+    if not isinstance(swaps, list) or len(swaps) < 4:
+        return fail("backbone_audit.json needs swaps[] of length >= 4")
+    comps = set()
+    for i, a in enumerate(swaps):
+        if not isinstance(a, dict):
+            return fail(f"swap {i} is not an object")
+        for field in ("name", "component", "weaker_variant"):
+            v = a.get(field)
+            if not isinstance(v, str) or not v.strip():
+                return fail(f"swap {i} needs a non-empty {field}")
+        comps.add(a["component"].strip().lower())
+        ev = a.get("evidence")
+        if not isinstance(ev, str) or not newer(ev):
+            return fail(f"swap {i} needs fresh evidence")
+        val = a.get("val")
+        if not isinstance(val, dict) or not any(isinstance(x, (int, float)) for x in val.values()):
+            return fail(f"swap {i} needs val{{}} with numeric results")
+        if not isinstance(a.get("still_sota"), bool):
+            return fail(f"swap {i} needs still_sota bool")
+    if len(comps) < 3:
+        return fail(f"swaps cover only {len(comps)} distinct components; need >= 3")
+    verdict = data.get("verdict")
+    if not isinstance(verdict, str) or not verdict.strip():
+        return fail("backbone_audit.json needs a non-empty verdict string")
+    pdf_path = ROOT / "paper" / "main.pdf"
+    if not pdf_path.is_file() or pdf_path.stat().st_mtime < (ROOT / rel).stat().st_mtime:
+        return fail("paper/main.pdf must be rebuilt after exp/out_final/backbone_audit.json")
+    return True
+
+
 def as_percent(value):
     value = float(value)
     if value <= 1.5:
@@ -605,7 +659,7 @@ def main():
     if not STAMP.is_file():
         print("FAIL: extreme_started.txt missing")
         return 1
-    checks = [tex_has_appendix, architecture, sota, ablation, mains, graveyard, protocol_audit, metrics_sota, analysis_pack, glm_swap, glodris_repro, rule_swap, wild_ideas, learned_prior, test_columns, transfer_wall, component_provenance, sota_line, pdf]
+    checks = [tex_has_appendix, architecture, sota, ablation, mains, graveyard, protocol_audit, metrics_sota, analysis_pack, glm_swap, glodris_repro, rule_swap, wild_ideas, learned_prior, test_columns, transfer_wall, component_provenance, backbone_audit, sota_line, pdf]
     passed = all(check() for check in checks)
     print("PASS" if passed else "NOT_READY")
     return 0 if passed else 1

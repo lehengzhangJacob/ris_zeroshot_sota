@@ -302,7 +302,7 @@ def iterate_records(dataset, split, ref_by_id, ds, store, order, te, model_c,
         yield r, fn, masks, fg
 
 
-def fit_learned_head(dataset, te):
+def fit_learned_head(dataset, te, box_path=None):
     """Fit the learned head on the RefCOCO-family held-out TRAIN tune refs."""
     from sklearn.ensemble import HistGradientBoostingClassifier
     from glod.data import RefDataset
@@ -311,11 +311,13 @@ def fit_learned_head(dataset, te):
     ref_by_id = {r["ref_id"]: r for r in ds.refs}
     store, order = {}, []
     boxer = QwenBoxer.__new__(QwenBoxer)
+    if box_path is None:
+        box_path = boxer._path
     Fs, ys = [], []          # per-record feature dicts + labels
     n_rec = 0
     for r, fn, masks, fg in iterate_records(dataset, "tune", ref_by_id, ds,
                                             store, order, te, None):
-        bp = boxer._path(fn, r["parsed"]["sentence"].strip())
+        bp = box_path(fn, r["parsed"]["sentence"].strip())
         box = json.loads(bp.read_text())["box"] if bp.is_file() else None
         our = fg @ te(r["parsed"]["sentence"])
         feats = arm_c_features(masks, fg, r, box, our)
@@ -341,7 +343,7 @@ def fit_learned_head(dataset, te):
 
 
 def evaluate(dataset, split="val", limit=0, records_path=None, out_path=None,
-             te=None, models=None):
+             te=None, models=None, box_path=None):
     from glod.data import RefDataset
     from vlm_boxes import QwenBoxer
     ds = RefDataset(REPRO / "data/refer", DS_NAME[dataset], split)
@@ -352,11 +354,13 @@ def evaluate(dataset, split="val", limit=0, records_path=None, out_path=None,
     if models is None:
         print(f"[{dataset}] fitting learned heads on tune refs", flush=True)
         t0 = time.time()
-        models = fit_learned_head(dataset, te)
+        models = fit_learned_head(dataset, te, box_path=box_path)
         print(f"[{dataset}] heads fitted ({time.time()-t0:.0f}s); val pass", flush=True)
     model_c, model_g, model_g2 = models
 
     boxer = QwenBoxer.__new__(QwenBoxer)
+    if box_path is None:
+        box_path = boxer._path
     store, order = {}, []
     arms = ALL_ARMS
     acc = {a: dict(iou=0.0, inter=0.0, union=0.0) for a in arms}
@@ -365,7 +369,7 @@ def evaluate(dataset, split="val", limit=0, records_path=None, out_path=None,
     for i, (r, fn, masks, fg) in enumerate(iterate_records(
             dataset, split, ref_by_id, ds, store, order, te, model_c, limit,
             records_path=records_path)):
-        bp = boxer._path(fn, r["parsed"]["sentence"].strip())
+        bp = box_path(fn, r["parsed"]["sentence"].strip())
         box = json.loads(bp.read_text())["box"] if bp.is_file() else None
         n_box += int(bp.is_file())
         n_box_none += int(box is None)
@@ -426,9 +430,16 @@ def main() -> int:
     ap.add_argument("--records", type=Path, default=None)
     ap.add_argument("--out", type=Path, default=None)
     ap.add_argument("--limit", type=int, default=0)
+    ap.add_argument("--box-ns", default="llava", choices=["llava", "qwen3b"])
     args = ap.parse_args()
+    bp = None
+    if args.box_ns == "qwen3b":
+        sys.path.insert(0, str(Path(__file__).resolve().parent))
+        from exp164_boxer3b import path3b
+        bp = path3b
     return evaluate(args.dataset, split=args.split, limit=args.limit,
-                    records_path=args.records, out_path=args.out)
+                    records_path=args.records, out_path=args.out,
+                    box_path=bp)
 
 
 if __name__ == "__main__":
