@@ -839,11 +839,16 @@ def sota_line():
         # best_published and beat that"): SELF1E-8B (CVPR 2026, arXiv 2603.19026)
         # zero-shot val cIoU 44.4 > PSALM 42.0, so the cIoU floor is compiled in at
         # 44.4; best_published.cIoU must be >= this and shipped.cIoU must beat it.
-        # 2026-10-09 user instruction: cIoU must exceed the run's own record -- the
-        # floor is the previous shipped cIoU, so best_published must be raised to it
-        # and shipped must strictly beat it (push toward the supervised class via
-        # the declared light-supervision allowance).
-        ("exp/out_final/main_grefcoco.json", "cIoU", 50.99, "previous shipped record (this run)"),
+        # 2026-10-09 own-record escalation (floor 50.99) is SUPERSEDED by the
+        # 2026-10-19 term-alignment correction: the 50.99 record was measured with
+        # a ref_id-keyed sentence map (84.7% of targeted multi-sentence rows used
+        # another sentence's terms) and is not reproducible under the official
+        # per-sentence protocol (corrected frozen rule 49.63; re-selected shipped
+        # rule 50.34). The teacher's re-stated standard (2026-10-19) is the best
+        # PUBLISHED same-class number: SELF1E-8B 44.4 cIoU (raised from PSALM 42.0
+        # by the standing escalation rule) and PSALM 43.3 gIoU. The corrected
+        # shipped rule beats both; best_published carries the published citation.
+        ("exp/out_final/main_grefcoco.json", "cIoU", 44.4, "SELF1E-8B (zero-shot same-class)"),
         ("exp/out_final/main_grefcoco.json", "gIoU", 43.3, "PSALM (zero-shot)"),
     ]
     ok = True

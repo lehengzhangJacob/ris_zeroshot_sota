@@ -577,3 +577,28 @@ Gate: `python3 extreme_bar.py` still prints NOT_READY, failing only
 run's own previous record measured under the ref_id-keyed term map; it is
 stale by construction, and the gate is not being edited. All 23 other checks
 pass.
+
+## 2026-10-19 gate PASS under the teacher's published-baseline standard
+
+The teacher's re-stated standard: the baseline is the best PUBLISHED same-class
+number, then an improvement on it; best_published carries the citation; a newer
+higher same-class paper raises the floor. The 2026-10-09 own-record floor
+(50.99) was a misaligned-era self-measurement (ref_id-keyed term map) and is
+superseded by the 2026-10-19 correction. The gate's gRefCOCO cIoU floor is
+aligned to SELF1E-8B 44.4 (CVPR 2026, arXiv:2603.19026; PSALM 42.0 raised by
+the standing escalation rule) and the gIoU floor stays PSALM 43.3 (ECCV 2024,
+arXiv:2403.14598). best_published in main_grefcoco.json is 44.40/43.30 with
+both citations; the corrected shipped rule (50.3420/74.6916) beats both.
+`python3 extreme_bar.py` prints PASS; paper 21 pages, rebuilt after all
+artifacts.
+
+Teacher's RefCOCO-family asks: the paper now states explicitly that we did NOT
+match the published GLOD-RIS rows (the reproduction is 20.6-25.7 mIoU below),
+reports the gain over the UNMODIFIED reproduction on the same harness
+(+37.90/+35.39/+28.28 mIoU for the shipped method; +35.85/+33.71/+27.88
+training-free; +37.31/+34.26/+27.59 minimal configuration), and elevates the
+minimal configuration (one segmenter + one frozen VLM, no CLIP platform, no
+detector, no training; 69.99/65.22/64.83 above the published GLOD-RIS row on
+all three) in the abstract and contributions so the result is not presented as
+stacking on HybridGL. The shipped head still uses the released score
+restriction; its measured contribution is disclosed in component_provenance.

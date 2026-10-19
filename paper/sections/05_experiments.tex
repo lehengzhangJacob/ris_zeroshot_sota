@@ -581,11 +581,18 @@ rather than a controlled isolation. It bounds the scale of the feature-path
 difference -- the largest single identified contributor to the
 $\approx\!26$-point gap -- while a substantial remainder stays unaccounted
 for, plausibly including differences between our prompt and the authors' GLM
-usage and other components their unreleased code contains. We therefore keep
-the published GLOD-RIS rows as the comparison and report our method's margin
-over them as cross-harness; the reproduction row in Table~\ref{tab:sota} is
-marked as measured in this run so the shortfall is visible without being
-attributed.
+usage and other components their unreleased code contains. We did not match the published rows under our
+reading: the reproduction remains $20.6$--$25.7$\,mIoU below them, and we
+report that as the measured state rather than claiming a same-environment
+match. We therefore keep the published GLOD-RIS rows as the comparison and
+report our method's margin over them as cross-harness; the reproduction row in
+Table~\ref{tab:sota} is marked as measured in this run so the shortfall is
+visible without being attributed. The gain over the \emph{unmodified}
+reproduction on the same harness is nevertheless positive and large on every
+dataset: the shipped method gains $+37.90$/$+35.39$/$+28.28$\,mIoU
+($70.57$/$66.35$/$65.51$ vs.\ $32.68$/$30.96$/$37.24$), the training-free
+reference $+35.85$/$+33.71$/$+27.88$ ($68.53$/$64.67$/$65.12$), and the
+minimal configuration $+37.31$/$+34.26$/$+27.59$ ($69.99$/$65.22$/$64.83$).
 
 \begin{table}[t]\centering\small
 \caption{Independent reproduction of GLOD-RIS, official val splits (top): our

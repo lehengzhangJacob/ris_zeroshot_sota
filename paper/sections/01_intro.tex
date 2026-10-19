@@ -109,6 +109,11 @@ Contributions:
   (fitted on train-carved held-out rows only) as the shipped RefCOCO-family
   head, with the training-free realization kept as the zero-shot reference
   row (\S\ref{sec:provenance}).
+  \item A minimal configuration that clears the published GLOD-RIS row on all
+  three RefCOCO-family benchmarks with one segmenter and one frozen VLM alone
+  ($69.99$/$65.22$/$64.83$ mIoU; no CLIP platform, no detector, no training),
+  so the improvement is not attributable to stacking on the released
+  pipeline.
   \item A held-out tuning protocol (\studyTrials{}-trial Optuna studies on
   train-derived refs, minimum-over-datasets objective) and a fully scripted
   evidence chain in which no number is transcribed by hand.

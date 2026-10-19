@@ -60,7 +60,10 @@ our own terms, and promotes the resulting small selector head
 (declared trained; fitted on train-carved held-out rows only), which holds
 parity or better on all three full val splits and all five test columns
 ($70.57$/$66.35$/$65.51$ val mIoU), with the training-free rule kept as the
-zero-shot reference row. The method is tuned only on a held-out split built
+zero-shot reference row. A minimal configuration --- one segmenter plus one
+frozen VLM, no CLIP platform, no detector, no training --- already exceeds the
+published GLOD-RIS row on all three benchmarks ($69.99$/$65.22$/$64.83$ mIoU),
+so the result is not an artifact of stacking on the released pipeline. The method is tuned only on a held-out split built
 from
 RefCOCO-family train references (\studyTrials{}-trial Optuna studies, objective
 = minimum over datasets) and evaluated on the full validation sets. On gRefCOCO we locate where the training-free class stands: a three-prompt

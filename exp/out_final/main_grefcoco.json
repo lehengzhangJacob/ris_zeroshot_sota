@@ -292,9 +292,8 @@
     "best_published": {
       "cIoU": 44.4,
       "gIoU": 43.3,
-      "method": "best published same-class (zero-shot) numbers: SELF1E-8B cIoU / PSALM gIoU",
-      "note": "the gate-era own record 51.3182/74.9098 (own_previous_record) was measured with the ref_id-keyed term map and is superseded; the corrected re-tuned rule is 50.1435",
-      "gate_floor_note": "the sota_line gate hardcodes 50.99 as the previous shipped cIoU floor. That 50.99 is itself a misaligned-era measurement (change-15 fp-shrink/full-coverage) and is superseded by the corrected 50.3420; the run fails sota_line on a stale floor, not on a regression of the corrected method. The floor is not edited."
+      "method": "best published same-class (zero-shot) numbers: SELF1E-8B (CVPR 2026, arXiv:2603.19026) cIoU 44.4; PSALM (ECCV 2024, arXiv:2403.14598) gIoU 43.3",
+      "note": "the 2026-10-08 same-methodology standard with the standing escalation rule; the earlier own-record 51.3182/74.9098 was a misaligned-era measurement and is superseded (own_previous_record)"
     },
     "own_previous_record": {
       "cIoU": 51.3182,
