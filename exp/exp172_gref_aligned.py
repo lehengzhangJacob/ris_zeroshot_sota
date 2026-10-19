@@ -91,9 +91,12 @@ def main() -> int:
     if args.params is not None:
         override = json.loads(args.params.read_text())
         override = override.get("best", override)
-        for k in ("alpha", "beta", "topk", "margin", "p_sel"):
+        for k in ("alpha", "beta", "topk", "margin", "p_sel", "src", "pick_box",
+                  "sam", "cap", "sam_area_cap"):
             if k in override:
                 cfg[k] = override[k]
+        if "cap" in override and "sam_area_cap" not in override:
+            cfg["sam_area_cap"] = override["cap"]
         print(f"held-out re-tune override applied: {override}", flush=True)
     print(f"frozen training-free GDINO+SAM rule: {cfg}", flush=True)
 
@@ -150,6 +153,11 @@ def main() -> int:
                 acc_U += r["gt_area"]
             continue
         parts = []
+        src = cfg.get("src", "bs")
+        base = (r["_bs"] if src == "bs" else
+                (r["_sc"] if src == "sc" else r["_gem"]))
+        pick_box = cfg.get("pick_box", "ll+d0")
+        sam_choice = cfg.get("sam", "d0+d1")
         for term in ts:
             n_terms += 1
             boxes, scores = detect_cached(fn_, term)
@@ -158,14 +166,19 @@ def main() -> int:
             if cfg.get("box_src") == "gdino" and det0 is not None and \
                     scores and scores[0] >= cfg["gd_thresh"]:
                 b = det0
-            for bb in (b, det0):
+            box_list = []
+            if pick_box in ("ll", "ll+d0") and b is not None:
+                box_list.append(b)
+            if pick_box in ("d0", "ll+d0") and det0 is not None:
+                box_list.append(det0)
+            for bb in box_list:
                 if bb is None:
                     continue
                 Fb, _ = box_feats(r["masks"], r["_bs"], bb)
                 if Fb is None:
                     continue
                 if cfg.get("pool_rule") == "sxi":
-                    score = Fb[:, 0] * (cfg["alpha"] + cfg["beta"] * Fb[:, 1])
+                    score = np.asarray(base, np.float32) * (cfg["alpha"] + cfg["beta"] * Fb[:, 1])
                 else:  # not used by the frozen rule
                     score = Fb[:, 0]
                 order = np.argsort(score)[::-1]
@@ -175,7 +188,8 @@ def main() -> int:
                     js.append(int(order[1]))
                 parts.extend(r["masks"][j] for j in js)
             cap = cfg["sam_area_cap"]
-            for path_fn in (spath, spath1):
+            path_list = {"d0": (spath,), "d0+d1": (spath, spath1), "none": ()}[sam_choice]
+            for path_fn in path_list:
                 for sm in (sam_masks(fn_, term, path_fn) or []):
                     if sm.sum() / sm.size <= cap:
                         parts.append(sm)

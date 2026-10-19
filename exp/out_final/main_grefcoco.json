@@ -282,19 +282,19 @@
     }
   },
   "shipped": {
-    "cIoU": 50.1435,
-    "gIoU": 74.6645,
-    "N_acc": 85.70466030320046,
-    "T_acc": 88.56123215627348,
+    "cIoU": 50.342,
+    "gIoU": 74.6916,
+    "N_acc": 85.69343065693431,
+    "T_acc": 88.63636363636364,
     "n": 14229,
-    "rule": "training-free per-term box selector + three-prompt existence ensemble; sxi scalars re-tuned on the held-out gRefCOCO train-tune split with per-record sentences (alpha 2.2, beta 0.35, topk 1, p_sel 0.28; prevalence-corrected objective; the unweighted-objective re-tune gives 50.1363/74.6584, so the two objectives agree). Declared trained: no.",
+    "rule": "training-free per-term box selector + three-prompt existence ensemble; structural and sxi configuration re-selected on the held-out gRefCOCO train-tune split with per-record sentences (800-config random search: src=bs, pick_box=ll+d0, sam=d0+d1, cap=0.7, alpha=0.5996, beta=0.0141, topk=1, p_sel=0.2733). Declared trained: no.",
     "alignment": "per-record sentence (corrected)",
     "best_published": {
       "cIoU": 44.4,
       "gIoU": 43.3,
       "method": "best published same-class (zero-shot) numbers: SELF1E-8B cIoU / PSALM gIoU",
       "note": "the gate-era own record 51.3182/74.9098 (own_previous_record) was measured with the ref_id-keyed term map and is superseded; the corrected re-tuned rule is 50.1435",
-      "gate_floor_note": "the sota_line gate hardcodes 50.99 as the previous shipped cIoU floor. That 50.99 is itself a misaligned-era measurement (the change-15 fp-shrink / full-coverage variant, measured with the ref_id-keyed term map) and is superseded by the corrected re-tuned 50.1435; the 2026-10-19 run therefore fails sota_line on a stale floor, not on a regression of the corrected method. The floor is not edited."
+      "gate_floor_note": "the sota_line gate hardcodes 50.99 as the previous shipped cIoU floor. That 50.99 is itself a misaligned-era measurement (change-15 fp-shrink/full-coverage) and is superseded by the corrected 50.3420; the run fails sota_line on a stale floor, not on a regression of the corrected method. The floor is not edited."
     },
     "own_previous_record": {
       "cIoU": 51.3182,
@@ -304,10 +304,10 @@
     },
     "correction": {
       "reference": "gref_tf_aligned.json (frozen params, 49.6312/74.6013)",
-      "retune": "gref_tune_weighted.json + gref_tf_weighted.json (50.1435/74.6645)",
+      "retune": "gref_struct_tune.json + gref_tf_struct_cap07.json (50.3420/74.6916); scalar-only re-tune 50.1435/74.6645",
       "recipe": "gref_transfer_recipe_aligned.json (49.4039/74.2644, not shipped)"
     },
-    "source": "exp/out_final/gref_tf_weighted.json"
+    "source": "exp/out_final/gref_tf_struct_cap07.json"
   },
   "class_wall": {
     "statement": "Published gRefCOCO val numbers are from models TRAINED on gRefCOCO train. The training-free wall binds on three independently measured axes: (1) grounder - the VLM box overlaps the 2-object GT union at IoU 0.329; (2) selector - under a PERFECT (GT) box the best deployable rule reaches only r=0.507 cumulative, below the r>0.689 the cIoU floor needs even at perfect abstention, so it fails at ANY N_acc (oracle on the same candidates: r=0.740, needing N_acc>=0.912; perfect single-mask oracle: r=0.581); (3) abstention - the VLM's own `none` answer reaches N_acc=0.413 (T_acc 1.000), while even the oracle-with-perfect-box ceiling needs N_acc>=0.74 for gIoU - above the 0.797 the trained state of the art reports. Note 92% of val no-target sentences are transplanted from other images, so the absences are genuine but the phrases stay generic, which is why image-grounded existence tops out near 0.41.",
@@ -690,20 +690,25 @@
       "date": "2026-10-19",
       "change": "held-out re-tune of the corrected rule: 50.1435/74.6645 shipped (frozen 49.6312/74.6013; recipe 49.4039/74.2644)",
       "source": "exp177_tune_gref_aligned.py; exp172 with params override"
+    },
+    {
+      "date": "2026-10-19",
+      "change": "structural+sxi held-out re-selection: 50.3420/74.6916 shipped (frozen 49.6312/74.6013; recipe 49.4039/74.2644)",
+      "source": "exp178_struct_tune.py; exp172 params override"
     }
   ],
   "prompt_prior_reference": {
-    "cIoU": 50.1435,
-    "gIoU": 74.6645,
-    "N_acc": 85.70466030320046,
-    "T_acc": 88.56123215627348,
+    "cIoU": 50.342,
+    "gIoU": 74.6916,
+    "N_acc": 85.69343065693431,
+    "T_acc": 88.63636363636364,
     "n": 14229,
     "alignment": "per-record sentence (corrected, re-tuned)",
-    "source": "exp/out_final/gref_tf_weighted.json",
+    "source": "exp/out_final/gref_tf_struct_cap07.json",
     "frozen_parameter_reference": {
       "cIoU": 49.6312,
       "gIoU": 74.6013,
-      "source": "exp/out_final/gref_tf_aligned.json"
+      "source": "gref_tf_aligned.json"
     }
   }
 }

@@ -357,10 +357,10 @@
       "name": "Ours: training-free rule (shipped, corrected per-record alignment, held-out re-tuned)",
       "venue": "this run",
       "measured_by_us": true,
-      "evidence": "exp/out_final/gref_tf_weighted.json",
+      "evidence": "exp/out_final/gref_tf_struct_cap07.json",
       "grefcoco": {
-        "cIoU": 50.1435,
-        "gIoU": 74.6645
+        "cIoU": 50.342,
+        "gIoU": 74.6916
       },
       "n": 14229,
       "setting": "training-free features; rule tuned on held-out gRefCOCO train (never val); corrected per-record sentence alignment",
@@ -407,10 +407,10 @@
       "name": "Ours: training-free rule (shipped, corrected per-record alignment, held-out re-tuned)",
       "venue": "this run",
       "measured_by_us": true,
-      "evidence": "exp/out_final/gref_tf_weighted.json",
+      "evidence": "exp/out_final/gref_tf_struct_cap07.json",
       "grefcoco": {
-        "cIoU": 50.1435,
-        "gIoU": 74.6645
+        "cIoU": 50.342,
+        "gIoU": 74.6916
       },
       "n": 14229,
       "setting": "training-free features; rule tuned on held-out gRefCOCO train (never val); corrected per-record sentence alignment",

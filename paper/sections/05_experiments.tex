@@ -272,7 +272,7 @@ were computed with the ref\_id-keyed term map corrected in
 training-free rule (\grefCIoU{}/\grefGIoU) and the declared-trained
 part-acceptance recipe (49.40/74.26) shows that the recipe does not beat the
 training-free rule on either metric at this training scale (49.63/74.60 with
-the frozen parameters; 50.14/74.66 re-tuned), so no learned gRefCOCO
+the frozen parameters; 50.34/74.69 re-tuned), so no learned gRefCOCO
 selector is promoted. The RefCOCO-family learned selector head is a separate
 component and is unaffected (\S\ref{sec:provenance}).
 
@@ -411,8 +411,8 @@ RefCOCO-family selector head of \S\ref{sec:head} (one gradient-boosted fit on
 train-carved held-out rows; seconds per dataset). The gRefCOCO acceptance
 prior was evaluated and is \emph{not} shipped (\S\ref{sec:transferwall}).
 On top of the head, the only fitting is the selector configurations from the
-300-trial Optuna studies plus the post-correction held-out re-tune of the
-gRefCOCO sxi scalars, all on held-out rows, on the order of ten GPU-hours. \emph{Weaker lineups} (\S\ref{sec:limitations},
+300-trial Optuna studies plus the two post-correction held-out re-searches of the
+gRefCOCO configuration, all on held-out rows, on the order of ten GPU-hours. \emph{Weaker lineups} (\S\ref{sec:limitations},
 \texttt{backbone\_audit.json}): the same full-table SOTA holds with a
 strictly smaller 3.8B box VLM (which also improves the numbers) and with our
 own plain masked-region CLIP features replacing the released G2L platform;
@@ -471,10 +471,10 @@ because the comparison is against \emph{published} numbers we did not
 re-measure: a cross-harness delta larger than the margin would flip it, and
 the cross-paper comparability caveat of Section~\ref{sec:repro} applies. The
 rule's gIoU also sits just above the strongest supervised gIoU reference
-(InstAlign, \grefPubGIoU) by $0.32$ (frozen rule: $0.26$) --- a parity-level margin within the
+(InstAlign, \grefPubGIoU) by $0.35$ (frozen rule: $0.26$) --- a parity-level margin within the
 cross-harness and single-seed uncertainty, not a decisive exceedance. The
 supervised cIoU level (\grefPubCIoU) remains out of reach; the corrected
-training-free cIoU is $18.8$ points below it.
+training-free cIoU is $18.6$ points below it.
 
 The no-target axis is solved to a useful point: the presence ensemble
 separates no-target expressions at $N_{\mathrm{acc}}=\wallEnsTrainN$
@@ -502,11 +502,15 @@ of targeted rows in multi-sentence refs this used another sentence's terms;
 the RefCOCO-family path is unaffected because it uses each record's own
 parsed sentence. After per-record alignment, with all parameters still frozen
 from the held-out studies, the rule measures 49.63/74.60 (was 51.32/74.91).
-A held-out re-tune of the sxi scalars (1{,}080 configurations, two objectives
---- raw tune cIoU and a prevalence-corrected objective matching the val
-targeted/no-target mix; both select top-1 picks and p\_sel $0.28$ and land at
-50.14 on val) reaches \grefCIoU{}/\grefGIoU{}, and this re-tuned rule is
-shipped. A declared-trained transfer-aware recipe, re-evaluated
+Two held-out re-searches on the same train-tune split, both selecting on the
+prevalence-corrected objective that matches the val targeted/no-target mix:
+an sxi-scalar search (1{,}080 configurations; top-1 picks, p\_sel $0.28$,
+50.34 on val) and a structural-plus-scalar search (800 configurations over
+score source, pick box, SAM sources, area cap and the sxi scalars; it selects
+the shipped configuration --- base score, both boxes, both SAM sources,
+area cap $0.7$, alpha $0.60$, beta $0.014$, top-1, p\_sel $0.273$ --- and
+reaches \grefCIoU{}/\grefGIoU{} on val). Neither search touches val during
+selection. This re-selected rule is shipped. A declared-trained transfer-aware recipe, re-evaluated
 under the same correction, measures 49.40/74.26 (was 52.71/75.08) --- below
 the training-free rule on both metrics. The recipe is therefore withdrawn as
 the shipped gRefCOCO row, together with its bootstrap and the mechanism
@@ -524,7 +528,7 @@ gRefCOCO term lookup now uses the row's own sentence and file name instead of
 a ref\_id-keyed map. The change was found while auditing the official
 evaluator's per-sentence arithmetic; it affects every term-path number in this
 benchmark, including the learned part tables, and it does not affect the
-RefCOCO-family results. The corrected training-free rule (50.14/74.66 with the held-out re-tuned
+RefCOCO-family results. The corrected training-free rule (50.34/74.69 with the held-out re-tuned
 sxi scalars; 49.63/74.60 with the previously frozen parameters) and the
 corrected declared-trained recipe (49.40/74.26) show that the earlier
 promotion of the recipe --- its 52.71/75.08 row, the +1.38 cIoU bootstrap

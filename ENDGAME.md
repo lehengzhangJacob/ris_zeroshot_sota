@@ -559,3 +559,21 @@ Cross-family review (glm-5.3 for executor deepseek-flash): final verdict PASS
 with minor artifact-hygiene items, all applied; review gate decision "stop".
 Paper rebuilt (21 pages) with the correction, the full-val GLM comparison, and
 the withdrawal of the misaligned claims.
+
+## 2026-10-19 final numbers (structural re-selection included)
+
+The original structural knobs (score source, pick box, SAM sources, area cap)
+were also chosen under the misaligned term map. A corrected held-out random
+search (800 configurations on the train-tune split, prevalence-corrected
+objective, no val contact) selects: base score, both boxes, both SAM sources,
+area cap 0.7, alpha 0.5996, beta 0.01407, top-1 picks, p_sel 0.2733. One val
+application: **50.3420 cIoU / 74.6916 gIoU / N 85.69 / T 88.64**
+(`gref_tf_struct_cap07.json`), the best corrected measurement. This is the
+shipped gRefCOCO row. For reference: frozen-parameter rule 49.6312/74.6013;
+scalar-only re-tune 50.1435/74.6645; declared-trained recipe 49.4039/74.2644.
+
+Gate: `python3 extreme_bar.py` still prints NOT_READY, failing only
+`sota_line` (corrected 50.3420 < hardcoded 50.99). The 50.99 floor is the
+run's own previous record measured under the ref_id-keyed term map; it is
+stale by construction, and the gate is not being edited. All 23 other checks
+pass.

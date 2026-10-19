@@ -19,9 +19,9 @@
       "T_acc": 87.847,
       "protocol": "official gRefCOCO val evaluation on the complete split (n=14,229 sentences), no-target treatment identical to the shipped row",
       "prompt_prior_shipped": {
-        "cIoU": 50.1435,
-        "gIoU": 74.6645,
-        "source": "gref_tf_weighted.json (corrected per-record alignment, held-out re-tuned)"
+        "cIoU": 50.342,
+        "gIoU": 74.6916,
+        "source": "gref_tf_struct_cap07.json (corrected, held-out re-selected)"
       },
       "supervised_reference": {
         "cIoU": 68.94,
@@ -45,9 +45,9 @@
   },
   "progression": [
     {
-      "variant": "training-free prompt rule (corrected per-record alignment, held-out re-tuned)",
-      "val_cIoU": 50.1435,
-      "val_gIoU": 74.6645
+      "variant": "training-free prompt rule (corrected alignment, held-out re-selected)",
+      "val_cIoU": 50.342,
+      "val_gIoU": 74.6916
     },
     {
       "variant": "declared-trained transfer recipe (corrected per-record alignment)",
