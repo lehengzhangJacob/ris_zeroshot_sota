@@ -25,8 +25,8 @@
 \newlabel{sec:related}{{2}{3}{}{section.2}{}}
 \newlabel{sec:related@cref}{{[section][2][]2}{[1][3][]3}{}{}{}}
 \@writefile{toc}{\contentsline {paragraph}{Zero-shot / training-free RIS.}{3}{}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{Mask selection and merging.}{3}{}\protected@file@percent }
 \def\@LN@column{2}
+\@writefile{toc}{\contentsline {paragraph}{Mask selection and merging.}{3}{}\protected@file@percent }
 \@writefile{toc}{\contentsline {paragraph}{Structured resolution of spatial reference.}{3}{}\protected@file@percent }
 \@writefile{toc}{\contentsline {paragraph}{Generalized referring (GRES).}{3}{}\protected@file@percent }
 \@writefile{toc}{\contentsline {paragraph}{Benchmarks.}{3}{}\protected@file@percent }
@@ -34,7 +34,6 @@
 \newlabel{sec:diagnosis}{{3}{3}{}{section.3}{}}
 \newlabel{sec:diagnosis@cref}{{[section][3][]3}{[1][3][]3}{}{}{}}
 \@writefile{toc}{\contentsline {paragraph}{Setup.}{3}{}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{The pool is not the bottleneck.}{3}{}\protected@file@percent }
 \citation{hybridgl2025}
 \citation{kirillov2023sam}
 \citation{hybridgl2025}
@@ -43,26 +42,27 @@
 \providecommand*\caption@xref[2]{\@setref\relax\@undefined{#1}}
 \newlabel{fig:taxonomy}{{1}{4}{}{figure.1}{}}
 \newlabel{fig:taxonomy@cref}{{[figure][1][]1}{[1][4][]4}{}{}{}}
+\@writefile{toc}{\contentsline {paragraph}{The pool is not the bottleneck.}{4}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Taxonomy of the oracle gap.}{4}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Why the released guidance cannot repair them.}{4}{}\protected@file@percent }
+\def\@LN@column{2}
 \@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces Taxonomy of the oracle gap at the released operating point (share of the recoverable IoU in parentheses). Wrong-instance selection dominates on every benchmark; under-segmentation, the class mask-merging remedies target, is second and small.}}{4}{}\protected@file@percent }
 \newlabel{tab:taxonomy}{{1}{4}{}{table.1}{}}
 \newlabel{tab:taxonomy@cref}{{[table][1][]1}{[1][4][]4}{}{}{}}
-\@writefile{toc}{\contentsline {paragraph}{Taxonomy of the oracle gap.}{4}{}\protected@file@percent }
-\def\@LN@column{2}
-\@writefile{toc}{\contentsline {paragraph}{Why the released guidance cannot repair them.}{4}{}\protected@file@percent }
 \@writefile{toc}{\contentsline {paragraph}{Where proposal quality \emph  {does} matter.}{4}{}\protected@file@percent }
 \@writefile{toc}{\contentsline {paragraph}{Pool density does not explain the diagnosis.}{4}{}\protected@file@percent }
 \@writefile{toc}{\contentsline {section}{\numberline {4}\hskip -1em.~Method: a dense localization prior}{4}{}\protected@file@percent }
 \newlabel{sec:method}{{4}{4}{}{section.4}{}}
 \newlabel{sec:method@cref}{{[section][4][]4}{[1][4][]4}{}{}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {4.1}\hskip -1em.~Setup and notation}{4}{}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.2}\hskip -1em.~The missing input is localization}{4}{}\protected@file@percent }
-\newlabel{sec:why}{{4.2}{4}{}{subsection.4.2}{}}
-\newlabel{sec:why@cref}{{[subsection][2][4]4.2}{[1][4][]4}{}{}{}}
 \citation{li2024llavaov}
 \@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces The shipped pipeline. Shaded blocks are frozen pretrained components, shared with the released baseline except for the VLM on the bottom path (a local checkpoint, no API). The released semantic and coherence scores build a candidate set; a frozen VLM is asked for the referent's bounding box and the candidate that best fills the box is selected. Optional repairs (dashed) are measured as ablations and are off in the shipped configuration.}}{5}{}\protected@file@percent }
 \newlabel{fig:arch}{{2}{5}{}{figure.2}{}}
 \newlabel{fig:arch@cref}{{[figure][2][]2}{[1][4][]5}{}{}{}}
 \def\@LN@column{1}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.2}\hskip -1em.~The missing input is localization}{5}{}\protected@file@percent }
+\newlabel{sec:why}{{4.2}{5}{}{subsection.4.2}{}}
+\newlabel{sec:why@cref}{{[subsection][2][4]4.2}{[1][4][]5}{}{}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {4.3}\hskip -1em.~Dense box prior from a frozen VLM}{5}{}\protected@file@percent }
 \newlabel{sec:boxprior}{{4.3}{5}{}{subsection.4.3}{}}
 \newlabel{sec:boxprior@cref}{{[subsection][3][4]4.3}{[1][5][]5}{}{}{}}
@@ -108,10 +108,10 @@
 \@writefile{lot}{\contentsline {table}{\numberline {6}{\ignorespaces Component-matched MLLM swap (seeded samples, identical rows per column pair): the shipped path with GLOD-RIS's GLM-4.1V boxes vs the local LLaVA boxes.}}{8}{}\protected@file@percent }
 \newlabel{tab:glmswap}{{6}{8}{}{table.6}{}}
 \newlabel{tab:glmswap@cref}{{[table][6][]6}{[1][7][]8}{}{}{}}
+\def\@LN@column{2}
 \@writefile{toc}{\contentsline {subsection}{\numberline {5.4}\hskip -1em.~Component provenance and the head rebuild}{8}{}\protected@file@percent }
 \newlabel{sec:provenance}{{5.4}{8}{}{subsection.5.4}{}}
 \newlabel{sec:provenance@cref}{{[subsection][4][5]5.4}{[1][8][]8}{}{}{}}
-\def\@LN@column{2}
 \@writefile{lot}{\contentsline {table}{\numberline {7}{\ignorespaces gRefCOCO (GRES) val, official cIoU/gIoU protocol. Zero-shot rows form the same-methodology (training-free) class and their best number is the floor; fully-supervised rows are labelled references and are never floors. $^\dagger $All base components are frozen off the shelf (released scorer, VLM, detector, SAM, existence probes). The training-free reference row fits only the selector's configuration on held-out rows carved from gRefCOCO \emph  {train} and is frozen before its single full-val pass. The shipped row additionally trains the part-acceptance prior on gRefCOCO train (70\%, composition-matched weights) with its threshold tuned on the held-out 30\% two-target stratum and is declared \emph  {trained}; it is not a zero-shot result (trained-vs-frozen declarations in the text and \texttt  {transfer\_wall.json}).}}{9}{}\protected@file@percent }
 \newlabel{tab:gres}{{7}{9}{}{table.7}{}}
 \newlabel{tab:gres@cref}{{[table][7][]7}{[1][7][]9}{}{}{}}
@@ -119,20 +119,18 @@
 \@writefile{lot}{\contentsline {table}{\numberline {8}{\ignorespaces Test-column completion (mIoU; oIoU in the same JSON, \texttt  {test\_columns.json}): full official splits, same frozen components, aligned protocol; published from GLOD-RIS Table~I test columns.}}{9}{}\protected@file@percent }
 \newlabel{tab:testcols}{{8}{9}{}{table.8}{}}
 \newlabel{tab:testcols@cref}{{[table][8][]8}{[1][8][]9}{}{}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.5}\hskip -1em.~Counterintuitive probes (measured, not pre-filtered)}{9}{}\protected@file@percent }
-\newlabel{sec:wild}{{5.5}{9}{}{subsection.5.5}{}}
-\newlabel{sec:wild@cref}{{[subsection][5][5]5.5}{[1][9][]9}{}{}{}}
+\@writefile{toc}{\contentsline {paragraph}{Minimal configuration: one segmenter and one frozen VLM.}{9}{}\protected@file@percent }
 \def\@LN@column{2}
 \@writefile{lot}{\contentsline {table}{\numberline {9}{\ignorespaces Head rebuild on the three full official val splits (deterministic re-analysis of the cached records; the reference arm reproduces the shipped released-score head bit-exactly). Drop-one deltas below the rule: given the box, the released restriction; given the restriction, the box.}}{9}{}\protected@file@percent }
 \newlabel{tab:provenance}{{9}{9}{}{table.9}{}}
 \newlabel{tab:provenance@cref}{{[table][9][]9}{[1][9][]9}{}{}{}}
 \def\@LN@column{1}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.5}\hskip -1em.~Counterintuitive probes (measured, not pre-filtered)}{10}{}\protected@file@percent }
+\newlabel{sec:wild}{{5.5}{10}{}{subsection.5.5}{}}
+\newlabel{sec:wild@cref}{{[subsection][5][5]5.5}{[1][9][]10}{}{}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {5.6}\hskip -1em.~Learned localization prior}{10}{}\protected@file@percent }
 \newlabel{sec:learned}{{5.6}{10}{}{subsection.5.6}{}}
 \newlabel{sec:learned@cref}{{[subsection][6][5]5.6}{[1][10][]10}{}{}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.7}\hskip -1em.~Held-out studies}{10}{}\protected@file@percent }
-\newlabel{sec:studies}{{5.7}{10}{}{subsection.5.7}{}}
-\newlabel{sec:studies@cref}{{[subsection][7][5]5.7}{[1][10][]10}{}{}{}}
 \def\@LN@column{2}
 \@writefile{lot}{\contentsline {table}{\numberline {10}{\ignorespaces Learned prior progression on the full official gRefCOCO val split ($n{=}14{,}229$), a single frozen application per row. The shipped row is the transfer-aware recipe of \S  \ref {sec:transferwall} (declared trained); the subsequent prompt-prior row is the training-free zero-shot reference, and the supervised reference (InstAlign) is a labelled row, never a floor.}}{10}{}\protected@file@percent }
 \newlabel{tab:learned}{{10}{10}{}{table.10}{}}
@@ -140,10 +138,13 @@
 \@writefile{lot}{\contentsline {table}{\numberline {11}{\ignorespaces Box-prompt study, held-out split (train refs), best of 300{} Optuna trials each.}}{10}{}\protected@file@percent }
 \newlabel{tab:studies}{{11}{10}{}{table.11}{}}
 \newlabel{tab:studies@cref}{{[table][11][]11}{[1][10][]10}{}{}{}}
-\@writefile{toc}{\contentsline {paragraph}{The box prior is the effect; the candidate set is a guardrail.}{10}{}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{Repairs.}{10}{}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{A stronger encoder does not substitute for grounding.}{10}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.7}\hskip -1em.~Held-out studies}{10}{}\protected@file@percent }
+\newlabel{sec:studies}{{5.7}{10}{}{subsection.5.7}{}}
+\newlabel{sec:studies@cref}{{[subsection][7][5]5.7}{[1][10][]10}{}{}{}}
 \def\@LN@column{1}
+\@writefile{toc}{\contentsline {paragraph}{The box prior is the effect; the candidate set is a guardrail.}{11}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Repairs.}{11}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{A stronger encoder does not substitute for grounding.}{11}{}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {5.8}\hskip -1em.~Ablations}{11}{}\protected@file@percent }
 \newlabel{sec:ablations}{{5.8}{11}{}{subsection.5.8}{}}
 \newlabel{sec:ablations@cref}{{[subsection][8][5]5.8}{[1][11][]11}{}{}{}}
@@ -151,10 +152,9 @@
 \newlabel{sec:analysis}{{5.9}{11}{}{subsection.5.9}{}}
 \newlabel{sec:analysis@cref}{{[subsection][9][5]5.9}{[1][11][]11}{}{}{}}
 \@writefile{toc}{\contentsline {paragraph}{Parameter Sensitivity Analysis.}{11}{}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{Testing Stability.}{11}{}\protected@file@percent }
 \def\@LN@column{2}
+\@writefile{toc}{\contentsline {paragraph}{Testing Stability.}{11}{}\protected@file@percent }
 \@writefile{toc}{\contentsline {paragraph}{A trained selector was tried and does not transfer.}{11}{}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{Model Complexity.}{11}{}\protected@file@percent }
 \@writefile{lot}{\contentsline {table}{\numberline {12}{\ignorespaces Component ablations. Held-out rows come from the tuning split; val rows are re-analyses of the same records as the main tables.}}{12}{}\protected@file@percent }
 \newlabel{tab:ablations}{{12}{12}{}{table.12}{}}
 \newlabel{tab:ablations@cref}{{[table][12][]12}{[1][11][]12}{}{}{}}
@@ -165,10 +165,11 @@
 \@writefile{lot}{\contentsline {table}{\numberline {14}{\ignorespaces Testing Stability (\S  \ref {sec:analysis}).}}{12}{}\protected@file@percent }
 \newlabel{tab:stability}{{14}{12}{}{table.14}{}}
 \newlabel{tab:stability@cref}{{[table][14][]14}{[1][11][]12}{}{}{}}
+\@writefile{toc}{\contentsline {paragraph}{Model Complexity.}{12}{}\protected@file@percent }
+\def\@LN@column{2}
 \@writefile{lot}{\contentsline {table}{\numberline {15}{\ignorespaces Model Complexity: parameters, estimated FLOPs per query, peak memory and latency; FLOPs are analytical estimates (2$\times $MACs) with assumptions stated in \texttt  {complexity.json}.}}{12}{}\protected@file@percent }
 \newlabel{tab:complexity}{{15}{12}{}{table.15}{}}
-\newlabel{tab:complexity@cref}{{[table][15][]15}{[1][11][]12}{}{}{}}
-\def\@LN@column{2}
+\newlabel{tab:complexity@cref}{{[table][15][]15}{[1][12][]12}{}{}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {5.10}\hskip -1em.~gRefCOCO: the same-class floors are cleared; the supervised cIoU level is quantified}{12}{}\protected@file@percent }
 \newlabel{sec:gref}{{5.10}{12}{}{subsection.5.10}{}}
 \newlabel{sec:gref@cref}{{[subsection][10][5]5.10}{[1][12][]12}{}{}{}}
@@ -186,10 +187,10 @@
 \def\@LN@column{1}
 \@writefile{lot}{\contentsline {table}{\numberline {16}{\ignorespaces Independent reproduction of GLOD-RIS, official val splits (top): our reimplementation's full pipeline, with the published mIoU (oIoU: $50.85$, $45.96$, $50.03$) for reference. Controls (bottom) remove one scoring component at a time on RefCOCO val; candidate generation is not the limit (oracle mIoU $82.2$). All rows: this run, frozen components, GLM-4.1V guidance at run time.}}{15}{}\protected@file@percent }
 \newlabel{tab:repro}{{16}{15}{}{table.16}{}}
-\newlabel{tab:repro@cref}{{[table][16][]16}{[1][14][]15}{}{}{}}
+\newlabel{tab:repro@cref}{{[table][16][]16}{[1][15][]15}{}{}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {5.13}\hskip -1em.~Same-pool rule swap}{15}{}\protected@file@percent }
 \newlabel{sec:ruleswap}{{5.13}{15}{}{subsection.5.13}{}}
-\newlabel{sec:ruleswap@cref}{{[subsection][13][5]5.13}{[1][14][]15}{}{}{}}
+\newlabel{sec:ruleswap@cref}{{[subsection][13][5]5.13}{[1][15][]15}{}{}{}}
 \def\@LN@column{2}
 \@writefile{lot}{\contentsline {table}{\numberline {17}{\ignorespaces Same-pool rule swap (mIoU, official val splits): GLOD-RIS's own selection rule run on our exact pools, features and guidance, against the released HybridGL scorer and our box rule on the same records, and the published rows. oIoU follows the same ordering ($28.18$/$25.92$/$30.06$ for their rule).}}{15}{}\protected@file@percent }
 \newlabel{tab:ruleswap}{{17}{15}{}{table.17}{}}
@@ -198,34 +199,34 @@
 \newlabel{sec:limitations}{{6}{15}{}{section.6}{}}
 \newlabel{sec:limitations@cref}{{[section][6][]6}{[1][15][]15}{}{}{}}
 \@writefile{toc}{\contentsline {paragraph}{The same-class floors are cleared; the supervised cIoU level is the measured boundary.}{15}{}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{The gRefCOCO wall is measured on val, and part of it is transfer.}{15}{}\protected@file@percent }
 \def\@LN@column{1}
+\@writefile{toc}{\contentsline {paragraph}{The gRefCOCO wall is measured on val, and part of it is transfer.}{16}{}\protected@file@percent }
 \@writefile{toc}{\contentsline {paragraph}{One VLM, one prompt template.}{16}{}\protected@file@percent }
+\def\@LN@column{2}
 \@writefile{toc}{\contentsline {paragraph}{The VLM is pretrained on COCO images.}{16}{}\protected@file@percent }
 \@writefile{toc}{\contentsline {paragraph}{Which backbones are load-bearing: a measured weaker-lineup audit.}{16}{}\protected@file@percent }
-\def\@LN@column{2}
-\@writefile{toc}{\contentsline {paragraph}{Reproduction gap.}{16}{}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{VLM latency.}{16}{}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {7}\hskip -1em.~Conclusion}{16}{}\protected@file@percent }
-\newlabel{sec:conclusion}{{7}{16}{}{section.7}{}}
-\newlabel{sec:conclusion@cref}{{[section][7][]7}{[1][16][]16}{}{}{}}
 \def\@LN@column{1}
+\@writefile{toc}{\contentsline {paragraph}{Comparison protocol.}{17}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{VLM latency.}{17}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {7}\hskip -1em.~Conclusion}{17}{}\protected@file@percent }
+\newlabel{sec:conclusion}{{7}{17}{}{section.7}{}}
+\newlabel{sec:conclusion@cref}{{[section][7][]7}{[1][17][]17}{}{}{}}
+\def\@LN@column{2}
 \@writefile{toc}{\contentsline {section}{\numberline {A}\hskip -1em.~Appendix: implementation details}{17}{}\protected@file@percent }
 \newlabel{app:impl}{{A}{17}{}{section.1}{}}
 \newlabel{app:impl@cref}{{[section][1][]A}{[1][17][]17}{}{}{}}
 \@writefile{toc}{\contentsline {paragraph}{Scoring pass.}{17}{}\protected@file@percent }
 \@writefile{toc}{\contentsline {paragraph}{Shipped configuration.}{17}{}\protected@file@percent }
 \@writefile{toc}{\contentsline {paragraph}{Bounding-box prior.}{17}{}\protected@file@percent }
-\def\@LN@column{2}
 \@writefile{toc}{\contentsline {paragraph}{GRES extension.}{17}{}\protected@file@percent }
 \@writefile{toc}{\contentsline {paragraph}{Compute.}{17}{}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{Val-pass ledger and reproduction pins.}{17}{}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {B}\hskip -1em.~Appendix: per-dataset detail}{17}{}\protected@file@percent }
-\newlabel{app:detail}{{B}{17}{}{section.2}{}}
-\newlabel{app:detail@cref}{{[section][2][]B}{[1][17][]17}{}{}{}}
-\@writefile{toc}{\contentsline {paragraph}{Taxonomy per dataset.}{17}{}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{Strata and quartiles.}{17}{}\protected@file@percent }
 \def\@LN@column{1}
+\@writefile{toc}{\contentsline {paragraph}{Val-pass ledger and reproduction pins.}{18}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {B}\hskip -1em.~Appendix: per-dataset detail}{18}{}\protected@file@percent }
+\newlabel{app:detail}{{B}{18}{}{section.2}{}}
+\newlabel{app:detail@cref}{{[section][2][]B}{[1][18][]18}{}{}{}}
+\@writefile{toc}{\contentsline {paragraph}{Taxonomy per dataset.}{18}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Strata and quartiles.}{18}{}\protected@file@percent }
 \@writefile{toc}{\contentsline {paragraph}{gRefCOCO rows.}{18}{}\protected@file@percent }
 \@writefile{toc}{\contentsline {paragraph}{Published-number transcription.}{18}{}\protected@file@percent }
 \@writefile{toc}{\contentsline {section}{\numberline {C}\hskip -1em.~Appendix: qualitative examples}{18}{}\protected@file@percent }
@@ -235,7 +236,6 @@
 \newlabel{app:evidence}{{D}{18}{}{section.4}{}}
 \newlabel{app:evidence@cref}{{[section][4][]D}{[1][18][]18}{}{}{}}
 \def\@LN@column{2}
-\@writefile{toc}{\contentsline {paragraph}{Component provenance (\texttt  {component\_provenance.json}).}{18}{}\protected@file@percent }
 \@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces Examples where the box prior changes the selection (one per dataset family, selected by a criterion fixed in \texttt  {exp/exp45\_qualitative.py}: the method and the released pipeline disagree and the IoU gap exceeds $0.25$). Column 1 shows the VLM box (yellow) overlaid on the image and the expression; columns 2--3 the released selection and ours. Ground-truth IoU is in each title. These are illustrative, not a random sample.}}{19}{}\protected@file@percent }
 \newlabel{fig:qual}{{3}{19}{}{figure.3}{}}
 \newlabel{fig:qual@cref}{{[figure][3][]3}{[1][18][]19}{}{}{}}
@@ -259,7 +259,10 @@
 \bibcite{esam2025}{{14}{2025}{{Xu et~al.}}{{}}}
 \bibcite{yu2023global}{{15}{2023}{{Yu et~al.}}{{Yu, Seo, and Son}}}
 \bibcite{proposalclip2022}{{16}{2022}{{Zhong et~al.}}{{Zhong, Yang, Wang, Tang, Zhao, Liu, Li, and Yuan}}}
+\def\@LN@column{1}
+\@writefile{toc}{\contentsline {paragraph}{Component provenance (\texttt  {component\_provenance.json}).}{20}{}\protected@file@percent }
+\def\@LN@column{2}
 \bibcite{zhou2022maskclip}{{17}{2022}{{Zhou et~al.}}{{Zhou, Loy, and Dai}}}
 \def\@LN@column{1}
 \def\@LN@column{2}
-\gdef \@abspage@last{20}
+\gdef \@abspage@last{21}

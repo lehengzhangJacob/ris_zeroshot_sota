@@ -229,7 +229,8 @@ def main() -> int:
     for ri, r in enumerate(tr):
         if r["no_target"]:
             continue
-        fn_ts = terms_by_rid.get(r["rid"])
+        fn_ts = ((r["rec"]["file_name"], terms_of(r["rec"]["parsed"]))
+                 if r.get("rec") is not None else None)
         if not fn_ts:
             continue
         pp = pair_clf.predict_proba(build_candidates(r, r["_bs"], r["_box"], g8["K"])[0])[:, 1]
@@ -361,7 +362,8 @@ def main() -> int:
     # precompute the parts once for every held-out row
     hold_parts = {}
     for ri, r in held_rows:
-        fn_ts = terms_by_rid.get(r["rid"])
+        fn_ts = ((r["rec"]["file_name"], terms_of(r["rec"]["parsed"]))
+                 if r.get("rec") is not None else None)
         hold_parts[ri] = build_parts(r, fn_ts[0], fn_ts[1], cfg, train_side=True) \
             if fn_ts else None
     print(f"held-out parts precomputed for {sum(1 for v in hold_parts.values() if v)} rows",
@@ -556,7 +558,8 @@ def main() -> int:
         if abstain:
             pred_m = None
         else:
-            fn_ts = terms_val.get(r["rid"])
+            fn_ts = ((r["rec"]["file_name"], terms_of(r["rec"]["parsed"]))
+                     if r.get("rec") is not None else None)
             built = build_parts(r, fn_ts[0], fn_ts[1], cfg, train_side=False) if fn_ts else None
             if built is not None:
                 masks, X, meta = built

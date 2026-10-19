@@ -1,0 +1,47 @@
+{
+  "n": 100,
+  "arms": {
+    "base_noun": {
+      "cIoU": 26.02631925906334,
+      "gIoU": 67.57641726899828,
+      "N_acc": 84.05797101449275,
+      "n": 100
+    },
+    "full_clause": {
+      "cIoU": 26.022277029048215,
+      "gIoU": 67.57641726899828,
+      "N_acc": 84.05797101449275,
+      "n": 100
+    },
+    "full_clause_presence": {
+      "cIoU": 26.02631925906334,
+      "gIoU": 67.57641726899828,
+      "N_acc": 84.05797101449275,
+      "n": 100
+    },
+    "pair_union": {
+      "cIoU": 26.898761899441052,
+      "gIoU": 67.8234890425658,
+      "N_acc": 84.05797101449275,
+      "n": 100
+    },
+    "learned_head_noun": {
+      "cIoU": 23.540175021454075,
+      "gIoU": 68.53577224581916,
+      "N_acc": 84.05797101449275,
+      "n": 100
+    }
+  },
+  "abstention_stats": {
+    "TP": 58,
+    "FP": 5
+  },
+  "stats": {
+    "clause_missing": 5,
+    "clause_present_dropped": 4,
+    "head_picks": 69,
+    "head_terms_skipped": 19
+  },
+  "generated": "exp169_gref_rescue.py",
+  "note": "no GroundingDINO anywhere; per-arm picks share the abstention (arm-independent); T_acc/N_acc follow the exp163/common declaration semantics"
+}

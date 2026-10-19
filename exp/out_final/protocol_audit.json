@@ -151,5 +151,6 @@
     "The r-requirement / oracle-fraction analysis in gref_wall.json and the paper compares against the SUPERVISED cIoU level (InstAlign 68.94); the field names there ('for_floor', 0.6894) predate the 2026-10-08 standard change and denote that level, not the same-class floor.",
     "All re-evaluations are deterministic re-analyses of stored per-expression records and cached model outputs; no inference result was altered and no metric was recomputed under a different protocol to change a floor outcome."
   ],
-  "head_promotion_note": "2026-10-15: the shipped numbers on the three RefCOCO-family datasets are the learned-head columns (shipped_learned_head); every number remains under the same audited protocol (mIoU = mean per-expression IoU; oIoU = global pooled), re-measured by exp159/exp161 as deterministic re-analysis of the same saved records."
+  "head_promotion_note": "2026-10-15: the shipped numbers on the three RefCOCO-family datasets are the learned-head columns (shipped_learned_head); every number remains under the same audited protocol (mIoU = mean per-expression IoU; oIoU = global pooled), re-measured by exp159/exp161 as deterministic re-analysis of the same saved records.",
+  "correction_2026_10_19": "the shipped cIoU/gIoU recorded in this audit used the ref_id-keyed gRefCOCO term map and are superseded by the per-record alignment correction (gref_tf_aligned.json, gref_tf_weighted.json); the metric definitions, per-sentence scope and coverage findings stand"
 }

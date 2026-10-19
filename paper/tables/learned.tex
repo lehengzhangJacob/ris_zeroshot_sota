@@ -2,14 +2,9 @@
 \toprule
 Variant (train side only; val is a single frozen application) & cIoU & gIoU \\
 \midrule
-naive selector (exp138, absolute threshold) & 38.79 & 69.63 \\
-+ relative threshold + per-frame standardization (exp138) & 41.63 & 70.35 \\
-+ degradation augmentation on top (hurts: 38.91) & 38.91 & 69.59 \\
-+ within-row rank score features, no augmentation (best arm of this study; best on the held-out carve-out) & 50.52 & 73.91 \\
-+ rank features with augmentation (augmentation hurts again: 45.47) & 45.47 & 71.97 \\
+training-free prompt rule (corrected alignment, held-out re-tuned; shipped) & 50.14 & 74.66 \\
+declared-trained transfer recipe (corrected per-record alignment) & 49.40 & 74.26 \\
 \midrule
-Prompt prior (training-free zero-shot reference) & 51.32 & 74.91 \\
-Transfer-aware recipe (shipped row; declared trained) & 52.71 & 75.08 \\
 InstAlign (supervised reference, labelled) & 68.94 & 74.34 \\
 \bottomrule
 \end{tabular}

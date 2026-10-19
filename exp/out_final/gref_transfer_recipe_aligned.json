@@ -1,0 +1,489 @@
+{
+  "experiment": "exp138_learned_union_selector",
+  "protocol": "part pool identical to the shipped rule plus the uncapped SAM masks; GBM fitted on 70% of the held-out TRAIN refs, threshold chosen on the remaining 30%, applied once to val",
+  "train_parts": 10184,
+  "held_out_rows": 423,
+  "tau_curve": [
+    {
+      "parameter": 0.05,
+      "cIoU": 53.913,
+      "gIoU": 59.5627,
+      "N_acc": 0.0,
+      "T_acc": 91.6667
+    },
+    {
+      "parameter": 0.05,
+      "sam_topk": 1,
+      "cIoU": 53.913,
+      "gIoU": 59.5627,
+      "N_acc": 0.0,
+      "T_acc": 91.6667
+    },
+    {
+      "parameter": 0.05,
+      "sam_topk": 2,
+      "cIoU": 53.913,
+      "gIoU": 59.5627,
+      "N_acc": 0.0,
+      "T_acc": 91.6667
+    },
+    {
+      "parameter": 0.1,
+      "cIoU": 53.9137,
+      "gIoU": 59.5631,
+      "N_acc": 0.0,
+      "T_acc": 91.6667
+    },
+    {
+      "parameter": 0.1,
+      "sam_topk": 1,
+      "cIoU": 53.9137,
+      "gIoU": 59.5631,
+      "N_acc": 0.0,
+      "T_acc": 91.6667
+    },
+    {
+      "parameter": 0.1,
+      "sam_topk": 2,
+      "cIoU": 53.9137,
+      "gIoU": 59.5631,
+      "N_acc": 0.0,
+      "T_acc": 91.6667
+    },
+    {
+      "parameter": 0.15,
+      "cIoU": 53.9136,
+      "gIoU": 59.563,
+      "N_acc": 0.0,
+      "T_acc": 91.6667
+    },
+    {
+      "parameter": 0.15,
+      "sam_topk": 1,
+      "cIoU": 53.9136,
+      "gIoU": 59.563,
+      "N_acc": 0.0,
+      "T_acc": 91.6667
+    },
+    {
+      "parameter": 0.15,
+      "sam_topk": 2,
+      "cIoU": 53.9136,
+      "gIoU": 59.563,
+      "N_acc": 0.0,
+      "T_acc": 91.6667
+    },
+    {
+      "parameter": 0.2,
+      "cIoU": 53.9243,
+      "gIoU": 59.5677,
+      "N_acc": 0.0,
+      "T_acc": 91.6667
+    },
+    {
+      "parameter": 0.2,
+      "sam_topk": 1,
+      "cIoU": 53.9243,
+      "gIoU": 59.5677,
+      "N_acc": 0.0,
+      "T_acc": 91.6667
+    },
+    {
+      "parameter": 0.2,
+      "sam_topk": 2,
+      "cIoU": 53.9243,
+      "gIoU": 59.5677,
+      "N_acc": 0.0,
+      "T_acc": 91.6667
+    },
+    {
+      "parameter": 0.25,
+      "cIoU": 53.7872,
+      "gIoU": 59.3781,
+      "N_acc": 0.0,
+      "T_acc": 91.6667
+    },
+    {
+      "parameter": 0.25,
+      "sam_topk": 1,
+      "cIoU": 53.7872,
+      "gIoU": 59.3781,
+      "N_acc": 0.0,
+      "T_acc": 91.6667
+    },
+    {
+      "parameter": 0.25,
+      "sam_topk": 2,
+      "cIoU": 53.7872,
+      "gIoU": 59.3781,
+      "N_acc": 0.0,
+      "T_acc": 91.6667
+    },
+    {
+      "parameter": 0.3,
+      "cIoU": 54.4083,
+      "gIoU": 60.6401,
+      "N_acc": 0.0,
+      "T_acc": 91.6667
+    },
+    {
+      "parameter": 0.3,
+      "sam_topk": 1,
+      "cIoU": 54.4083,
+      "gIoU": 60.6401,
+      "N_acc": 0.0,
+      "T_acc": 91.6667
+    },
+    {
+      "parameter": 0.3,
+      "sam_topk": 2,
+      "cIoU": 54.4083,
+      "gIoU": 60.6401,
+      "N_acc": 0.0,
+      "T_acc": 91.6667
+    },
+    {
+      "parameter": 0.35,
+      "cIoU": 57.6547,
+      "gIoU": 61.0144,
+      "N_acc": 0.0,
+      "T_acc": 91.6667
+    },
+    {
+      "parameter": 0.35,
+      "sam_topk": 1,
+      "cIoU": 57.6547,
+      "gIoU": 61.0144,
+      "N_acc": 0.0,
+      "T_acc": 91.6667
+    },
+    {
+      "parameter": 0.35,
+      "sam_topk": 2,
+      "cIoU": 57.6547,
+      "gIoU": 61.0144,
+      "N_acc": 0.0,
+      "T_acc": 91.6667
+    },
+    {
+      "parameter": 0.4,
+      "cIoU": 50.3515,
+      "gIoU": 53.1673,
+      "N_acc": 0.0,
+      "T_acc": 91.6667
+    },
+    {
+      "parameter": 0.4,
+      "sam_topk": 1,
+      "cIoU": 52.6568,
+      "gIoU": 55.2836,
+      "N_acc": 0.0,
+      "T_acc": 91.6667
+    },
+    {
+      "parameter": 0.4,
+      "sam_topk": 2,
+      "cIoU": 58.3232,
+      "gIoU": 59.9782,
+      "N_acc": 0.0,
+      "T_acc": 91.6667
+    },
+    {
+      "parameter": 0.45,
+      "cIoU": 46.5115,
+      "gIoU": 48.6276,
+      "N_acc": 0.0,
+      "T_acc": 91.6667
+    },
+    {
+      "parameter": 0.45,
+      "sam_topk": 1,
+      "cIoU": 50.2412,
+      "gIoU": 52.7388,
+      "N_acc": 0.0,
+      "T_acc": 91.6667
+    },
+    {
+      "parameter": 0.45,
+      "sam_topk": 2,
+      "cIoU": 58.2468,
+      "gIoU": 59.1621,
+      "N_acc": 0.0,
+      "T_acc": 91.6667
+    },
+    {
+      "parameter": 0.5,
+      "cIoU": 44.9632,
+      "gIoU": 46.2332,
+      "N_acc": 0.0,
+      "T_acc": 91.6667
+    },
+    {
+      "parameter": 0.5,
+      "sam_topk": 1,
+      "cIoU": 47.0678,
+      "gIoU": 48.2543,
+      "N_acc": 0.0,
+      "T_acc": 91.6667
+    },
+    {
+      "parameter": 0.5,
+      "sam_topk": 2,
+      "cIoU": 56.2656,
+      "gIoU": 56.4882,
+      "N_acc": 0.0,
+      "T_acc": 91.6667
+    },
+    {
+      "parameter": 0.55,
+      "cIoU": 43.486,
+      "gIoU": 44.1397,
+      "N_acc": 0.0,
+      "T_acc": 91.6667
+    },
+    {
+      "parameter": 0.55,
+      "sam_topk": 1,
+      "cIoU": 43.2689,
+      "gIoU": 43.9234,
+      "N_acc": 0.0,
+      "T_acc": 91.6667
+    },
+    {
+      "parameter": 0.55,
+      "sam_topk": 2,
+      "cIoU": 54.9183,
+      "gIoU": 55.2724,
+      "N_acc": 0.0,
+      "T_acc": 91.6667
+    },
+    {
+      "parameter": 0.6,
+      "cIoU": 41.5224,
+      "gIoU": 43.1468,
+      "N_acc": 0.0,
+      "T_acc": 91.6667
+    },
+    {
+      "parameter": 0.6,
+      "sam_topk": 1,
+      "cIoU": 43.1101,
+      "gIoU": 43.775,
+      "N_acc": 0.0,
+      "T_acc": 91.6667
+    },
+    {
+      "parameter": 0.6,
+      "sam_topk": 2,
+      "cIoU": 54.6429,
+      "gIoU": 55.304,
+      "N_acc": 0.0,
+      "T_acc": 91.6667
+    },
+    {
+      "parameter": 0.65,
+      "cIoU": 42.494,
+      "gIoU": 43.8359,
+      "N_acc": 0.0,
+      "T_acc": 91.6667
+    },
+    {
+      "parameter": 0.65,
+      "sam_topk": 1,
+      "cIoU": 42.9435,
+      "gIoU": 43.6099,
+      "N_acc": 0.0,
+      "T_acc": 91.6667
+    },
+    {
+      "parameter": 0.65,
+      "sam_topk": 2,
+      "cIoU": 54.4843,
+      "gIoU": 55.1404,
+      "N_acc": 0.0,
+      "T_acc": 91.6667
+    },
+    {
+      "parameter": 0.7,
+      "cIoU": 42.494,
+      "gIoU": 43.8359,
+      "N_acc": 0.0,
+      "T_acc": 91.6667
+    },
+    {
+      "parameter": 0.7,
+      "sam_topk": 1,
+      "cIoU": 42.9435,
+      "gIoU": 43.6099,
+      "N_acc": 0.0,
+      "T_acc": 91.6667
+    },
+    {
+      "parameter": 0.7,
+      "sam_topk": 2,
+      "cIoU": 54.4843,
+      "gIoU": 55.1404,
+      "N_acc": 0.0,
+      "T_acc": 91.6667
+    },
+    {
+      "parameter": 0.75,
+      "cIoU": 42.1512,
+      "gIoU": 43.2938,
+      "N_acc": 0.0,
+      "T_acc": 91.6667
+    },
+    {
+      "parameter": 0.75,
+      "sam_topk": 1,
+      "cIoU": 42.593,
+      "gIoU": 43.0677,
+      "N_acc": 0.0,
+      "T_acc": 91.6667
+    },
+    {
+      "parameter": 0.75,
+      "sam_topk": 2,
+      "cIoU": 54.484,
+      "gIoU": 55.1395,
+      "N_acc": 0.0,
+      "T_acc": 91.6667
+    },
+    {
+      "parameter": 0.8,
+      "cIoU": 42.4048,
+      "gIoU": 43.7408,
+      "N_acc": 0.0,
+      "T_acc": 91.6667
+    },
+    {
+      "parameter": 0.8,
+      "sam_topk": 1,
+      "cIoU": 42.593,
+      "gIoU": 43.0677,
+      "N_acc": 0.0,
+      "T_acc": 91.6667
+    },
+    {
+      "parameter": 0.8,
+      "sam_topk": 2,
+      "cIoU": 54.484,
+      "gIoU": 55.1395,
+      "N_acc": 0.0,
+      "T_acc": 91.6667
+    },
+    {
+      "parameter": 0.85,
+      "cIoU": 42.4048,
+      "gIoU": 43.7408,
+      "N_acc": 0.0,
+      "T_acc": 91.6667
+    },
+    {
+      "parameter": 0.85,
+      "sam_topk": 1,
+      "cIoU": 42.593,
+      "gIoU": 43.0677,
+      "N_acc": 0.0,
+      "T_acc": 91.6667
+    },
+    {
+      "parameter": 0.85,
+      "sam_topk": 2,
+      "cIoU": 54.484,
+      "gIoU": 55.1395,
+      "N_acc": 0.0,
+      "T_acc": 91.6667
+    },
+    {
+      "parameter": 0.9,
+      "cIoU": 42.4048,
+      "gIoU": 43.7408,
+      "N_acc": 0.0,
+      "T_acc": 91.6667
+    },
+    {
+      "parameter": 0.9,
+      "sam_topk": 1,
+      "cIoU": 42.593,
+      "gIoU": 43.0677,
+      "N_acc": 0.0,
+      "T_acc": 91.6667
+    },
+    {
+      "parameter": 0.9,
+      "sam_topk": 2,
+      "cIoU": 54.484,
+      "gIoU": 55.1395,
+      "N_acc": 0.0,
+      "T_acc": 91.6667
+    }
+  ],
+  "tau_selected": 0.4,
+  "policy": "abs",
+  "best_policy": {
+    "policy": "abs+sam_topk",
+    "k": 2
+  },
+  "sample_weight_composition": true,
+  "weight_strata": "all",
+  "tau_stratum": "two",
+  "standardized": false,
+  "rank_features": true,
+  "augment": null,
+  "anchors_held_out": {
+    "shipped_inclusion": {
+      "cIoU": 45.2724,
+      "gIoU": 68.7249,
+      "N_acc": 93.75,
+      "T_acc": 90.2834
+    },
+    "keep_all": {
+      "cIoU": 45.262,
+      "gIoU": 68.7201,
+      "N_acc": 93.75,
+      "T_acc": 90.2834
+    }
+  },
+  "held_out_at_tau": {
+    "cIoU": 58.3232,
+    "gIoU": 59.9782,
+    "N_acc": 0.0,
+    "T_acc": 91.6667
+  },
+  "feature_names": [
+    "is_pool",
+    "is_sam",
+    "area_frac",
+    "inbox_llava",
+    "inbox_det0",
+    "base_score",
+    "gem_score",
+    "pick_rank",
+    "det_index",
+    "sam_index",
+    "term_index",
+    "const"
+  ],
+  "model": "HistGradientBoostingRegressor(max_depth=3, max_iter=250, lr=0.08)",
+  "val_metrics": {
+    "n": 14229,
+    "cIoU": 49.4039,
+    "gIoU": 74.2644,
+    "N_acc": 86.1426,
+    "T_acc": 87.8475,
+    "TP": 7671,
+    "FN": 1234,
+    "TN": 4677,
+    "FP": 647,
+    "parts_kept": 37197,
+    "parts_total": 92438
+  },
+  "val_masses": {
+    "S_U": 91948734.0,
+    "I_tot": 59045595.0,
+    "G_U": 76667626.3515572,
+    "FP_U": 9169814.0,
+    "A_U": 10016077.791809946
+  }
+}

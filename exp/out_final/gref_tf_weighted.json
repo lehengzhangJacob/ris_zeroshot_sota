@@ -1,0 +1,17 @@
+{
+  "n": 14229,
+  "cIoU": 50.14354090710239,
+  "gIoU": 74.66447523964163,
+  "N_acc": 85.70466030320046,
+  "T_acc": 88.56123215627348,
+  "TP": 7632,
+  "FN": 1273,
+  "TN": 4715,
+  "FP": 609,
+  "term_lookups": 13125,
+  "fallback_used": 1034,
+  "shard": 0,
+  "nshards": 1,
+  "alignment": "per-record sentence (r['rec']), not ref_id-keyed",
+  "generated": "exp172_gref_aligned.py"
+}

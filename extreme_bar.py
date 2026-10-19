@@ -579,6 +579,242 @@ def backbone_audit():
     return True
 
 
+def detector_free_grefcoco():
+    """GroundingDINO removal from the gRefCOCO path (operator directive 2026-10-18)."""
+    rel = "exp/out_final/gref_nodetector.json"
+    if not newer(rel):
+        return False
+    try:
+        data = json.loads((ROOT / rel).read_text())
+    except Exception as exc:
+        return fail(f"bad json {rel}: {exc}")
+    if not isinstance(data, dict):
+        return fail("gref_nodetector.json must be an object")
+    arms = data.get("arms")
+    if not isinstance(arms, list) or len(arms) < 2:
+        return fail("gref_nodetector.json needs arms[] of length >= 2")
+    any_sota = False
+    for i, a in enumerate(arms):
+        if not isinstance(a, dict):
+            return fail(f"gref_nodetector arm {i} is not an object")
+        for field in ("name", "boxes_source"):
+            v = a.get(field)
+            if not isinstance(v, str) or not v.strip():
+                return fail(f"gref_nodetector arm {i} needs a non-empty {field}")
+        if not isinstance(a.get("still_sota"), bool):
+            return fail(f"gref_nodetector arm {i} needs still_sota bool")
+        val = a.get("val")
+        if not isinstance(val, dict) or not isinstance(val.get("cIoU"), (int, float)):
+            return fail(f"gref_nodetector arm {i} needs val.cIoU numeric")
+        ev = a.get("evidence")
+        if not isinstance(ev, str) or not newer(ev):
+            return fail(f"gref_nodetector arm {i} needs fresh evidence")
+        if a["still_sota"]:
+            any_sota = True
+    if not any_sota:
+        search = data.get("search")
+        if not isinstance(search, dict):
+            return fail("no DINO-free arm is SOTA: need a search{} block")
+        trials = search.get("n_trials")
+        if not isinstance(trials, int) or trials < 300:
+            return fail("no DINO-free arm is SOTA: search.n_trials must be >= 300")
+        if not search.get("best_params"):
+            return fail("no DINO-free arm is SOTA: search.best_params required")
+    verdict = data.get("verdict")
+    if not isinstance(verdict, str) or not verdict.strip():
+        return fail("gref_nodetector.json needs a non-empty verdict string")
+    pdf_path = ROOT / "paper" / "main.pdf"
+    if not pdf_path.is_file() or pdf_path.stat().st_mtime < (ROOT / rel).stat().st_mtime:
+        return fail("paper/main.pdf must be rebuilt after exp/out_final/gref_nodetector.json")
+    return True
+
+
+def glm_aligned():
+    """Box VLM aligned with GLOD-RIS's MLLM (operator directive 2026-10-18)."""
+    rel = "exp/out_final/glm_aligned.json"
+    if not newer(rel):
+        return False
+    try:
+        data = json.loads((ROOT / rel).read_text())
+    except Exception as exc:
+        return fail(f"bad json {rel}: {exc}")
+    if not isinstance(data, dict):
+        return fail("glm_aligned.json must be an object")
+    model = data.get("model")
+    if not isinstance(model, str) or "glm" not in model.lower():
+        return fail("glm_aligned.json model must name the GLM model")
+    ds = data.get("datasets")
+    if not isinstance(ds, dict):
+        return fail("glm_aligned.json needs datasets{}")
+    floors = {"refcoco": 10000, "refcocoplus": 10000, "refcocog": 4500}
+    for name, n_min in floors.items():
+        entry = ds.get(name)
+        if not isinstance(entry, dict):
+            return fail(f"glm_aligned datasets.{name} missing")
+        n = entry.get("n")
+        if not isinstance(n, int) or n < n_min:
+            return fail(f"glm_aligned datasets.{name}.n must be >= {n_min}")
+        for key in ("mIoU", "oIoU", "llava_mIoU"):
+            if not isinstance(entry.get(key), (int, float)):
+                return fail(f"glm_aligned datasets.{name}.{key} must be numeric")
+    verdict = data.get("verdict")
+    if not isinstance(verdict, str) or not verdict.strip():
+        return fail("glm_aligned.json needs a non-empty verdict string")
+    pdf_path = ROOT / "paper" / "main.pdf"
+    if not pdf_path.is_file() or pdf_path.stat().st_mtime < (ROOT / rel).stat().st_mtime:
+        return fail("paper/main.pdf must be rebuilt after exp/out_final/glm_aligned.json")
+    return True
+
+
+def literature_coverage():
+    """Bibliography expansion with verified identifiers (operator directive 2026-10-18)."""
+    rel = "exp/out_final/literature_coverage.json"
+    if not newer(rel):
+        return False
+    try:
+        data = json.loads((ROOT / rel).read_text())
+    except Exception as exc:
+        return fail(f"bad json {rel}: {exc}")
+    if not isinstance(data, dict):
+        return fail("literature_coverage.json must be an object")
+    refs = data.get("references")
+    if not isinstance(refs, list) or len(refs) < 15:
+        return fail("literature_coverage.json needs references[] of length >= 15")
+    bib_text = (ROOT / "paper" / "references.bib").read_text(errors="replace")
+    import re as _re
+    id_pat = _re.compile(r"(arxiv\s*[:/]\s*\d{4}\.\d{4,5}|10\.\d{4,9}/\S+)", _re.I)
+    for i, r in enumerate(refs):
+        if not isinstance(r, dict):
+            return fail(f"literature reference {i} is not an object")
+        for field in ("key", "title", "identifier"):
+            v = r.get(field)
+            if not isinstance(v, str) or not v.strip():
+                return fail(f"literature reference {i} needs a non-empty {field}")
+        if not id_pat.search(r["identifier"]):
+            return fail(f"literature reference {i} identifier must be an arXiv id or DOI")
+        if ("{" + r["key"] + ",") not in bib_text:
+            return fail(f"literature reference {i} key {r['key']} missing from references.bib")
+    bib_count = len(_re.findall(r"^@", bib_text, _re.M))
+    if bib_count < 30:
+        return fail(f"references.bib has {bib_count} entries; need >= 30")
+    verdict = data.get("verdict")
+    if not isinstance(verdict, str) or not verdict.strip():
+        return fail("literature_coverage.json needs a non-empty verdict string")
+    pdf_path = ROOT / "paper" / "main.pdf"
+    if not pdf_path.is_file() or pdf_path.stat().st_mtime < (ROOT / rel).stat().st_mtime:
+        return fail("paper/main.pdf must be rebuilt after exp/out_final/literature_coverage.json")
+    return True
+
+
+def literature_deep_read():
+    """Deep-reading dossier: >= 20 full-text papers, >= 15 RIS (operator directive 2026-10-18)."""
+    rel = "exp/out_final/deep_read.json"
+    if not newer(rel):
+        return False
+    try:
+        data = json.loads((ROOT / rel).read_text())
+    except Exception as exc:
+        return fail(f"bad json {rel}: {exc}")
+    if not isinstance(data, dict):
+        return fail("deep_read.json must be an object")
+    papers = data.get("papers")
+    if not isinstance(papers, list) or len(papers) < 20:
+        return fail("deep_read.json needs papers[] of length >= 20")
+    bib_text = (ROOT / "paper" / "references.bib").read_text(errors="replace")
+    import re as _re
+    id_pat = _re.compile(r"(arxiv\s*[:/]\s*\d{4}\.\d{4,5}|10\.\d{4,9}/\S+)", _re.I)
+    ris = 0
+    inspected = 0
+    ok_runs = 0
+    for i, p in enumerate(papers):
+        if not isinstance(p, dict):
+            return fail(f"deep_read paper {i} is not an object")
+        for field in ("key", "title", "identifier", "category", "method",
+                      "claims", "relation", "threat", "key_quote"):
+            v = p.get(field)
+            if not isinstance(v, str) or not v.strip():
+                return fail(f"deep_read paper {i} needs a non-empty {field}")
+        if p.get("depth") != "full-text":
+            return fail(f"deep_read paper {i} depth must be 'full-text'")
+        if p["category"] not in ("ris", "adjacent"):
+            return fail(f"deep_read paper {i} category must be ris or adjacent")
+        if p["category"] == "ris":
+            ris += 1
+        if not id_pat.search(p["identifier"]):
+            return fail(f"deep_read paper {i} identifier must be an arXiv id or DOI")
+        if ("{" + p["key"] + ",") not in bib_text:
+            return fail(f"deep_read paper {i} key {p['key']} missing from references.bib")
+        nums = p.get("reported_numbers")
+        if not isinstance(nums, dict) or sum(isinstance(v, (int, float)) for v in nums.values()) < 2:
+            return fail(f"deep_read paper {i} needs reported_numbers{{}} with >= 2 numeric entries")
+        anchors = p.get("anchors")
+        if not isinstance(anchors, list) or sum(1 for a in anchors if isinstance(a, str) and a.strip()) < 2:
+            return fail(f"deep_read paper {i} needs anchors[] with >= 2 non-empty strings")
+        sf = p.get("source_file")
+        if not isinstance(sf, str) or not sf.strip():
+            return fail(f"deep_read paper {i} needs a non-empty source_file")
+        sf_path = (ROOT / sf) if not sf.startswith("/") else Path(sf)
+        if not sf_path.is_file():
+            return fail(f"deep_read paper {i} source_file does not exist: {sf}")
+        code = p.get("code")
+        if not isinstance(code, dict):
+            return fail(f"deep_read paper {i} needs code{{}}")
+        for field in ("available", "inspected"):
+            if not isinstance(code.get(field), bool):
+                return fail(f"deep_read paper {i} code.{field} must be bool")
+        for field in ("repo", "findings"):
+            if not isinstance(code.get(field), str):
+                return fail(f"deep_read paper {i} code.{field} must be a string")
+        if code["inspected"]:
+            if not code["repo"].strip() or not code["findings"].strip():
+                return fail(f"deep_read paper {i} inspected code needs repo and findings")
+            inspected += 1
+        ran = code.get("ran", False)
+        if not isinstance(ran, bool):
+            return fail(f"deep_read paper {i} code.ran must be bool")
+        if ran:
+            run = code.get("run")
+            if not isinstance(run, dict):
+                return fail(f"deep_read paper {i} code.ran needs run{{}}")
+            entry = run.get("entry")
+            if not isinstance(entry, str) or not entry.strip():
+                return fail(f"deep_read paper {i} run.entry must be a non-empty string")
+            n = run.get("sample_n")
+            if not isinstance(n, int) or n < 1:
+                return fail(f"deep_read paper {i} run.sample_n must be an int >= 1")
+            status = run.get("status")
+            if status not in ("ok", "failed", "partial"):
+                return fail(f"deep_read paper {i} run.status must be ok/failed/partial")
+            notes = run.get("notes")
+            if not isinstance(notes, str) or not notes.strip():
+                return fail(f"deep_read paper {i} run.notes must be non-empty")
+            if status == "ok":
+                metrics = run.get("metrics")
+                if not isinstance(metrics, dict) or not any(isinstance(v, (int, float)) for v in metrics.values()):
+                    return fail(f"deep_read paper {i} successful run needs numeric metrics")
+                ok_runs += 1
+    if ris < 15:
+        return fail(f"deep_read.json has only {ris} RIS papers; need >= 15")
+    if inspected < 8:
+        return fail(f"deep_read.json has only {inspected} source-code inspections; need >= 8")
+    if ok_runs < 5:
+        return fail(f"deep_read.json has only {ok_runs} successful repo runs; need >= 5")
+    mc = data.get("grefcoco_metric_check")
+    if not isinstance(mc, dict):
+        return fail("deep_read.json needs grefcoco_metric_check{}")
+    for field in ("method", "repo", "finding"):
+        v = mc.get(field)
+        if not isinstance(v, str) or not v.strip():
+            return fail(f"grefcoco_metric_check needs a non-empty {field}")
+    verdict = data.get("verdict")
+    if not isinstance(verdict, str) or not verdict.strip():
+        return fail("deep_read.json needs a non-empty verdict string")
+    pdf_path = ROOT / "paper" / "main.pdf"
+    if not pdf_path.is_file() or pdf_path.stat().st_mtime < (ROOT / rel).stat().st_mtime:
+        return fail("paper/main.pdf must be rebuilt after exp/out_final/deep_read.json")
+    return True
+
+
 def as_percent(value):
     value = float(value)
     if value <= 1.5:
@@ -659,7 +895,7 @@ def main():
     if not STAMP.is_file():
         print("FAIL: extreme_started.txt missing")
         return 1
-    checks = [tex_has_appendix, architecture, sota, ablation, mains, graveyard, protocol_audit, metrics_sota, analysis_pack, glm_swap, glodris_repro, rule_swap, wild_ideas, learned_prior, test_columns, transfer_wall, component_provenance, backbone_audit, sota_line, pdf]
+    checks = [tex_has_appendix, architecture, sota, ablation, mains, graveyard, protocol_audit, metrics_sota, analysis_pack, glm_swap, glodris_repro, rule_swap, wild_ideas, learned_prior, test_columns, transfer_wall, component_provenance, backbone_audit, detector_free_grefcoco, glm_aligned, literature_coverage, literature_deep_read, sota_line, pdf]
     passed = all(check() for check in checks)
     print("PASS" if passed else "NOT_READY")
     return 0 if passed else 1

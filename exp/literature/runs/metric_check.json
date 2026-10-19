@@ -1,0 +1,25 @@
+{
+  "cases": [
+    "targeted_exact",
+    "targeted_wrong",
+    "targeted_abstain_FP",
+    "notarget_TP",
+    "notarget_FN"
+  ],
+  "official": {
+    "gIoU": 40.0,
+    "cIoU": 16.6667,
+    "T_acc": 0.6667,
+    "N_acc": 0.5,
+    "Pr@0.7": 33.3333,
+    "Pr@0.8": 33.3333,
+    "Pr@0.9": 33.3333
+  },
+  "our_convention_on_same_cases": {
+    "cIoU": 20.0,
+    "gIoU": 40.0,
+    "N_acc": 50.0,
+    "T_acc": 66.6667
+  },
+  "note": "official targeted-FP case adds the discarded mask's union to the cIoU denominator (I=0); an empty-prediction abstention (our convention) adds only the GT area. gIoU agrees; N_acc/T_acc agree up to the official code's fraction (not percent) scale."
+}

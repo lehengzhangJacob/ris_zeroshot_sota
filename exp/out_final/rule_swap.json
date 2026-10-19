@@ -114,7 +114,7 @@
       }
     }
   },
-  "causal_reading": "identical rule and identical guidance, only the pool/components differ: if the rule underperforms on our pool while our box rule (same records, same pool, same released features) is far ahead, the separation is attributable to the selection rule plus guidance usage, not to the candidate pool or the frozen components.",
+  "causal_reading": "identical rule and identical guidance, only the pool/components differ: if the rule underperforms on our pool while our box rule (same records, same pool, same released features) is far ahead, the separation is attributable to the selection rule plus guidance usage, not to the candidate pool or the frozen components. Scoping (2026-10-17): this is a controlled measurement of our reading of the published equations on our signals; it is not a judgment of the original system, which we cannot run (no released code) and do not evaluate.",
   "rule_detail": {
     "description": "joint = max(DOD,0) * localization * max(category,0), argmax over the semantic top-10. DOD = cos(decoupled fused region feature, expression text) with Eqs. (1)-(7) decoupling (orthogonal residual on the background, area-ratio weight clamped to [mu,tau], raw fusion basis); localization = mean over the mask of the 3x3 cell-centred Gaussian map of the MLLM grid (scale 0.7, normalised to its max); category = cos(fused feature, MLLM category text). All-zero grid -> uniform map; parked guidance -> DOD-only path (no localization/category term).",
     "implementation": "glod/core.py (decouple, gaussian_map, select_mask) imported verbatim from the reproduction, so the rule is held fixed and only the pool/components differ",

@@ -125,22 +125,127 @@
       "name": "gRefCOCO without the GroundingDINO detector (fewer components than the rival)",
       "component": "detector",
       "weaker_variant": "detector-free realization: the training-free termbox rule with LLaVA nounboxes only. Structural note: the shipped declared-trained recipe's candidate substrate on this path is built from detector boxes and detector-box-prompted SAM masks, so removing the detector necessarily removes the trained recipe with it; no intermediate (nounbox-prompted SAM masks + transferred head) was measured, and the boundary below is therefore scoped to the detector-free realization, not to the detector in isolation",
-      "evidence": "exp/out_final/gref_no_detector_val.json",
+      "evidence": "exp/out_final/gref_search_val_part0.json",
       "val": {
-        "grefcoco": 38.7058
+        "grefcoco": 38.5639
       },
-      "val_gIoU": 69.6861,
-      "val_N_acc": 86.17,
+      "val_gIoU": 69.6542,
+      "rescue_arms": {
+        "base_noun": {
+          "cIoU": 38.5639,
+          "gIoU": 69.6542,
+          "N_acc": 86.1426
+        },
+        "full_clause": {
+          "cIoU": 37.9538,
+          "gIoU": 69.7757,
+          "N_acc": 86.1426
+        },
+        "full_clause_presence": {
+          "cIoU": 37.8496,
+          "gIoU": 69.752,
+          "N_acc": 86.1426
+        },
+        "sentence_box": {
+          "cIoU": 36.6985,
+          "gIoU": 69.2792,
+          "N_acc": 86.1426
+        },
+        "pair_union": {
+          "cIoU": 36.7337,
+          "gIoU": 69.6184,
+          "N_acc": 86.1426
+        },
+        "searched_held_out": {
+          "cIoU": 40.555,
+          "gIoU": 70.5569,
+          "N_acc": 85.5699
+        }
+      },
+      "val_N_acc": 86.1426,
       "val_T_acc": 87.85,
       "floor": {
         "grefcoco_cIoU": 44.4,
         "grefcoco_gIoU": 43.3,
-        "own_record_cIoU": 52.7061
+        "corrected_training_free_reference_cIoU": 49.6312
       },
       "still_sota": false,
-      "note": "cIoU drops below the same-class floor for the detector-free realization (38.71 vs 44.4): the detector-bearing path (with its trained recipe) is load-bearing on gRefCOCO, and the drop is kept as the measured boundary"
+      "note": "corrected per-record-alignment detector-free realization: base noun 38.56, per-clause 37.95, presence-filtered 37.85, sentence box 36.70, pair/union 36.73, and the 320-trial held-out searched clause config 40.56 cIoU / 70.56 gIoU; none clears the 44.4 same-class floor. The earlier 38.43/38.08/38.24/36.74 numbers used a ref_id-keyed term map and are superseded.",
+      "learned_head_nodetector": {
+        "status": "not re-measured after the alignment correction; the earlier 28.29 is withdrawn",
+        "note": "the declared-trained no-detector head is not needed for the boundary conclusion (the best corrected arm is 40.56, below the 44.4 floor)"
+      }
     }
   ],
+  "grefcoco_no_detector_rescue": {
+    "note": "all no-detector arms on the full official val split under the shared abstention; learned_head_noun is the declared-trained arm fitted on the gRefCOCO train tune rows, not zero-shot",
+    "arms": {
+      "base_noun": {
+        "cIoU": 38.5639,
+        "gIoU": 69.6542,
+        "N_acc": 86.1426
+      },
+      "full_clause": {
+        "cIoU": 37.9538,
+        "gIoU": 69.7757,
+        "N_acc": 86.1426
+      },
+      "full_clause_presence": {
+        "cIoU": 37.8496,
+        "gIoU": 69.752,
+        "N_acc": 86.1426
+      },
+      "sentence_box": {
+        "cIoU": 36.6985,
+        "gIoU": 69.2792,
+        "N_acc": 86.1426
+      },
+      "pair_union": {
+        "cIoU": 36.7337,
+        "gIoU": 69.6184,
+        "N_acc": 86.1426
+      },
+      "searched": {
+        "cIoU": 40.555,
+        "gIoU": 70.5569,
+        "N_acc": 85.5699
+      }
+    },
+    "best": {
+      "name": "searched",
+      "cIoU": 40.555,
+      "gIoU": 70.5569,
+      "N_acc": 85.5699
+    },
+    "floor_cleared": false,
+    "alignment": "per-record sentence (corrected)"
+  },
+  "minimal_configuration": {
+    "name": "minimal configuration: one segmenter + one frozen VLM",
+    "definition": "box-fill over the full pool (no candidate restriction, no released scoring platform, no detector, no trained component)",
+    "val": {
+      "refcoco": 69.9854,
+      "refcocoplus": 65.2246,
+      "refcocog": 64.8311
+    },
+    "val_geometric_guards": {
+      "refcoco": 69.7007,
+      "refcocoplus": 64.9547,
+      "refcocog": 64.8292
+    },
+    "floors": {
+      "refcoco": 58.42,
+      "refcocoplus": 54.01,
+      "refcocog": 57.85
+    },
+    "above_all_published_same_class": true,
+    "evidence": "exp/out_final/head_rebuild.json",
+    "ablation_rows": [
+      "minimal config: box-fill over the full pool (SAM + VLM only)",
+      "minimal config: geometric guards (SAM + VLM only)"
+    ],
+    "note": "positioning claim backed by the existing attribution arms; the shipped configuration is unchanged"
+  },
   "shipped_reference": {
     "refcoco": {
       "refcoco": 70.5673,
@@ -153,6 +258,6 @@
       "note": "declared-trained transfer recipe"
     }
   },
-  "verdict": "Scoped, component by component (full official val, aligned protocol; the reference and head were refit on train-carved rows wherever the platform or pool changed): (a) the box prior can be SMALLER AND BETTER -- Qwen2.5-VL-3B (3.8B, strictly smaller than both the 7B incumbent and the rival's cloud MLLM) holds SOTA on all three datasets and improves on the shipped boxes (73.57/67.64/66.43 vs 70.57/66.35/65.51 mIoU), so grounding quality here is family-limited, not size-limited; (c) the region-text platform can be weakened for free -- plain masked-region CLIP without the released G2L fusion or complement blur keeps full-table SOTA at -0.2..-0.4 mIoU (70.22/65.98/65.32). Two boundaries are measured and kept: (b) SAM ViT-B's pool oracle falls from 79.1 to 71.4 mIoU on RefCOCOg and the refit head lands 57.57, 0.28 BELOW the published GLOD-RIS floor -- the ViT-H pool is load-bearing there; and (d) the detector-free gRefCOCO rule scores 38.71 cIoU, below the same-class 44.4 floor -- the extra detector is load-bearing there. 2/4 swap arms still clear their floors. The detector-free boundary is scoped to the detector-free REALIZATION (training-free termbox rule): the shipped trained recipe's substrate is detector-derived, so the two cannot be separated in this arm.",
+  "verdict": "Scoped, component by component (full official val, aligned protocol; the reference and head were refit on train-carved rows wherever the platform or pool changed): (a) the box prior can be SMALLER AND BETTER -- Qwen2.5-VL-3B (3.8B, strictly smaller than both the 7B incumbent and the rival's cloud MLLM) holds SOTA on all three datasets and improves on the shipped boxes (73.57/67.64/66.43 vs 70.57/66.35/65.51 mIoU), so grounding quality here is family-limited, not size-limited; (c) the region-text platform can be weakened for free -- plain masked-region CLIP without the released G2L fusion or complement blur keeps full-table SOTA at -0.2..-0.4 mIoU (70.22/65.98/65.32). Two boundaries are measured and kept: (b) SAM ViT-B's pool oracle falls from 79.1 to 71.4 mIoU on RefCOCOg and the refit head lands 57.57, 0.28 BELOW the published GLOD-RIS floor -- the ViT-H pool is load-bearing there; and (d) the detector-free gRefCOCO rule scores 38.71 cIoU, below the same-class 44.4 floor -- the extra detector is load-bearing there. 2/4 swap arms still clear their floors. The detector-free boundary is scoped to the detector-free REALIZATION (training-free termbox rule): the shipped trained recipe's substrate is detector-derived, so the two cannot be separated in this arm. The gRefCOCO term-alignment correction supersedes the earlier no-detector numbers; the corrected best DINO-free arm is 40.56 cIoU, still below the same-class floor.",
   "generated": "exp167_write_backbone_audit.py"
 }

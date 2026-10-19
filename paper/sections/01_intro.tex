@@ -7,20 +7,22 @@ returns the best-scoring mask. The field has spent its effort on the scorer,
 and the practice of reporting only end metrics has hidden which component
 actually fails. We measure it.
 
-Before our own numbers, a reproducibility result frames them. The strongest
-published training-free method of this class, GLOD-RIS, is unreleased; we
-reimplemented it end to end and ran its full official validation splits
-(Section~\ref{sec:repro}). The reproduction \emph{completes} but lands
-$20$--$26$\,mIoU below the published rows ($32.68$/$30.96$/$37.24$ against
-$58.42$/$54.01$/$57.85$ mIoU), and the gap is measured, not asserted: the
-candidate pool is not the limit (oracle mIoU $82.2$), the guidance
-integration degrades selection in our hands, and the released ancestor scores
-$44.82$ on the same records. Running GLOD-RIS's own selection rule on our
-exact pools, features, and its own cached MLLM guidance makes the causal
-reading direct: their rule scores $32.95$/$30.67$/$35.03$\,mIoU against
-$44.82$/$40.23$/$50.08$ for the unguided released scorer on the \emph{same}
-records (Section~\ref{sec:ruleswap}). We therefore quote the published rows
-as published throughout, and every comparison against them is cross-harness.
+Before our own numbers, a comparison-protocol note frames them. The strongest
+published training-free method of this class, GLOD-RIS, releases no code; our
+faithful end-to-end reimplementation of the described method, run on the full
+official validation splits, lands $20$--$26$\,mIoU below the published rows
+($32.68$/$30.96$/$37.24$ against $58.42$/$54.01$/$57.85$ mIoU;
+Section~\ref{sec:repro}). With no released code the shortfall cannot be
+attributed to the original work and is not a finding about it --- it is a
+statement about our reading of the description. We therefore quote the
+published rows as published throughout, label every comparison against them
+cross-harness, and document the reproduction, its provenance and its
+unaccounted remainder transparently in the appendix. As a controlled
+measurement of the described guidance we additionally run the published
+selection equations (under our reading) on our exact pools, features and its
+own cached MLLM guidance (Section~\ref{sec:ruleswap}); its numbers are
+reported alongside the unguided released scorer on the same records, without
+judging the original method.
 
 Our first finding is negative and decisive: at this operating point the
 proposal pool is \emph{not} the bottleneck. On full RefCOCO val the pool
@@ -64,46 +66,33 @@ test splits are never used for tuning. Every number in every table is a
 re-analysis of full-validation records written by this run, and the tables
 themselves are generated from those records by script.
 
-We also test the prior's natural successor under the light-supervision
-allowance: a small learned part-acceptance prior over the same candidate pool
-(Section~\ref{sec:learned}), trained on gRefCOCO \emph{train} only, tuned on a
-train-carved held-out split, val evaluated once per frozen configuration. The
-naive version beats the shipped inclusion anchor on held-out by $+6.6$\,cIoU
-and then collapses in transfer ($38.79$ on val) for a measured reason --- the
-train-side part population looks better than val-time (predicted part-IoU
-$0.413$ vs $0.355$). Fixing exactly that shift, in measured steps
-(per-frame standardization with a relative threshold: $41.63$; degradation
-augmentation on top: $38.91$, i.e.\ it hurts; adding within-row rank score
-features, which are invariant to the per-frame miscalibration: $50.52$\,cIoU /
-$73.91$\,gIoU, recovering most of the gap the naive selector lost, and
-augmentation again hurts once rank features are in), the learned prior comes
-within $0.8$\,cIoU of the hand-tuned prompt rule but does not exceed it
-($51.32$/$74.91$). We then make that transfer inversion itself the object of
-study (Section~\ref{sec:transferwall}): correcting exactly the measured causes
-with train-side data only clears the record ($52.71$/$75.08$; the cIoU margin
-is decisive under a cluster bootstrap over the val images, gIoU at parity),
-and that declared-trained recipe \emph{becomes} the shipped gRefCOCO row, with
-the training-free variant retained as the zero-shot reference row --- the
-learned component is reported as a declared, measured transfer study, not as
-this paper's headline.
-
-Finally, we report a benchmark where the comparison only makes sense within
-class, and we state the boundary to the supervised class exactly. On gRefCOCO,
-whose metrics penalise false-positive masks on no-target expressions, the
-no-target decision is solvable training-free: a three-prompt presence
-ensemble abstains at $N_{\mathrm{acc}}=\wallCombN$ --- above the
-\wallTrainedNAcc{} the trained state of the art reports --- and every
-same-class (zero-shot) published number is \emph{beaten} on both metrics: the
+On gRefCOCO, whose metrics penalise false-positive masks on no-target
+expressions, the no-target decision is solvable training-free: a three-prompt
+presence ensemble abstains at $N_{\mathrm{acc}}=\wallCombN$ --- above the
+\wallTrainedNAcc{} the trained state of the art reports. The training-free
+rule beats every same-class (zero-shot) published number on both metrics: the
 best published zero-shot cIoU \grefZeroShotCIoU{} (SELF1E-8B) and gIoU
-\grefZeroShotGIoU{} (PSALM) fall to \grefCIoU{}/\grefGIoU{}, and our
-training-free rule also exceeds the gIoU of the strongest supervised baseline
-(InstAlign, \grefPubGIoU). What remains out of reach is the \emph{supervised}
-cIoU level (\grefPubCIoU): at the shipped operating point it requires a
-targeted realization at $\approx90\%$ of the \emph{best measured oracle}
-(pool selection and the construction itself agree at $\approx0.88$), where the
-rule delivers $\approx66\%$. By measurement the gap is one of selection
-quality --- and within that, one of \emph{which box to ask} rather than which
-mask to keep.
+\grefZeroShotGIoU{} (PSALM) fall to \grefCIoU{}/\grefGIoU{}; its gIoU also
+sits just above the strongest supervised gIoU reference (InstAlign,
+\grefPubGIoU) by $0.32$ (the frozen-parameter rule gives $0.26$), a parity-level margin within the cross-harness
+uncertainty. The supervised cIoU level (\grefPubCIoU) remains out of reach.
+
+These numbers carry a correction that belongs in the paper. gRefCOCO refs
+group several sentences, and the official evaluator scores each sentence
+separately. Our earlier term-path evaluations looked terms up by ref\_id, so
+84.7\% of targeted rows in multi-sentence refs used another sentence's terms.
+After correcting the alignment, with every parameter still frozen from the
+held-out studies, the training-free rule measures 49.63/74.60; a held-out
+re-tune of its sxi scalars reaches \grefCIoU{}/\grefGIoU{} and is shipped,
+while a declared-trained part-acceptance recipe measures 49.40/74.26 --- below
+the rule. The recipe promotion of an earlier draft (52.71/75.08), its bootstrap
+and its mechanism decomposition were artifacts of the misalignment and are
+withdrawn; the shipped gRefCOCO row is the training-free rule
+(\S\ref{sec:transferwall}). The detector-free realization is likewise below
+the same-class floor (best held-out-searched arm 40.56 cIoU vs.\ 44.4). We
+report the correction because the alternative --- tuning around a measurement
+bug --- would have inflated this paper's claims; the same-class and supervised
+comparisons survive it.
 
 Contributions:
 \begin{itemize}\itemsep2pt
@@ -125,13 +114,13 @@ Contributions:
   evidence chain in which no number is transcribed by hand.
   \item A quantified boundary on gRefCOCO. The no-target decision is
   \emph{solved} above the trained state of the art (N-acc \wallCombN{} vs.\
-  \wallTrainedNAcc{}), every same-class (zero-shot) published number is
+  \wallTrainedNAcc{}), and every same-class (zero-shot) published number is
   \emph{beaten} on both metrics by the training-free rule (\grefCIoU{}/\grefGIoU{}
-  vs.\ \grefZeroShotCIoU{}/\grefZeroShotGIoU{}; the strongest supervised gIoU
-  reference, \grefPubGIoU, is also exceeded), and the remaining gap to the
-  supervised cIoU level is localized by measurement to
-  selection quality: that level needs the selector at \wallRealNeedCIoU\,\% of
-  the deployable oracle while the rule realizes \wallRealMeas\,\%, with the
-  choice of box carrying most of the loss (per-object GT boxes, same rule:
-  $0.802$ mean targeted IoU against $0.568$ delivered).
+  vs.\ \grefZeroShotCIoU{}/\grefZeroShotGIoU{}), with gIoU at parity with the
+  strongest supervised gIoU reference (\grefPubGIoU); the supervised cIoU
+  level (\grefPubCIoU) remains the measured wall. A term-alignment audit of
+  the gRefCOCO term paths, the correction it forced (a declared-trained
+  recipe that no longer beats the training-free rule is withdrawn), and the
+  detector-free boundary (40.56 cIoU, below the same-class floor) are reported
+  with the numbers.
 \end{itemize}

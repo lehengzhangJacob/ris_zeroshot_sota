@@ -210,7 +210,7 @@ def main() -> int:
         rec = ((tw or {}).get("arms_detail") or {}).get("recipe_only") or {}
         rec_rows = []
         if rec:
-            rec_rows = [f"Transfer-aware recipe (shipped row; declared trained) "
+            rec_rows = [f"Transfer-aware recipe (corrected; not shipped) "
                         f"& {fmt(rec.get('val_cIoU'))} & {fmt(rec.get('val_gIoU'))} \\\\"]
         lines += [r"\midrule",
                   f"Prompt prior (training-free zero-shot reference) & {fmt(pp.get('cIoU'))} & {fmt(pp.get('gIoU'))} \\\\",

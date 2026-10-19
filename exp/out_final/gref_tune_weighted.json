@@ -1,0 +1,132 @@
+{
+  "split": "held-out gRefCOCO train-tune (per-record sentences)",
+  "n_rows": 1398,
+  "n_configs": 1080,
+  "objective": "prevalence-corrected cIoU on tune rows (two-target targeted rows weight 1, single-target 0.1, no-target rows reweighted to the val 37.4/62.6 composition)",
+  "best": {
+    "alpha": 2.2,
+    "beta": 0.35,
+    "topk": 1,
+    "margin": 0.45,
+    "p_sel": 0.28,
+    "cIoU": 51.771378311777276,
+    "gIoU": 87.36367732079229,
+    "N_acc": 93.51851851851852
+  },
+  "top10": [
+    {
+      "alpha": 2.2,
+      "beta": 0.35,
+      "topk": 1,
+      "margin": 0.45,
+      "p_sel": 0.28,
+      "cIoU": 51.771378311777276,
+      "gIoU": 87.36367732079229,
+      "N_acc": 93.51851851851852
+    },
+    {
+      "alpha": 2.2,
+      "beta": 0.35,
+      "topk": 1,
+      "margin": 0.55,
+      "p_sel": 0.28,
+      "cIoU": 51.771378311777276,
+      "gIoU": 87.36367732079229,
+      "N_acc": 93.51851851851852
+    },
+    {
+      "alpha": 2.2,
+      "beta": 0.35,
+      "topk": 1,
+      "margin": 0.631,
+      "p_sel": 0.28,
+      "cIoU": 51.771378311777276,
+      "gIoU": 87.36367732079229,
+      "N_acc": 93.51851851851852
+    },
+    {
+      "alpha": 2.2,
+      "beta": 0.35,
+      "topk": 1,
+      "margin": 0.72,
+      "p_sel": 0.28,
+      "cIoU": 51.771378311777276,
+      "gIoU": 87.36367732079229,
+      "N_acc": 93.51851851851852
+    },
+    {
+      "alpha": 2.2,
+      "beta": 0.35,
+      "topk": 1,
+      "margin": 0.82,
+      "p_sel": 0.28,
+      "cIoU": 51.771378311777276,
+      "gIoU": 87.36367732079229,
+      "N_acc": 93.51851851851852
+    },
+    {
+      "alpha": 2.2,
+      "beta": 0.35,
+      "topk": 1,
+      "margin": 0.9,
+      "p_sel": 0.28,
+      "cIoU": 51.771378311777276,
+      "gIoU": 87.36367732079229,
+      "N_acc": 93.51851851851852
+    },
+    {
+      "alpha": 1.5,
+      "beta": 0.234,
+      "topk": 1,
+      "margin": 0.45,
+      "p_sel": 0.28,
+      "cIoU": 51.77134934651233,
+      "gIoU": 87.36367920841128,
+      "N_acc": 93.51851851851852
+    },
+    {
+      "alpha": 1.5,
+      "beta": 0.234,
+      "topk": 1,
+      "margin": 0.55,
+      "p_sel": 0.28,
+      "cIoU": 51.77134934651233,
+      "gIoU": 87.36367920841128,
+      "N_acc": 93.51851851851852
+    },
+    {
+      "alpha": 1.5,
+      "beta": 0.234,
+      "topk": 1,
+      "margin": 0.631,
+      "p_sel": 0.28,
+      "cIoU": 51.77134934651233,
+      "gIoU": 87.36367920841128,
+      "N_acc": 93.51851851851852
+    },
+    {
+      "alpha": 1.5,
+      "beta": 0.234,
+      "topk": 1,
+      "margin": 0.72,
+      "p_sel": 0.28,
+      "cIoU": 51.77134934651233,
+      "gIoU": 87.36367920841128,
+      "N_acc": 93.51851851851852
+    }
+  ],
+  "frozen": {
+    "alpha": 1.8111644301883565,
+    "beta": 0.23434019563238434,
+    "topk": 2,
+    "margin": 0.6312676830144586,
+    "p_sel": 0.34040013160612675
+  },
+  "seconds": 329.5,
+  "generated": "exp177_tune_gref_aligned.py",
+  "frozen_tune_metrics": {
+    "cIoU": 48.660084827012646,
+    "gIoU": 68.31227419803704,
+    "N_acc": 93.51851851851852
+  }
+}

@@ -66,6 +66,7 @@ def load_rows(records, split, clf_base, need_gt=True):
             x1, y1 = min(W, -(-x1 // 2)), min(H, -(-y1 // 2))
             if x1 > x0 and y1 > y0:
                 r["_box"] = (x0, y0, x1, y1)
+        r["rec"] = rec
         rows.append(r)
     return rows
 

@@ -55,6 +55,24 @@
         "refcocog": 61.68131503087638
       },
       "n_trials": 300
+    },
+    {
+      "name": "minimal config: box-fill over the full pool (SAM + VLM only)",
+      "evidence": "exp/out_final/head_rebuild.json",
+      "mIoU": {
+        "refcoco": 69.985,
+        "refcocoplus": 65.225,
+        "refcocog": 64.831
+      }
+    },
+    {
+      "name": "minimal config: geometric guards (SAM + VLM only)",
+      "evidence": "exp/out_final/head_rebuild.json",
+      "mIoU": {
+        "refcoco": 69.718,
+        "refcocoplus": 64.955,
+        "refcocog": 64.879
+      }
     }
   ]
 }

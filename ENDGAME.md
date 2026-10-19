@@ -473,3 +473,89 @@ Open items for future cycles:
    recipe) if the detector-isolation question is ever revisited.
 3. Carried: multi-seed std for the promoted head; prospective application of
    the frozen recipe to an unseen split.
+
+## 2026-10-19 — gRefCOCO term-alignment correction (supersedes the transfer-wall cycle)
+
+While satisfying the new gate artifacts we audited the official gRefCOCO metric
+(released ReLA `ReferEvaluator`, imported with a detectron2 stub and run on a
+five-case battery). gRefCOCO refs group several sentences (14,229 val records
+over 4,237 ref_ids) and the official evaluator scores each sentence; our
+gRefCOCO term paths (exp118/124/138/152/163/169 and the studies they fed) looked
+noun terms up by ref_id. 84.7% of targeted rows in multi-sentence refs used
+another sentence's terms. The RefCOCO-family path uses per-record text and is
+unaffected.
+
+Corrected full-val measurements (per-record sentence and file name, caches
+unchanged):
+- training-free rule, previously frozen parameters: **49.6312 cIoU / 74.6013
+  gIoU / N 86.14 / T 87.85** (was 51.3182/74.9098) — `gref_tf_aligned.json`;
+- held-out re-tune of the sxi scalars (1,080 configurations, train-tune only;
+  two objectives agree): alpha 2.2, beta 0.35, topk 1, p_sel 0.28 →
+  **50.1435/74.6645**, now shipped (`gref_tune_weighted.json`,
+  `gref_tf_weighted.json`; the unweighted-objective re-tune gives
+  50.1363/74.6584, `gref_tf_retuned.json`);
+- declared-trained transfer recipe: **49.4039/74.2644** (was 52.7061/75.0817) —
+  below the training-free rule, so the recipe promotion, its +1.38 cIoU
+  bootstrap and the four-mechanism decomposition are **withdrawn**
+  (`gref_transfer_recipe_aligned.json`, `transfer_wall.json`);
+- detector-free realization: base noun 38.564, clause 37.954, presence 37.850,
+  sentence 36.699, pair/union 36.734, held-out-searched clause 40.555/70.557 —
+  all below the 44.4 cIoU floor (`gref_search_val_part0.json`,
+  `gref_nodetector.json`; 320-trial held-out search in
+  `gref_search_aligned.json`).
+
+The same-class published floors still fall: 50.14 > SELF1E-8B 44.4 cIoU and
+74.66 > PSALM 43.3 gIoU. The corrected gIoU is 0.32 above InstAlign's
+supervised 74.34 — parity-level, not a decisive exceedance (report it as such).
+The supervised cIoU wall (68.94) is unchanged. The old 50.99/51.32/52.71
+numbers and the r-decomposition built on the same masses are superseded and
+must not be quoted. The official evaluator matches our arithmetic, except that
+its targeted-FP case keeps the discarded mask's union in cIoU where our
+empty-prediction abstention contributes the GT area.
+
+Paper: abstract/intro/experiments/limitations/conclusion rewritten with the
+correction; gres/learned tables updated; sensitivity table drops the withdrawn
+gRefCOCO rows; appendix documents the audit. Gate status: all checks pass
+except (a) `glm_aligned` (full-val GLM box extraction still running) and
+(b) `sota_line`, which fails because the corrected shipped cIoU 50.14 is below
+the previously compiled 50.99 floor — that floor was itself measured with the
+misaligned term map and is not reproducible under the corrected protocol. The
+gate is not being weakened; the failure is reported as the measured state.
+
+New artifacts: `glm_aligned.json` (pending), `gref_nodetector.json`,
+`deep_read.json` (22 papers, 16 RIS, full text), `literature_coverage.json`
+(22 verified arXiv identifiers, 32 bib entries), corrected
+`main_grefcoco.json`/`transfer_wall.json`/`learned_prior.json`/`backbone_audit.json`/`sota_table.json`.
+
+## 2026-10-19 final status (after the correction)
+
+Full-val GLM alignment artifact complete (`glm_aligned.json`): GLM-4.1V boxes,
+complete official val splits, same frozen sentence-box rule — GLM/LLaVA mIoU
+67.8835/68.5333 (RefCOCO, n=10,834), 64.2054/64.6669 (RefCOCO+, n=10,758),
+63.8194/65.1175 (RefCOCOg, n=4,896); oIoU 61.50/56.49/55.41 vs LLaVA
+63.40/58.31/59.77. Deltas -0.65/-0.46/-1.30; GLOD-RIS's own MLLM is not
+better than the local 7B prior on this pipeline. 24,539 cached responses, 29
+persistent API failures, box coverage 99.85/99.87/100%.
+
+Literature gate artifacts complete: `deep_read.json` (22 full-text papers, 16
+RIS, 13 code inspections, 6 successful runs including the official ReLA
+evaluator) and `literature_coverage.json` (22 verified arXiv identifiers, 32
+bib entries).
+
+**Gate: `python3 extreme_bar.py` prints NOT_READY, failing exactly one check —
+`sota_line`.** All 23 other checks pass (including the four 2026-10-18 checks:
+detector-free gRefCOCO, full-val GLM alignment, literature coverage,
+deep-read). `sota_line` fails because its gRefCOCO cIoU floor is hardcoded at
+50.99, the run's own previous shipped record measured with the ref_id-keyed
+term map; the corrected shipped rule is 50.1435. The corrected method cannot
+honestly reach 50.99 with the cached pool (frozen 49.63; re-tuned 50.14 under
+two independent held-out objectives; declared-trained recipe 49.40). The gate
+floor has not been edited. This is a measured conflict between the stale floor
+and the correction, not an open method bug; clearing it would require a new
+method cycle (e.g., a corrected intermediate detector arm or a stronger
+grounder), not another val-side selection.
+
+Cross-family review (glm-5.3 for executor deepseek-flash): final verdict PASS
+with minor artifact-hygiene items, all applied; review gate decision "stop".
+Paper rebuilt (21 pages) with the correction, the full-val GLM comparison, and
+the withdrawal of the misaligned claims.

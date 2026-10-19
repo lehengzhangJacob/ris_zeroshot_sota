@@ -86,6 +86,26 @@ Table~\ref{tab:gres} lists every row of the gRefCOCO evaluation, including
 the margin sweep for plural expansion and the two controls (no relation
 gate, no growth).
 
+\paragraph{Term-alignment audit and the official metric.}
+gRefCOCO refs group several sentences (14{,}229 val records over 4{,}237
+ref\_ids) and the official evaluator scores each sentence separately. We
+imported the released ReLA \texttt{ReferEvaluator} with a minimal
+detectron2 stub and ran a five-case battery (targeted exact/wrong/abstain-FP,
+no-target TP/FN); its accumulated cIoU/gIoU/N-acc/T-acc arithmetic matches
+ours, with one convention difference: a targeted false positive in the
+official path keeps the discarded mask's union in the cIoU denominator, while
+our empty-prediction abstention contributes only the GT area. The audit also
+showed that our gRefCOCO term lookups were keyed by ref\_id rather than by the
+row's own sentence, so 84.7\% of targeted rows in multi-sentence refs used
+another sentence's terms. All gRefCOCO term-path results in this paper are
+re-evaluated with per-record alignment
+(\texttt{gref\_tf\_aligned.json}, \texttt{gref\_transfer\_recipe\_aligned.json},
+\texttt{gref\_search\_val\_part0.json}); the RefCOCO-family path uses
+per-record text and is unaffected. The corrected frozen-parameter rule is
+49.63/74.60 cIoU/gIoU; a held-out re-tune of the sxi scalars reaches
+50.14/74.66 and is shipped. The declared-trained recipe measures 49.40/74.26,
+so it is not shipped and the earlier promotion is withdrawn.
+
 \paragraph{Published-number transcription.}
 Published rows in Table~\ref{tab:sota} were transcribed from the GLOD-RIS
 Table~I and HybridGL Table~1 PDFs (both in the repository under

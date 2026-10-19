@@ -4,62 +4,39 @@
 \paragraph{The same-class floors are cleared; the supervised cIoU level is the measured boundary.}
 The training-free rule clears every same-class (zero-shot) published number
 on both metrics (\grefCIoU{}/\grefGIoU{} vs.\ the best published zero-shot
-\grefZeroShotCIoU{}/\grefZeroShotGIoU{}), exceeds the strongest supervised
-gIoU reference (\grefPubGIoU), and makes the no-target decision above the
-trained state of the art ($N_{\mathrm{acc}}=\wallCombN$ vs.\
-\wallTrainedNAcc). The \emph{supervised} cIoU level
-(\grefPubCIoU, our labelled reference rows) is where the class stops.
-\emph{Grounder}:
-\wallTwoTarget\,\% of gRefCOCO's targeted samples union exactly two objects,
-and the VLM's single box overlaps that union at IoU \wallBoxIoU.
-\emph{Selector}: at the shipped operating point the supervised cIoU level
-needs the deployable-oracle realization at \wallRealNeedCIoU\,\% while the
-rule realizes \wallRealMeas\,\%; both oracles agree at $\approx0.88$ --- pool
-selection and the construction itself under per-object GT boxes and SAM
-(reaching $r=\wallConstructionOrc$, cIoU \wallConstructionCap) --- so the
-axis is realization-bound, not foreclosed, and the held-out 2$\times$2 shows
-the loss concentrates in \emph{which box to ask} ($+0.23$ mean targeted IoU
-with GT boxes against $+0.07$ for perfect mask choice). The gap is not
-perceptual-only: a forced-choice probe of the localizer between two candidate
-crops picks GT-best at $29.8\%$ against $25\%$ chance on the held-out grid, and
-on the two-object slice the same protocol reaches $59.3\%$ --- below the
-trivial largest-candidate heuristic ($85.4\%$), so the preference carries less
-referent information than crop size. Published cIoU numbers
-come from models trained to select at that quality. We report our
-training-free numbers honestly and do not tune around the gap.
+\grefZeroShotCIoU{}/\grefZeroShotGIoU{}), and its gIoU sits just above the
+strongest supervised gIoU reference (\grefPubGIoU) by $0.32$ (frozen rule: $0.26$) --- a
+parity-level margin, not a decisive exceedance --- while the no-target
+decision is above the trained state of the art
+($N_{\mathrm{acc}}=\wallCombN$ vs.\ \wallTrainedNAcc). The \emph{supervised}
+cIoU level (\grefPubCIoU) is where the class stops; the corrected
+training-free cIoU (\grefCIoU) is $18.8$ points below it. The earlier
+$r$-decomposition of this gap used the misaligned term map and is withdrawn
+rather than re-derived here. What survives is qualitative and measured
+independently of terms: the bind is partly perceptual (the forced-choice
+probe picks the GT-best of two candidate crops at $29.8\%$ against $25\%$
+chance on the held-out grid, and at $59.3\%$ on the two-object slice, below
+the $85.4\%$ largest-candidate heuristic), so closing the gap needs a
+supervisor that selects boxes at near-oracle quality on two-object
+referents. Published cIoU numbers at that level come from models trained to
+select at that quality.
 
-\paragraph{The gRefCOCO wall is measured on val, and part of it is transfer.}
-On gIoU the held-out train population reaches $\grefSelHeldOutGIoU$ at val
-prevalence while val gives $\grefGIoU$ --- the same transfer component
-documented throughout this paper (val's no-target expressions are 92\,\%
-transplanted phrases; the shipped rule's $N_{\mathrm{acc}}$ drops from
-$\wallHeldOutNAcc$ to $\wallCombN$). The cIoU boundary inherits this: the
-$r$-requirement is measured on val and the held-out realization is higher,
-so the val gap understates what the rule achieves on train-distributed data
-and overstates nothing --- we state the transfer component separately so the
-boundary is not read as more absolute than the measurement supports.
-
-\paragraph{One VLM, one prompt template.}
-The prior comes from a single frozen 7B checkpoint (LLaVA-OneVision-7B) with
-one prompt template, chosen on the held-out split between two prompt
-variants. We did not sweep models, templates, few-shot examples, or decoding
-parameters; the reported prompt effect ($+13.4$/$+10.6$/$+11.6$ mIoU for
-sentence over noun phrase) suggests the choice matters a great deal and may
-not be optimal. On gRefCOCO the localizer's \emph{discrimination} is the
-measured limit, not the question format: asked for a box it overlaps a
-two-object union at IoU \wallBoxIoU; asked yes/no about a candidate crop it
-confirms but cannot reject; asked to choose between two candidate crops it
-picks the GT-best at $29.8\%$ against $25\%$ chance on the held-out grid
-(20{,}301 queries), reaching $59.3\%$ on the two-object slice --- below the
-$85.4\%$ of the trivial largest-candidate heuristic. The one additional strong
-VLM we could obtain and verify (Qwen2.5-VL-7B, 2026-10-07) improved on this
-checkpoint's boxes ($0.580\to0.6325$ term-box IoU) but stayed below the
-detector already in the configuration ($0.7046$) and its forced-choice
-discrimination was below the incumbent's, so a stronger grounder would
-plausibly help every number, but not trivially. The weaker-lineup audit below
-additionally measures a \emph{smaller} 3B prior from the same Qwen family,
-which outperforms the shipped checkpoint --- the family's grounding advantage,
-not its size, is what the measurement isolates.
+\paragraph{The gRefCOCO numbers carry a term-alignment correction.}
+The gRefCOCO term-path evaluations in earlier drafts used a ref\_id-keyed
+sentence map although the official evaluator scores each sentence separately;
+84.7\% of targeted rows in multi-sentence refs used another sentence's terms.
+After per-record alignment the frozen-parameter rule measures 49.63/74.60
+(was 51.32/74.91); a held-out re-tune of its sxi scalars reaches
+\grefCIoU{}/\grefGIoU{} and is shipped. The declared-trained transfer
+recipe measures 49.40/74.26 (was 52.71/75.08) --- below the rule. The recipe
+promotion, its bootstrap interval and the mechanism decomposition built on the
+same part tables are withdrawn; the shipped gRefCOCO row is the
+training-free rule. The RefCOCO-family results are unaffected (per-record
+text). The official metric arithmetic itself was re-executed from the
+released evaluator and matches ours, with one convention difference: an
+empty-prediction abstention contributes the GT area to the cIoU denominator,
+where the official targeted-false-positive case keeps a discarded mask's
+union.
 
 \paragraph{The VLM is pretrained on COCO images.}
 LLaVA-OneVision's pretraining data includes COCO (the source of the
@@ -91,22 +68,30 @@ between them is unmeasured: its original-format checkpoint was unreachable
 offline, its HF port restructure being incompatible); and the detector-free gRefCOCO realization
 (LLaVA boxes only, which necessarily drops the trained recipe: its candidate
 substrate is detector-derived) fails the same-class cIoU floor
-($38.71$ vs $44.4$), so the detector-bearing path is load-bearing there ---
-scoped to that realization, the intermediate arm being unmeasured.
+($38.56$ vs $44.4$) with the corrected per-record alignment. We additionally
+ran the rescue arms for that path --- per-clause full-text boxes, presence-
+verified term filtering, the union/pair candidate family, a full-sentence
+box, and a 320-trial held-out search over the DINO-free configuration space
+--- and none clears the floor (best held-out-searched clause configuration
+$40.56$ cIoU / $70.56$ gIoU; base noun $38.56$, full-clause $37.95$,
+presence-filtered $37.85$, sentence box $36.70$, pair/union $36.73$): the
+detector-bearing path is load-bearing for cIoU on this benchmark, and the
+boundary is measured rather than assumed. The declared-trained no-detector
+head was not re-measured after the alignment correction; its earlier $28.29$
+is withdrawn with the other misaligned term-path numbers.
 The boundaries are reported per component, not tuned around. The pool-density
 axis was additionally varied
 ($\textsc{points\_per\_side}$ $8\to16$, \ppsProposalDelta\,\% more proposals)
 and the diagnosis survives
 (\ppsWiEight\,$\to$\,\ppsWiSixteen).
 
-\paragraph{Reproduction gap.}
-Absolute rows are not comparable to the published HybridGL table: the
-released code scores \reproGap\,mIoU below its own published number
-(\S\ref{sec:repro}), verified against the unmodified official
-implementation. All our comparisons are internal to one reproduction. This
-constrains the paper: we can claim controlled improvements over the released
-pipeline and against published numbers quoted as published, but the two are
-not directly commensurable.
+\paragraph{Comparison protocol.}
+The released HybridGL code and our reimplementation agree within
+\reproAgree\,mIoU, and both sit \reproGap\,mIoU below the numbers printed
+in the HybridGL paper (\S\ref{sec:repro}). We therefore treat cross-paper
+absolute comparisons in this baseline family as cross-harness comparisons:
+every published row is quoted as published and labelled as such, and all our
+controlled comparisons are internal to one reproduction.
 
 \paragraph{VLM latency.}
 The box pass costs $0.6$--$1.8$\,s per expression on one RTX 4090, which is

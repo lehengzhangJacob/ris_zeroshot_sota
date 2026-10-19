@@ -61,3 +61,30 @@ official val splits under the aligned protocol:
 3. Is the boundary reported honestly (no-detector below the floor; ViT-L
    unavailability noted; single-seed note carried from the previous cycle)?
 4. Must-fix list, verdict, score.
+
+## Follow-up directive (2026-10-17): rescue, framing, minimal configuration
+
+- **No-detector gRefCOCO rescue** (`exp169_gref_rescue.py`, full val n=14,229,
+  shared abstention, no GroundingDINO anywhere; per-clause boxes + presence
+  probes re-extracted with the shipped localizer in `exp168_box_gref_clauses.py`):
+  base noun-phrase reference 38.43 cIoU; per-clause FULL-text boxes 38.08;
+  full text + presence-verified term filtering 38.24; union/pair candidate
+  family 36.74; declared-trained no-detector head (fitted on gRefCOCO
+  train-carved rows) 28.29. The reference realization on the same complete
+  split is 38.70 (exp163 re-run; gIoU 69.68, N-acc 86.1). **No rescue arm
+  clears the 44.4 cIoU floor** — the boundary stands as the documented
+  answer, now with the rescue axes measured rather than assumed. gIoU and
+  N-acc clear their floors on every no-detector arm.
+- **Framing correction** (2026-10-17): every place the GLOD-RIS reproduction
+  read as criticism is now a neutral comparison-protocol note (abstract,
+  intro, §repro, §ruleswap, the test-column ledger, conclusion, limitations);
+  the rule swap is described as a controlled measurement "under our reading
+  of the published equations"; the diagnosis narrative rests on our own
+  measurements. Numbers unchanged and visible; `test_columns.json` and
+  `rule_swap.json` carry matching framing notes.
+- **Minimal configuration** (2026-10-17): named result added to this artifact
+  (`minimal_configuration`) and as two ablation rows: box-fill over the full
+  pool 69.985/65.225/64.831 and geometric guards 69.718/64.955/64.879 mIoU —
+  one generic segmenter + one frozen VLM, no CLIP platform, no detector, no
+  training, above every published same-class RefCOCO-family number. Shipped
+  configuration unchanged (positioning claim).

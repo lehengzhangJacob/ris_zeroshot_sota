@@ -1,0 +1,64 @@
+{
+  "tag": "glm_full_refcocog",
+  "n": 4896,
+  "box_coverage": 100.0,
+  "box_rate": 98.50898692810458,
+  "params": {
+    "dec_source": "sc_x_gem",
+    "k_dec": 15,
+    "mode": "iou",
+    "combine": "loc_only",
+    "loc_source": "llava",
+    "beta": 2.20722374350054,
+    "eps": 0.020794812033278407,
+    "gem_mix": 0.490569059596547,
+    "grow": false
+  },
+  "phrase_source": "sent",
+  "rows": {
+    "released": 50.0816,
+    "snap": 50.9221,
+    "ours": 63.8194,
+    "ctrl_no_box": 47.5072,
+    "orc_single": 79.1206
+  },
+  "oIoU": {
+    "released": 41.4453,
+    "snap": 41.0179,
+    "ours": 55.4075,
+    "ctrl_no_box": 38.4799
+  },
+  "oIoU_masses": {
+    "released": {
+      "inter": 88417084.0,
+      "union": 213334595.0
+    },
+    "snap": {
+      "inter": 92920645.0,
+      "union": 226536555.0
+    },
+    "ours": {
+      "inter": 108959607.0,
+      "union": 196651262.0
+    },
+    "ctrl_no_box": {
+      "inter": 83083675.0,
+      "union": 215914636.0
+    }
+  },
+  "oIoU_definition": "global pooled oIoU: 100 * sum_j |pred_j \u2229 GT_j| / sum_j |pred_j \u222a GT_j| over all val records (GLOD-RIS: 'oIoU measures global overlap'); the per-sample mean IoU is the rows/mIoU field",
+  "mIoU": 63.8194,
+  "best_published": {
+    "mIoU": 57.85,
+    "oIoU": 50.03,
+    "rival": "GLOD-RIS (TCSVT 2026)"
+  },
+  "generated": "exp40_final_eval.py",
+  "shipped": {
+    "mIoU": 63.8194,
+    "best_published": {
+      "mIoU": 57.85,
+      "rival": "GLOD-RIS (TCSVT 2026)"
+    }
+  }
+}

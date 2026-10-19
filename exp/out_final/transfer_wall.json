@@ -251,115 +251,33 @@
   },
   "arms": [
     {
-      "name": "prompt prior (training-free, reference row)",
-      "val_cIoU": 51.3182,
-      "val_gIoU": 74.9098,
+      "name": "prompt prior (training-free rule, corrected alignment, held-out re-tuned)",
+      "val_cIoU": 50.1435,
+      "val_gIoU": 74.6645,
+      "val_N_acc": 85.70466030320046,
       "trained": false,
-      "source": "main_grefcoco.json prompt_prior_reference"
+      "source": "exp/out_final/gref_tf_weighted.json"
     },
     {
-      "name": "naive learned selector (absolute threshold)",
-      "val_cIoU": 38.792,
-      "val_gIoU": 69.631,
+      "name": "transfer-aware learned recipe (corrected per-record alignment)",
+      "val_cIoU": 49.4039,
+      "val_gIoU": 74.2644,
+      "val_N_acc": 86.1426,
       "trained": true,
-      "source": "gref_learned_union_val.json"
-    },
-    {
-      "name": "rank-only learned arm",
-      "val_cIoU": 50.52,
-      "val_gIoU": 73.9139,
-      "trained": true,
-      "source": "gref_learned_prior_rankonly.json"
-    },
-    {
-      "name": "transfer-aware recipe (all-strata balanced weights + rank + two-target tau)",
-      "val_cIoU": 52.7061,
-      "val_gIoU": 75.0817,
-      "trained": true,
-      "held_out": {
-        "cIoU": 58.9004,
-        "gIoU": 63.2704,
-        "N_acc": 0.0,
-        "T_acc": 91.6667
-      },
-      "source": "gref_transfer_recipeonly.json"
-    },
-    {
-      "name": "strata-{1,2}-only recipe (no rare-strata weighting)",
-      "val_cIoU": 51.9655,
-      "val_gIoU": 74.9257,
-      "trained": true,
-      "held_out": {
-        "cIoU": 58.0895,
-        "gIoU": 62.4564,
-        "N_acc": 0.0,
-        "T_acc": 91.6667
-      },
-      "source": "gref_transfer_weights_12.json"
-    },
-    {
-      "name": "weights-only (all-rows tau)",
-      "val_cIoU": 44.9973,
-      "val_gIoU": 71.6897,
-      "trained": true,
-      "held_out": {
-        "cIoU": 54.1041,
-        "gIoU": 75.3276,
-        "N_acc": 93.75,
-        "T_acc": 90.2834
-      },
-      "source": "gref_transfer_weights_only.json"
-    },
-    {
-      "name": "tau-stratum-only (no weights)",
-      "val_cIoU": 52.148,
-      "val_gIoU": 74.7724,
-      "trained": true,
-      "held_out": {
-        "cIoU": 58.6411,
-        "gIoU": 61.736,
-        "N_acc": 0.0,
-        "T_acc": 91.6667
-      },
-      "source": "gref_transfer_tau_only.json"
-    },
-    {
-      "name": "transfer-aware recipe + searched combination policy",
-      "val_cIoU": 52.7061,
-      "val_gIoU": 75.0817,
-      "trained": true,
-      "held_out": {
-        "cIoU": 60.0462,
-        "gIoU": 64.2555,
-        "N_acc": 0.0,
-        "T_acc": 91.6667
-      },
-      "source": "gref_transfer_recipe.json"
-    },
-    {
-      "name": "weak-signal democracy vote (single-pick arm on a seeded sample)",
-      "val_cIoU": 38.373,
-      "sample_mIoU": 38.373,
-      "prior_top_mIoU": 40.997,
-      "paired_delta": -2.624,
-      "paired_se": 0.818,
-      "n": 800,
-      "trained": false,
-      "note": "NOT a full-val cIoU: single-pick mIoU on a seeded 800-row val sample under a different (single-pick) protocol; gIoU not computed for this arm",
-      "source": "exp/out_wild_gref/democracy_result.json"
+      "source": "exp/out_final/gref_transfer_recipe_aligned.json"
     }
   ],
-  "verdict": "the transfer inversion is broken by the transfer-aware recipe: val cIoU 52.71 / gIoU 75.08 on the full official split, above the shipped training-free record on both point estimates (51.32 / 74.91; cIoU-decisive and gIoU parity-level per the cluster bootstrap, exp158) and far above the arms that failed to transfer (naive 38.79, rank-only 50.52). The mechanism account: the inversion is dominated by the population/composition mismatch (train targeted rows 68% single-target vs val 99.5% two-target) with score over-prediction on val from the second score quintile up (the lowest quintile under-predicts) and a term-composition feature shift; the recipe corrects exactly those (an acceptance threshold tuned on the val-dominant two-target stratum -- the dominant correction -- rank features invariant to the miscalibration, and composition-balanced weights as a smaller, rare-ref-dependent increment; see decomposition). The searched combination policy was selected on the held-out carve-out (+1.15 cIoU) but is a measured no-op on val (delta 0.00: the top-1 SAM parts already clear the tuned threshold). This is a DECLARED TRAINED variant; the training-free prompt rule remains reported as the zero-shot reference row.",
+  "verdict": "Under per-record sentence alignment the training-free rule, re-tuned on the held-out train-tune split, reaches 50.14 cIoU / 74.66 gIoU; the declared-trained transfer recipe reaches 49.40 / 74.26 and does not beat it. The earlier 52.71 claim was an artifact of looking noun terms up by ref_id; the recipe is withdrawn as the shipped row and the training-free rule is shipped.",
   "arms_detail": {
     "reference_prompt_prior": {
-      "cIoU": 51.3182,
-      "gIoU": 74.9098,
-      "source": "main_grefcoco.json prompt_prior_reference (training-free row)"
+      "cIoU": 49.6312,
+      "gIoU": 74.6013,
+      "source": "gref_tf_aligned.json (corrected per-record alignment)"
     },
     "shipped_learned": {
-      "cIoU": 52.7061,
-      "gIoU": 75.0817,
-      "source": "main_grefcoco.json shipped (declared trained)"
+      "cIoU": 49.4039,
+      "gIoU": 74.2644,
+      "source": "gref_transfer_recipe_aligned.json (corrected; NOT shipped)"
     },
     "rank_only_learned": {
       "val_cIoU": 50.52,
@@ -367,23 +285,16 @@
       "source": "gref_learned_prior_rankonly.json"
     },
     "recipe_only": {
-      "val_cIoU": 52.7061,
-      "val_gIoU": 75.0817,
+      "val_cIoU": 49.4039,
+      "val_gIoU": 74.2644,
       "val_N_acc": 86.1426,
-      "val_T_acc": 87.8475,
-      "tau": 0.35,
+      "tau": 0.4,
       "policy": {
-        "policy": "abs",
-        "k": 0
-      },
-      "held_out": {
-        "cIoU": 58.9004,
-        "gIoU": 63.2704,
-        "N_acc": 0.0,
-        "T_acc": 91.6667
+        "policy": "abs+sam_topk",
+        "k": 2
       },
       "trained": true,
-      "spec": "stratified-balanced re-weighting: weight(part) = (n_targeted_tune_refs / n_strata) / count(stratum) with the composition taken per ref from the tune records file (400 targeted refs: strata 1:259, 2:132, 3:4, 4:2, 5:1, 6:1, 11:1 -> base 400/7 = 57.14; per-part weights k=1 0.221, k=2 0.433, k=3 14.29, k=4 28.57, k=5/6/11 57.14), so each ref stratum carries equal total ref weight; realized over the 7,443 fit parts the stratum mass shares are 22.9 / 40.0 / 3.8 / 7.6 / 25.7% and the three rare refs with fit parts carry 37.1% of the fit mass (one k=5 ref alone 25.7%; strata 6, 11 and one k=3 ref have no parts in the table but count in the normalization) + within-row rank features + tau tuned on the held-out two-target stratum"
+      "source": "gref_transfer_recipe_aligned.json (corrected; not shipped)"
     },
     "recipe_plus_combination_policy": {
       "val_cIoU": 52.7061,
@@ -419,22 +330,22 @@
     {
       "hypothesis": "population/composition mismatch between the train-side and val populations is the dominant cause of the transfer inversion",
       "measurement": "train targeted rows: single-target 0.6833, two-target 0.3090; val targeted rows two-target 0.9953; mean parts per row 13.271 (train) vs 19.181 (val)",
-      "verdict": "CONFIRMED -- the composition mismatch drives the inversion, but the correction that carries the transfer is the acceptance threshold tuned on the val-dominant two-target stratum (tau-stratum-only alone clears the cIoU record, 52.15 vs 51.32; gIoU 74.77 sits at/below the record's 74.91); the composition-balanced weights add a smaller increment (52.71/75.08; cIoU-decisive, gIoU parity-level per the cluster bootstrap) that is rare-ref dependent -- the increment concentrates on one k4 ref and its removal lands the recipe 0.32 below tau-only (see decomposition)"
+      "verdict": "MEASURED UNDER THE EARLIER ref_id-KEYED TERM MAP (provenance only): under per-record alignment the recipe no longer beats the training-free rule, so this mechanism account is withdrawn from the paper's conclusions."
     },
     {
       "hypothesis": "the learned prior is systematically miscalibrated on val (over-predicts part quality at high scores; the lowest val quintile under-predicts), so a train-tuned threshold admits too many parts",
       "measurement": "mean predicted/actual: train 0.4269/0.4115, val 0.3658/0.3257; val calibration is monotone over-prediction at high scores",
-      "verdict": "CONFIRMED -- within-row rank features remove the scale dependence but alone do not clear the record (rank-only 50.52); the threshold re-tuned on the two-target stratum is the correction that does on cIoU (tau-stratum-only 52.15 vs 51.32; gIoU 74.77 sits at/below the record's 74.91)"
+      "verdict": "MEASURED UNDER THE EARLIER ref_id-KEYED TERM MAP (provenance only): under per-record alignment the recipe no longer beats the training-free rule, so this mechanism account is withdrawn from the paper's conclusions."
     },
     {
       "hypothesis": "per-term feature drift between the populations (term count, box-overlap evidence) breaks the fitted mapping",
       "measurement": "median term_index 0 (train) vs 1 (val); inbox_det0 p90 0.41 vs 0.16; inbox_llava p90 0.14 vs 0.36",
-      "verdict": "PARTIAL -- the drift is real and consistent with the composition shift (two-term rows dominate val); the stratum-restricted threshold recovers the gap without a separate drift correction, so the drift is not an independent obstacle (the all-strata weights' increment over it is rare-ref dependent -- see decomposition)"
+      "verdict": "MEASURED UNDER THE EARLIER ref_id-KEYED TERM MAP (provenance only): under per-record alignment the recipe no longer beats the training-free rule, so this mechanism account is withdrawn from the paper's conclusions."
     },
     {
       "hypothesis": "image-level domain shift (different images/objects) drives the inversion",
       "measurement": "median masks per image 51.0 (train) vs 47.0 (val); no-target share 0.5 vs 0.3538",
-      "verdict": "REJECTED as the driver -- the vision-side statistics are close; the inversion is a scoring/composition phenomenon, not a domain shift"
+      "verdict": "MEASURED UNDER THE EARLIER ref_id-KEYED TERM MAP (provenance only): under per-record alignment the recipe no longer beats the training-free rule, so this mechanism account is withdrawn from the paper's conclusions."
     }
   ],
   "decision_rule": {
@@ -601,5 +512,33 @@
       "shipped": "exp/out_final/dump_shipped_rows.jsonl",
       "record": "exp/out_final/dump_record_rows.jsonl"
     }
+  },
+  "alignment_correction": {
+    "found": "2026-10-19",
+    "bug": "gRefCOCO term lookups were keyed by ref_id, but a ref holds several sentences (14,229 val records over 4,237 ref_ids). 84.7% of targeted rows in multi-sentence refs used another sentence's noun terms; the same map was used by the term-path evaluation, the learned part tables and the studies.",
+    "scope": "exp118/exp124/exp138/exp152/exp163/exp169/exp177 gRefCOCO term paths; RefCOCO-family paths use each record's own sentence and are unaffected",
+    "previous": {
+      "training_free": {
+        "cIoU": 51.3182,
+        "gIoU": 74.9098
+      },
+      "recipe": {
+        "cIoU": 52.7061,
+        "gIoU": 75.0817
+      }
+    },
+    "corrected": {
+      "training_free": {
+        "cIoU": 50.1435,
+        "gIoU": 74.6645,
+        "N_acc": 85.70466030320046
+      },
+      "recipe": {
+        "cIoU": 49.4039,
+        "gIoU": 74.2644,
+        "N_acc": 86.1426
+      }
+    },
+    "consequence": "With per-record alignment the transfer-aware learned recipe (49.40 cIoU) no longer beats the training-free rule (49.63 cIoU). The earlier promotion (52.71 > 51.32) was an artifact of the misaligned terms and is withdrawn; the shipped gRefCOCO row reverts to the training-free rule. The earlier mechanism decomposition was measured on the same misaligned part tables and is retained only as provenance."
   }
 }

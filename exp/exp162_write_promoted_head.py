@@ -159,7 +159,10 @@ def main() -> int:
             f"the mIoU/oIoU table, the ledger carries reproducibility (their "
             f"published numbers do not reproduce on our independent implementation: "
             f"-25.7/-23.1/-20.6 mIoU vs the val columns, glodris_repro.json) and "
-            f"API-independence (our path is fully local). One axis is not dominated "
+            f"comparison protocol (GLOD-RIS releases no code; our faithful "
+            f"reimplementation of the described method does not reach the published "
+            f"numbers, so every comparison quotes their rows as published and "
+            f"cross-harness) and deployability (our path is fully local). One axis is not dominated "
             f"and stays declared: the gRefCOCO path adds a second frozen detector "
             f"next to the VLM prior.")
         tc["head_promotion_note"] = (

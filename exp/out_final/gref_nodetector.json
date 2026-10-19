@@ -1,0 +1,128 @@
+{
+  "what": "GroundingDINO removal from the gRefCOCO path (operator directive 2026-10-18)",
+  "class_floor": {
+    "cIoU": 44.4,
+    "gIoU": 43.3,
+    "source": "SELF1E-8B (cIoU) / PSALM (gIoU) zero-shot same-class numbers"
+  },
+  "arms": [
+    {
+      "name": "base_noun",
+      "description": "LLaVA-OneVision-7B noun-phrase term boxes (sxi picks)",
+      "setting": "training-free",
+      "boxes_source": "noun-phrase term boxes",
+      "still_sota": false,
+      "val": {
+        "cIoU": 38.5639,
+        "gIoU": 69.6542,
+        "N_acc": 86.1426,
+        "n": 14229
+      },
+      "evidence": "exp/out_final/gref_search_val_part0.json"
+    },
+    {
+      "name": "full_clause",
+      "description": "LLaVA-OneVision-7B per-clause full-text boxes (sxi picks)",
+      "setting": "training-free",
+      "boxes_source": "per-clause full-text boxes",
+      "still_sota": false,
+      "val": {
+        "cIoU": 37.9538,
+        "gIoU": 69.7757,
+        "N_acc": 86.1426,
+        "n": 14229
+      },
+      "evidence": "exp/out_final/gref_search_val_part0.json"
+    },
+    {
+      "name": "full_clause_presence",
+      "description": "per-clause full-text boxes, existence-probe filtered",
+      "setting": "training-free",
+      "boxes_source": "per-clause boxes + presence filter",
+      "still_sota": false,
+      "val": {
+        "cIoU": 37.8496,
+        "gIoU": 69.752,
+        "N_acc": 86.1426,
+        "n": 14229
+      },
+      "evidence": "exp/out_final/gref_search_val_part0.json"
+    },
+    {
+      "name": "sentence_box",
+      "description": "LLaVA-OneVision-7B full-sentence box (sxi picks)",
+      "setting": "training-free",
+      "boxes_source": "full-sentence box",
+      "still_sota": false,
+      "val": {
+        "cIoU": 36.6985,
+        "gIoU": 69.2792,
+        "N_acc": 86.1426,
+        "n": 14229
+      },
+      "evidence": "exp/out_final/gref_search_val_part0.json"
+    },
+    {
+      "name": "pair_union",
+      "description": "pair/union candidate family, learned pair selector",
+      "setting": "declared-trained pair gate (gRefCOCO train tune)",
+      "boxes_source": "pair/union candidate family",
+      "still_sota": false,
+      "val": {
+        "cIoU": 36.7337,
+        "gIoU": 69.6184,
+        "N_acc": 86.1426,
+        "n": 14229
+      },
+      "evidence": "exp/out_final/gref_search_val_part0.json"
+    },
+    {
+      "name": "searched",
+      "description": "searched clause-box config (tau=0.249, alpha=0.636, beta=0.389, topk=2, margin=0.759)",
+      "setting": "training-free (parameters searched on held-out train-tune)",
+      "boxes_source": "per-clause full-text boxes (searched)",
+      "still_sota": false,
+      "val": {
+        "cIoU": 40.555,
+        "gIoU": 70.5569,
+        "N_acc": 85.5699,
+        "n": 14229
+      },
+      "evidence": "exp/out_final/gref_search_val_part0.json"
+    }
+  ],
+  "any_arm_sota": false,
+  "best_arm": {
+    "name": "searched",
+    "cIoU": 40.555,
+    "gIoU": 70.5569
+  },
+  "search": {
+    "n_trials": 320,
+    "best_params": {
+      "box_source": "clause",
+      "alpha": 0.6361682150284388,
+      "beta": 0.38927120392812603,
+      "topk": 2,
+      "margin": 0.7585746563232623,
+      "p_sel": 0.24878648320860655,
+      "presence": false
+    },
+    "best_value": 52.276000264822464,
+    "best_attrs": {
+      "gIoU": 72.38055915036227,
+      "N_acc": 93.51851851851852
+    },
+    "objective": "official cIoU on tune rows (abstention included)",
+    "split": "held-out gRefCOCO train-tune rows (1,784 records, per-record terms)",
+    "sampler": "TPESampler(seed=20261019)",
+    "source": "exp/out_final/gref_search_aligned.json"
+  },
+  "alignment": {
+    "scope": "all arms use each record's own parsed sentence and file name",
+    "correction": "supersedes the exp169 numbers, which looked terms up by ref_id; 84.7% of targeted rows in multi-sentence refs used another sentence's terms. The corrected numbers are within ~0.2 cIoU of the old no-detector arms but the searched configuration is 2.1 cIoU higher than the old best.",
+    "reference": "exp/out_final/gref_search_val_part0.json; exp172 for the detector-bearing training-free reference (49.6312 cIoU)"
+  },
+  "verdict": "With GroundingDINO removed, no zero-shot arm clears the same-class cIoU floor (44.4); the best arm is searched at 40.55 cIoU (70.56 gIoU). A 320-trial held-out search over the DINO-free space (box source, sxi parameters, abstention threshold) also stays below the floor. The detector-bearing path is load-bearing for gRefCOCO cIoU; the measured boundary stands rather than being assumed.",
+  "generated": "exp/exp176_write_nodetector.py"
+}

@@ -19,10 +19,9 @@
       "T_acc": 87.847,
       "protocol": "official gRefCOCO val evaluation on the complete split (n=14,229 sentences), no-target treatment identical to the shipped row",
       "prompt_prior_shipped": {
-        "cIoU": 51.3182,
-        "gIoU": 74.9098,
-        "source": "exp/out_final/main_grefcoco.json prompt_prior_reference",
-        "note": "the prompt-prior row that was the shipped row of record when this study ran; now the training-free zero-shot reference row"
+        "cIoU": 50.1435,
+        "gIoU": 74.6645,
+        "source": "gref_tf_weighted.json (corrected per-record alignment, held-out re-tuned)"
       },
       "supervised_reference": {
         "cIoU": 68.94,
@@ -46,29 +45,14 @@
   },
   "progression": [
     {
-      "variant": "naive selector (exp138, absolute threshold)",
-      "val_cIoU": 38.792,
-      "val_gIoU": 69.631
+      "variant": "training-free prompt rule (corrected per-record alignment, held-out re-tuned)",
+      "val_cIoU": 50.1435,
+      "val_gIoU": 74.6645
     },
     {
-      "variant": "+ relative threshold + per-frame standardization (exp138)",
-      "val_cIoU": 41.633,
-      "val_gIoU": 70.348
-    },
-    {
-      "variant": "+ degradation augmentation on top (hurts: 38.91)",
-      "val_cIoU": 38.907,
-      "val_gIoU": 69.595
-    },
-    {
-      "variant": "+ within-row rank score features, no augmentation (best arm of this study; best on the held-out carve-out)",
-      "val_cIoU": 50.52,
-      "val_gIoU": 73.914
-    },
-    {
-      "variant": "+ rank features with augmentation (augmentation hurts again: 45.47)",
-      "val_cIoU": 45.468,
-      "val_gIoU": 71.97
+      "variant": "declared-trained transfer recipe (corrected per-record alignment)",
+      "val_cIoU": 49.4039,
+      "val_gIoU": 74.2644
     }
   ],
   "scale_up_status": "a 6,000-reference gRefCOCO TRAIN-side build (records + parts) is running to add the scale arm the directive asks for; the numbers above are the completed train-carve-out-only runs",
@@ -95,5 +79,33 @@
       }
     },
     "note": "held-out numbers are the train-carved carve-out; the val numbers are a single frozen application of the tuned configuration"
+  },
+  "alignment_correction": {
+    "found": "2026-10-19",
+    "bug": "gRefCOCO term lookups were keyed by ref_id, but a ref holds several sentences (14,229 val records over 4,237 ref_ids). 84.7% of targeted rows in multi-sentence refs used another sentence's noun terms; the same map was used by the term-path evaluation, the learned part tables and the studies.",
+    "scope": "exp118/exp124/exp138/exp152/exp163/exp169/exp177 gRefCOCO term paths; RefCOCO-family paths use each record's own sentence and are unaffected",
+    "previous": {
+      "training_free": {
+        "cIoU": 51.3182,
+        "gIoU": 74.9098
+      },
+      "recipe": {
+        "cIoU": 52.7061,
+        "gIoU": 75.0817
+      }
+    },
+    "corrected": {
+      "training_free": {
+        "cIoU": 49.6312,
+        "gIoU": 74.6013,
+        "N_acc": 86.14261650758002
+      },
+      "recipe": {
+        "cIoU": 49.4039,
+        "gIoU": 74.2644,
+        "N_acc": 86.1426
+      }
+    },
+    "consequence": "With per-record alignment the transfer-aware learned recipe (49.40 cIoU) no longer beats the training-free rule (49.63 cIoU). The earlier promotion (52.71 > 51.32) was an artifact of the misaligned terms and is withdrawn; the shipped gRefCOCO row reverts to the training-free rule. The earlier mechanism decomposition was measured on the same misaligned part tables and is retained only as provenance."
   }
 }

@@ -1,0 +1,119 @@
+{
+  "what": "verified literature coverage (arXiv identifiers checked against arXiv metadata)",
+  "n_references": 22,
+  "bib_entries": 32,
+  "references": [
+    {
+      "key": "liu2023gres",
+      "title": "GRES: Generalized Referring Expression Segmentation",
+      "identifier": "arXiv:2306.00968"
+    },
+    {
+      "key": "psalm2024",
+      "title": "PSALM: Pixelwise SegmentAtion with Large Multi-Modal Model",
+      "identifier": "arXiv:2403.14598"
+    },
+    {
+      "key": "instalign2024",
+      "title": "Phrase-Instance Alignment for Generalized Referring Segmentation",
+      "identifier": "arXiv:2411.15087"
+    },
+    {
+      "key": "lavt2022",
+      "title": "LAVT: Language-Aware Vision Transformer for Referring Image Segmentation",
+      "identifier": "arXiv:2112.02244"
+    },
+    {
+      "key": "cris2022",
+      "title": "CRIS: CLIP-Driven Referring Image Segmentation",
+      "identifier": "arXiv:2111.15174"
+    },
+    {
+      "key": "seqtr2022",
+      "title": "SeqTR: A Simple yet Universal Network for Visual Grounding",
+      "identifier": "arXiv:2203.16265"
+    },
+    {
+      "key": "restr2022",
+      "title": "ReSTR: Convolution-free Referring Image Segmentation Using Transformers",
+      "identifier": "arXiv:2203.16768"
+    },
+    {
+      "key": "vlt2022",
+      "title": "Vision-Language Transformer and Query Generation for Referring Segmentation",
+      "identifier": "arXiv:2108.05565"
+    },
+    {
+      "key": "mattnet2018",
+      "title": "MAttNet: Modular Attention Network for Referring Expression Comprehension",
+      "identifier": "arXiv:1801.08186"
+    },
+    {
+      "key": "shu2023tas",
+      "title": "Text Augmented Spatial-aware Zero-shot Referring Image Segmentation",
+      "identifier": "arXiv:2310.18049"
+    },
+    {
+      "key": "yu2023global",
+      "title": "Zero-shot Referring Image Segmentation with Global-Local Context Features",
+      "identifier": "arXiv:2303.17811"
+    },
+    {
+      "key": "ni2023refdiff",
+      "title": "Ref-Diff: Zero-shot Referring Image Segmentation with Generative Models",
+      "identifier": "arXiv:2308.16777"
+    },
+    {
+      "key": "polyformer2023",
+      "title": "PolyFormer: Referring Image Segmentation as Sequential Polygon Generation",
+      "identifier": "arXiv:2302.07387"
+    },
+    {
+      "key": "lscm2020",
+      "title": "Linguistic Structure Guided Context Modeling for Referring Image Segmentation",
+      "identifier": "arXiv:2010.00515"
+    },
+    {
+      "key": "mmnet2023",
+      "title": "MMNet: Multi-Mask Network for Referring Image Segmentation",
+      "identifier": "arXiv:2305.14969"
+    },
+    {
+      "key": "cmsa2019",
+      "title": "Cross-Modal Self-Attention Network for Referring Image Segmentation",
+      "identifier": "arXiv:1904.04745"
+    },
+    {
+      "key": "kirillov2023sam",
+      "title": "Segment Anything",
+      "identifier": "arXiv:2304.02643"
+    },
+    {
+      "key": "radford2021clip",
+      "title": "Learning Transferable Visual Models From Natural Language Supervision",
+      "identifier": "arXiv:2103.00020"
+    },
+    {
+      "key": "groundingdino2024",
+      "title": "Grounding DINO: Marrying DINO with Grounded Pre-Training for Open-Set Object Detection",
+      "identifier": "arXiv:2303.05499"
+    },
+    {
+      "key": "li2024llavaov",
+      "title": "LLaVA-OneVision: Easy Visual Task Transfer",
+      "identifier": "arXiv:2408.03326"
+    },
+    {
+      "key": "qwen25vl2025",
+      "title": "Qwen2.5-VL Technical Report",
+      "identifier": "arXiv:2502.13923"
+    },
+    {
+      "key": "zhou2022maskclip",
+      "title": "Extract Free Dense Labels from CLIP",
+      "identifier": "arXiv:2112.01071"
+    }
+  ],
+  "verification": "every identifier was resolved through the arXiv API; titles in this file are the API titles; every key has a matching references.bib entry",
+  "verdict": "22 verified references in the bibliography, each with a resolvable arXiv identifier."
+}

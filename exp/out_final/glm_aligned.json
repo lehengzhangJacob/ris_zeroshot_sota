@@ -1,0 +1,50 @@
+{
+  "model": "glm-4.1v-thinking-flash",
+  "endpoint": "Zhipu open.bigmodel.cn paas/v4 (component-matched GLOD-RIS MLLM)",
+  "prompt": "byte-identical to the LLaVA box template; full sentence",
+  "rule": "frozen training-free sentence-box rule (exp40 params), val evaluation only",
+  "sampling": {
+    "scope": "full official val splits; every unique (image, sentence) pair cached",
+    "cache": "exp/out_glm_boxes (exp171 namespace, exp140-compatible)",
+    "records": {
+      "refcoco": "exp/out_extreme/records_refcoco.jsonl",
+      "refcoco+": "exp/out_extreme/records_refcocoplus.jsonl",
+      "refcocog": "exp/out_extreme/records_refcocog.jsonl"
+    }
+  },
+  "datasets": {
+    "refcoco": {
+      "n": 10834,
+      "box_coverage": 99.85231678050582,
+      "box_rate": 99.1046704818165,
+      "mIoU": 67.8835,
+      "oIoU": 61.5043,
+      "llava_mIoU": 68.5333,
+      "delta_mIoU": -0.6498,
+      "source": "exp/out_final/main_glm_refcoco.json"
+    },
+    "refcocoplus": {
+      "n": 10758,
+      "box_coverage": 99.8698642870422,
+      "box_rate": 98.11303216211192,
+      "mIoU": 64.2054,
+      "oIoU": 56.491,
+      "llava_mIoU": 64.6669,
+      "delta_mIoU": -0.4615,
+      "source": "exp/out_final/main_glm_refcocoplus.json"
+    },
+    "refcocog": {
+      "n": 4896,
+      "box_coverage": 100.0,
+      "box_rate": 98.50898692810458,
+      "mIoU": 63.8194,
+      "oIoU": 55.4075,
+      "llava_mIoU": 65.1175,
+      "delta_mIoU": -1.2981,
+      "source": "exp/out_final/main_glm_refcocog.json"
+    }
+  },
+  "comparison": "same rows, same frozen rule; LLaVA-OneVision-7B boxes vs GLM-4.1V boxes",
+  "verdict": "GLM-4.1V-Thinking-Flash boxes evaluated on the full validation splits under the same frozen rule. The aligned comparison isolates the box prior; differences are reported as GLM minus LLaVA on identical records.",
+  "generated": "exp/exp174_glm_aligned.py"
+}

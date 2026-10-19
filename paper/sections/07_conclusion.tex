@@ -13,20 +13,26 @@ matching and moves the three RefCOCO-family benchmarks substantially, under a
 protocol in which every fitted scalar comes from a held-out train-derived
 split and every reported number is a re-analysis of full-validation records.
 
-We also report the boundary of the class we work in. On gRefCOCO we solve the
-no-target decision above the trained state of the art
-($N_{\mathrm{acc}}=\wallCombN$ vs.\ \wallTrainedNAcc{}), and the
-training-free rule beats every same-class (zero-shot) published number on
-both metrics (\grefCIoU{}/\grefGIoU{} vs.\ the best published zero-shot
-\grefZeroShotCIoU{}/\grefZeroShotGIoU{}), as well as the strongest supervised
-gIoU reference (\grefPubGIoU). The remaining constraint is the supervised
-cIoU level --- an instance-level selection gap quantified exactly: it
-requires the selector at \wallRealNeedCIoU\,\% of the deployable oracle
-(while the shipped selector realizes \wallRealMeas\,\%), and both measured
-oracles agree at $\approx0.88$ realization, so the axis is bounded by
-selection quality, not by the construction. Finally, the reproduction audit ---
-official code and reimplementation within \reproAgree\,mIoU, both
-\reproGap\,mIoU below the published baseline table --- is offered as much as a
-caution to the community as a caveat to this paper: for this baseline family,
-cross-paper absolute comparisons are not currently meaningful, and controlled
-reproductions are the only honest reference frame.
+We also report the boundary of the class we work in, together with a
+correction to our own gRefCOCO measurement. On gRefCOCO the no-target
+decision is solved above the trained state of the art
+($N_{\mathrm{acc}}=\wallCombN$ vs.\ \wallTrainedNAcc), and the training-free
+rule beats every same-class (zero-shot) published number on both metrics
+(\grefCIoU{}/\grefGIoU{} vs.\ \grefZeroShotCIoU{}/\grefZeroShotGIoU), with
+gIoU just above the strongest supervised gIoU reference (\grefPubGIoU) at a
+parity-level margin. The supervised cIoU level (\grefPubCIoU) remains out of
+reach. gRefCOCO refs group several sentences and the official evaluator is
+per sentence; our earlier term paths looked terms up by ref\_id, so most
+multi-sentence rows used another sentence's terms. After per-record
+alignment, with frozen parameters, the training-free rule measures
+49.63/74.60; a held-out re-tune of its sxi scalars reaches 50.14/74.66 and is
+shipped. The declared-trained transfer recipe measures 49.40/74.26. The recipe
+promotion of an earlier draft, its bootstrap and its mechanism account are
+withdrawn as artifacts of the misalignment; the shipped row is the
+training-free rule. Finally, a comparison-protocol note: the released
+HybridGL code and our reimplementation agree within \reproAgree\,mIoU, and
+both sit \reproGap\,mIoU below the numbers printed in the HybridGL paper; for
+this baseline family we therefore treat cross-paper absolute comparisons as
+cross-harness comparisons --- every published row is quoted as published and
+every comparison against it is labelled as such --- and keep our controlled
+comparisons internal to one reproduction.

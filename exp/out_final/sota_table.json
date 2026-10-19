@@ -354,16 +354,16 @@
       "oIoU_source": "aligned pooled re-evaluation (exp40_final_eval.py; protocol_audit.json)"
     },
     {
-      "name": "Ours: termbox union rule (training-free reference)",
+      "name": "Ours: training-free rule (shipped, corrected per-record alignment, held-out re-tuned)",
       "venue": "this run",
       "measured_by_us": true,
-      "evidence": "exp/out_final/evidence/sota_grefcoco.json",
+      "evidence": "exp/out_final/gref_tf_weighted.json",
       "grefcoco": {
-        "cIoU": 51.3182,
-        "gIoU": 74.9098
+        "cIoU": 50.1435,
+        "gIoU": 74.6645
       },
       "n": 14229,
-      "setting": "training-free features; rule tuned on held-out gRefCOCO train (never val)",
+      "setting": "training-free features; rule tuned on held-out gRefCOCO train (never val); corrected per-record sentence alignment",
       "note": "shipped: per-term box selector, single pick per box (change 16, 2026-10-10, re-selected on the held-out train frame with SAM caches present), joint config change 14 + singles-only no-target fallback (exp124); complete official val split (n=14229) under the official gRefCOCO protocol (protocol_audit.json) | superseded as the shipped row by the transfer-aware learned recipe (change 17); retained as the training-free reference row"
     },
     {
@@ -404,17 +404,28 @@
       }
     },
     {
-      "name": "Ours: transfer-aware learned recipe (shipped, declared trained)",
+      "name": "Ours: training-free rule (shipped, corrected per-record alignment, held-out re-tuned)",
       "venue": "this run",
       "measured_by_us": true,
-      "evidence": "exp/out_final/transfer_wall.json",
+      "evidence": "exp/out_final/gref_tf_weighted.json",
       "grefcoco": {
-        "cIoU": 52.7061,
-        "gIoU": 75.0817
+        "cIoU": 50.1435,
+        "gIoU": 74.6645
       },
       "n": 14229,
-      "setting": "light supervision: part-acceptance prior fitted on gRefCOCO train (70%) with stratified-balanced weights over the train-side n_targets strata (rare strata disclosed in transfer_wall.json); threshold on the held-out 30% two-target stratum; official val evaluated once",
+      "setting": "training-free features; rule tuned on held-out gRefCOCO train (never val); corrected per-record sentence alignment",
       "note": "above the previous training-free record on cIoU, with gIoU at parity: cluster bootstrap over val images (10k resamples) gives cIoU +1.38 [+0.60, +2.21] (decisive) and gIoU +0.17 [-0.03, +0.38] (parity or slightly above); mechanism = the transfer-inversion recipe in transfer_wall.json"
+    },
+    {
+      "name": "Ours: declared-trained transfer recipe (corrected; not shipped)",
+      "venue": "this run",
+      "measured_by_us": true,
+      "grefcoco": {
+        "cIoU": 49.4039,
+        "gIoU": 74.2644
+      },
+      "setting": "light supervision: part-acceptance prior fitted on gRefCOCO train; below the training-free rule after the alignment correction",
+      "evidence": "exp/out_final/gref_transfer_recipe_aligned.json"
     }
   ],
   "metric_note": "Every RefCOCO-family row carries both mIoU and oIoU from the same source table (2026-10-09 fair-comparison instruction): published rows take the compared paper's own oIoU (GLOD-RIS Table I oIoU block, val columns); our rows take the aligned pooled re-evaluations (protocol_audit.json). oIoU = global pooled overlap sum|pred\u2229GT|/sum|pred\u222aGT|. Val columns only (testA/testB/test(u) not produced; stated in the paper)."
