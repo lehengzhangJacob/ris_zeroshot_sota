@@ -645,3 +645,10 @@ Gate: `python3 extreme_bar.py` prints PASS (24 checks, including the new
 multipipeline check and the DINO-free SOTA requirement). Paper 21 pages,
 rebuilt after all artifacts. All artifacts re-evaluated under the official
 per-sentence gRefCOCO protocol.
+
+Cross-family review of the DINO-free shipping cycle (glm-5.3 for executor
+deepseek-flash): **PASS, MUST-FIX: none.** The reviewer specifically re-checked
+the search-until-it-works val-exposure concern and found it not a validity
+problem: the 802-config search sorts by train-tune cIoU only, the shipped
+configuration is frozen, and its val numbers are a single pass (T-acc from a
+deterministic re-analysis). Review gate: stop.
