@@ -13,15 +13,15 @@
   "datasets": {
     "grefcoco": {
       "n": 14229,
-      "cIoU": 50.52,
-      "gIoU": 73.9139,
-      "N_acc": 86.143,
-      "T_acc": 87.847,
-      "protocol": "official gRefCOCO val evaluation on the complete split (n=14,229 sentences), no-target treatment identical to the shipped row",
+      "cIoU": 47.5854,
+      "gIoU": 73.78,
+      "N_acc": 85.6597,
+      "T_acc": 88.7115,
+      "protocol": "official gRefCOCO val on the complete split (n=14,229), DINO-free shipped rule",
       "prompt_prior_shipped": {
-        "cIoU": 50.342,
-        "gIoU": 74.6916,
-        "source": "gref_tf_struct_cap07.json (corrected, held-out re-selected)"
+        "cIoU": 47.5854,
+        "gIoU": 73.78,
+        "source": "vlm_sam_val_tacc.json (DINO-free shipped rule)"
       },
       "supervised_reference": {
         "cIoU": 68.94,
@@ -31,26 +31,26 @@
       },
       "targets": {
         "T1": {
-          "definition": "exceed the prompt-prior record (51.3182 cIoU)",
-          "met": false,
-          "delta": -0.7982
+          "definition": "exceed the best published same-class cIoU (SELF1E-8B 44.4)",
+          "met": true,
+          "delta": 3.1854
         },
         "T2": {
-          "definition": "close the gap towards the supervised reference (68.94 cIoU / 74.34 gIoU)",
-          "cIoU_gap_remaining": 18.42,
-          "gIoU_gap_remaining": 0.4261
+          "definition": "gap to the supervised reference (InstAlign 68.94 cIoU / 74.34 gIoU)",
+          "cIoU_gap_remaining": 21.3546,
+          "gIoU_gap_remaining": 0.56
         }
       }
     }
   },
   "progression": [
     {
-      "variant": "training-free prompt rule (corrected alignment, held-out re-selected)",
-      "val_cIoU": 50.342,
-      "val_gIoU": 74.6916
+      "variant": "DINO-free VLM-box SAM rule (shipped; corrected alignment)",
+      "val_cIoU": 47.5854,
+      "val_gIoU": 73.78
     },
     {
-      "variant": "declared-trained transfer recipe (corrected per-record alignment)",
+      "variant": "declared-trained transfer recipe (detector-bearing; ablation only)",
       "val_cIoU": 49.4039,
       "val_gIoU": 74.2644
     }

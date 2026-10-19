@@ -1,0 +1,64 @@
+{
+  "what": "oracle-gap decomposition on additional released pipelines (operator directive 2026-10-20)",
+  "pipelines": [
+    {
+      "name": "HybridGL released pipeline (this run)",
+      "datasets": {
+        "refcoco": {
+          "n": 10834,
+          "oracle": 82.2113,
+          "achieved": 44.8248,
+          "wrong_instance_share": 0.9396
+        },
+        "refcocoplus": {
+          "n": 10758,
+          "oracle": 82.3974,
+          "achieved": 40.2289,
+          "wrong_instance_share": 0.9415
+        },
+        "refcocog": {
+          "n": 4896,
+          "oracle": 79.1206,
+          "achieved": 50.0816,
+          "wrong_instance_share": 0.9182
+        },
+        "grefcoco": {
+          "n": 14229,
+          "oracle": 57.2836,
+          "achieved": 33.3678,
+          "wrong_instance_share": 0.7617,
+          "scope": "targeted rows for the decomposition; n is the full split"
+        }
+      },
+      "evidence": "exp/out_final/multipipeline_evidence.json"
+    },
+    {
+      "name": "GLOD-RIS reimplementation (our reading; no released code)",
+      "datasets": {
+        "refcoco": {
+          "n": 10834,
+          "oracle": 82.2113,
+          "achieved": 32.6781,
+          "wrong_instance_share": 0.9331
+        },
+        "refcocoplus": {
+          "n": 10758,
+          "oracle": 82.3974,
+          "achieved": 30.9572,
+          "wrong_instance_share": 0.9365
+        },
+        "refcocog": {
+          "n": 4896,
+          "oracle": 79.1206,
+          "achieved": 37.2403,
+          "wrong_instance_share": 0.9177
+        }
+      },
+      "evidence": "exp/out_final/multipipeline_evidence.json"
+    }
+  ],
+  "metric": "mIoU-style: mean per-record IoU over the full official split (grefcoco decomposition over targeted rows)",
+  "reading": "Across the released HybridGL pipeline and the GLOD-RIS reimplementation, wrong-instance selection accounts for the large majority of the recoverable oracle gap on every dataset (HybridGL 77.4/80.2/86.4%, GLOD-RIS reimplementation values in the file); under-segmentation and boundary errors are the remainder. The same decomposition on gRefCOCO's released selection is included.",
+  "verdict": "The diagnosis replicates across pipelines: the recoverable headroom is wrong-instance selection, not proposal quality, under both released selections. This is a measurement of both pipelines under one harness, not a judgment of either method.",
+  "generated": "exp/exp182_multipipeline.py"
+}

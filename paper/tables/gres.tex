@@ -5,15 +5,16 @@ Method & cIoU & gIoU \\
 \multicolumn{3}{l}{\emph{Zero-shot / training-free class (our class); best published number = the floor}} \\
 PSALM (zero-shot)~\cite{psalm2024} & 42.00 & 43.30 \\
 SELF1E-8B (zero-shot)~\cite{self1e2026} & 44.40 & 37.50 \\
-Ours: training-free rule (shipped, held-out re-tuned)$^\dagger$ & 50.34 & 74.69 \\
+Ours: DINO-free VLM-box SAM rule (shipped)$^\dagger$ & 47.59 & 73.78 \\
 \midrule
-\multicolumn{3}{l}{\emph{Declared light-supervision ablation (not shipped; below the rule)}} \\
-Ours: transfer-aware learned recipe$^\dagger$ & 49.40 & 74.26 \\
+\multicolumn{3}{l}{\emph{Not shipped: detector-dependent or detector-bearing ablations}} \\
+Ours: detector-bearing training-free rule$^\dagger$ & 50.34 & 74.69 \\
+Ours: declared-trained transfer recipe$^\dagger$ & 49.40 & 74.26 \\
 \midrule
 \multicolumn{3}{l}{\emph{Fully-supervised reference rows (trained on gRefCOCO train); never floors}} \\
 LAVT (supervised) & 57.64 & 58.40 \\
 ReLA (supervised) & 62.42 & 63.60 \\
 SAM4MLLM (supervised) & 67.83 & 71.86 \\
-InstAlign (supervised) & 68.94 & 74.34 \\
+InstAlign (supervised)~\cite{instalign2024} & 68.94 & 74.34 \\
 \bottomrule
 \end{tabular}

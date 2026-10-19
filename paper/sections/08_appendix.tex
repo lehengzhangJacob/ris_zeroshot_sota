@@ -101,10 +101,12 @@ another sentence's terms. All gRefCOCO term-path results in this paper are
 re-evaluated with per-record alignment
 (\texttt{gref\_tf\_aligned.json}, \texttt{gref\_transfer\_recipe\_aligned.json},
 \texttt{gref\_search\_val\_part0.json}); the RefCOCO-family path uses
-per-record text and is unaffected. The corrected frozen-parameter rule is
-49.63/74.60 cIoU/gIoU; a held-out re-tune of the sxi scalars reaches
-50.34/74.69 and is shipped. The declared-trained recipe measures 49.40/74.26,
-so it is not shipped and the earlier promotion is withdrawn.
+per-record text and is unaffected. The corrected frozen detector-bearing rule is
+49.63/74.60 cIoU/gIoU; a held-out re-selection reaches 50.34/74.69 (retained as
+the detector-bearing ablation). The declared-trained recipe measures
+49.40/74.26 and is detector-dependent, so it is not shipped. With GroundingDINO
+removed, the VLM-box SAM rule reaches 47.59/73.78 and is the shipped gRefCOCO
+row; the earlier promotion is withdrawn.
 
 \paragraph{Published-number transcription.}
 Published rows in Table~\ref{tab:sota} were transcribed from the GLOD-RIS
@@ -196,7 +198,7 @@ the box-source/phrase probes used to reconcile the quoted attribution);
 \texttt{exp/out\_test\_columns/learned\_*.json} (the promoted head's
 test-column re-evaluation);
 \texttt{exp/out\_final/backbone\_audit.json} with
-\texttt{backbone\_swaps/*.json} and \texttt{gref\_no\_detector\_val.json}
+\texttt{backbone\_swaps/*.json} and \texttt{gref\_nodetector.json} / \texttt{vlm\_sam\_val\_tacc.json}
 (the weaker-lineup audit of \S\ref{sec:limitations}: per-component swap arms
 on the full val splits, each under a head refit on train-carved rows where
 the platform changed).

@@ -1,128 +1,100 @@
 {
-  "what": "GroundingDINO removal from the gRefCOCO path (operator directive 2026-10-18)",
+  "what": "GroundingDINO removal from the gRefCOCO path (operator directive 2026-10-18; search-until-it-works directive 2026-10-20)",
   "class_floor": {
     "cIoU": 44.4,
     "gIoU": 43.3,
-    "source": "SELF1E-8B (cIoU) / PSALM (gIoU) zero-shot same-class numbers"
+    "source": "SELF1E-8B (cIoU, CVPR 2026 arXiv:2603.19026; raised from PSALM 42.0 by the escalation rule) / PSALM (gIoU, ECCV 2024 arXiv:2403.14598)"
   },
   "arms": [
     {
-      "name": "base_noun",
-      "description": "LLaVA-OneVision-7B noun-phrase term boxes (sxi picks)",
-      "setting": "training-free",
-      "boxes_source": "noun-phrase term boxes",
-      "still_sota": false,
+      "name": "vlm_box_sam_union",
+      "description": "per-clause and per-noun VLM boxes; sxi pool picks inside each box unioned with SAM ViT-H box-prompted masks from the same VLM boxes (SAM predicted-IoU floor and area cap); three-prompt abstention; pair/union fallback. No GroundingDINO anywhere.",
+      "setting": "training-free (config selected on the held-out train-tune split)",
+      "boxes_source": "LLaVA-OneVision-7B clause + noun boxes; SAM ViT-H box-prompted masks",
+      "still_sota": true,
       "val": {
-        "cIoU": 38.5639,
-        "gIoU": 69.6542,
-        "N_acc": 86.1426,
+        "cIoU": 47.5854,
+        "gIoU": 73.78,
+        "N_acc": 85.6597,
+        "T_acc": 88.7115,
         "n": 14229
       },
-      "evidence": "exp/out_final/gref_search_val_part0.json"
+      "evidence": "exp/out_final/vlm_sam_val_tacc.json"
     },
     {
-      "name": "full_clause",
-      "description": "LLaVA-OneVision-7B per-clause full-text boxes (sxi picks)",
-      "setting": "training-free",
-      "boxes_source": "per-clause full-text boxes",
-      "still_sota": false,
-      "val": {
-        "cIoU": 37.9538,
-        "gIoU": 69.7757,
-        "N_acc": 86.1426,
-        "n": 14229
-      },
-      "evidence": "exp/out_final/gref_search_val_part0.json"
-    },
-    {
-      "name": "full_clause_presence",
-      "description": "per-clause full-text boxes, existence-probe filtered",
-      "setting": "training-free",
-      "boxes_source": "per-clause boxes + presence filter",
-      "still_sota": false,
-      "val": {
-        "cIoU": 37.8496,
-        "gIoU": 69.752,
-        "N_acc": 86.1426,
-        "n": 14229
-      },
-      "evidence": "exp/out_final/gref_search_val_part0.json"
-    },
-    {
-      "name": "sentence_box",
-      "description": "LLaVA-OneVision-7B full-sentence box (sxi picks)",
-      "setting": "training-free",
-      "boxes_source": "full-sentence box",
-      "still_sota": false,
-      "val": {
-        "cIoU": 36.6985,
-        "gIoU": 69.2792,
-        "N_acc": 86.1426,
-        "n": 14229
-      },
-      "evidence": "exp/out_final/gref_search_val_part0.json"
-    },
-    {
-      "name": "pair_union",
-      "description": "pair/union candidate family, learned pair selector",
-      "setting": "declared-trained pair gate (gRefCOCO train tune)",
-      "boxes_source": "pair/union candidate family",
-      "still_sota": false,
-      "val": {
-        "cIoU": 36.7337,
-        "gIoU": 69.6184,
-        "N_acc": 86.1426,
-        "n": 14229
-      },
-      "evidence": "exp/out_final/gref_search_val_part0.json"
-    },
-    {
-      "name": "searched",
-      "description": "searched clause-box config (tau=0.249, alpha=0.636, beta=0.389, topk=2, margin=0.759)",
-      "setting": "training-free (parameters searched on held-out train-tune)",
-      "boxes_source": "per-clause full-text boxes (searched)",
+      "name": "searched_clause_pool_only",
+      "description": "previous DINO-free best: clause-box sxi picks over the SAM-H pool, no box-prompted SAM",
+      "setting": "training-free (320-trial held-out search)",
+      "boxes_source": "LLaVA clause boxes; precomputed SAM-H pool only",
       "still_sota": false,
       "val": {
         "cIoU": 40.555,
         "gIoU": 70.5569,
-        "N_acc": 85.5699,
+        "N_acc": 85.57,
+        "n": 14229
+      },
+      "evidence": "exp/out_final/gref_search_val_part0.json"
+    },
+    {
+      "name": "base_noun_pool_only",
+      "description": "noun-box sxi picks over the SAM-H pool, no box-prompted SAM",
+      "setting": "training-free",
+      "boxes_source": "LLaVA noun boxes; SAM-H pool only",
+      "still_sota": false,
+      "val": {
+        "cIoU": 38.5639,
+        "gIoU": 69.6542,
+        "N_acc": 86.143,
         "n": 14229
       },
       "evidence": "exp/out_final/gref_search_val_part0.json"
     }
   ],
-  "any_arm_sota": false,
+  "any_arm_sota": true,
   "best_arm": {
-    "name": "searched",
-    "cIoU": 40.555,
-    "gIoU": 70.5569
+    "name": "vlm_box_sam_union",
+    "cIoU": 47.5854,
+    "gIoU": 73.78
   },
   "search": {
-    "n_trials": 320,
+    "n_trials": 802,
     "best_params": {
-      "box_source": "clause",
-      "alpha": 0.6361682150284388,
-      "beta": 0.38927120392812603,
+      "source": "both",
+      "base": "bs",
+      "alpha": 1.0011226819388461,
+      "beta": 0.5332961876084296,
       "topk": 2,
-      "margin": 0.7585746563232623,
-      "p_sel": 0.24878648320860655,
-      "presence": false
-    },
-    "best_value": 52.276000264822464,
-    "best_attrs": {
-      "gIoU": 72.38055915036227,
+      "margin": 0.8151249352210067,
+      "cap": 0.2,
+      "sam_topk": 1,
+      "sam_score_min": 0.7,
+      "p_sel": 0.26289467166338326,
+      "cIoU": 53.64316173609093,
+      "gIoU": 73.24187614654033,
       "N_acc": 93.51851851851852
     },
+    "best_value": 53.64316173609093,
     "objective": "official cIoU on tune rows (abstention included)",
-    "split": "held-out gRefCOCO train-tune rows (1,784 records, per-record terms)",
-    "sampler": "TPESampler(seed=20261019)",
-    "source": "exp/out_final/gref_search_aligned.json"
+    "split": "held-out gRefCOCO train-tune (per-record sentences)",
+    "search_type": "random search over source/base/sxi/cap/SAM top-k/SAM score floor/p_sel plus anchors",
+    "source": "exp/out_final/vlm_sam_tune.json"
   },
+  "detector_bearing_ablation": {
+    "name": "detector-bearing pool+detector-box SAM rule (not shipped)",
+    "cIoU": 50.342,
+    "gIoU": 74.6916,
+    "source": "exp/out_final/gref_tf_struct_cap07.json",
+    "delta_dino_free": {
+      "cIoU": -2.7566,
+      "gIoU": -0.9116
+    },
+    "note": "measured cost of removing GroundingDINO on the same records"
+  },
+  "shipped_detector_free": true,
   "alignment": {
-    "scope": "all arms use each record's own parsed sentence and file name",
-    "correction": "supersedes the exp169 numbers, which looked terms up by ref_id; 84.7% of targeted rows in multi-sentence refs used another sentence's terms. The corrected numbers are within ~0.2 cIoU of the old no-detector arms but the searched configuration is 2.1 cIoU higher than the old best.",
-    "reference": "exp/out_final/gref_search_val_part0.json; exp172 for the detector-bearing training-free reference (49.6312 cIoU)"
+    "scope": "per-record sentence and file name",
+    "reference": "the detector-bearing rule is retained only as an ablation"
   },
-  "verdict": "With GroundingDINO removed, no zero-shot arm clears the same-class cIoU floor (44.4); the best arm is searched at 40.55 cIoU (70.56 gIoU). A 320-trial held-out search over the DINO-free space (box source, sxi parameters, abstention threshold) also stays below the floor. The detector-bearing path is load-bearing for gRefCOCO cIoU; the measured boundary stands rather than being assumed.",
-  "generated": "exp/exp176_write_nodetector.py"
+  "verdict": "A DINO-free arm clears both same-class floors: VLM clause/noun boxes plus SAM box-prompted masks reach 47.59 cIoU / 73.78 gIoU on the full official val split (N-acc 85.66). It is shipped as the gRefCOCO row; GroundingDINO leaves the path. The detector-bearing ablation is 50.34/74.69, so removing the detector costs 2.76 cIoU / 0.91 gIoU. The leap over the previous DINO-free best (40.56 cIoU, pool-only) comes from box-prompted SAM masks on VLM boxes, which the DINO-free path had never used.",
+  "generated": "exp/exp181_update_dino_free.py"
 }

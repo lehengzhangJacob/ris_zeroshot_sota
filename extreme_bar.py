@@ -612,14 +612,15 @@ def detector_free_grefcoco():
         if a["still_sota"]:
             any_sota = True
     if not any_sota:
-        search = data.get("search")
-        if not isinstance(search, dict):
-            return fail("no DINO-free arm is SOTA: need a search{} block")
-        trials = search.get("n_trials")
-        if not isinstance(trials, int) or trials < 300:
-            return fail("no DINO-free arm is SOTA: search.n_trials must be >= 300")
-        if not search.get("best_params"):
-            return fail("no DINO-free arm is SOTA: search.best_params required")
+        return fail("no DINO-free arm clears the same-class floor yet; the directive requires searching until one does (effort alone no longer passes)")
+    search = data.get("search")
+    if not isinstance(search, dict):
+        return fail("gref_nodetector.json needs a search{} block documenting the search effort")
+    trials = search.get("n_trials")
+    if not isinstance(trials, int) or trials < 300:
+        return fail("search.n_trials must be >= 300")
+    if data.get("shipped_detector_free") is not True:
+        return fail("gref_nodetector.json must set shipped_detector_free=true once the DINO-free arm is shipped")
     verdict = data.get("verdict")
     if not isinstance(verdict, str) or not verdict.strip():
         return fail("gref_nodetector.json needs a non-empty verdict string")
@@ -815,6 +816,57 @@ def literature_deep_read():
     return True
 
 
+def multipipeline_diagnosis():
+    """Oracle-gap decomposition on additional released pipelines (operator directive 2026-10-20)."""
+    rel = "exp/out_final/multipipeline_diagnosis.json"
+    if not newer(rel):
+        return False
+    try:
+        data = json.loads((ROOT / rel).read_text())
+    except Exception as exc:
+        return fail(f"bad json {rel}: {exc}")
+    if not isinstance(data, dict):
+        return fail("multipipeline_diagnosis.json must be an object")
+    pipes = data.get("pipelines")
+    if not isinstance(pipes, list) or len(pipes) < 2:
+        return fail("multipipeline_diagnosis.json needs pipelines[] of length >= 2")
+    floors = {"refcoco": 10834, "refcocoplus": 10758, "refcocog": 4896, "grefcoco": 14229}
+    for i, p in enumerate(pipes):
+        if not isinstance(p, dict):
+            return fail(f"pipeline {i} is not an object")
+        if not isinstance(p.get("name"), str) or not p["name"].strip():
+            return fail(f"pipeline {i} needs a non-empty name")
+        dss = p.get("datasets")
+        if not isinstance(dss, dict) or not dss:
+            return fail(f"pipeline {i} needs datasets{{}}")
+        for ds_name, entry in dss.items():
+            if ds_name not in floors:
+                return fail(f"pipeline {i} unknown dataset {ds_name}")
+            if not isinstance(entry, dict):
+                return fail(f"pipeline {i} datasets.{ds_name} must be an object")
+            n = entry.get("n")
+            if not isinstance(n, int) or n < floors[ds_name]:
+                return fail(f"pipeline {i} datasets.{ds_name}.n must be >= {floors[ds_name]} (full split, no sampling)")
+            for key in ("oracle", "achieved", "wrong_instance_share"):
+                if not isinstance(entry.get(key), (int, float)):
+                    return fail(f"pipeline {i} datasets.{ds_name}.{key} must be numeric")
+            ws = float(entry["wrong_instance_share"])
+            if ws > 1.5:
+                ws = ws / 100.0
+            if not (0.0 <= ws <= 1.0):
+                return fail(f"pipeline {i} datasets.{ds_name}.wrong_instance_share must be a fraction or percent")
+        ev = p.get("evidence")
+        if not isinstance(ev, str) or not newer(ev):
+            return fail(f"pipeline {i} needs fresh evidence")
+    verdict = data.get("verdict")
+    if not isinstance(verdict, str) or not verdict.strip():
+        return fail("multipipeline_diagnosis.json needs a non-empty verdict string")
+    pdf_path = ROOT / "paper" / "main.pdf"
+    if not pdf_path.is_file() or pdf_path.stat().st_mtime < (ROOT / rel).stat().st_mtime:
+        return fail("paper/main.pdf must be rebuilt after exp/out_final/multipipeline_diagnosis.json")
+    return True
+
+
 def as_percent(value):
     value = float(value)
     if value <= 1.5:
@@ -900,7 +952,7 @@ def main():
     if not STAMP.is_file():
         print("FAIL: extreme_started.txt missing")
         return 1
-    checks = [tex_has_appendix, architecture, sota, ablation, mains, graveyard, protocol_audit, metrics_sota, analysis_pack, glm_swap, glodris_repro, rule_swap, wild_ideas, learned_prior, test_columns, transfer_wall, component_provenance, backbone_audit, detector_free_grefcoco, glm_aligned, literature_coverage, literature_deep_read, sota_line, pdf]
+    checks = [tex_has_appendix, architecture, sota, ablation, mains, graveyard, protocol_audit, metrics_sota, analysis_pack, glm_swap, glodris_repro, rule_swap, wild_ideas, learned_prior, test_columns, transfer_wall, component_provenance, backbone_audit, detector_free_grefcoco, glm_aligned, literature_coverage, literature_deep_read, multipipeline_diagnosis, sota_line, pdf]
     passed = all(check() for check in checks)
     print("PASS" if passed else "NOT_READY")
     return 0 if passed else 1

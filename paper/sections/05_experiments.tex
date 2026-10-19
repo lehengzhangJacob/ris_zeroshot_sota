@@ -123,13 +123,12 @@ GLM-4.1V boxes vs the local LLaVA boxes.}\label{tab:glmswap}
 the same-methodology (training-free) class and their best number is the floor;
 fully-supervised rows are labelled references and are never floors.
 $^\dagger$All base components are frozen off the shelf (released scorer, VLM,
-detector, SAM, existence probes). The training-free rule fits only its
-selector configuration on held-out rows carved from gRefCOCO \emph{train}
-(the original studies plus the post-correction re-tune of its sxi scalars,
-both train-tune only) and is frozen before its single full-val pass; it is the
-shipped row. The declared-trained transfer recipe (part-acceptance prior) is
-reported below it and is \emph{not} shipped: after the term-alignment
-correction it does not beat the training-free rule
+SAM, existence probes). The shipped DINO-free rule fits only its selector
+configuration on held-out rows carved from gRefCOCO \emph{train} (the
+original studies plus the post-correction 802-configuration search) and is
+frozen before its single full-val pass. The detector-bearing rule and the
+declared-trained recipe are \emph{not} shipped: the directive removes
+GroundingDINO, and the recipe's part pool is detector-derived
 (\texttt{transfer\_wall.json}).}
 \label{tab:gres}
 \input{tables/gres}
@@ -160,9 +159,10 @@ the reproduction documented transparently and the same-pool rule swap
 reported as a controlled measurement of our reading of the published
 equations (\S\ref{sec:repro}--\ref{sec:ruleswap}) --- and deployability: our
 path is fully local, while GLOD-RIS's inference depends on a network MLLM API
-(a documented property of the described method, not a judgment). One axis is not dominated and stays
-declared: the gRefCOCO path adds a second frozen detector next to the VLM
-prior (the RefCOCO-family path runs on the VLM prior alone).
+(a documented property of the described method, not a judgment). The one axis that was not dominated in earlier drafts --- an extra frozen
+detector on the gRefCOCO path --- is now removed: the shipped gRefCOCO path
+runs on the VLM prior and SAM alone (DINO-free), at a measured $2.76$ cIoU /
+$0.91$ gIoU cost against the detector-bearing ablation.
 
 \begin{table}[t]\centering\small
 \caption{Test-column completion (mIoU; oIoU in the same JSON,
@@ -268,12 +268,11 @@ An earlier draft trained a selector over the gRefCOCO part pool under the
 light-supervision allowance and reported a progression from $38.79$ to
 $50.52$\,cIoU, still below the then-reported training-free rule. Those numbers
 were computed with the ref\_id-keyed term map corrected in
-\S\ref{sec:gref} and are withdrawn. The corrected comparison between the
-training-free rule (\grefCIoU{}/\grefGIoU) and the declared-trained
-part-acceptance recipe (49.40/74.26) shows that the recipe does not beat the
-training-free rule on either metric at this training scale (49.63/74.60 with
-the frozen parameters; 50.34/74.69 re-tuned), so no learned gRefCOCO
-selector is promoted. The RefCOCO-family learned selector head is a separate
+\S\ref{sec:gref} and are withdrawn. The corrected comparison between the shipped DINO-free rule
+(\grefCIoU{}/\grefGIoU), the detector-bearing ablation (50.34/74.69) and the
+declared-trained detector-bearing recipe (49.40/74.26) leaves no learned
+gRefCOCO selector shippable: the recipe's part pool is detector-derived and
+the detector is removed from the path. The RefCOCO-family learned selector head is a separate
 component and is unaffected (\S\ref{sec:provenance}).
 
 \begin{table}[t]\centering\small
@@ -391,7 +390,7 @@ gradient-boosted part scorer was fitted on the held-out train rows for exactly t
 job (parts identical to the shipped pool; 70/30 held-out carve-out; one val pass).
 It improves the held-out frame by $+6.8$ cIoU but \emph{loses} $12.2$ cIoU on val
 ($38.79$): the measured covariate shift (predicted part-IoU means $0.413$ vs $0.355$;
-term-composition and detector-box features differ) makes the hand rule, not a model
+term-composition and detector-box features differ in the detector-era part pool) makes the hand rule, not a model
 fitted on 780 train rows, the structure that transfers. A per-frame standardization
 plus a relative threshold narrows but does not close the gap ($41.63$). The negative
 result is recorded in \texttt{gref\_learned\_selector\_transfer.json}; closing the
@@ -426,55 +425,58 @@ stated in \texttt{complexity.json}.}\label{tab:complexity}
 \input{tables/complexity}
 \end{table}
 
-\subsection{gRefCOCO: the same-class floors are cleared; the supervised cIoU level remains}
+\subsection{gRefCOCO: the same-class floors are cleared without a detector; the supervised cIoU level remains}
 \label{sec:gref}
 Table~\ref{tab:gres} reports gRefCOCO. The released pipeline scores
-\grefReleasedCIoU{}/\grefReleasedGIoU{} cIoU/gIoU. Our extension combines a
-\emph{per-term box selector} with a \emph{three-prompt existence ensemble}.
-Two measured properties of the benchmark shape it. First, \emph{val}
-targeted records are \emph{all} multi-target ($n_{\mathrm{targets}}\ge2$ for
-all 5{,}324), so the referent is a union of objects; second, both localization
-and segmentation improve when driven per object: a VLM box overlaps its object
-at IoU $0.580$ ($63.5\%$ selecting $\ge0.50$) against $0.329$ for its single
-union box, and replacing pool selection with \emph{box-prompted SAM} masks
-raises the achievable per-object IoU from $0.655$ to $0.885$. The selector
-therefore asks one box per parsed term (noun phrase plus parsed nouns, at most
-three) from the VLM \emph{and} runs an open-vocabulary detector
-(GroundingDINO, $0.705$ box IoU versus the VLM's $0.580$, with $57\%$ of terms
-returning more than one detection); per term it picks pool masks inside
-\emph{both} boxes (base score scaled by box agreement, top-2 with margin) and
-unions them with SAM's box-prompted masks from the detector's top
-\emph{two} detections. Abstention is the three-prompt ensemble (abstain when
-any paraphrase answers no), with the pair/union selector as fallback when term
-boxes are absent. Every selection and threshold was fitted on held-out
-gRefCOCO \emph{train} populations, never val --- four
-\grefStudyTrials{}-trial Optuna studies, plus the post-correction re-tune of
-the sxi scalars on the same train-tune split --- and frozen before one
-full-val pass per configuration. \emph{Trained versus frozen}: every base component (the released
-scorer, the VLM, the open-vocabulary detector, SAM) is frozen off the shelf;
-the only fitted quantities are this selector's configuration and thresholds,
-fitted on held-out rows carved from gRefCOCO \emph{train} and frozen before
-the single full-val pass, so the official val split is evaluation-only.
+\grefReleasedCIoU{}/\grefReleasedGIoU{} cIoU/gIoU. Our shipped extension is
+\emph{detector-free}: per-clause and per-noun boxes from the frozen VLM, a
+pool pick inside each box, and SAM ViT-H \emph{box-prompted} masks from the
+same VLM boxes. GroundingDINO is not in the path. Two measured properties of
+the benchmark shape the design. First, \emph{val} targeted records are
+\emph{all} multi-target ($n_{\mathrm{targets}}\ge2$ for all 5{,}324), so the
+referent is a union of objects; second, both localization and segmentation
+improve when driven per object: a VLM box overlaps its object at IoU $0.580$
+($63.5\%$ selecting $\ge0.50$) against $0.329$ for its single union box, and
+box-prompted SAM masks raise the achievable per-object IoU from $0.655$ to
+$0.885$. For each clause (and each parsed noun term) the VLM supplies a box;
+the rule picks pool masks whose base score, scaled by box agreement, is
+highest inside the box (top-2 with margin), and unions them with the SAM
+box-prompted masks from the same VLM box, keeping the highest-confidence SAM
+output above a predicted-IoU floor and under an area cap. Abstention is the
+three-prompt existence ensemble, with the pair/union selector as fallback when
+term boxes are absent. Every selection and threshold was fitted on held-out
+gRefCOCO \emph{train} populations, never val --- the original
+\grefStudyTrials{}-trial Optuna studies plus a post-correction 802-configuration
+held-out search over clause/noun source, sxi scalars, SAM mask selection and
+abstention --- and frozen before the full-val evaluation (the T-acc counters come from a
+deterministic re-analysis of the same frozen configuration; no configuration
+was selected on val).
+\emph{Trained versus frozen}: every base component (the released scorer, the
+VLM, SAM) is frozen off the shelf; the only fitted quantities are this
+selector's configuration and thresholds, fitted on held-out rows carved from
+gRefCOCO \emph{train}; the official val split is evaluation-only.
 
-We distinguish two realizations of the training-free rule: the
-\emph{frozen-parameter} rule (the original held-out studies) and the
-\emph{shipped} rule (its sxi scalars re-tuned on the same held-out train-tune
-split after the correction below); neither takes a gradient step. On the
-complete official val split (\grefN{} sentences over \nGres{}
-references; \S\ref{sec:protocol}) the shipped rule reaches
+On the complete official val split (\grefN{} sentences over \nGres{}
+references; \S\ref{sec:protocol}) the DINO-free rule reaches
 \grefCIoU{}/\grefGIoU{} cIoU/gIoU, with
 $N_{\mathrm{acc}}=\wallCombN$ and $T_{\mathrm{acc}}=\wallCombT$. It beats
 every same-class (zero-shot) published number on both metrics: the best
-published zero-shot cIoU \grefZeroShotCIoU{} (SELF1E-8B) and gIoU
-\grefZeroShotGIoU{} (PSALM), both by large margins --- stated explicitly,
-because the comparison is against \emph{published} numbers we did not
-re-measure: a cross-harness delta larger than the margin would flip it, and
-the cross-paper comparability caveat of Section~\ref{sec:repro} applies. The
-rule's gIoU also sits just above the strongest supervised gIoU reference
-(InstAlign, \grefPubGIoU) by $0.35$ (frozen rule: $0.26$) --- a parity-level margin within the
-cross-harness and single-seed uncertainty, not a decisive exceedance. The
-supervised cIoU level (\grefPubCIoU) remains out of reach; the corrected
-training-free cIoU is $18.6$ points below it.
+published zero-shot cIoU \grefZeroShotCIoU{} (SELF1E-8B, CVPR 2026) and gIoU
+\grefZeroShotGIoU{} (PSALM, ECCV 2024), both by clear margins --- stated
+explicitly, because the comparison is against \emph{published} numbers we did
+not re-measure: a cross-harness delta larger than the margin would flip it,
+and the cross-paper comparability caveat of Section~\ref{sec:repro} applies.
+Its gIoU sits $0.56$ \emph{below} the strongest supervised gIoU reference
+(InstAlign, \grefPubGIoU); the supervised cIoU level (\grefPubCIoU) remains out
+of reach, $21.4$ points above the shipped rule.
+
+\emph{The measured cost of removing the detector.} The detector-bearing
+realization of the same rule --- a labelled ablation, not shipped --- reaches
+$50.34$/$74.69$ cIoU/gIoU (\S\ref{sec:transferwall}); removing GroundingDINO
+therefore costs $2.76$ cIoU / $0.91$ gIoU, not a failure: the VLM-box SAM
+construction closes the same-class gap that pool-only DINO-free arms could not
+(their best was $40.56$ cIoU). The gain comes from box-prompted SAM masks on
+VLM boxes, which the detector-free path had never used.
 
 The no-target axis is solved to a useful point: the presence ensemble
 separates no-target expressions at $N_{\mathrm{acc}}=\wallEnsTrainN$
@@ -486,11 +488,9 @@ which of two candidate crops shows the referent, no ``none'' option --- picks
 the GT-best candidate at $29.8\%$ on the held-out grid ($n=858$, mixed train
 prevalence; chance $25\%$); on the two-object slice the identical protocol
 reaches $59.3\%$, still below the trivial largest-candidate heuristic
-($85.4\%$), and a verified-clean Qwen2.5-VL-7B copy measured the same way is
-weaker still ($51.6\%$; $n=246$ records, ${\sim}2.7$k queries per model).
-Closing the cIoU gap needs a supervisor that selects boxes at near-oracle
-quality on two-object referents; every published cIoU number above us on
-gRefCOCO comes from a trained model.
+($85.4\%$). Closing the cIoU gap needs a supervisor that selects boxes at
+near-oracle quality on two-object referents; every published cIoU number above
+us on gRefCOCO comes from a trained model.
 
 \paragraph{A term-alignment audit.}
 gRefCOCO refs group several sentences (14{,}229 val records over 4{,}237
@@ -500,46 +500,36 @@ gRefCOCO term-path evaluations --- the rule above, the learned part tables,
 and the studies built on them --- looked noun terms up by ref\_id. For 84.7\%
 of targeted rows in multi-sentence refs this used another sentence's terms;
 the RefCOCO-family path is unaffected because it uses each record's own
-parsed sentence. After per-record alignment, with all parameters still frozen
-from the held-out studies, the rule measures 49.63/74.60 (was 51.32/74.91).
-Two held-out re-searches on the same train-tune split, both selecting on the
-prevalence-corrected objective that matches the val targeted/no-target mix:
-an sxi-scalar search (1{,}080 configurations; top-1 picks, p\_sel $0.28$,
-50.34 on val) and a structural-plus-scalar search (800 configurations over
-score source, pick box, SAM sources, area cap and the sxi scalars; it selects
-the shipped configuration --- base score, both boxes, both SAM sources,
-area cap $0.7$, alpha $0.60$, beta $0.014$, top-1, p\_sel $0.273$ --- and
-reaches \grefCIoU{}/\grefGIoU{} on val). Neither search touches val during
-selection. This re-selected rule is shipped. A declared-trained transfer-aware recipe, re-evaluated
-under the same correction, measures 49.40/74.26 (was 52.71/75.08) --- below
-the training-free rule on both metrics. The recipe is therefore withdrawn as
-the shipped gRefCOCO row, together with its bootstrap and the mechanism
-decomposition computed on the same misaligned part tables; the training-free
-rule is shipped. This is a correction of our own measurement, not of the
-benchmark: the same-class and supervised comparisons above stand. The
-detector-free realization is likewise corrected: its best held-out-searched
-arm reaches 40.56 cIoU / 70.56 gIoU, still below the 44.4 same-class cIoU
-floor, so the detector remains load-bearing for cIoU on this benchmark.
+parsed sentence. After per-record alignment the frozen detector-bearing rule
+measures 49.63/74.60 (was 51.32/74.91), and a held-out re-selection reaches
+50.34/74.69. A declared-trained transfer-aware recipe, re-evaluated under the
+same correction, measures 49.40/74.26 (was 52.71/75.08); its part pool is
+detector-derived, so under the DINO-free requirement it is retained only as a
+labelled ablation, together with its bootstrap and the mechanism
+decomposition. The DINO-free VLM-box SAM arm measures
+\grefCIoU{}/\grefGIoU{} and is shipped. This is a correction of our own
+measurement, not of the benchmark: the same-class comparisons above stand.
 
-\subsection{Term alignment and the withdrawal of the transfer recipe}
+\subsection{Term alignment, the transfer recipe, and the detector-free rule}
 \label{sec:transferwall}
-The corrected numbers in \S\ref{sec:gref} come from a single change: every
-gRefCOCO term lookup now uses the row's own sentence and file name instead of
-a ref\_id-keyed map. The change was found while auditing the official
-evaluator's per-sentence arithmetic; it affects every term-path number in this
-benchmark, including the learned part tables, and it does not affect the
-RefCOCO-family results. The corrected training-free rule (50.34/74.69 with the held-out re-tuned
-sxi scalars; 49.63/74.60 with the previously frozen parameters) and the
-corrected declared-trained recipe (49.40/74.26) show that the earlier
-promotion of the recipe --- its 52.71/75.08 row, the +1.38 cIoU bootstrap
+The corrected numbers in \S\ref{sec:gref} come from a per-record sentence
+alignment: every gRefCOCO term lookup now uses the row's own sentence and file
+name instead of a ref\_id-keyed map. The change was found while auditing the
+official evaluator's per-sentence arithmetic; it affects every term-path
+number in this benchmark, including the learned part tables, and it does not
+affect the RefCOCO-family results. The earlier promotion of the
+declared-trained recipe --- its 52.71/75.08 row, the +1.38 cIoU bootstrap
 interval, and the four-mechanism decomposition --- was an artifact of the
-misaligned terms. Those results are withdrawn rather than re-tuned: the
-recipe no longer beats the frozen rule, and re-tuning its acceptance
-threshold on the corrected held-out split is left as future work. The
-gRefCOCO boundary reported in this paper is therefore the training-free rule
-of \S\ref{sec:gref}: it clears the same-class floors on both metrics, sits at
-parity with the strongest supervised gIoU reference, and remains far below the
-supervised cIoU level.
+misaligned terms and is withdrawn.
+
+Under the detector-free requirement the recipe's detector-derived part pool
+cannot be used. The measurements that remain are: detector-bearing
+training-free rule 50.34/74.69 (ablation), declared-trained detector-bearing
+recipe 49.40/74.26 (ablation), and the shipped DINO-free VLM-box SAM rule
+\grefCIoU{}/\grefGIoU{}. Removing the detector therefore costs $2.76$/$0.91$
+against the detector-bearing training-free rule and $1.82$/$0.48$ against the
+recipe. The shipped rule clears both same-class floors; the gap to the
+supervised cIoU level (\grefPubCIoU) remains the measured boundary.
 
 \subsection{Reproduction audit}
 \label{sec:repro}

@@ -1,0 +1,24 @@
+{
+  "n": 14229,
+  "cIoU": 47.58543492961301,
+  "gIoU": 73.77997988621944,
+  "N_acc": 85.65974171813588,
+  "n_no_target": 8905,
+  "config": {
+    "source": "both",
+    "base": "bs",
+    "alpha": 1.0011226819388461,
+    "beta": 0.5332961876084296,
+    "topk": 2,
+    "margin": 0.8151249352210067,
+    "cap": 0.2,
+    "sam_topk": 1,
+    "sam_score_min": 0.7,
+    "p_sel": 0.26289467166338326,
+    "cIoU": 53.64316173609093,
+    "gIoU": 73.24187614654033,
+    "N_acc": 93.51851851851852
+  },
+  "alignment": "per-record sentence",
+  "generated": "exp180_vlm_sam_arm.py --mode val"
+}

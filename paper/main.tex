@@ -33,14 +33,11 @@ Paper ID ****}
 Training-free referring image segmentation is implemented as
 \emph{propose-then-select}: a frozen segmenter proposes masks, a frozen
 vision-language model scores them, and the argmax is returned. We measure
-what actually limits this pipeline on full validation splits --- after first
-asking what the field's strongest published training-free method, GLOD-RIS,
-reaches under our harness: the authors release no code, our faithful
-end-to-end reimplementation of the described method lands
-$20$--$26$\,mIoU below the published rows, and so every comparison quotes
-those rows as published (cross-harness, explicitly labelled) with the
-reproduction and its unaccounted remainder documented in the appendix ---
-a comparison-protocol note, not a claim about the original work --- and find
+what actually limits this pipeline on full validation splits. Every
+comparison against published rows is quoted as published and labelled
+cross-harness; GLOD-RIS releases no code, and our independent reimplementation
+is documented in the appendix purely as a transparency record, not as a
+finding about the original work. We find
 that the proposal pool is not the bottleneck --- an oracle picker over the pool reaches
 \oracleRefcoco\,mIoU on RefCOCO while the released pipeline returns
 \refcocoReleased, and the recoverable IoU is carried by wrong-instance
@@ -66,25 +63,26 @@ published GLOD-RIS row on all three benchmarks ($69.99$/$65.22$/$64.83$ mIoU),
 so the result is not an artifact of stacking on the released pipeline. The method is tuned only on a held-out split built
 from
 RefCOCO-family train references (\studyTrials{}-trial Optuna studies, objective
-= minimum over datasets) and evaluated on the full validation sets. On gRefCOCO we locate where the training-free class stands: a three-prompt
+= minimum over datasets) and evaluated on the full validation sets. On gRefCOCO we locate where the training-free class stands. A three-prompt
 yes/no presence ensemble \emph{solves} the no-target decision above the
-trained state of the art (N-acc \wallCombN{} vs.\ \wallTrainedNAcc{}), and the
-training-free rule \emph{beats} every same-class (zero-shot) published number
-on both metrics (\grefCIoU{}/\grefGIoU{} vs.\
-\grefZeroShotCIoU{}/\grefZeroShotGIoU{}), with gIoU just above the strongest
-supervised gIoU reference (\grefPubGIoU) at a parity-level margin; the
-\emph{supervised} cIoU level (\grefPubCIoU) remains out of reach. The gRefCOCO
-numbers carry a correction of our own measurement: refs group several
-sentences, the official evaluator is per sentence, and our earlier term paths
-used a ref\_id-keyed map (84.7\% of targeted rows in multi-sentence refs used
-another sentence's terms). After per-record alignment the frozen
-training-free rule measures 49.63/74.60; a held-out re-tune of its sxi
-scalars reaches \grefCIoU{}/\grefGIoU{} and is shipped, while a
-declared-trained transfer recipe measures 49.40/74.26. The recipe promotion of an earlier draft
-(52.71/75.08), its +1.38 cIoU bootstrap and its mechanism account are
-withdrawn as artifacts of the misalignment; the shipped gRefCOCO row is this
-re-tuned training-free rule. The detector-free realization remains below the same-class
-floor (best held-out-searched arm 40.56 cIoU).
+trained state of the art (N-acc \wallCombN{} vs.\ \wallTrainedNAcc{}), and a
+\emph{detector-free} rule beats every same-class (zero-shot) published number
+on both metrics: \grefCIoU{}/\grefGIoU{} cIoU/gIoU vs.\ the best published
+zero-shot \grefZeroShotCIoU{} (SELF1E-8B) / \grefZeroShotGIoU{} (PSALM). Its
+gIoU sits $0.56$ below the strongest supervised gIoU reference (InstAlign,
+\grefPubGIoU); the supervised cIoU level (\grefPubCIoU) remains out of reach.
+The shipped rule is DINO-free: per-clause and per-noun VLM boxes with SAM
+box-prompted masks from the same boxes. The gRefCOCO numbers also carry a
+correction of our own measurement: refs group several sentences, the official
+evaluator is per sentence, and our earlier term paths used a ref\_id-keyed map
+(84.7\% of targeted rows in multi-sentence refs used another sentence's
+terms). After per-record alignment the frozen detector-bearing rule measures
+49.63/74.60; a held-out re-selection reaches 50.34/74.69, and a
+declared-trained transfer recipe 49.40/74.26. Removing GroundingDINO from the
+shipped path costs $2.76$ cIoU / $0.91$ gIoU against that detector-bearing
+ablation, and the recipe is detector-dependent and not shipped; its earlier
+promotion (52.71/75.08), bootstrap and mechanism account are withdrawn as
+artifacts of the misalignment.
 \end{abstract}
 
 \input{sections/01_intro}

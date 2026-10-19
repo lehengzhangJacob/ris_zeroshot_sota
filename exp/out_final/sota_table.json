@@ -354,16 +354,16 @@
       "oIoU_source": "aligned pooled re-evaluation (exp40_final_eval.py; protocol_audit.json)"
     },
     {
-      "name": "Ours: training-free rule (shipped, corrected per-record alignment, held-out re-tuned)",
+      "name": "Ours: DINO-free VLM-box SAM rule (shipped)",
       "venue": "this run",
       "measured_by_us": true,
-      "evidence": "exp/out_final/gref_tf_struct_cap07.json",
+      "evidence": "exp/out_final/vlm_sam_val_tacc.json",
       "grefcoco": {
-        "cIoU": 50.342,
-        "gIoU": 74.6916
+        "cIoU": 47.5854,
+        "gIoU": 73.78
       },
       "n": 14229,
-      "setting": "training-free features; rule tuned on held-out gRefCOCO train (never val); corrected per-record sentence alignment",
+      "setting": "training-free; VLM clause/noun boxes + SAM box-prompted masks; no detector; config on held-out gRefCOCO train",
       "note": "shipped: per-term box selector, single pick per box (change 16, 2026-10-10, re-selected on the held-out train frame with SAM caches present), joint config change 14 + singles-only no-target fallback (exp124); complete official val split (n=14229) under the official gRefCOCO protocol (protocol_audit.json) | superseded as the shipped row by the transfer-aware learned recipe (change 17); retained as the training-free reference row"
     },
     {
@@ -404,16 +404,16 @@
       }
     },
     {
-      "name": "Ours: training-free rule (shipped, corrected per-record alignment, held-out re-tuned)",
+      "name": "Ours: DINO-free VLM-box SAM rule (shipped)",
       "venue": "this run",
       "measured_by_us": true,
-      "evidence": "exp/out_final/gref_tf_struct_cap07.json",
+      "evidence": "exp/out_final/vlm_sam_val_tacc.json",
       "grefcoco": {
-        "cIoU": 50.342,
-        "gIoU": 74.6916
+        "cIoU": 47.5854,
+        "gIoU": 73.78
       },
       "n": 14229,
-      "setting": "training-free features; rule tuned on held-out gRefCOCO train (never val); corrected per-record sentence alignment",
+      "setting": "training-free; VLM clause/noun boxes + SAM box-prompted masks; no detector; config on held-out gRefCOCO train",
       "note": "above the previous training-free record on cIoU, with gIoU at parity: cluster bootstrap over val images (10k resamples) gives cIoU +1.38 [+0.60, +2.21] (decisive) and gIoU +0.17 [-0.03, +0.38] (parity or slightly above); mechanism = the transfer-inversion recipe in transfer_wall.json"
     },
     {
@@ -426,6 +426,17 @@
       },
       "setting": "light supervision: part-acceptance prior fitted on gRefCOCO train; below the training-free rule after the alignment correction",
       "evidence": "exp/out_final/gref_transfer_recipe_aligned.json"
+    },
+    {
+      "name": "Ours: detector-bearing ablation (not shipped)",
+      "venue": "this run",
+      "measured_by_us": true,
+      "grefcoco": {
+        "cIoU": 50.342,
+        "gIoU": 74.6916
+      },
+      "setting": "ablation only: GroundingDINO detector path, removed per the 2026-10-20 directive",
+      "evidence": "exp/out_final/gref_tf_struct_cap07.json"
     }
   ],
   "metric_note": "Every RefCOCO-family row carries both mIoU and oIoU from the same source table (2026-10-09 fair-comparison instruction): published rows take the compared paper's own oIoU (GLOD-RIS Table I oIoU block, val columns); our rows take the aligned pooled re-evaluations (protocol_audit.json). oIoU = global pooled overlap sum|pred\u2229GT|/sum|pred\u222aGT|. Val columns only (testA/testB/test(u) not produced; stated in the paper)."

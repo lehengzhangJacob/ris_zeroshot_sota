@@ -251,12 +251,12 @@
   },
   "arms": [
     {
-      "name": "prompt prior (training-free rule, corrected alignment, held-out re-selected)",
-      "val_cIoU": 50.342,
-      "val_gIoU": 74.6916,
-      "val_N_acc": 85.69343065693431,
+      "name": "DINO-free shipped rule (VLM-box SAM, corrected alignment)",
+      "val_cIoU": 47.5854,
+      "val_gIoU": 73.78,
+      "val_N_acc": 85.65974171813588,
       "trained": false,
-      "source": "exp/out_final/gref_tf_struct_cap07.json"
+      "source": "exp/out_final/vlm_sam_val_tacc.json"
     },
     {
       "name": "transfer-aware learned recipe (corrected per-record alignment)",
@@ -267,7 +267,7 @@
       "source": "exp/out_final/gref_transfer_recipe_aligned.json"
     }
   ],
-  "verdict": "Under per-record sentence alignment the training-free rule, re-selected on the held-out train-tune split, reaches 50.34 cIoU / 74.69 gIoU; the declared-trained transfer recipe reaches 49.40 / 74.26 and does not beat it. The earlier 52.71 claim was an artifact of the ref_id-keyed term map; the recipe is withdrawn and the training-free rule is shipped.",
+  "verdict": "The DINO-free VLM-box SAM rule is shipped at 47.59 cIoU / 73.78 gIoU (no detector). The declared-trained detector-bearing recipe is 49.40/74.26; its substrate is detector-derived, so it is retained only as a labelled ablation. The detector-bearing training-free ablation is 50.34/74.69.",
   "arms_detail": {
     "reference_prompt_prior": {
       "cIoU": 49.6312,
@@ -529,9 +529,9 @@
     },
     "corrected": {
       "training_free": {
-        "cIoU": 50.342,
-        "gIoU": 74.6916,
-        "N_acc": 85.69343065693431
+        "cIoU": 47.5854,
+        "gIoU": 73.78,
+        "N_acc": 85.65974171813588
       },
       "recipe": {
         "cIoU": 49.4039,

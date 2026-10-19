@@ -1,9 +1,10 @@
 \begin{tabular}{lcc}
 \toprule
-Variant (train side only; val is a single frozen application) & cIoU & gIoU \\
+Variant & cIoU & gIoU \\
 \midrule
-training-free prompt rule (corrected alignment, held-out re-tuned; shipped) & 50.34 & 74.69 \\
-declared-trained transfer recipe (corrected per-record alignment) & 49.40 & 74.26 \\
+DINO-free VLM-box SAM rule (shipped) & 47.59 & 73.78 \\
+Detector-bearing training-free rule (ablation) & 50.34 & 74.69 \\
+Declared-trained transfer recipe (detector-bearing; ablation) & 49.40 & 74.26 \\
 \midrule
 InstAlign (supervised reference, labelled) & 68.94 & 74.34 \\
 \bottomrule

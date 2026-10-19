@@ -8,21 +8,17 @@ and the practice of reporting only end metrics has hidden which component
 actually fails. We measure it.
 
 Before our own numbers, a comparison-protocol note frames them. The strongest
-published training-free method of this class, GLOD-RIS, releases no code; our
-faithful end-to-end reimplementation of the described method, run on the full
-official validation splits, lands $20$--$26$\,mIoU below the published rows
-($32.68$/$30.96$/$37.24$ against $58.42$/$54.01$/$57.85$ mIoU;
-Section~\ref{sec:repro}). With no released code the shortfall cannot be
-attributed to the original work and is not a finding about it --- it is a
-statement about our reading of the description. We therefore quote the
-published rows as published throughout, label every comparison against them
-cross-harness, and document the reproduction, its provenance and its
-unaccounted remainder transparently in the appendix. As a controlled
-measurement of the described guidance we additionally run the published
-selection equations (under our reading) on our exact pools, features and its
-own cached MLLM guidance (Section~\ref{sec:ruleswap}); its numbers are
-reported alongside the unguided released scorer on the same records, without
-judging the original method.
+published training-free method of this class, GLOD-RIS, releases no code; we
+therefore quote its published rows as published throughout and label every
+comparison against them cross-harness. Our independent reimplementation of the
+described method is documented in the appendix purely as a transparency record:
+it is not used as evidence and it says nothing about the original work ---
+published results stand as published. As a controlled measurement of the
+described guidance we additionally run the published selection equations
+(under our reading) on our exact pools, features and its own cached MLLM
+guidance (Section~\ref{sec:ruleswap}); its numbers are reported alongside the
+unguided released scorer on the same records, without judging the original
+method.
 
 Our first finding is negative and decisive: at this operating point the
 proposal pool is \emph{not} the bottleneck. On full RefCOCO val the pool
@@ -69,30 +65,29 @@ themselves are generated from those records by script.
 On gRefCOCO, whose metrics penalise false-positive masks on no-target
 expressions, the no-target decision is solvable training-free: a three-prompt
 presence ensemble abstains at $N_{\mathrm{acc}}=\wallCombN$ --- above the
-\wallTrainedNAcc{} the trained state of the art reports. The training-free
+\wallTrainedNAcc{} the trained state of the art reports. A \emph{detector-free}
 rule beats every same-class (zero-shot) published number on both metrics: the
 best published zero-shot cIoU \grefZeroShotCIoU{} (SELF1E-8B) and gIoU
-\grefZeroShotGIoU{} (PSALM) fall to \grefCIoU{}/\grefGIoU{}; its gIoU also
-sits just above the strongest supervised gIoU reference (InstAlign,
-\grefPubGIoU) by $0.35$ (the frozen-parameter rule gives $0.26$), a parity-level margin within the cross-harness
-uncertainty. The supervised cIoU level (\grefPubCIoU) remains out of reach.
+\grefZeroShotGIoU{} (PSALM) fall to \grefCIoU{}/\grefGIoU{}. Its gIoU sits
+$0.56$ \emph{below} the strongest supervised gIoU reference (InstAlign,
+\grefPubGIoU); the supervised cIoU level (\grefPubCIoU) remains out of reach.
 
-These numbers carry a correction that belongs in the paper. gRefCOCO refs
-group several sentences, and the official evaluator scores each sentence
-separately. Our earlier term-path evaluations looked terms up by ref\_id, so
-84.7\% of targeted rows in multi-sentence refs used another sentence's terms.
-After correcting the alignment, with every parameter still frozen from the
-held-out studies, the training-free rule measures 49.63/74.60; a held-out
-re-tune of its sxi scalars reaches \grefCIoU{}/\grefGIoU{} and is shipped,
-while a declared-trained part-acceptance recipe measures 49.40/74.26 --- below
-the rule. The recipe promotion of an earlier draft (52.71/75.08), its bootstrap
-and its mechanism decomposition were artifacts of the misalignment and are
-withdrawn; the shipped gRefCOCO row is the training-free rule
-(\S\ref{sec:transferwall}). The detector-free realization is likewise below
-the same-class floor (best held-out-searched arm 40.56 cIoU vs.\ 44.4). We
-report the correction because the alternative --- tuning around a measurement
-bug --- would have inflated this paper's claims; the same-class and supervised
-comparisons survive it.
+The shipped gRefCOCO rule is DINO-free: per-clause and per-noun VLM boxes,
+with SAM box-prompted masks from the same VLM boxes. The numbers carry a
+correction that belongs in the paper. gRefCOCO refs group several sentences,
+and the official evaluator scores each sentence separately; our earlier
+term-path evaluations looked terms up by ref\_id, so 84.7\% of targeted rows in
+multi-sentence refs used another sentence's terms. After correcting the
+alignment, with parameters frozen, the detector-bearing rule measures
+49.63/74.60, and a held-out re-selection reaches 50.34/74.69. A
+declared-trained part-acceptance recipe measures 49.40/74.26; its part pool is
+detector-derived, so under the DINO-free requirement it is not shipped. The
+recipe promotion of an earlier draft (52.71/75.08), its bootstrap and its
+mechanism decomposition were artifacts of the misalignment and are withdrawn.
+Removing GroundingDINO costs $2.76$ cIoU / $0.91$ gIoU against the
+detector-bearing ablation and still clears both same-class floors. We report
+the correction because the alternative --- tuning around a measurement bug ---
+would have inflated this paper's claims.
 
 Contributions:
 \begin{itemize}\itemsep2pt
@@ -117,15 +112,13 @@ Contributions:
   \item A held-out tuning protocol (\studyTrials{}-trial Optuna studies on
   train-derived refs, minimum-over-datasets objective) and a fully scripted
   evidence chain in which no number is transcribed by hand.
-  \item A quantified boundary on gRefCOCO. The no-target decision is
-  \emph{solved} above the trained state of the art (N-acc \wallCombN{} vs.\
-  \wallTrainedNAcc{}), and every same-class (zero-shot) published number is
-  \emph{beaten} on both metrics by the training-free rule (\grefCIoU{}/\grefGIoU{}
-  vs.\ \grefZeroShotCIoU{}/\grefZeroShotGIoU{}), with gIoU at parity with the
-  strongest supervised gIoU reference (\grefPubGIoU); the supervised cIoU
-  level (\grefPubCIoU) remains the measured wall. A term-alignment audit of
-  the gRefCOCO term paths, the correction it forced (a declared-trained
-  recipe that no longer beats the training-free rule is withdrawn), and the
-  detector-free boundary (40.56 cIoU, below the same-class floor) are reported
-  with the numbers.
+  \item A quantified boundary on gRefCOCO, with the detector removed from the
+  shipped path. The no-target decision is \emph{solved} above the trained
+  state of the art (N-acc \wallCombN{} vs.\ \wallTrainedNAcc{}), and every
+  same-class (zero-shot) published number is \emph{beaten} on both metrics by
+  a DINO-free rule (\grefCIoU{}/\grefGIoU{} vs.\
+  \grefZeroShotCIoU{}/\grefZeroShotGIoU{}); the supervised cIoU level
+  (\grefPubCIoU) remains the measured wall, and the detector-bearing ablation
+  (50.34/74.69) reports the $2.76$/$0.91$ cost of removing the detector. A
+  term-alignment audit and its correction are reported with the numbers.
 \end{itemize}

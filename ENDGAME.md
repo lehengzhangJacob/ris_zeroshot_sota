@@ -602,3 +602,46 @@ detector, no training; 69.99/65.22/64.83 above the published GLOD-RIS row on
 all three) in the abstract and contributions so the result is not presented as
 stacking on HybridGL. The shipped head still uses the released score
 restriction; its measured contribution is disclosed in component_provenance.
+
+## 2026-10-20 DINO-free gRefCOCO ships and clears the same-class floors
+
+Directive: GroundingDINO must leave the gRefCOCO path and stay out; search
+without a trial cap until a DINO-free arm clears cIoU >= 44.4 and gIoU >= 43.3,
+then ship it. Previous DINO-free best: 40.56 cIoU (pool-only arms).
+
+Root cause of the previous boundary: the DINO-free arms had never used
+box-prompted SAM masks. The detector-bearing path got most of its mask quality
+from SAM prompted by detector boxes. We prompted SAM ViT-H with the *VLM*
+boxes instead (per-clause and per-noun LLaVA boxes; exp179 caches; 3 multimask
+outputs each, downsampled to the record frame), then ran a held-out 802-config
+random search on the train-tune split (source clause/noun/both, sxi scalars,
+SAM top-k by predicted IoU, SAM score floor, area cap, abstention; no val
+contact). The selected config: clause+noun, cap 0.2, SAM top-1 with predicted
+IoU >= 0.7, alpha 1.00, beta 0.53, top-k 2, p_sel 0.263.
+
+Full official val, one frozen configuration (T-acc from a deterministic
+re-analysis of the same configuration): **47.5854 cIoU / 73.7800 gIoU /
+N 85.66 / T 88.71** (`vlm_sam_val_tacc.json`). It clears both same-class
+floors (SELF1E-8B 44.4 cIoU; PSALM 43.3 gIoU) with no detector, and is the
+shipped gRefCOCO row. Detector-bearing ablation: 50.3420/74.6916; removing
+GroundingDINO costs 2.76 cIoU / 0.91 gIoU. The declared-trained recipe
+(49.4039/74.2644) is detector-dependent and not shipped. gIoU sits 0.56 below
+InstAlign's supervised 74.34 (parity-level/negative, stated). Component
+inventory 14 -> 13; GroundingDINO marked removed in backbone_audit.
+
+`gref_nodetector.json`: `vlm_box_sam_union` still_sota=true,
+shipped_detector_free=true, search n_trials=802, fresh evidence.
+
+Multipipeline diagnosis (new gate check, directive 2026-10-20):
+`multipipeline_diagnosis.json` + `multipipeline_evidence.json` decompose the
+oracle gap on the full official splits for the released HybridGL pipeline and
+the GLOD-RIS reimplementation (plus gRefCOCO's released selection): under the
+threshold definition, wrong-instance selection carries 93.9/94.1/91.8% and
+93.3/93.7/91.8% of the recoverable IoU respectively; the sample-level
+containment taxonomy in the paper is stricter. Paper reflects it in the
+diagnosis section.
+
+Gate: `python3 extreme_bar.py` prints PASS (24 checks, including the new
+multipipeline check and the DINO-free SOTA requirement). Paper 21 pages,
+rebuilt after all artifacts. All artifacts re-evaluated under the official
+per-sentence gRefCOCO protocol.

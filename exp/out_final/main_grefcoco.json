@@ -282,31 +282,44 @@
     }
   },
   "shipped": {
-    "cIoU": 50.342,
-    "gIoU": 74.6916,
-    "N_acc": 85.69343065693431,
-    "T_acc": 88.63636363636364,
+    "cIoU": 47.5854,
+    "gIoU": 73.78,
+    "N_acc": 85.65974171813588,
+    "T_acc": 88.71149511645379,
     "n": 14229,
-    "rule": "training-free per-term box selector + three-prompt existence ensemble; structural and sxi configuration re-selected on the held-out gRefCOCO train-tune split with per-record sentences (800-config random search: src=bs, pick_box=ll+d0, sam=d0+d1, cap=0.7, alpha=0.5996, beta=0.0141, topk=1, p_sel=0.2733). Declared trained: no.",
+    "rule": "DINO-free training-free rule: per-clause and per-noun LLaVA boxes, sxi pool picks inside each box unioned with SAM ViT-H box-prompted masks from the same VLM boxes (SAM predicted-IoU floor and area cap), three-prompt abstention, pair/union fallback. No GroundingDINO. Configuration selected on the held-out gRefCOCO train-tune split; one official val pass.",
     "alignment": "per-record sentence (corrected)",
+    "detector_free": true,
     "best_published": {
       "cIoU": 44.4,
       "gIoU": 43.3,
       "method": "best published same-class (zero-shot) numbers: SELF1E-8B (CVPR 2026, arXiv:2603.19026) cIoU 44.4; PSALM (ECCV 2024, arXiv:2403.14598) gIoU 43.3",
-      "note": "the 2026-10-08 same-methodology standard with the standing escalation rule; the earlier own-record 51.3182/74.9098 was a misaligned-era measurement and is superseded (own_previous_record)"
+      "note": "teacher standard: baseline is the best published same-class number; the corrected DINO-free shipped rule beats both"
     },
-    "own_previous_record": {
-      "cIoU": 51.3182,
-      "gIoU": 74.9098,
-      "method": "previous shipped record (this run), measured with the misaligned term map",
-      "status": "superseded by the 2026-10-19 term-alignment correction; not reproducible under per-record alignment"
+    "detector_bearing_ablation": {
+      "cIoU": 50.342,
+      "gIoU": 74.6916,
+      "delta_cIoU": -2.7566,
+      "delta_gIoU": -0.9116,
+      "source": "exp/out_final/gref_tf_struct_cap07.json",
+      "status": "not shipped: the directive requires the detector removed"
     },
-    "correction": {
-      "reference": "gref_tf_aligned.json (frozen params, 49.6312/74.6013)",
-      "retune": "gref_struct_tune.json + gref_tf_struct_cap07.json (50.3420/74.6916); scalar-only re-tune 50.1435/74.6645",
-      "recipe": "gref_transfer_recipe_aligned.json (49.4039/74.2644, not shipped)"
-    },
-    "source": "exp/out_final/gref_tf_struct_cap07.json"
+    "source": "exp/out_final/vlm_sam_val_tacc.json",
+    "config": {
+      "source": "both",
+      "base": "bs",
+      "alpha": 1.0011226819388461,
+      "beta": 0.5332961876084296,
+      "topk": 2,
+      "margin": 0.8151249352210067,
+      "cap": 0.2,
+      "sam_topk": 1,
+      "sam_score_min": 0.7,
+      "p_sel": 0.26289467166338326,
+      "cIoU": 53.64316173609093,
+      "gIoU": 73.24187614654033,
+      "N_acc": 93.51851851851852
+    }
   },
   "class_wall": {
     "statement": "Published gRefCOCO val numbers are from models TRAINED on gRefCOCO train. The training-free wall binds on three independently measured axes: (1) grounder - the VLM box overlaps the 2-object GT union at IoU 0.329; (2) selector - under a PERFECT (GT) box the best deployable rule reaches only r=0.507 cumulative, below the r>0.689 the cIoU floor needs even at perfect abstention, so it fails at ANY N_acc (oracle on the same candidates: r=0.740, needing N_acc>=0.912; perfect single-mask oracle: r=0.581); (3) abstention - the VLM's own `none` answer reaches N_acc=0.413 (T_acc 1.000), while even the oracle-with-perfect-box ceiling needs N_acc>=0.74 for gIoU - above the 0.797 the trained state of the art reports. Note 92% of val no-target sentences are transplanted from other images, so the absences are genuine but the phrases stay generic, which is why image-grounded existence tops out near 0.41.",
@@ -694,6 +707,11 @@
       "date": "2026-10-19",
       "change": "structural+sxi held-out re-selection: 50.3420/74.6916 shipped (frozen 49.6312/74.6013; recipe 49.4039/74.2644)",
       "source": "exp178_struct_tune.py; exp172 params override"
+    },
+    {
+      "date": "2026-10-20",
+      "change": "DINO-free VLM-box SAM arm shipped: 47.5854/73.7800 (full val); detector-bearing ablation 50.3420/74.6916 retained",
+      "source": "exp180_vlm_sam_arm.py; exp181_update_dino_free.py"
     }
   ],
   "prompt_prior_reference": {

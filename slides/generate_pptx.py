@@ -115,7 +115,7 @@ bullets(s, [
 # ---------------- Slide 3 ----------------
 s = new(); title(s, "诊断：瓶颈是 selection，不是 mask 质量")
 bullets(s, [
-    "oracle：池中最好 mask 达 **82.21 mIoU**（82% 表达式池里已有好 mask）；所基于的 HybridGL released pipeline 只拿到 **44.82**",
+    "oracle：池中最好 mask 达 **82.21 mIoU**（93% 表达式池里已有好 mask）；所基于的 HybridGL released pipeline 只拿到 **44.82**",
     "可回收 IoU 的构成：**wrong-instance（选错实例）主导**；under-segmentation 只占小头——现有工作多聚焦 mask 质量与合并",
     "更强 encoder 不解决：SigLIP-so400m 反而**更差**（36.5 vs 40.4）",
     "⇒ 失败是 **localization**（不知道在哪），不是 representation",

@@ -75,12 +75,6 @@
       "evidence": "exp/exp138_learned_union_selector.py; exp/out_final/transfer_wall.json"
     },
     {
-      "name": "Open-vocabulary detector gate (GroundingDINO) on the gRefCOCO path",
-      "role": "second box source for term-level picks on gRefCOCO",
-      "provenance": "generic_frozen",
-      "evidence": "exp/exp108_gdino_study.py; exp/gdino.py"
-    },
-    {
       "name": "Evaluation protocol alignment (official gRefCOCO evaluation; pooled global oIoU for the RefCOCO family)",
       "role": "keeps every shipped number under the compared papers' protocol",
       "provenance": "ours",
@@ -412,6 +406,6 @@
       }
     }
   },
-  "verdict": "PROMOTE: the ours-only arm 'learned_head' holds parity or better with the released-score head on all three full official val splits (mean 67.47 vs reference 66.11; deltas refcoco +2.03, refcocoplus +1.68, refcocog +0.39), so the candidate-restriction stage no longer depends on the released scores -- ours-only scoring on a declared released-feature platform -- and the promotion rests on that platform declaration: no feature-free arm held parity (the best, learned_geom2, falls 0.54 below the reference on refcocog), so the dependency is quantified, not removed. Wording held precise: all scoring rules and learned weights are ours; exactly two released components are still read, both frozen representations (the G2L masked-region extractor and the matching modified-CLIP text tower), and no released score enters the promoted head on any record (box-missing records take the head's own prediction). Within the promoted head the region-text term's marginal value over the best feature-free learned arm is +0.60 / +0.81 / +0.93 mIoU, and without it the best feature-free arm falls 0.54 mIoU short of the reference on refcocog.",
+  "verdict": "PROMOTE: the ours-only arm 'learned_head' holds parity or better with the released-score head on all three full official val splits (mean 67.47 vs reference 66.11; deltas refcoco +2.03, refcocoplus +1.68, refcocog +0.39), so the candidate-restriction stage no longer depends on the released scores -- ours-only scoring on a declared released-feature platform -- and the promotion rests on that platform declaration: no feature-free arm held parity (the best, learned_geom2, falls 0.54 below the reference on refcocog), so the dependency is quantified, not removed. Wording held precise: all scoring rules and learned weights are ours; exactly two released components are still read, both frozen representations (the G2L masked-region extractor and the matching modified-CLIP text tower), and no released score enters the promoted head on any record (box-missing records take the head's own prediction). Within the promoted head the region-text term's marginal value over the best feature-free learned arm is +0.60 / +0.81 / +0.93 mIoU, and without it the best feature-free arm falls 0.54 mIoU short of the reference on refcocog. GroundingDINO was removed from the shipped gRefCOCO path (2026-10-20 directive); the component inventory is now 13.",
   "generated": "exp160_component_provenance.py"
 }

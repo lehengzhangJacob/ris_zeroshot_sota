@@ -1,0 +1,59 @@
+{
+  "definition": "For every record in a full official val split: gap = oracle_iou (best SAM-H pool mask vs GT) - achieved_iou (the pipeline's selected mask vs GT); a gap is wrong-instance when achieved_iou < 0.5 <= oracle_iou. wrong_instance_share is the fraction of the total recoverable IoU mass in wrong-instance gaps.",
+  "pipelines": {
+    "hybridgl_released": {
+      "refcoco": {
+        "n": 10834,
+        "achieved": 0.4482477756342483,
+        "oracle": 0.8221128030361983,
+        "wrong_instance_share": 0.9396151955408464,
+        "gap_mass": 4050.4537068727177
+      },
+      "refcocoplus": {
+        "n": 10758,
+        "achieved": 0.4022886622034719,
+        "oracle": 0.8239741889054987,
+        "wrong_instance_share": 0.9414728630128008,
+        "gap_mass": 4536.49289626041
+      },
+      "refcocog": {
+        "n": 4896,
+        "achieved": 0.5008164029030416,
+        "oracle": 0.7912057892897426,
+        "wrong_instance_share": 0.9182035094744725,
+        "gap_mass": 1421.7464357492868
+      },
+      "grefcoco": {
+        "n": 14229,
+        "achieved": 0.3336777618212487,
+        "oracle": 0.5728356505701327,
+        "wrong_instance_share": 0.761699413796821,
+        "gap_mass": 1273.2765996990593,
+        "scope": "targeted rows for the decomposition; n is the full split"
+      }
+    },
+    "glodris_reimplementation": {
+      "refcoco": {
+        "n": 10834,
+        "achieved": 0.3267805153045925,
+        "oracle": 0.822112803036198,
+        "wrong_instance_share": 0.9330877125717154,
+        "gap_mass": 5366.4300052842245
+      },
+      "refcocoplus": {
+        "n": 10758,
+        "achieved": 0.30957180788554206,
+        "oracle": 0.8239741889054986,
+        "wrong_instance_share": 0.9364853146737001,
+        "gap_mass": 5533.9408150127065
+      },
+      "refcocog": {
+        "n": 4896,
+        "achieved": 0.3724030469555142,
+        "oracle": 0.7912057892897426,
+        "wrong_instance_share": 0.917659474744938,
+        "gap_mass": 2050.458226468379
+      }
+    }
+  }
+}

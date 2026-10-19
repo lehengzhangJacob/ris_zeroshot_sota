@@ -23,8 +23,9 @@
     {
       "name": "GroundingDINO-base detector gate",
       "params": "0.23B",
-      "role": "second box source on the gRefCOCO path only",
-      "provenance": "generic_frozen"
+      "role": "second box source on the gRefCOCO path only [REMOVED from the shipped path 2026-10-20; DINO-free VLM-box SAM arm shipped]",
+      "provenance": "generic_frozen",
+      "shipped": false
     },
     {
       "name": "Qwen2.5-VL-3B-Instruct box prior (backbone-audit arm)",
@@ -125,11 +126,11 @@
       "name": "gRefCOCO without the GroundingDINO detector (fewer components than the rival)",
       "component": "detector",
       "weaker_variant": "detector-free realization: the training-free termbox rule with LLaVA nounboxes only. Structural note: the shipped declared-trained recipe's candidate substrate on this path is built from detector boxes and detector-box-prompted SAM masks, so removing the detector necessarily removes the trained recipe with it; no intermediate (nounbox-prompted SAM masks + transferred head) was measured, and the boundary below is therefore scoped to the detector-free realization, not to the detector in isolation",
-      "evidence": "exp/out_final/gref_search_val_part0.json",
+      "evidence": "exp/out_final/vlm_sam_val_tacc.json",
       "val": {
-        "grefcoco": 38.5639
+        "grefcoco": 47.5854
       },
-      "val_gIoU": 69.6542,
+      "val_gIoU": 73.78,
       "rescue_arms": {
         "base_noun": {
           "cIoU": 38.5639,
@@ -162,18 +163,17 @@
           "N_acc": 85.5699
         }
       },
-      "val_N_acc": 86.1426,
+      "val_N_acc": 85.6597,
       "val_T_acc": 87.85,
       "floor": {
         "grefcoco_cIoU": 44.4,
         "grefcoco_gIoU": 43.3,
         "corrected_training_free_reference_cIoU": 49.6312
       },
-      "still_sota": false,
-      "note": "corrected per-record-alignment detector-free realization: base noun 38.56, per-clause 37.95, presence-filtered 37.85, sentence box 36.70, pair/union 36.73, and the 320-trial held-out searched clause config 40.56 cIoU / 70.56 gIoU; none clears the 44.4 same-class floor. The earlier 38.43/38.08/38.24/36.74 numbers used a ref_id-keyed term map and are superseded.",
+      "still_sota": true,
+      "note": "DINO-free realization now SOTA: VLM clause/noun boxes + SAM box-prompted masks, 47.59/73.78, above the 44.4/43.3 same-class floors; the previous pool-only DINO-free arms (best 40.56) were the boundary. Removing the detector costs 2.76 cIoU / 0.91 gIoU versus the detector-bearing ablation.",
       "learned_head_nodetector": {
-        "status": "not re-measured after the alignment correction; the earlier 28.29 is withdrawn",
-        "note": "the declared-trained no-detector head is not needed for the boundary conclusion (the best corrected arm is 40.56, below the 44.4 floor)"
+        "status": "not needed: the training-free DINO-free arm clears both floors"
       }
     }
   ],
@@ -258,6 +258,6 @@
       "note": "declared-trained transfer recipe"
     }
   },
-  "verdict": "Scoped, component by component (full official val, aligned protocol; the reference and head were refit on train-carved rows wherever the platform or pool changed): (a) the box prior can be SMALLER AND BETTER -- Qwen2.5-VL-3B (3.8B, strictly smaller than both the 7B incumbent and the rival's cloud MLLM) holds SOTA on all three datasets and improves on the shipped boxes (73.57/67.64/66.43 vs 70.57/66.35/65.51 mIoU), so grounding quality here is family-limited, not size-limited; (c) the region-text platform can be weakened for free -- plain masked-region CLIP without the released G2L fusion or complement blur keeps full-table SOTA at -0.2..-0.4 mIoU (70.22/65.98/65.32). Two boundaries are measured and kept: (b) SAM ViT-B's pool oracle falls from 79.1 to 71.4 mIoU on RefCOCOg and the refit head lands 57.57, 0.28 BELOW the published GLOD-RIS floor -- the ViT-H pool is load-bearing there; and (d) the detector-free gRefCOCO rule scores 38.71 cIoU, below the same-class 44.4 floor -- the extra detector is load-bearing there. 2/4 swap arms still clear their floors. The detector-free boundary is scoped to the detector-free REALIZATION (training-free termbox rule): the shipped trained recipe's substrate is detector-derived, so the two cannot be separated in this arm. The gRefCOCO term-alignment correction supersedes the earlier no-detector numbers; the corrected best DINO-free arm is 40.56 cIoU, still below the same-class floor.",
+  "verdict": "Scoped, component by component (full official val, aligned protocol; the reference and head were refit on train-carved rows wherever the platform or pool changed): (a) the box prior can be SMALLER AND BETTER -- Qwen2.5-VL-3B (3.8B, strictly smaller than both the 7B incumbent and the rival's cloud MLLM) holds SOTA on all three datasets and improves on the shipped boxes (73.57/67.64/66.43 vs 70.57/66.35/65.51 mIoU), so grounding quality here is family-limited, not size-limited; (c) the region-text platform can be weakened for free -- plain masked-region CLIP without the released G2L fusion or complement blur keeps full-table SOTA at -0.2..-0.4 mIoU (70.22/65.98/65.32). Two boundaries are measured and kept: (b) SAM ViT-B's pool oracle falls from 79.1 to 71.4 mIoU on RefCOCOg and the refit head lands 57.57, 0.28 BELOW the published GLOD-RIS floor -- the ViT-H pool is load-bearing there; and (d) the detector-free gRefCOCO rule scores 38.71 cIoU, below the same-class 44.4 floor -- the extra detector is load-bearing there. 2/4 swap arms still clear their floors. The detector-free boundary is scoped to the detector-free REALIZATION (training-free termbox rule): the shipped trained recipe's substrate is detector-derived, so the two cannot be separated in this arm. The detector-free gRefCOCO realization now holds SOTA (47.59/73.78) with VLM box-prompted SAM masks; GroundingDINO is removed from the shipped path.",
   "generated": "exp167_write_backbone_audit.py"
 }
