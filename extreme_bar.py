@@ -731,7 +731,7 @@ def literature_deep_read():
         if not isinstance(p, dict):
             return fail(f"deep_read paper {i} is not an object")
         for field in ("key", "title", "identifier", "category", "method",
-                      "claims", "relation", "threat", "key_quote"):
+                      "claims", "relation", "threat", "key_quote", "appreciation", "gap"):
             v = p.get(field)
             if not isinstance(v, str) or not v.strip():
                 return fail(f"deep_read paper {i} needs a non-empty {field}")
@@ -887,10 +887,10 @@ def multipipeline_diagnosis():
             tag = (b["name"] + " " + b["repo"]).lower()
             if "hybridgl" not in tag and "glod" not in tag:
                 new_blocked += 1
-    if new_full < 3:
-        return fail("need at least THREE NEW independent pipeline(s) with full-split numbers beyond HybridGL/GLOD-RIS")
-    if new_full + new_blocked < 5:
-        return fail("need at least five NEW pipeline entries beyond HybridGL/GLOD-RIS (full results or evidence-backed blockers)")
+    if new_full < 4:
+        return fail("need at least FOUR NEW independent pipelines with full-split numbers beyond HybridGL/GLOD-RIS")
+    if new_full + new_blocked < 6:
+        return fail("need at least six NEW pipeline entries beyond HybridGL/GLOD-RIS (full results or evidence-backed blockers)")
     fals = data.get("falsification")
     if not isinstance(fals, list) or len(fals) < 3:
         return fail("multipipeline_diagnosis.json needs falsification[] of length >= 3 (active attack on the diagnosis)")
