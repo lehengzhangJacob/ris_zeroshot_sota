@@ -32,7 +32,11 @@
         "repo": "",
         "findings": "",
         "ran": false
-      }
+      },
+      "appreciation": "Appreciated contribution: RefCOCO val IoU 58.32, RefCOCO+ val 43.76, G-Ref val 39.98 on four evaluation datasets.",
+      "critique": "Critique: Supervised and older; included for coverage, not as a comparison point.",
+      "gap": "Gap addressed by this work: Early supervised cross-modal-attention baseline; its protocol numbers appear in the lineage our paper reviews.",
+      "critique_evidence": "exp/out_final/deep_read_critique_evidence.json"
     },
     {
       "key": "cris2022",
@@ -62,7 +66,11 @@
         "repo": "",
         "findings": "",
         "ran": false
-      }
+      },
+      "appreciation": "Appreciated contribution: ResNet-50 CRIS: 69.52 RefCOCO val, 61.39 RefCOCO+ val, 59.35 G-Ref val IoU; ResNet-101 70.47/62.27/59.87.",
+      "critique": "Critique: Supervised; the reported IoU is not a zero-shot number and must not be pooled with training-free rows.",
+      "gap": "Gap addressed by this work: Supervised baseline whose region-text scoring is the paradigm our diagnosis tests and finds localization-limited.",
+      "critique_evidence": "exp/out_final/deep_read_critique_evidence.json"
     },
     {
       "key": "hybridgl2025",
@@ -103,7 +111,11 @@
             "refcocog_mIoU": 50.0816
           }
         }
-      }
+      },
+      "appreciation": "Appreciated contribution: Hybrid global-local features improve mask-region representation for zero-shot RIS; published RefCOCO/+/g val mIoU 49.48/43.40/51.25.",
+      "critique": "Critique: Same family; our contribution must be a measured improvement over it, not a restacking.",
+      "gap": "Gap addressed by this work: The released ancestor platform; its scores restrict the candidate set in our shipped head and its CLI-reproduced row is our baseline.",
+      "critique_evidence": "exp/out_final/deep_read_critique_evidence.json"
     },
     {
       "key": "instalign2024",
@@ -132,7 +144,11 @@
         "repo": "",
         "findings": "",
         "ran": false
-      }
+      },
+      "appreciation": "Appreciated contribution: 68.94 cIoU / 74.34 gIoU / 79.72 N-acc on gRefCOCO, the strongest supervised gRefCOCO baseline we quote.",
+      "critique": "Critique: If the published evaluation grouped sentences by ref rather than evaluating each sentence, the wall could shift; the official evaluator we inspected is per sentence.",
+      "gap": "Gap addressed by this work: Its supervised cIoU is the gRefCOCO wall our analysis targets; its gIoU is the strongest supervised gIoU reference our training-free rule exceeds.",
+      "critique_evidence": "exp/out_final/deep_read_critique_evidence.json"
     },
     {
       "key": "iterprime2025",
@@ -161,7 +177,11 @@
         "inspected": true,
         "findings": "Code-only release; README points all checkpoints (Mask2Former, ALBEF, Stanza, BERT) to Baidu Pan links; demo post-processing selects a contiguous Mask2Former proposal.",
         "ran": false
-      }
+      },
+      "appreciation": "Appreciated contribution: Iterative Grad-CAM repairs positional insensitivity and primary-word emphasis improves complex relations, beating prior zero-shot RIS.",
+      "critique": "Critique: Shows heatmap refinement can lift selection, but its weights are hosted only on Baidu Pan and it is not component-matched.",
+      "gap": "Gap addressed by this work: Alternative training-free selection repair using Grad-CAM heatmaps; no explicit box prior.",
+      "critique_evidence": "exp/out_final/deep_read_critique_evidence.json"
     },
     {
       "key": "lavt2022",
@@ -191,7 +211,11 @@
         "repo": "https://github.com/yz93/LAVT-RIS",
         "findings": "lavt/lib/_utils.py implements LAVT with stage-wise pixel-word attention; args.py exposes fusion_drop and stage selection; test.py evaluates overall IoU and mIoU.",
         "ran": false
-      }
+      },
+      "appreciation": "Appreciated contribution: 72.73/62.14/61.24/60.50 overall IoU on RefCOCO, RefCOCO+, G-Ref val (U/G).",
+      "critique": "Critique: Supervised, not same-class; a stronger learned selector could in principle close the selection gap our paper measures training-free.",
+      "gap": "Gap addressed by this work: Supervised RIS baseline; its mIoU/oIoU protocol is the one our RefCOCO-family tables use.",
+      "critique_evidence": "exp/out_final/deep_read_critique_evidence.json"
     },
     {
       "key": "lgd2025",
@@ -220,7 +244,11 @@
         "inspected": false,
         "findings": "",
         "ran": false
-      }
+      },
+      "appreciation": "Appreciated contribution: Generative descriptions improve zero-shot region-text matching on RefCOCO/+/g without training.",
+      "critique": "Critique: Text-augmentation baseline; does not test box-level localization and still uses argmax over proposals.",
+      "gap": "Gap addressed by this work: Same propose-then-select class; augments the text side with MLLM descriptions instead of a geometric localization prior.",
+      "critique_evidence": "exp/out_final/deep_read_critique_evidence.json"
     },
     {
       "key": "liu2023gres",
@@ -264,7 +292,11 @@
             "T_acc": 0.6667
           }
         }
-      }
+      },
+      "appreciation": "Appreciated contribution: Extends RES to expressions referring to any number of objects (including none); defines the cIoU/gIoU/N-acc/T-acc protocol used on gRefCOCO.",
+      "critique": "Critique: Published gRefCOCO numbers are trained models; if our abstention rows were scored with discarded masks under the official FP convention, cIoU would fall.",
+      "gap": "Gap addressed by this work: Defines the benchmark and metric protocol behind all our gRefCOCO numbers; our metric audit re-runs its official evaluator arithmetic.",
+      "critique_evidence": "exp/out_final/deep_read_critique_evidence.json"
     },
     {
       "key": "lscm2020",
@@ -292,7 +324,11 @@
         "repo": "https://github.com/spyflying/LSCM-Refseg",
         "findings": "LSCM_model_p2345.py implements the gather-propagate-distribute module; trainval_model.py wires training/evaluation; util/eval_tools.py contains IoU/Pr@X evaluation helpers.",
         "ran": false
-      }
+      },
+      "appreciation": "Appreciated contribution: 58.53% IoU and 67.23% Pr@0.5 on the RefCOCO val set.",
+      "critique": "Critique: Supervised; fusion gains do not address the instance-selection failure we measure.",
+      "gap": "Gap addressed by this work: Supervised RIS baseline in the cross-modal-fusion line; its IoU and Pr@0.5 protocol are the same family our tables report.",
+      "critique_evidence": "exp/out_final/deep_read_critique_evidence.json"
     },
     {
       "key": "mattnet2018",
@@ -323,7 +359,11 @@
         "repo": "",
         "findings": "",
         "ran": false
-      }
+      },
+      "appreciation": "Appreciated contribution: Modular decomposition improves referring expression comprehension and segmentation over single-vector baselines.",
+      "critique": "Critique: Detector-dependent and trained; not comparable on modern splits, but its selection-over-proposals formulation is the lineage of our pipeline.",
+      "gap": "Gap addressed by this work: Early proposal-selection paradigm: it selects among proposals using language scores exactly where our diagnosis locates the training-free bottleneck.",
+      "critique_evidence": "exp/out_final/deep_read_critique_evidence.json"
     },
     {
       "key": "mmnet2023",
@@ -352,7 +392,11 @@
         "repo": "",
         "findings": "",
         "ran": false
-      }
+      },
+      "appreciation": "Appreciated contribution: Query-number ablation: 24 queries give 68.14 IoU / 80.51 Pr@50; 1 query gives 65.42 IoU.",
+      "critique": "Critique: Supervised; its multi-mask head is trained and not comparable to our set-valued training-free rule.",
+      "gap": "Gap addressed by this work: Supervised uncertainty-aware multi-mask alternative; its multiple outputs are related to our union-of-masks realization for multi-target expressions.",
+      "critique_evidence": "exp/out_final/deep_read_critique_evidence.json"
     },
     {
       "key": "ni2023refdiff",
@@ -382,7 +426,11 @@
         "repo": "",
         "findings": "",
         "ran": false
-      }
+      },
+      "appreciation": "Appreciated contribution: Ref-Diff oIoU 35.16 RefCOCO val / 35.56 RefCOCO+ val / 38.62 G-Ref val, outperforming prior zero-shot methods.",
+      "critique": "Critique: Its zero-shot numbers are on a different metric mix (oIoU/mIoU over proposals); comparisons must stay within metric and class.",
+      "gap": "Gap addressed by this work: Same-class zero-shot baseline; its generative prior is a different external source than our frozen VLM box prior.",
+      "critique_evidence": "exp/out_final/deep_read_critique_evidence.json"
     },
     {
       "key": "pinpoint2026",
@@ -411,7 +459,11 @@
         "inspected": false,
         "findings": "",
         "ran": false
-      }
+      },
+      "appreciation": "Appreciated contribution: Prompt ambiguity, not VLM grounding or SAM capacity, dominates the training-free gap; stable interior points improve cIoU by 12-18 points.",
+      "critique": "Critique: Strong training-free point-selection baseline; does not model candidate pools or selection among masks.",
+      "gap": "Gap addressed by this work: Alternatives to a box prior: disambiguate SAM prompts with interior points; same VLM+SAM stack.",
+      "critique_evidence": "exp/out_final/deep_read_critique_evidence.json"
     },
     {
       "key": "polyformer2023",
@@ -441,7 +493,11 @@
         "repo": "",
         "findings": "",
         "ran": false
-      }
+      },
+      "appreciation": "Appreciated contribution: RefCOCO val mIoU 71.15; 5.40%/4.52% absolute gains on RefCOCO+ and RefCOCOg.",
+      "critique": "Critique: Supervised; its polygon head requires training and does not isolate selection quality.",
+      "gap": "Gap addressed by this work: Supervised geometry-output alternative to proposal selection; supports our point that the output representation is not the training-free bottleneck.",
+      "critique_evidence": "exp/out_final/deep_read_critique_evidence.json"
     },
     {
       "key": "promptsens2026",
@@ -470,7 +526,11 @@
         "inspected": false,
         "findings": "",
         "ran": false
-      }
+      },
+      "appreciation": "Appreciated contribution: Overlapping prompts frequently select different instances (mean 2.11 distinct selections); text-embedding proximity explains only 34% of the disagreement, implicating argmax selection.",
+      "critique": "Critique: No RIS method or fix; supports the premise rather than competing.",
+      "gap": "Gap addressed by this work: Direct external support for the diagnosis that argmax selection, not text embedding distance, drives brittleness.",
+      "critique_evidence": "exp/out_final/deep_read_critique_evidence.json"
     },
     {
       "key": "psalm2024",
@@ -500,7 +560,11 @@
         "repo": "https://github.com/zamling/PSALM",
         "findings": "psalm/model/builder.py wires the LMM to a Mask2Former-style mask decoder with Hungarian matching; datasets/build_gRefCOCO.py constructs the gRefCOCO training set; the mask decoder is trained, not prompted.",
         "ran": false
-      }
+      },
+      "appreciation": "Appreciated contribution: A single LMM-based segmenter trained jointly across tasks approaches or beats task-specific segmentation models.",
+      "critique": "Critique: Supervised and trained on the benchmarks; not comparable to the training-free class, and its strong RefCOCO/gRefCOCO results bound what supervised selection can reach.",
+      "gap": "Gap addressed by this work: Representative of the supervised LMM route; our method uses a frozen LMM only as a box prior inside a training-free selector.",
+      "critique_evidence": "exp/out_final/deep_read_critique_evidence.json"
     },
     {
       "key": "ras2025",
@@ -529,7 +593,11 @@
         "inspected": false,
         "findings": "",
         "ran": false
-      }
+      },
+      "appreciation": "Appreciated contribution: Trained model handles complex multi-condition prompts and mask-group references, surpassing GRES baselines.",
+      "critique": "Critique: Trained 13B system, not same-class zero-shot; reference only.",
+      "gap": "Gap addressed by this work: Trained mask-group LMM; different task (ORES/GRES) and no zero-shot proposal-pool selection.",
+      "critique_evidence": "exp/out_final/deep_read_critique_evidence.json"
     },
     {
       "key": "restr2022",
@@ -559,7 +627,11 @@
         "repo": "",
         "findings": "",
         "ran": false
-      }
+      },
+      "appreciation": "Appreciated contribution: ReferIt test IoU 70.18, RefCOCO val 67.22, RefCOCO+ val 55.78, G-Ref val 54.48 (Table 1).",
+      "critique": "Critique: Supervised; its fusion gains do not transfer to a training-free setting automatically.",
+      "gap": "Gap addressed by this work: Supervised baseline in the proposal-free line; complements our finding that representation quality is not the training-free bottleneck.",
+      "critique_evidence": "exp/out_final/deep_read_critique_evidence.json"
     },
     {
       "key": "seqtr2022",
@@ -589,7 +661,11 @@
         "repo": "https://github.com/sean-zhuh/SeqTR",
         "findings": "seqtr/models/det_seg/seqtr.py defines SeqTR as a one-stage coordinate-sequence model; tools/test.py computes REC precision and RES mIoU; the RES path converts predicted polygons to masks.",
         "ran": false
-      }
+      },
+      "appreciation": "Appreciated contribution: A simple universal grounding network; RES is realized by predicting polygon point sequences.",
+      "critique": "Critique: Supervised; its success shows that geometry is a viable output, but it does not measure training-free selection.",
+      "gap": "Gap addressed by this work: Supervised alternative that predicts geometry directly rather than selecting a proposal; its upper-bound analysis (95.63 mIoU with 36 GT-sampled points) bounds polygon-conversion error, not selection.",
+      "critique_evidence": "exp/out_final/deep_read_critique_evidence.json"
     },
     {
       "key": "shu2023tas",
@@ -619,7 +695,11 @@
         "repo": "",
         "findings": "",
         "ran": false
-      }
+      },
+      "appreciation": "Appreciated contribution: TAS (ResNet-50) reaches 39.91 RefCOCO val mIoU / 43.99 RefCOCO+ val, improving over global-local CLIP baselines.",
+      "critique": "Critique: A same-class method whose proposal source and text augmentation could be combined with our box prior; we do not test that combination.",
+      "gap": "Gap addressed by this work: Same-class zero-shot baseline; its CLIP-scoring-over-proposals recipe is the closest ancestor of our training-free selector.",
+      "critique_evidence": "exp/out_final/deep_read_critique_evidence.json"
     },
     {
       "key": "splus2024",
@@ -659,7 +739,11 @@
             "refcocog_mIoU": 38.9233
           }
         }
-      }
+      },
+      "appreciation": "Appreciated contribution: The zero-shot segment+select stage beats prior zero-shot baselines by up to 16.5%; a trained corrector closes part of the gap to supervised RIS.",
+      "critique": "Critique: Adds a trained corrector, so it is not a training-free comparison; its zero-shot row is a baseline.",
+      "gap": "Gap addressed by this work: Direct evidence that selection is the known bottleneck: the paper trains a corrector specifically to fix selection errors.",
+      "critique_evidence": "exp/out_final/deep_read_critique_evidence.json"
     },
     {
       "key": "veniceh1_2026",
@@ -689,7 +773,11 @@
         "inspected": false,
         "findings": "",
         "ran": false
-      }
+      },
+      "appreciation": "Appreciated contribution: Query selection is a failure-case bottleneck: heuristics succeed on 82-93% of samples but the residual 7-18% dominates; re-ranking adds +1.40/+0.89 mIoU.",
+      "critique": "Critique: Trained 11.3M re-ranker on top of strong DeRIS backbones; supports the diagnosis, does not contradict it.",
+      "gap": "Gap addressed by this work: Independent evidence that argmax selection is the failure mode; fixes it with a learned re-ranker rather than a geometric prior.",
+      "critique_evidence": "exp/out_final/deep_read_critique_evidence.json"
     },
     {
       "key": "vlt2022",
@@ -719,7 +807,11 @@
         "repo": "https://github.com/henghuiding/Vision-Language-Transformer",
         "findings": "vlt/vlt.py and vlt/executor.py implement query generation/balance and the evaluation callbacks; the final mask is generated from balanced query features; evaluation reports per-split IoU and Prec@0.5.",
         "ran": false
-      }
+      },
+      "appreciation": "Appreciated contribution: RefCOCO val IoU 65.65, RefCOCO+ val 55.50, G-Ref val(U) 52.99, Prec@0.5 76.20.",
+      "critique": "Critique: Supervised; the learned query-balance mechanism could in principle be added to a training-free pipeline, which we do not test.",
+      "gap": "Gap addressed by this work: Supervised ancestor of candidate scoring: its query generation is the learned analogue of our per-candidate selection.",
+      "critique_evidence": "exp/out_final/deep_read_critique_evidence.json"
     },
     {
       "key": "yu2023global",
@@ -760,7 +852,11 @@
             "refcocog_mIoU": 41.6189
           }
         }
-      }
+      },
+      "appreciation": "Appreciated contribution: Global-Local CLIP (ViT-B/32) mIoU 26.20 RefCOCO val / 27.80 RefCOCO+ val / 33.52 G-Ref val.",
+      "critique": "Critique: If a stronger global-local encoder fixed selection, our localization diagnosis would be weakened; we measure that stronger encoders (SigLIP) do not.",
+      "gap": "Gap addressed by this work: Direct ancestor of the released scoring machinery our diagnosis examines: whole-region vs whole-sentence scores over proposals.",
+      "critique_evidence": "exp/out_final/deep_read_critique_evidence.json"
     },
     {
       "key": "esam2025",
@@ -788,7 +884,11 @@
         "inspected": false,
         "findings": "",
         "ran": false
-      }
+      },
+      "appreciation": "Appreciated contribution: Training-free entity segmentation outperforms SAM AMG and Semantic-SAM, improving benchmark metrics by +30.1.",
+      "critique": "Critique: Class-agnostic entity segmentation, no referring expressions.",
+      "gap": "Gap addressed by this work: Mask-merging without text; shows visual containment gating can repair granularity, orthogonal to selection.",
+      "critique_evidence": "exp/out_final/deep_read_critique_evidence.json"
     },
     {
       "key": "gfsam2024",
@@ -816,7 +916,11 @@
         "inspected": false,
         "findings": "",
         "ran": false
-      }
+      },
+      "appreciation": "Appreciated contribution: Graph clustering of points and SAM masks surpasses generalist FSS models at 58.7 mIoU on COCO-20i and 35.2 on LVIS-92i.",
+      "critique": "Critique: Few-shot segmentation; no referring text or instance pool oracle.",
+      "gap": "Gap addressed by this work: Graph-based grouping of the SAM pool with coverage gates; alternative to score-based single selection.",
+      "critique_evidence": "exp/out_final/deep_read_critique_evidence.json"
     },
     {
       "key": "groundingdino2024",
@@ -854,7 +958,11 @@
             "cache_coverage_pct": 100.0
           }
         }
-      }
+      },
+      "appreciation": "Appreciated contribution: 52.5 AP zero-shot COCO, 26.1 AP ODinW (abstract).",
+      "critique": "Critique: Detector removal drops the same-class gRefCOCO cIoU floor; we measure the boundary rather than assuming it.",
+      "gap": "Gap addressed by this work: The detector in the shipped gRefCOCO path (candidate masks); the component removed by the DINO-free rescue arm.",
+      "critique_evidence": "exp/out_final/deep_read_critique_evidence.json"
     },
     {
       "key": "kirillov2023sam",
@@ -894,7 +1002,11 @@
             "vit_h_pool_oracle_mIoU": 79.1
           }
         }
-      }
+      },
+      "appreciation": "Appreciated contribution: Strong zero-shot transfer to new distributions and tasks, often competitive with supervised segmentation.",
+      "critique": "Critique: Pool recall and mask quality bound every training-free method; we measure the ViT-B boundary (pool oracle 71.4 vs 79.1 mIoU on RefCOCOg).",
+      "gap": "Gap addressed by this work: Our frozen segmenter and the source of our proposal pool; the pool oracle is measured on SAM ViT-H and ViT-B.",
+      "critique_evidence": "exp/out_final/deep_read_critique_evidence.json"
     },
     {
       "key": "li2024llavaov",
@@ -934,7 +1046,11 @@
             "refcocog_mIoU": 65.1175
           }
         }
-      }
+      },
+      "appreciation": "Appreciated contribution: Strong transfer across scenarios; DocVQA test 92.8, MMMU val 56.8, SeedBench image 78.0 for the 72B model (Table 2).",
+      "critique": "Critique: Pretrained on COCO images (no referring annotations), a weaker zero-shot notion; box quality bounds selection.",
+      "gap": "Gap addressed by this work: The frozen 7B box prior in our shipped method (sentence-prompt boxes).",
+      "critique_evidence": "exp/out_final/deep_read_critique_evidence.json"
     },
     {
       "key": "mars2026",
@@ -962,7 +1078,11 @@
         "inspected": false,
         "findings": "",
         "ran": false
-      }
+      },
+      "appreciation": "Appreciated contribution: Ranking and merging proposals with multimodal cues improves few-shot segmentation; MARS reaches 60.5 mIoU on COCO-20i.",
+      "critique": "Critique: Few-shot, not referring; no text-conditioned region prior or RIS benchmarks.",
+      "gap": "Gap addressed by this work: Same proposal-score-filter-merge family; its gate+union is close to the combination-policy headroom this run measured.",
+      "critique_evidence": "exp/out_final/deep_read_critique_evidence.json"
     },
     {
       "key": "proposalclip2022",
@@ -990,7 +1110,11 @@
         "inspected": false,
         "findings": "",
         "ran": false
-      }
+      },
+      "appreciation": "Appreciated contribution: Unsupervised open-category proposals improve over classical proposal generators without category annotations.",
+      "critique": "Critique: Class-agnostic proposal generation, not text-conditioned selection.",
+      "gap": "Gap addressed by this work: Proposal merging guided by CLIP visual similarity; precursor to mask-graph combination policies.",
+      "critique_evidence": "exp/out_final/deep_read_critique_evidence.json"
     },
     {
       "key": "qwen25vl2025",
@@ -1030,7 +1154,11 @@
             "refcocog_mIoU": 66.43
           }
         }
-      }
+      },
+      "appreciation": "Appreciated contribution: MMStar 70.8, DocVQA test 96.4, MMMU 70.2 (abstract/table).",
+      "critique": "Critique: A within-family size sweep is unmeasured; the two-point comparison isolates family, not size.",
+      "gap": "Gap addressed by this work: The frozen 3B box prior in the backbone audit; smaller and better than the shipped 7B LLaVA prior on our tables.",
+      "critique_evidence": "exp/out_final/deep_read_critique_evidence.json"
     },
     {
       "key": "radford2021clip",
@@ -1070,7 +1198,11 @@
             "refcocog_mIoU": 65.32
           }
         }
-      }
+      },
+      "appreciation": "Appreciated contribution: Strong zero-shot classification and transfer; 400M image-text pairs.",
+      "critique": "Critique: A stronger CLIP-family encoder could change the absolute numbers; measured stronger encoders do not repair wrong-instance selection.",
+      "gap": "Gap addressed by this work: The region-text scoring platform our diagnosis examines; replacing it with SigLIP or our plain masked-region CLIP does not fix selection.",
+      "critique_evidence": "exp/out_final/deep_read_critique_evidence.json"
     },
     {
       "key": "semanticsam2023",
@@ -1098,7 +1230,11 @@
         "inspected": false,
         "findings": "",
         "ran": false
-      }
+      },
+      "appreciation": "Appreciated contribution: Semantic-awareness plus granularity abundance; COCO panoptic PQ 55.2 and AP 52.3 with SA-1B training.",
+      "critique": "Critique: Trained segmenter; different task family.",
+      "gap": "Gap addressed by this work: Richer multi-granularity pools; relevant to whether pool granularity, not selection, is the limit.",
+      "critique_evidence": "exp/out_final/deep_read_critique_evidence.json"
     },
     {
       "key": "t2s2026",
@@ -1126,7 +1262,11 @@
         "inspected": false,
         "findings": "",
         "ran": false
-      }
+      },
+      "appreciation": "Appreciated contribution: Using diffusion as a seed generator gives reliable SAM expansion for OVSS, reaching 92.1 mIoU on Pascal VOC.",
+      "critique": "Critique: Semantic segmentation (OVSS), not referring instance selection.",
+      "gap": "Gap addressed by this work: Text-guided seed + SAM expansion is a pipeline alternative to proposal scoring; supports seed/expansion design.",
+      "critique_evidence": "exp/out_final/deep_read_critique_evidence.json"
     },
     {
       "key": "zhou2022maskclip",
@@ -1165,7 +1305,11 @@
             "refcocog_mIoU": 14.3046
           }
         }
-      }
+      },
+      "appreciation": "Appreciated contribution: MaskCLIP+ improves unseen-class mIoU by 50.5%/46%/24.4% on VOC/Context/COCO-Stuff; 31.1 mIoU on VOC with ViT-B/16.",
+      "critique": "Critique: Dense CLIP could improve region-text scoring, but scoring is not the measured bottleneck in our diagnosis.",
+      "gap": "Gap addressed by this work: A training-free dense-CLIP alternative; our region scoring uses pooled CLIP features, and we measure a plain masked-region CLIP platform swap.",
+      "critique_evidence": "exp/out_final/deep_read_critique_evidence.json"
     }
   ],
   "grefcoco_metric_check": {

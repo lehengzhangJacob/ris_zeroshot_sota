@@ -1,0 +1,26 @@
+{
+  "refcoco": {
+    "pool": "SAM ViT-H pps 8 (shared)",
+    "n": 10834,
+    "achieved": 8.152456145568644,
+    "oracle": 82.21128030117342,
+    "wrong_instance_share": 0.966714577940633,
+    "gap_mass": 8023.5330090182215
+  },
+  "refcocoplus": {
+    "pool": "SAM ViT-H pps 8 (shared)",
+    "n": 10758,
+    "achieved": 9.834844688734727,
+    "oracle": 82.39741889053983,
+    "wrong_instance_share": 0.9634134180173342,
+    "gap_mass": 7806.281732630193
+  },
+  "refcocog": {
+    "pool": "SAM ViT-H pps 8 (shared)",
+    "n": 4896,
+    "achieved": 11.567960106711597,
+    "oracle": 79.12057891947094,
+    "wrong_instance_share": 0.9523939724716615,
+    "gap_mass": 3307.3762170726973
+  }
+}

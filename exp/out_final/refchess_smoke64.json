@@ -1,0 +1,74 @@
+[
+  {
+    "split": "val",
+    "splitBy": "unc",
+    "dataset": "refcoco",
+    "samples": 5,
+    "mIoU": 0.5180893952740016,
+    "oIoU": 0.4707269567871877,
+    "acc@0.5": 0.8,
+    "acc@0.7": 0.0,
+    "failures": 0,
+    "bad_cases_saved": 0,
+    "device": "cuda:0",
+    "max_samples": 5,
+    "backbone": {
+      "type": "fgclip",
+      "model_name": "clip-vit-b32"
+    },
+    "sam": {
+      "checkpoint": "/home/msj_team/Jacob/sys/glod_ris_repro/checkpoints/sam_vit_h_4b8939.pth",
+      "model_type": "default",
+      "points_per_side": 8,
+      "pred_iou_thresh": 0.7,
+      "stability_score_thresh": 0.7,
+      "min_mask_region_area": 1600,
+      "filter_contained": true,
+      "containment_thresh": 0.9
+    },
+    "heatmap": {
+      "backend": "gem",
+      "gem": {
+        "enabled": true,
+        "model_name": "ViT-B/16",
+        "pretrained": "openai"
+      },
+      "fgclip": {
+        "enabled": false,
+        "model_name": null,
+        "device_map": null,
+        "dtype": null,
+        "target_size": null,
+        "max_patches": null,
+        "walk_type": null
+      }
+    },
+    "bad_cases": {
+      "enabled": false,
+      "threshold": 0.5,
+      "limit": 0,
+      "output_dir": "out_mcts/bad_cases"
+    },
+    "data": {
+      "refer_root": "/home/msj_team/Jacob/sys/glod_ris_repro/data/refer",
+      "image_root": "/home/msj_team/Jacob/sys/glod_ris_repro/data/refer/images/train2014",
+      "num_workers": 0
+    },
+    "mcts": {
+      "num_simulations": 64,
+      "rollout_depth": 10,
+      "max_global_switches": 10,
+      "scoring_weights": {
+        "s_subj": 0.15,
+        "s_attr": 0.15,
+        "s_rel": 0.15,
+        "s_item": 10.0,
+        "s_itm": 0.15,
+        "s_hot": 10.0,
+        "support_bonus": 0.1,
+        "stability_penalty": 0.05
+      },
+      "object_neighbor_dist": 0.3
+    }
+  }
+]

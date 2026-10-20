@@ -30,10 +30,21 @@
       "reviewer_model": "glm-5.3",
       "executor_model": "deepseek-flash",
       "note": "first attempt returned max-length 400; reduced payload, found duplicate SOTA row/stale notes; fixes applied and confirmed PASS"
+    },
+    {
+      "attempted_at": "2026-10-20T18:41:09Z",
+      "scope": "current package: 6 full pipelines (incl. S+S rectangle variant), deep-read appreciation/critique/gap, protocol blocks",
+      "status": "passed",
+      "thread_id": "96d0f0798668",
+      "verdict": "PASS",
+      "must_fix": "none",
+      "reviewer_model": "glm-5.3",
+      "executor_model": "deepseek-flash",
+      "note": "must-fixes fixed: split MaskCLIP own-pool vs same-pool evidence; rectangle published comparable:false; verdict/what wording; stale GLOD-RIS caption row claim removed"
     }
   ],
-  "last_attempt": "2026-10-20T17:18:20Z",
-  "thread_id": "9a8e89251e7e",
+  "last_attempt": "2026-10-20T18:41:09Z",
+  "thread_id": "96d0f0798668",
   "verdict": "PASS",
   "must_fix": "none"
 }

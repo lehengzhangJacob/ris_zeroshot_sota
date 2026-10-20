@@ -731,7 +731,7 @@ def literature_deep_read():
         if not isinstance(p, dict):
             return fail(f"deep_read paper {i} is not an object")
         for field in ("key", "title", "identifier", "category", "method",
-                      "claims", "relation", "threat", "key_quote", "appreciation", "gap"):
+                      "claims", "relation", "threat", "key_quote", "appreciation", "critique", "gap"):
             v = p.get(field)
             if not isinstance(v, str) or not v.strip():
                 return fail(f"deep_read paper {i} needs a non-empty {field}")
@@ -751,6 +751,9 @@ def literature_deep_read():
         anchors = p.get("anchors")
         if not isinstance(anchors, list) or sum(1 for a in anchors if isinstance(a, str) and a.strip()) < 2:
             return fail(f"deep_read paper {i} needs anchors[] with >= 2 non-empty strings")
+        ce = p.get("critique_evidence")
+        if not isinstance(ce, str) or not newer(ce):
+            return fail(f"deep_read paper {i} needs fresh critique_evidence")
         sf = p.get("source_file")
         if not isinstance(sf, str) or not sf.strip():
             return fail(f"deep_read paper {i} needs a non-empty source_file")

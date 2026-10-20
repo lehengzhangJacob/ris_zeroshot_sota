@@ -1,5 +1,5 @@
 {
-  "caption": "Referring image segmentation, validation splits. mIoU unless noted; gRefCOCO uses the official cIoU/gIoU protocol. The GLOD-RIS reproduction row is this run's independent reimplementation (their code is unreleased); it is reported below the published row and discussed in the reproduction audit.",
+  "caption": "Referring image segmentation, validation splits. mIoU unless noted; gRefCOCO uses the official cIoU/gIoU protocol. GLOD-RIS releases no code; its rows are quoted as published and compared cross-harness. The independent reimplementation is not a row in this table: it is recorded only in the appendix transparency record and in multipipeline_diagnosis.json.",
   "methods": [
     {
       "name": "Grad-CAM",

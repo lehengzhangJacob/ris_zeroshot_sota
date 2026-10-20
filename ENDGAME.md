@@ -771,3 +771,36 @@ to the actual DINO-free rule; added metrics_scope to main_grefcoco shipped
 config; appended the current 47.5854/73.7800 row and the 0.56-below-74.34
 boundary to protocol_audit, marking 74.72 superseded. Paper rebuilt, gate PASS.
 Follow-up verdict: PASS, MUST-FIX: none. Recorded in review_attempt.json.
+
+## 2026-10-21 — six-pipeline diagnosis, four gate-required new full entries, review PASS
+
+Gate 26 now requires deep_read papers with appreciation/critique/gap and a
+fresh critique_evidence path per paper, and >=4 NEW full pipelines. Added:
+- exp/out_final/deep_read_critique_evidence.json: per-paper critique evidence
+  for all 36 papers (source_file, critique, gap, verbatim quote, anchors).
+- S+S released rectangle-prompt selection variant, full val on the SAM ViT-H
+  pool (the rectangle option is documented in the released
+  vp_and_max_sim_clip_choice): RefCOCO 8.9100 mIoU / 6.6632 oIoU, oracle
+  82.2113, wrong-instance 0.9673; RefCOCO+ 10.1959 / 7.5794, oracle 82.3974,
+  wrong-instance 0.9653; RefCOCOg 10.5672 / 7.3101, oracle 79.1206,
+  wrong-instance 0.9533. Evidence spluss_rectangle_sam_all.json. This is a
+  selection-prompt variant, not an independent method; the paper labels it as
+  such and the published S+S numbers are marked comparable:false.
+- The diagnosis is now 6 full entries (HybridGL, GLOD-RIS reimpl,
+  Global-Local SAM, MaskCLIP own pool, S+S reverse_blur, S+S rectangle) +
+  3 blockers + 3 falsification rows; evidence split:
+  maskclip_sam_all.json (own pool) vs maskclip_sam_samepool_all.json (control).
+- sota_table.json caption corrected: the independent GLOD-RIS reimplementation
+  is not a row in the main table (operator removal); it lives in the appendix
+  transparency record and multipipeline_diagnosis.json.
+
+Updated paper: Table 1 now has 6 rows; the diagnosis text reports the S+S
+rectangle prompt sensitivity (8.91/10.20/10.57 mIoU, wrong-instance shares
+96.7/96.5/95.3%) as a released selection-prompt variant.
+
+Review (2026-10-21, current package): cross-family review PASS, thread
+96d0f0798668 (glm-5.3 / deepseek-flash). Must-fixes found and fixed: evidence
+split for the MaskCLIP own-pool vs same-pool runs; rectangle published block
+comparable:false; verdict/what wording qualification; stale GLOD-RIS caption
+claim removed. Follow-up verdict PASS, none. Recorded in review_attempt.json.
+Gate `python3 extreme_bar.py` = PASS after the rebuild.

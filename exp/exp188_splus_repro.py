@@ -44,6 +44,7 @@ def main() -> int:
     ap.add_argument("--dataset", choices=list(RECORDS), required=True)
     ap.add_argument("--limit", type=int, default=0)
     ap.add_argument("--out", type=Path, default=None)
+    ap.add_argument("--method", choices=["reverse_blur", "rectangle"], default="reverse_blur")
     args = ap.parse_args()
     import torch
     import clip
@@ -91,7 +92,13 @@ def main() -> int:
                 continue
             m224 = cv2.resize(m.astype(np.uint8), (224, 224),
                               interpolation=cv2.INTER_NEAREST).astype(bool)
-            ann = np.where(m224[..., None], bgr224, blur224).astype(np.uint8)
+            if args.method == "rectangle":
+                ys, xs = np.where(m224)
+                x0, y0 = max(0, int(xs.min()) - 2), max(0, int(ys.min()) - 2)
+                x1, y1 = min(223, int(xs.max()) + 2), min(223, int(ys.max()) + 2)
+                ann = cv2.rectangle(bgr224.copy(), (x0, y0), (x1, y1), (0, 0, 255), 2)
+            else:
+                ann = np.where(m224[..., None], bgr224, blur224).astype(np.uint8)
             tensors.append(preprocess(Image.fromarray(ann[:, :, ::-1])))
             idxs.append(mi)
         if tensors:
@@ -141,15 +148,18 @@ def main() -> int:
                wrong_instance_share=(wrong / gap if gap else 0.0),
                pool="SAM ViT-H pps 8 shared pool (the released stage-1 pool is "
                     "GroundingDINO+SAM; the selection rule is the release's)",
-               selection="released `vp_and_max_sim_clip_choice` with reverse_blur, "
-                         "CLIP ViT-B/32, std_dev=50, mask area >= 500, released >= tie-breaking",
+               selection=(f"released `vp_and_max_sim_clip_choice` with {args.method}, "
+                          "CLIP ViT-B/32, mask area >= 500, released >= tie-breaking"),
                repo="https://github.com/fgirbal/segment-select-correct",
                protocol=("official val splits; per-expression mIoU and pooled oIoU under our "
                          "unified evaluator; SAM ViT-H pps 8 pool; published S+S zero-shot "
                          "numbers are oIoU 34.39/36.29/39.29 and mIoU 40.96/41.77/45.36 "
                          "(RefCOCO/+/g val), quoted as published"),
                generated="exp/exp188_splus_repro.py")
-    outp = args.out or (OUTF / f"spluss_sam_{args.dataset}.json")
+    if args.out is None and args.method != "reverse_blur":
+        outp = OUTF / f"spluss_{args.method}_sam_{args.dataset}.json"
+    else:
+        outp = args.out or (OUTF / f"spluss_sam_{args.dataset}.json")
     outp.write_text(json.dumps(out, indent=2))
     print(json.dumps(out, indent=1))
     return 0

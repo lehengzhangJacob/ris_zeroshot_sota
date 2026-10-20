@@ -97,6 +97,15 @@ def main() -> int:
                        "pool; the component pool and the mean-value selection are this "
                        "harness's fixed adaptation, not a released RIS procedure"))
 
+    if all(p.is_file() for p in mc_files):
+        samepool = {}
+        for ds, p in zip(DATASETS, mc_files):
+            d = json.loads(p.read_text())
+            if "same_pool_control" in d:
+                samepool[ds] = d["same_pool_control"]
+        if samepool:
+            (OUTF / "maskclip_sam_samepool_all.json").write_text(json.dumps(samepool, indent=2))
+
     ss_files = [OUTF / f"spluss_sam_{ds}.json" for ds in DATASETS]
     if all(p.is_file() for p in ss_files):
         dss = {}
@@ -124,6 +133,63 @@ def main() -> int:
                                       "the published pool is GroundingDINO+SAM, so this is "
                                       "cross-harness to our SAM-pool run"}
                        for ds in DATASETS}))
+
+    sr_files = [OUTF / f"spluss_rectangle_sam_{ds}.json" for ds in DATASETS]
+    if all(p.is_file() for p in sr_files):
+        dss = {}
+        raw = {}
+        for ds, p in zip(DATASETS, sr_files):
+            d = json.loads(p.read_text())
+            dss[ds] = dict(n=int(d["n"]), oracle=round(d["oracle_mIoU"], 4),
+                           achieved=round(d["mIoU"], 4), oIoU=round(d["oIoU"], 4),
+                           wrong_instance_share=round(d["wrong_instance_share"], 4))
+            raw[ds] = d
+        (OUTF / "spluss_rectangle_sam_all.json").write_text(json.dumps(raw, indent=2))
+        pipes.append(full_entry(
+            "S+S released selection variant (rectangle prompt), SAM ViT-H pool",
+            "https://github.com/fgirbal/segment-select-correct", dss,
+            "exp/out_final/spluss_rectangle_sam_all.json",
+            pool="SAM ViT-H pps 8 shared pool (released stage-1 pool is GroundingDINO+SAM)",
+            protocol="official val splits; released vp_and_max_sim_clip_choice with the rectangle visual "
+                     "prompt option, CLIP ViT-B/32, on the shared SAM pool; published S+S zero-shot "
+                     "numbers quoted as published (reverse_blur, GroundingDINO+SAM pool), cross-harness",
+            published={ds: {"mIoU": {"refcoco": 40.96, "refcocoplus": 41.77, "refcocog": 45.36}[ds],
+                            "oIoU": {"refcoco": 34.39, "refcocoplus": 36.29, "refcocog": 39.29}[ds],
+                            "comparable": False,
+                            "source": "S+S ECCV 2024 Workshops zero-shot row, quoted as published; "
+                                      "not directly comparable: this row uses a different visual prompt "
+                                      "(rectangle) and pool, so the published reverse_blur numbers are "
+                                      "shown for context only"}
+                       for ds in DATASETS}))
+
+    rc_path = OUTF / "refchess_records_refcoco.jsonl"
+    if rc_path.is_file():
+        rows = [json.loads(l) for l in open(rc_path)]
+        if len(rows) >= 10834:
+            n = len(rows)
+            achieved = 100.0 * sum(r["iou"] for r in rows) / n
+            oracle = 100.0 * sum(r["oracle_iou"] for r in rows) / n
+            I_tot = sum(r["inter"] for r in rows); U_tot = sum(r["union"] for r in rows)
+            gap = sum(max(0.0, r["oracle_iou"] - r["iou"]) for r in rows)
+            wrong = sum(max(0.0, r["oracle_iou"] - r["iou"]) for r in rows
+                        if r["iou"] < 0.5 <= r["oracle_iou"])
+            pipes.append(full_entry(
+                "RefChess MCTS selection (released code; CLIP ViT-B/32 backbone, GEM heatmap, 16 simulations)",
+                "https://github.com/Tongshiyan/RefChess",
+                {"refcoco": dict(n=int(n), oracle=round(oracle, 4), achieved=round(achieved, 4),
+                                 oIoU=round(100.0 * I_tot / U_tot if U_tot else 0.0, 4),
+                                 wrong_instance_share=round(wrong / gap if gap else 0.0, 4))},
+                "exp/out_final/refchess_records_refcoco.jsonl",
+                pool="SAM ViT-H pps 8 (min region 1600, containment filtered) built by the released code",
+                protocol=("official RefCOCO val (unc), n=10,834, per-expression IoU and pooled oIoU under our "
+                          "evaluator; released RefChess MCTS code with two resource substitutions: FG-CLIP "
+                          "backbone replaced by OpenAI CLIP ViT-B/32 and the hybrid heatmap by GEM-only; "
+                          "16 MCTS simulations instead of the paper's 2048. Published RefChess val numbers "
+                          "are mIoU 55.19 / oIoU 48.47 (FG-CLIP, hybrid heatmap, 2048 sims), quoted as "
+                          "published and cross-harness to this reduced configuration."),
+                published={"refcoco": {"mIoU": 55.19, "oIoU": 48.47,
+                                       "source": "RefChess ICML 2026 val row, quoted as published; "
+                                                 "cross-harness to this reduced CLIP/GEM/16-sim run"}}))
 
     blocked = []
     for f in ("blocked_tas.json", "blocked_refdiff.json",
@@ -179,7 +245,7 @@ def main() -> int:
                 break
 
     diag = dict(
-        what="oracle-gap decomposition across released zero-shot pipelines, full official val splits",
+        what="oracle-gap decomposition across released, reimplemented and adapted zero-shot pipelines, full official val splits",
         definition=("gap = oracle (best pool mask vs GT) - achieved (the pipeline's selected mask "
                     "vs GT); wrong-instance when achieved < 0.5 <= oracle; wrong_instance_share is "
                     "the fraction of the recoverable IoU mass in wrong-instance gaps. Every "
@@ -191,16 +257,17 @@ def main() -> int:
         blocked=blocked,
         evidence_index="exp/out_final/multipipeline_evidence.json (HybridGL, GLOD-RIS); "
                        "globallocal_sam_*.json; maskclip_sam_*.json; blocked_*.json",
-        verdict=("Across the released HybridGL pipeline, the GLOD-RIS reimplementation and the "
-                 "Global-Local selector, wrong-instance selection carries the large majority of "
-                 "the recoverable oracle gap on every dataset (HybridGL 94.0/94.2/91.8%, "
+        verdict=("Across the released HybridGL pipeline, the GLOD-RIS reimplementation, the "
+                 "Global-Local selector and the S+S selection, wrong-instance selection carries the "
+                 "large majority of the recoverable oracle gap on every dataset (HybridGL 94.0/94.2/91.8%, "
                  "GLOD-RIS 93.3/93.7/91.8%, Global-Local 95.1/94.2/92.5%, S+S 95.4/94.7/93.2%). The MaskCLIP "
                  "value-map adaptation is the contrast: its own component pool caps the oracle "
                  "at 25.2/28.1/31.8 mIoU with wrong-instance shares 24.3/27.3/31.6%, so its gap "
                  "is pool-limited; the same dense map on the shared SAM pool selects "
                  "8.2/9.8/11.6 mIoU and is wrong-instance dominated (96.7/96.3/95.2%). The "
                  "diagnosis therefore replicates where a good pool exists and identifies the "
-                 "pool as the limit where it does not. The exact Global-Local FreeSOLO pool, "
+                 "pool as the limit where it does not. The S+S rectangle-prompt variant preserves "
+                 "the same composition (96.7/96.5/95.3%). The exact Global-Local FreeSOLO pool, "
                  "TAS and Ref-Diff are documented as blocked with their reasons."),
         falsification=[
             dict(
@@ -231,7 +298,7 @@ def main() -> int:
                 verdict=("SUPPORTED: on a good pool the same dense selector's recoverable mass is "
                          "wrong-instance dominated; its own-pool result bounds the claim rather than "
                          "overturning it."),
-                evidence="exp/out_final/maskclip_sam_all.json"),
+                evidence="exp/out_final/maskclip_sam_samepool_all.json"),
         ],
         generated="exp/exp185_multipipeline.py")
     (OUTF / "multipipeline_diagnosis.json").write_text(json.dumps(diag, indent=2))
@@ -240,14 +307,17 @@ def main() -> int:
     rows = []
     short = {"HybridGL": "HybridGL (released)", "GLOD": "GLOD-RIS (reimpl.)",
              "Global-Local": "Global-Local (SAM)", "MaskCLIP": "MaskCLIP (own pool)",
-             "S+S": "S+S (SAM)"}
+             "S+S": "S+S (SAM)", "RefChess": "RefChess (CLIP/GEM)"}
     for p in pipes:
-        cells = [next((v for k, v in short.items() if p["name"].startswith(k)), p["name"])]
+        if "rectangle prompt" in p["name"]:
+            cells = ["S+S (rectangle)"]
+        else:
+            cells = [next((v for k, v in short.items() if p["name"].startswith(k)), p["name"])]
         for ds in DATASETS:
-            m = p["datasets"][ds]
-            cells.append(f"{m['achieved']:.2f} / {m['oracle']:.2f}")
+            m = p["datasets"].get(ds)
+            cells.append(f"{m['achieved']:.2f} / {m['oracle']:.2f}" if m else "--")
         cells.append("/".join(f"{100*p['datasets'][ds]['wrong_instance_share']:.1f}"
-                              for ds in DATASETS))
+                              if ds in p["datasets"] else "--" for ds in DATASETS))
         rows.append(" & ".join(cells) + r" \\")
     lines = [
         r"\begin{tabular}{lccc c}", r"\toprule",

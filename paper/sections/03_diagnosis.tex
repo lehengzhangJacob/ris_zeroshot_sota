@@ -56,7 +56,10 @@ $8.2/9.8/11.6$\,mIoU and is again wrong-instance dominated
 selection reaches $29.46/35.35/38.92$\,mIoU with wrong-instance shares
 $95.4/94.7/93.2\%$ on the same pool (its published stage-1 pool is
 expression-conditioned GroundingDINO+SAM, so its level is cross-harness, but
-the gap composition replicates). The diagnosis therefore holds for pipelines
+the gap composition replicates). Its rectangle-prompt option, a second
+released visual-prompt configuration, reaches only $8.91/10.20/10.57$\,mIoU
+(wrong-instance shares $96.7/96.5/95.3\%$), a measured selection-prompt
+sensitivity that preserves the same failure composition. The diagnosis therefore holds for pipelines
 whose pool contains the referent and names the pool as the limit when it does
 not. We attacked it with three falsification tests: the MaskCLIP own-pool
 result refutes it as a universal claim (pool-limited), the Global-Local
@@ -87,8 +90,9 @@ the fraction of the recoverable IoU mass carried by wrong-instance selection
 (selected IoU $<0.5$ while the pool holds a mask at $\ge0.5$). HybridGL and
 the GLOD-RIS reimplementation use the shared SAM ViT-H pool;
 Global-Local~\cite{yu2023global} is its released selector on that pool (its own FreeSOLO pool is unavailable);
-S+S~\cite{splus2024} is its released reverse-blur CLIP selector on that pool
-(its published stage-1 pool is GroundingDINO+SAM);
+S+S~\cite{splus2024} is its released reverse-blur and rectangle CLIP
+selection options on that pool (its published stage-1 pool is
+GroundingDINO+SAM);
 MaskCLIP~\cite{zhou2022maskclip} is a dense open-vocabulary segmenter with no
 instance pool, so its row uses components of its own value map under a fixed
 rule. The exact pools
