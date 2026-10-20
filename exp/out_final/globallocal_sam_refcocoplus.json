@@ -1,0 +1,14 @@
+{
+  "dataset": "refcocoplus",
+  "split": "val",
+  "n": 10758,
+  "mIoU": 36.30962247391931,
+  "oIoU": 28.002092758409376,
+  "oracle_mIoU": 82.39741889053983,
+  "wrong_instance_share": 0.9424038258299663,
+  "pool": "SAM ViT-H (pps 8) pool shared by the diagnosis; the released pipeline's own FreeSOLO R101 pool is unavailable (blocked entry)",
+  "selection": "released Global-Local head: CLIP ViT-B/32 token-masking from block 9 (masking_block=9, last_layer=11) for the global feature; masked-image crop features for the local feature; visual = v*global + (1-v)*local, v=0.95 (0.85 for RefCOCOg); text = 0.5*sentence + 0.5*noun phrase; cosine argmax",
+  "backbone": "CLIP ViT-B/32 (released weights)",
+  "repo": "https://github.com/Seonghoon-Yu/Zero-shot-RIS",
+  "generated": "exp/exp183_globallocal_repro.py"
+}

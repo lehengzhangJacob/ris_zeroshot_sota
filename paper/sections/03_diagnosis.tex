@@ -37,19 +37,56 @@ disproportionately spatial references, though modestly so:
 \wiSpatialPct\,\% of wrong-instance failures carry a spatial word from the
 operator's vocabulary against \spatialWordOverallPct\,\% of all expressions
 (\wiParserPct\,\% vs \spatialFracPct\,\% under the stricter relation
-grammar the operator actually parses). The decomposition replicates across released pipelines on the full official
-splits (\texttt{multipipeline\_diagnosis.json}): under a threshold definition
-(wrong-instance = the selected mask is below IoU $0.5$ while the pool holds a
-mask at or above it), wrong-instance selection carries $93.9/94.1/91.8\%$ of
-the recoverable IoU for the released HybridGL selection on
-RefCOCO/RefCOCO+/RefCOCOg and $93.3/93.7/91.8\%$ for the GLOD-RIS
-reimplementation; the sample-level containment taxonomy above is stricter,
-which is why its shares are lower. The distinction matters for what
-follows: the operator can act only on the parsed subset, and its gain is
-exactly there --- \operatorOnSpatial\,mIoU over the \strataSpatialN{}
-parsed-spatial expressions on RefCOCO val, and zero elsewhere by
-construction --- which is why the cross-benchmark pattern below is the
-diagnostic's decisive test.
+grammar the operator actually parses). The decomposition replicates across
+released pipelines on the full official splits
+(Table~\ref{tab:multipipeline}, \texttt{multipipeline\_diagnosis.json}):
+under a threshold definition (wrong-instance = the selected mask is below IoU
+$0.5$ while the pool holds a mask at or above it), wrong-instance selection
+carries $94.0/94.2/91.8\%$ of the recoverable IoU for the released HybridGL
+selection, $93.3/93.7/91.8\%$ for the GLOD-RIS reimplementation, and
+$95.1/94.2/92.5\%$ for the released Global-Local selector, all on
+RefCOCO/RefCOCO+/RefCOCOg. Global-Local reaches $32.95/36.31/41.62$\,mIoU,
+within $1.3$ points of its published val rows despite running on the shared
+SAM pool rather than its own FreeSOLO pool. MaskCLIP is the contrast: its own
+dense-map component pool caps the oracle at $25.2/28.1/31.8$\,mIoU, so its
+recoverable gap is pool-limited (wrong-instance share
+$24.3/27.3/31.6\%$); the same dense map on the shared SAM pool selects at
+$8.2/9.8/11.6$\,mIoU and is again wrong-instance dominated
+($96.7/96.3/95.2\%$). The diagnosis therefore holds for pipelines whose pool
+contains the referent and names the pool as the limit when it does not. The
+sample-level containment taxonomy above is stricter, which is why its shares
+are lower. The distinction matters for what follows: the operator can act
+only on the parsed subset, and its gain is exactly there ---
+\operatorOnSpatial\,mIoU over the \strataSpatialN{} parsed-spatial
+expressions on RefCOCO val, and zero elsewhere by construction --- which is
+why the cross-benchmark pattern below is the diagnostic's decisive test.
+
+Two further released same-class pipelines are documented as blocked rather
+than sampled, with the repo, reason and check in the evidence files.
+TAS~\cite{shu2023tas}'s entry point requires a per-sentence caption file that
+the repository neither ships nor generates (its README asks the user to
+prepare captions with BLIP-2 first), and Ref-Diff~\cite{ni2023refdiff}'s test
+entry loads a trained segmenter checkpoint that was not released (its config
+leaves \texttt{resume} empty and its pretrain directory holds only a stego
+head). The exact Global-Local~\cite{yu2023global} FreeSOLO pool is also
+blocked: its weight URL does not resolve and the repository vendors no
+FreeSOLO code. Neither blocker is a negative result about those methods.
+
+\begin{table*}[t]\centering\small
+\caption{Oracle-gap decomposition on additional released pipelines, full
+official val splits. Each cell is achieved / oracle mIoU; the last column is
+the fraction of the recoverable IoU mass carried by wrong-instance selection
+(selected IoU $<0.5$ while the pool holds a mask at $\ge0.5$). HybridGL and
+the GLOD-RIS reimplementation use the shared SAM ViT-H pool;
+Global-Local~\cite{yu2023global} is its released selector on that pool (its own FreeSOLO pool is unavailable);
+MaskCLIP~\cite{zhou2022maskclip} is a dense open-vocabulary segmenter with no
+instance pool, so its row uses components of its own value map under a fixed
+rule. The exact pools
+and the two remaining released RIS pipelines (TAS, Ref-Diff) are documented
+as blocked in \S\ref{sec:diagnosis}.}
+\label{tab:multipipeline}
+\input{tables/multipipeline}
+\end{table*}
 
 \begin{figure}[t]
 \centering

@@ -33,7 +33,7 @@
 {\large\color{ink} 面向免训练指代图像分割的密集定位先验}\\[0.8em]
 {\small\color{muted} 零样本指代图像分割（RIS）：把瓶颈从 ``mask 质量'' 修正为 ``选择''，用一个冻结 VLM 的 box 先验修好它}\\[1.0em]
 \begin{beamercolorbox}[rounded=true,sep=0.6em,wd=0.86\textwidth,center]{structure}
-{\small\bfseries RefCOCO 70.57 mIoU \quad$\cdot$\quad gRefCOCO 52.71 cIoU \quad$\cdot$\quad 16/16 指标超 published 旗舰}\\[0.15em]
+{\small\bfseries RefCOCO 70.57 mIoU \quad$\cdot$\quad gRefCOCO 47.59 cIoU \quad$\cdot$\quad 16/16 指标超 published 旗舰}\\[0.15em]
 {\footnotesize 全线 SOTA（同类零样本赛道）}
 \end{beamercolorbox}
 \vspace{0.8em}
@@ -56,6 +56,7 @@
   \item oracle：池中最好 mask 达 \textbf{82.21 mIoU}（93\% 表达式池里已有好 mask）；所基于的 HybridGL released pipeline 只拿到 \textbf{44.82}
   \item 可回收 IoU 的构成：\textbf{wrong-instance（选错实例）主导}；under-segmentation 只占小头 —— 而现有工作多聚焦 mask 质量与合并
   \item 更强 encoder 不解决：SigLIP-so400m 反而\textbf{更差}（36.5 vs 40.4）
+  \item 多管线复核：HybridGL 与 GLOD-RIS 两条独立选择器上，wrong-instance 占可回收质量的 \textbf{92\%--94\%}
   \item[$\Rightarrow$] 失败是 \textbf{localization}（不知道在哪），不是 representation
 \end{itemize}
 \end{frame}
@@ -104,7 +105,7 @@ GLOD-RIS（published） & 58.42 / 50.85 & 54.01 / 45.96 & 57.85 / 50.03 \\
 \vspace{-0.2em}
 {\footnotesize val split，mIoU / oIoU；\textbf{16/16} 列全部超过 published（test 五列 $+0.8\sim+18.1$）}\\[0.5em]
 \begin{itemize}
-  \item gRefCOCO：cIoU \textbf{52.71}、gIoU \textbf{75.08}（\textbf{$>$ 全监督最强 InstAlign 74.34}，参考行）、N-acc 86.14
+  \item gRefCOCO（\textbf{DINO-free}）：cIoU \textbf{47.59}、gIoU \textbf{73.78}（距全监督最强 InstAlign 74.34 差 0.56）、N-acc 85.66
   \item 组件匹配验证：换 GLOD-RIS 同款 MLLM 仍远超其 published 行
 \end{itemize}
 \end{frame}
@@ -112,11 +113,11 @@ GLOD-RIS（published） & 58.42 / 50.85 & 54.01 / 45.96 & 57.85 / 50.03 \\
 % ---------- 9 边界与进行中 ----------
 \begin{frame}{诚实边界与组件必要性（实测）}
 \begin{itemize}
-  \item 全监督 cIoU 仍有差距：52.71 vs 68.94（InstAlign）—— 已\textbf{量化}，不声称
+  \item 全监督 cIoU 仍有差距：47.59 vs 68.94（InstAlign）—— 已\textbf{量化}，不声称
   \item 对比口径：GLOD-RIS 无公开代码；引用其 \textbf{published} 数字做跨环境对比（附录如实记录，不对其方法作评断）
   \item \textbf{更小的 VLM 更好}：3.8B Qwen2.5-VL \textbf{73.57 / 67.64 / 66.43} $>$ 现役 7B（70.57 / 66.35 / 65.51）——定位能力由模型家族决定，不由尺寸
   \item \textbf{更弱的平台仍 SOTA}：换普通 masked-region CLIP 不掉线（$-0.2\sim0.4$）；\textbf{极简版仅 2 个模型（SAM+VLM）仍全线超 published}
-  \item 实测边界如实保留：SAM ViT-B 在 RefCOCOg 差 0.28；gRefCOCO 去检测器低于地板
+  \item \textbf{GroundingDINO 已删除}：DINO-free gRefCOCO 47.59/73.78（比检测器版低 2.76/0.91，同类地板全清）；SAM ViT-B 在 RefCOCOg 仍差 0.28（边界保留）
 \end{itemize}
 \end{frame}
 

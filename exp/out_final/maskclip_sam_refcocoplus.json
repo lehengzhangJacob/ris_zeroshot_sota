@@ -1,0 +1,23 @@
+{
+  "dataset": "refcocoplus",
+  "split": "val",
+  "n": 10758,
+  "mIoU": 10.548026886440628,
+  "oIoU": 9.542622051178139,
+  "oracle_mIoU": 28.081165241995542,
+  "wrong_instance_share": 0.27338196861750574,
+  "pool": "own dense-map pool: 8-connected components of the MaskCLIP value map at fixed quantile thresholds 0.5/0.7/0.9; components below 0.5% of pixels dropped; top-12 by mean value kept",
+  "selection": "component with highest mean MaskCLIP value",
+  "text_query": "sentence",
+  "backbone": "CLIP ViT-B/16 (released weights)",
+  "repo": "https://github.com/chongzhou96/MaskCLIP",
+  "generated": "exp/exp184_maskclip_repro.py",
+  "same_pool_control": {
+    "pool": "SAM ViT-H pps 8 (shared)",
+    "n": 10758,
+    "achieved": 9.834844688734727,
+    "oracle": 82.39741889053983,
+    "wrong_instance_share": 0.9634134180173342,
+    "gap_mass": 7806.281732630193
+  }
+}

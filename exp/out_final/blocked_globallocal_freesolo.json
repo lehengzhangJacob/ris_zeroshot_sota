@@ -1,0 +1,16 @@
+{
+  "name": "Global-Local exact FreeSOLO-pool run (Seonghoon-Yu/Zero-shot-RIS)",
+  "repo": "https://github.com/Seonghoon-Yu/Zero-shot-RIS",
+  "reason": "the released pipeline's original proposal pool is FreeSOLO R101. The README weight URL (cloudstor.aarnet.edu.au/plus/s/V8C0onE5H63x3RD/download) does not resolve from this host (curl exit/status 000); the repo vendors only a FreeSOLO config and imports detectron2, and the FreeSOLO model code is not included. The released selector itself is runnable and is reported on the SAM ViT-H pool under the full-pipeline entry.",
+  "evidence_commands": [
+    "curl -sL -o /dev/null -w '%{http_code}' https://cloudstor.aarnet.edu.au/plus/s/V8C0onE5H63x3RD/download",
+    "ls exp/literature/repos/gsva/freesolo (config.py only)",
+    "grep -n FreeSOLO exp/literature/repos/gsva/README.md"
+  ],
+  "observed": {
+    "weight_url_status": 0,
+    "freesolo_code_vendored": false,
+    "requires": "detectron2 + FreeSOLO R101 checkpoint"
+  },
+  "checked_at": "2026-10-20T11:44:35Z"
+}

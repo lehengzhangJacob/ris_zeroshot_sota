@@ -1,0 +1,17 @@
+{
+  "name": "TAS (Text Augmented Spatial-aware Zero-shot RIS, EMNLP Findings 2023)",
+  "repo": "https://github.com/suoych/TAS",
+  "reason": "the released entry point requires a precomputed per-sentence overall-caption file `overall_caption_path/overall_caption_{dataset}_{split}_{splitby}.json` (tas_main.py loads it unconditionally); the repository ships neither the file nor a script that creates it, and README step 3 asks the user to prepare captions with BLIP-2. It also requires the spaCy transformer model en_core_web_trf, a torch.jit ViT-B/32 checkpoint, and SAM-H, CLIP and BLIP-2 weights; as released the pipeline is not executable without first generating the missing data file.",
+  "evidence_commands": [
+    "ls exp/literature/repos/tas (no overall_caption_path directory)",
+    "grep -n overall_caption_path exp/literature/repos/tas/tas_main.py",
+    "sed -n 1,12p exp/literature/repos/tas/README.md"
+  ],
+  "observed": {
+    "overall_caption_path_present": false,
+    "readme_prepare": "Prepare captions for images (Using BLIP-2)",
+    "loader_line": "with open(f\"./overall_caption_path/overall_caption_{dataset}_{test_split}_{splitby}.json\",\"r\")",
+    "missing_spacy_model": "en_core_web_trf"
+  },
+  "checked_at": "2026-10-20T11:44:35Z"
+}

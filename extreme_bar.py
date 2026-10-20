@@ -831,11 +831,15 @@ def multipipeline_diagnosis():
     if not isinstance(pipes, list) or len(pipes) < 2:
         return fail("multipipeline_diagnosis.json needs pipelines[] of length >= 2")
     floors = {"refcoco": 10834, "refcocoplus": 10758, "refcocog": 4896, "grefcoco": 14229}
+    new_full = 0
     for i, p in enumerate(pipes):
         if not isinstance(p, dict):
             return fail(f"pipeline {i} is not an object")
         if not isinstance(p.get("name"), str) or not p["name"].strip():
             return fail(f"pipeline {i} needs a non-empty name")
+        repo = p.get("repo")
+        if not isinstance(repo, str) or not repo.strip():
+            return fail(f"pipeline {i} needs a non-empty repo URL")
         dss = p.get("datasets")
         if not isinstance(dss, dict) or not dss:
             return fail(f"pipeline {i} needs datasets{{}}")
@@ -858,6 +862,29 @@ def multipipeline_diagnosis():
         ev = p.get("evidence")
         if not isinstance(ev, str) or not newer(ev):
             return fail(f"pipeline {i} needs fresh evidence")
+        tag = (p["name"] + " " + repo).lower()
+        if "hybridgl" not in tag and "glod" not in tag:
+            new_full += 1
+    blocked = data.get("blocked")
+    new_blocked = 0
+    if isinstance(blocked, list):
+        for i, b in enumerate(blocked):
+            if not isinstance(b, dict):
+                return fail(f"blocked {i} is not an object")
+            for field in ("name", "repo", "reason"):
+                v = b.get(field)
+                if not isinstance(v, str) or not v.strip():
+                    return fail(f"blocked {i} needs a non-empty {field}")
+            ev = b.get("evidence")
+            if not isinstance(ev, str) or not newer(ev):
+                return fail(f"blocked {i} needs fresh evidence")
+            tag = (b["name"] + " " + b["repo"]).lower()
+            if "hybridgl" not in tag and "glod" not in tag:
+                new_blocked += 1
+    if new_full < 1:
+        return fail("need at least one NEW independent pipeline with full-split numbers beyond HybridGL/GLOD-RIS")
+    if new_full + new_blocked < 2:
+        return fail("need at least two NEW independent pipelines beyond HybridGL/GLOD-RIS (full results or documented blockers)")
     verdict = data.get("verdict")
     if not isinstance(verdict, str) or not verdict.strip():
         return fail("multipipeline_diagnosis.json needs a non-empty verdict string")

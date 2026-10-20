@@ -96,7 +96,7 @@ add_text(s, 0.8, 3.35, 11.7, 0.9,
          [("零样本指代图像分割（RIS）：把瓶颈从 “mask 质量” 修正为 “选择”，用一个冻结 VLM 的 box 先验修好它", 14, False, MUTED, 0)],
          align=PP_ALIGN.CENTER)
 add_text(s, 0.8, 4.45, 11.7, 0.6,
-         [("RefCOCO 70.57 mIoU　·　gRefCOCO 52.71 cIoU　·　16/16 指标超 published 旗舰", 16, True, ACCENT, 0)],
+         [("RefCOCO 70.57 mIoU　·　gRefCOCO 47.59 cIoU　·　16/16 指标超 published 旗舰", 16, True, ACCENT, 0)],
          align=PP_ALIGN.CENTER)
 add_text(s, 0.8, 5.05, 11.7, 0.5,
          [("全线 SOTA（同类零样本赛道）", 13, False, ACCENT, 0)], align=PP_ALIGN.CENTER)
@@ -118,6 +118,7 @@ bullets(s, [
     "oracle：池中最好 mask 达 **82.21 mIoU**（93% 表达式池里已有好 mask）；所基于的 HybridGL released pipeline 只拿到 **44.82**",
     "可回收 IoU 的构成：**wrong-instance（选错实例）主导**；under-segmentation 只占小头——现有工作多聚焦 mask 质量与合并",
     "更强 encoder 不解决：SigLIP-so400m 反而**更差**（36.5 vs 40.4）",
+    "多管线复核：HybridGL 与 GLOD-RIS 两条独立选择器上，wrong-instance 占可回收质量的 **92%–94%**",
     "⇒ 失败是 **localization**（不知道在哪），不是 representation",
 ], top=1.55)
 
@@ -165,18 +166,18 @@ for i, row in enumerate(data):
 add_text(s, 0.85, 3.45, 11.6, 0.5,
          [("val split，mIoU / oIoU；**16/16** 列全部超过 published（test 五列 +0.8 ~ +18.1）", 14, False, MUTED, 0)])
 bullets(s, [
-    "gRefCOCO：cIoU **52.71**、gIoU **75.08**（**> 全监督最强 InstAlign 74.34**，参考行）、N-acc 86.14",
+    "gRefCOCO（**DINO-free**）：cIoU **47.59**、gIoU **73.78**（距全监督最强 InstAlign 74.34 差 0.56）、N-acc 85.66",
     "组件匹配验证：换 GLOD-RIS 同款 MLLM，仍远超其 published 行",
 ], top=4.15, size=16)
 
 # ---------------- Slide 9 ----------------
 s = new(); title(s, "诚实边界与组件必要性（实测）")
 bullets(s, [
-    "全监督 cIoU 仍有差距：52.71 vs 68.94（InstAlign）——已**量化**，不声称",
+    "全监督 cIoU 仍有差距：47.59 vs 68.94（InstAlign）——已**量化**，不声称",
     "对比口径：GLOD-RIS 无公开代码；引用其 **published** 数字做跨环境对比（附录如实记录，不对其方法作评断）",
     "**更小的 VLM 更好**：3.8B Qwen2.5-VL **73.57 / 67.64 / 66.43** > 现役 7B（70.57 / 66.35 / 65.51）——定位能力由模型家族决定，不由尺寸",
     "**更弱的平台仍 SOTA**：换普通 masked-region CLIP 不掉线（−0.2~0.4）；**极简版仅 2 个模型（SAM+VLM）仍全线超 published**",
-    "实测边界如实保留：SAM ViT-B 在 RefCOCOg 差 0.28；gRefCOCO 去检测器低于地板",
+    "**GroundingDINO 已删除**：DINO-free gRefCOCO 47.59/73.78（比检测器版低 2.76/0.91，同类地板全清）；SAM ViT-B 在 RefCOCOg 仍差 0.28（边界保留）",
 ], top=1.55)
 
 # ---------------- Slide 10 ----------------

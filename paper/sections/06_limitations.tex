@@ -83,12 +83,13 @@ and the diagnosis survives
 (\ppsWiEight\,$\to$\,\ppsWiSixteen).
 
 \paragraph{Comparison protocol.}
-The released HybridGL code and our reimplementation agree within
-\reproAgree\,mIoU, and both sit \reproGap\,mIoU below the numbers printed
-in the HybridGL paper (\S\ref{sec:repro}). We therefore treat cross-paper
-absolute comparisons in this baseline family as cross-harness comparisons:
-every published row is quoted as published and labelled as such, and all our
-controlled comparisons are internal to one reproduction.
+The released HybridGL code and our reimplementation of it agree within
+\reproAgree\,mIoU on the control blocks, so the controlled comparisons in this
+paper are made on one harness. Cross-paper absolute comparisons in this
+baseline family are treated as cross-harness comparisons: every published row
+is quoted as published and labelled as such. GLOD-RIS releases no code; an
+independent reimplementation is recorded only as a transparency record in
+the appendix.
 
 \paragraph{VLM latency.}
 The box pass costs $0.6$--$1.8$\,s per expression on one RTX 4090, which is

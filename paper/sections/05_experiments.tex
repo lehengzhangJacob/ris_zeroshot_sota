@@ -10,8 +10,8 @@ a re-analysis of those records, and the LaTeX tables are generated from the
 resulting JSON by script, never transcribed by hand. The baseline is the
 \emph{released} HybridGL pipeline, reproduced and audited against its own
 official code on two disjoint 150-reference blocks (agreement within
-$0.6$\,mIoU), with the repo-vs-paper gap disclosed in
-Section~\ref{sec:repro}.
+$0.6$\,mIoU; Section~\ref{sec:repro}), and the independent GLOD-RIS
+reimplementation is kept as a transparency record in the appendix.
 
 Hyperparameters come from a held-out split built from RefCOCO-family
 \emph{train} references (400 refs per dataset, seeded sample restricted to
@@ -81,9 +81,9 @@ columns appear separately in Table~\ref{tab:testcols}. The shipped method adds
 a dense box prior from a frozen local VLM to the released HybridGL pipeline;
 the shipped RefCOCO-family row is the declared-trained selector head of
 \S\ref{sec:head}, with the training-free box rule reported as the zero-shot
-reference row. The GLOD-RIS reproduction
-row is this run's independent reimplementation (their code is unreleased); it
-is discussed in the reproduction audit (\S\ref{sec:repro}).}
+reference row. GLOD-RIS releases no code, so its rows are quoted as published
+and compared cross-harness; an independent reimplementation is recorded only
+as a transparency record in the appendix.}
 \label{tab:sota}
 \input{tables/sota}
 \end{table*}
@@ -152,12 +152,11 @@ gRefCOCO, so our gRefCOCO results are compared against the same-class floors
 (PSALM ECCV~2024 Table~12; SELF1E-8B, the higher cIoU floor per the escalation
 rule) and the run's own prior record as previously reported (superseded by the term-alignment correction; \S\ref{sec:gref}), not against them.
 Beyond the table the ledger carries the comparison protocol --- GLOD-RIS
-releases no code; our faithful reimplementation of the described method does
-not reach the published numbers (val deltas $-25.7$/$-23.1$/$-20.6$\,mIoU),
-so every comparison quotes their rows as published and cross-harness, with
-the reproduction documented transparently and the same-pool rule swap
+releases no code, so every comparison quotes their rows as published and
+labels it cross-harness (the appendix records an independent
+reimplementation as transparency only), and the same-pool rule swap is
 reported as a controlled measurement of our reading of the published
-equations (\S\ref{sec:repro}--\ref{sec:ruleswap}) --- and deployability: our
+equations (\S\ref{sec:ruleswap}) --- and deployability: our
 path is fully local, while GLOD-RIS's inference depends on a network MLLM API
 (a documented property of the described method, not a judgment). The one axis that was not dominated in earlier drafts --- an extra frozen
 detector on the gRefCOCO path --- is now removed: the shipped gRefCOCO path
@@ -531,69 +530,16 @@ against the detector-bearing training-free rule and $1.82$/$0.48$ against the
 recipe. The shipped rule clears both same-class floors; the gap to the
 supervised cIoU level (\grefPubCIoU) remains the measured boundary.
 
-\subsection{Reproduction audit}
+\subsection{Comparison protocol and released-code check}
 \label{sec:repro}
-The released HybridGL code and our reimplementation agree within $0.6$\,mIoU
-on two disjoint 150-reference blocks, and both fall $4.6$--$5.1$\,mIoU below
-the numbers printed in the HybridGL paper. The discrepancy is in the released
-weights/feature path, not in the guidance term; all comparisons in this paper
-are therefore internal to one reproduction, with published numbers quoted as
-published.
-
-\paragraph{Independent reproduction of GLOD-RIS.}
-GLOD-RIS's code is unreleased, so its rows in Table~\ref{tab:sota} are quoted
-across harnesses. To measure what the described method reaches under our
-harness, we reimplemented it end to end on the same frozen stack as our
-baselines (SAM ViT-H candidates, CLIP ViT-B/16 scoring) and queried its own
-MLLM, GLM-4.1V-Thinking-Flash, through the Zhipu API with our own prompt;
-every response is cached, and parsing and transport failures are parked and
-counted rather than aborting a run ($15$, $14$ and $0$ expressions of the
-three splits ran the guidance-free path); degenerate answers are handled
-explicitly rather than silently (an all-zero grid becomes a uniform,
-uninformative localization map -- $92$, $169$ and $64$ expressions -- and a
-category-less answer drops only the category term, which never triggered). Our
-reimplementation \emph{completes} on all three official val splits and lands
-below the published rows ($-25.7$, $-23.1$, $-20.6$\,mIoU;
-Table~\ref{tab:repro}); with no released code this is a statement about our
-reading of the description, not about the original work, and two
-measurements bound what it does and does not explain.
-(i)~\emph{Candidate generation is not the limit}: the oracle mIoU over the SAM
-pool is $82.2$; the largest component effect under our reading of the
-published equations is the Gaussian-grid localization term, whose removal
-raises RefCOCO val from $32.68$ to $36.11$\,mIoU in our reimplementation,
-while the category term adds about $+1$\,mIoU and the orthogonal decoupling
-about $+0.7$ (Table~\ref{tab:repro}). These are properties of our
-reimplementation, reported so its behavior is transparent. (ii)~\emph{Feature-path
-anchor}: the released ancestor scores $44.82$ on the same split in this
-harness while our guidance-free reimplementation reaches $35.09$; the two are
-different systems, so the $\approx\!10$\,mIoU between them is an anchor
-rather than a controlled isolation. It bounds the scale of the feature-path
-difference -- the largest single identified contributor to the
-$\approx\!26$-point gap -- while a substantial remainder stays unaccounted
-for, plausibly including differences between our prompt and the authors' GLM
-usage and other components their unreleased code contains. We did not match the published rows under our
-reading: the reproduction remains $20.6$--$25.7$\,mIoU below them, and we
-report that as the measured state rather than claiming a same-environment
-match. We therefore keep the published GLOD-RIS rows as the comparison and
-report our method's margin over them as cross-harness; the reproduction row in
-Table~\ref{tab:sota} is marked as measured in this run so the shortfall is
-visible without being attributed. The gain over the \emph{unmodified}
-reproduction on the same harness is nevertheless positive and large on every
-dataset: the shipped method gains $+37.90$/$+35.39$/$+28.28$\,mIoU
-($70.57$/$66.35$/$65.51$ vs.\ $32.68$/$30.96$/$37.24$), the training-free
-reference $+35.85$/$+33.71$/$+27.88$ ($68.53$/$64.67$/$65.12$), and the
-minimal configuration $+37.31$/$+34.26$/$+27.59$ ($69.99$/$65.22$/$64.83$).
-
-\begin{table}[t]\centering\small
-\caption{Independent reproduction of GLOD-RIS, official val splits (top): our
-reimplementation's full pipeline, with the published mIoU (oIoU: $50.85$,
-$45.96$, $50.03$) for reference. Controls (bottom) remove one scoring
-component at a time on RefCOCO val; candidate generation is not the limit
-(oracle mIoU $82.2$). All rows: this run, frozen components, GLM-4.1V guidance
-at run time.}
-\label{tab:repro}
-\input{tables/repro}
-\end{table}
+The released HybridGL code and our reimplementation of it agree within
+$0.6$\,mIoU on two disjoint 150-reference blocks, so the internal comparisons
+in this paper are made on one harness. GLOD-RIS releases no code; its rows in
+Table~\ref{tab:sota} are quoted as published and every comparison against
+them is labelled cross-harness. An independent reimplementation of the
+described GLOD-RIS method, with its component controls, is recorded in
+the appendix as a transparency record; those numbers are not used
+as evidence about the original work.
 
 \subsection{Same-pool rule swap}
 \label{sec:ruleswap}

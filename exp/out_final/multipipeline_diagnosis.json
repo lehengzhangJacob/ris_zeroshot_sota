@@ -1,8 +1,10 @@
 {
-  "what": "oracle-gap decomposition on additional released pipelines (operator directive 2026-10-20)",
+  "what": "oracle-gap decomposition across released zero-shot pipelines, full official val splits",
+  "definition": "gap = oracle (best pool mask vs GT) - achieved (the pipeline's selected mask vs GT); wrong-instance when achieved < 0.5 <= oracle; wrong_instance_share is the fraction of the recoverable IoU mass in wrong-instance gaps. Every reported dataset uses the full official split n.",
   "pipelines": [
     {
       "name": "HybridGL released pipeline (this run)",
+      "repo": "https://github.com/fhgyuanshen/HybridGL",
       "datasets": {
         "refcoco": {
           "n": 10834,
@@ -21,19 +23,14 @@
           "oracle": 79.1206,
           "achieved": 50.0816,
           "wrong_instance_share": 0.9182
-        },
-        "grefcoco": {
-          "n": 14229,
-          "oracle": 57.2836,
-          "achieved": 33.3678,
-          "wrong_instance_share": 0.7617,
-          "scope": "targeted rows for the decomposition; n is the full split"
         }
       },
-      "evidence": "exp/out_final/multipipeline_evidence.json"
+      "evidence": "exp/out_final/multipipeline_evidence.json",
+      "pool": "SAM ViT-H pps 8"
     },
     {
       "name": "GLOD-RIS reimplementation (our reading; no released code)",
+      "repo": "none: code unreleased; local reimplementation (this run) at /home/msj_team/Jacob/sys/glod_ris_repro",
       "datasets": {
         "refcoco": {
           "n": 10834,
@@ -54,11 +51,84 @@
           "wrong_instance_share": 0.9177
         }
       },
-      "evidence": "exp/out_final/multipipeline_evidence.json"
+      "evidence": "exp/out_final/multipipeline_evidence.json",
+      "pool": "SAM ViT-H pps 8"
+    },
+    {
+      "name": "Global-Local (Zero-shot-RIS) released selector, SAM ViT-H pool",
+      "repo": "https://github.com/Seonghoon-Yu/Zero-shot-RIS",
+      "datasets": {
+        "refcoco": {
+          "n": 10834,
+          "oracle": 82.2113,
+          "achieved": 32.953,
+          "wrong_instance_share": 0.9512
+        },
+        "refcocoplus": {
+          "n": 10758,
+          "oracle": 82.3974,
+          "achieved": 36.3096,
+          "wrong_instance_share": 0.9424
+        },
+        "refcocog": {
+          "n": 4896,
+          "oracle": 79.1206,
+          "achieved": 41.6189,
+          "wrong_instance_share": 0.9253
+        }
+      },
+      "evidence": "exp/out_final/globallocal_sam_all.json",
+      "pool": "SAM ViT-H pps 8 (the released FreeSOLO R101 pool is blocked; the selector is the release's CLIPViTFM token-masking head)"
+    },
+    {
+      "name": "MaskCLIP-based dense value map, own component pool",
+      "repo": "https://github.com/chongzhou96/MaskCLIP",
+      "datasets": {
+        "refcoco": {
+          "n": 10834,
+          "oracle": 25.1996,
+          "achieved": 8.2112,
+          "wrong_instance_share": 0.2428
+        },
+        "refcocoplus": {
+          "n": 10758,
+          "oracle": 28.0812,
+          "achieved": 10.548,
+          "wrong_instance_share": 0.2734
+        },
+        "refcocog": {
+          "n": 4896,
+          "oracle": 31.7946,
+          "achieved": 14.3046,
+          "wrong_instance_share": 0.3161
+        }
+      },
+      "evidence": "exp/out_final/maskclip_sam_all.json",
+      "pool": "components of its own value map at fixed 50/70/90th-percentile thresholds, top-12 by mean value",
+      "adaptation": "MaskCLIP is a dense open-vocabulary segmenter without an instance pool; the component pool and the mean-value selection are this harness's fixed adaptation, not a released RIS procedure"
     }
   ],
-  "metric": "mIoU-style: mean per-record IoU over the full official split (grefcoco decomposition over targeted rows)",
-  "reading": "Across the released HybridGL pipeline and the GLOD-RIS reimplementation, wrong-instance selection accounts for the large majority of the recoverable oracle gap on every dataset (HybridGL 77.4/80.2/86.4%, GLOD-RIS reimplementation values in the file); under-segmentation and boundary errors are the remainder. The same decomposition on gRefCOCO's released selection is included.",
-  "verdict": "The diagnosis replicates across pipelines: the recoverable headroom is wrong-instance selection, not proposal quality, under both released selections. This is a measurement of both pipelines under one harness, not a judgment of either method.",
-  "generated": "exp/exp182_multipipeline.py"
+  "blocked": [
+    {
+      "name": "TAS (Text Augmented Spatial-aware Zero-shot RIS, EMNLP Findings 2023)",
+      "repo": "https://github.com/suoych/TAS",
+      "reason": "the released entry point requires a precomputed per-sentence overall-caption file `overall_caption_path/overall_caption_{dataset}_{split}_{splitby}.json` (tas_main.py loads it unconditionally); the repository ships neither the file nor a script that creates it, and README step 3 asks the user to prepare captions with BLIP-2. It also requires the spaCy transformer model en_core_web_trf, a torch.jit ViT-B/32 checkpoint, and SAM-H, CLIP and BLIP-2 weights; as released the pipeline is not executable without first generating the missing data file.",
+      "evidence": "exp/out_final/blocked_tas.json"
+    },
+    {
+      "name": "Ref-Diff (zero-shot RIS with generative models, CoRR 2023)",
+      "repo": "https://github.com/kodenii/Ref-Diff",
+      "reason": "the released test entry point loads a trained segmenter checkpoint `best_model.pth` from the output directory, but no released checkpoint is provided: the config's `resume` is empty, the repository's pretrain/ contains only a 2.9 MB stego head, and the README quick start assumes a previous training run. It additionally needs checkpoints/sam_vit_h_4b8939.pth and checkpoints/v1-5-pruned.ckpt, neither shipped.",
+      "evidence": "exp/out_final/blocked_refdiff.json"
+    },
+    {
+      "name": "Global-Local exact FreeSOLO-pool run (Seonghoon-Yu/Zero-shot-RIS)",
+      "repo": "https://github.com/Seonghoon-Yu/Zero-shot-RIS",
+      "reason": "the released pipeline's original proposal pool is FreeSOLO R101. The README weight URL (cloudstor.aarnet.edu.au/plus/s/V8C0onE5H63x3RD/download) does not resolve from this host (curl exit/status 000); the repo vendors only a FreeSOLO config and imports detectron2, and the FreeSOLO model code is not included. The released selector itself is runnable and is reported on the SAM ViT-H pool under the full-pipeline entry.",
+      "evidence": "exp/out_final/blocked_globallocal_freesolo.json"
+    }
+  ],
+  "evidence_index": "exp/out_final/multipipeline_evidence.json (HybridGL, GLOD-RIS); globallocal_sam_*.json; maskclip_sam_*.json; blocked_*.json",
+  "verdict": "Across the released HybridGL pipeline, the GLOD-RIS reimplementation and the Global-Local selector, wrong-instance selection carries the large majority of the recoverable oracle gap on every dataset (HybridGL 93.9/94.1/91.8%, GLOD-RIS 93.3/93.7/91.8%, Global-Local values in the table). The MaskCLIP value-map adaptation is the contrast: its own component pool already caps the oracle at ~25 mIoU, so its gap is pool-limited, while the same dense map on the shared SAM pool still loses most of its recoverable mass to wrong-instance selection. The diagnosis therefore replicates where a good pool exists and identifies the pool as the limit where it does not. The exact Global-Local FreeSOLO pool, TAS and Ref-Diff are documented as blocked with their reasons.",
+  "generated": "exp/exp185_multipipeline.py"
 }

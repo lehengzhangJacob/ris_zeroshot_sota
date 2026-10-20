@@ -1,0 +1,22 @@
+{
+  "name": "Ref-Diff (zero-shot RIS with generative models, CoRR 2023)",
+  "repo": "https://github.com/kodenii/Ref-Diff",
+  "reason": "the released test entry point loads a trained segmenter checkpoint `best_model.pth` from the output directory, but no released checkpoint is provided: the config's `resume` is empty, the repository's pretrain/ contains only a 2.9 MB stego head, and the README quick start assumes a previous training run. It additionally needs checkpoints/sam_vit_h_4b8939.pth and checkpoints/v1-5-pruned.ckpt, neither shipped.",
+  "evidence_commands": [
+    "ls -la exp/literature/repos/refdiff/pretrain exp/literature/repos/refdiff/checkpoints",
+    "grep -n resume config/refcoco.yaml",
+    "sed -n 60,90p test.py"
+  ],
+  "observed": {
+    "released_segmenter_checkpoint": null,
+    "pretrain_contents": [
+      "vitb16_stego_head.ckpt (2.9 MB)"
+    ],
+    "resume_config": "<empty>",
+    "required_external_checkpoints": [
+      "checkpoints/sam_vit_h_4b8939.pth",
+      "checkpoints/v1-5-pruned.ckpt"
+    ]
+  },
+  "checked_at": "2026-10-20T11:44:35Z"
+}

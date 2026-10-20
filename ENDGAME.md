@@ -652,3 +652,64 @@ the search-until-it-works val-exposure concern and found it not a validity
 problem: the 802-config search sorts by train-tune cIoU only, the shipped
 configuration is frozen, and its val numbers are a single pass (T-acc from a
 deterministic re-analysis). Review gate: stop.
+
+## 2026-10-20 — Reproduction framing removed; multi-pipeline diagnosis (full runs + blockers)
+
+Reproduction framing (operator directive): the GLOD-RIS independent-reproduction
+shortfall is removed from the abstract, introduction and every main-text
+paragraph (no 20.6--25.7 numbers, no "below the published rows" phrasing); the
+main text states only the neutral protocol (code unreleased -> published rows
+quoted as published, cross-harness labelled). The reimplementation, its controls
+and Table `tab:repro` now appear only in the appendix transparency record
+(`app:repro`), written without judgment. The main SOTA table's baseline row is
+renamed "HybridGL released code (baseline, this run)" and no independent
+GLOD-RIS reproduction row is in it. Paper rebuilt.
+
+Global-Local (Zero-shot-RIS, CVPR 2023) full reproduction, released CLIP
+ViT-B/32 and the release's CLIPViTFM token-masking head (masking_block=9,
+last_layer=11), on the shared SAM ViT-H pool (the release's FreeSOLO R101 pool
+is blocked): full official val splits, n = 10,834 / 10,758 / 4,896.
+  RefCOCO  32.9530 mIoU / 25.7010 oIoU, oracle 82.2113, wrong-instance share 0.9512
+  RefCOCO+ 36.3096 / 28.0021, oracle 82.3974, wrong-instance share 0.9424
+  RefCOCOg 41.6189 / 29.3280, oracle 79.1206, wrong-instance share 0.9253
+The release reproduces its published val rows within 1.3 mIoU on the substituted
+pool (published 31.83/34.97/40.66). Evidence: `globallocal_sam_all.json`.
+
+MaskCLIP-based full run (CVPR 2023 dense value map; ln_post before proj;
+own component pool at fixed 50/70/90th-percentile thresholds, top-12 by mean
+value; the component-pool and mean-value selection are this harness's
+adaptation, stated in the artifact): full splits, same n.
+  RefCOCO  8.2112 / 7.4940 / oracle 25.1996 / wrong-instance share 0.2428
+  RefCOCO+ 10.5480 / 9.5426 / oracle 28.0812 / 0.2734
+  RefCOCOg 14.3046 / 12.4215 / oracle 31.7946 / 0.3161
+Same-pool control (the same dense map on the SAM pool): 8.15/9.83/11.57 mIoU,
+wrong-instance share 0.9667/0.9634/0.9524. The own-pool result is pool-limited;
+on a good pool the same weak selector is wrong-instance dominated. Evidence:
+`maskclip_sam_all.json`.
+
+Blocked, with repo/reason/evidence (not sampled):
+  TAS (https://github.com/suoych/TAS): the entry point requires a per-sentence
+    `overall_caption_path/...json` the repo neither ships nor generates; README
+    asks the user to prepare BLIP-2 captions first. Evidence blocked_tas.json.
+  Ref-Diff (https://github.com/kodenii/Ref-Diff): test.py loads a trained
+    `best_model.pth`; config resume is empty, pretrain/ has only a 2.9 MB stego
+    head, and no released segmenter checkpoint exists. Evidence blocked_refdiff.json.
+  Global-Local exact FreeSOLO pool: weight URL cloudstor... returns status 000;
+    repo vendors only a FreeSOLO config and requires detectron2; no FreeSOLO
+    code. Evidence blocked_globallocal_freesolo.json.
+
+`exp/out_final/multipipeline_diagnosis.json` has 4 full pipelines (HybridGL
+released 44.82/40.23/50.08; GLOD-RIS reimplementation 32.68/30.96/37.24;
+Global-Local 32.95/36.31/41.62; MaskCLIP 8.21/10.55/14.30) plus the three
+blocked entries, each with repo, full-split n, oracle, achieved and
+wrong-instance share; each pipeline's evidence is a single fresh aggregate file.
+Paper diagnosis section now carries Table 1 (one row per pipeline, achieved /
+oracle and wrong-instance shares) plus the blocked-pipeline paragraph; the
+blocked methods are cited (TAS, Ref-Diff, Global-Local, MaskCLIP).
+
+Gate: `python3 extreme_bar.py` prints PASS after the paper rebuild (all checks,
+including multipipeline_diagnosis with the new schema and PDF freshness).
+Cross-family review blocked externally: mcp__llm-chat__review returned HTTP 429
+(code 1113, "余额不足或无可用资源包"); a minimal glm-5.3 probe returned the same
+429. Recorded in `exp/out_final/review_attempt.json`; not self-reviewed with the
+executor family.
