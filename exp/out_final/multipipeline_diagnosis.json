@@ -10,18 +10,21 @@
           "n": 10834,
           "oracle": 82.2113,
           "achieved": 44.8248,
+          "oIoU": 38.16,
           "wrong_instance_share": 0.9396
         },
         "refcocoplus": {
           "n": 10758,
           "oracle": 82.3974,
           "achieved": 40.2289,
+          "oIoU": 33.5875,
           "wrong_instance_share": 0.9415
         },
         "refcocog": {
           "n": 4896,
           "oracle": 79.1206,
           "achieved": 50.0816,
+          "oIoU": 41.4453,
           "wrong_instance_share": 0.9182
         }
       },
@@ -36,18 +39,21 @@
           "n": 10834,
           "oracle": 82.2113,
           "achieved": 32.6781,
+          "oIoU": 27.9194,
           "wrong_instance_share": 0.9331
         },
         "refcocoplus": {
           "n": 10758,
           "oracle": 82.3974,
           "achieved": 30.9572,
+          "oIoU": 26.1309,
           "wrong_instance_share": 0.9365
         },
         "refcocog": {
           "n": 4896,
           "oracle": 79.1206,
           "achieved": 37.2403,
+          "oIoU": 31.9795,
           "wrong_instance_share": 0.9177
         }
       },
@@ -62,18 +68,21 @@
           "n": 10834,
           "oracle": 82.2113,
           "achieved": 32.953,
+          "oIoU": 25.701,
           "wrong_instance_share": 0.9512
         },
         "refcocoplus": {
           "n": 10758,
           "oracle": 82.3974,
           "achieved": 36.3096,
+          "oIoU": 28.0021,
           "wrong_instance_share": 0.9424
         },
         "refcocog": {
           "n": 4896,
           "oracle": 79.1206,
           "achieved": 41.6189,
+          "oIoU": 29.328,
           "wrong_instance_share": 0.9253
         }
       },
@@ -88,18 +97,21 @@
           "n": 10834,
           "oracle": 25.1996,
           "achieved": 8.2112,
+          "oIoU": 7.494,
           "wrong_instance_share": 0.2428
         },
         "refcocoplus": {
           "n": 10758,
           "oracle": 28.0812,
           "achieved": 10.548,
+          "oIoU": 9.5426,
           "wrong_instance_share": 0.2734
         },
         "refcocog": {
           "n": 4896,
           "oracle": 31.7946,
           "achieved": 14.3046,
+          "oIoU": 12.4215,
           "wrong_instance_share": 0.3161
         }
       },

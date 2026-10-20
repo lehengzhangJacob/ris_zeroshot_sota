@@ -32,21 +32,29 @@ def main() -> int:
     hyb = ev["pipelines"]["hybridgl_released"]
     glod = ev["pipelines"]["glodris_reimplementation"]
 
-    def from_decomp(m):
+    def from_decomp(m, oiou):
         return {ds: dict(n=int(m[ds]["n"]), oracle=round(100 * m[ds]["oracle"], 4),
                          achieved=round(100 * m[ds]["achieved"], 4),
+                         oIoU=round(float(oiou[ds]), 4),
                          wrong_instance_share=round(m[ds]["wrong_instance_share"], 4))
                 for ds in DATASETS}
+
+    main_files = {"refcoco": "main_refcoco.json", "refcocoplus": "main_refcocoplus.json",
+                  "refcocog": "main_refcocog.json"}
+    hyb_o = {ds: json.loads((OUTF / f).read_text())["oIoU"]["released"]
+             for ds, f in main_files.items()}
+    glod_doc = json.loads((OUTF / "glodris_repro.json").read_text())["datasets"]
+    glod_o = {ds: glod_doc[ds]["oIoU"] for ds in DATASETS}
 
     pipes = [
         full_entry("HybridGL released pipeline (this run)",
                    "https://github.com/fhgyuanshen/HybridGL",
-                   from_decomp(hyb), "exp/out_final/multipipeline_evidence.json",
+                   from_decomp(hyb, hyb_o), "exp/out_final/multipipeline_evidence.json",
                    pool="SAM ViT-H pps 8"),
         full_entry("GLOD-RIS reimplementation (our reading; no released code)",
                    "none: code unreleased; local reimplementation "
                    "(this run) at /home/msj_team/Jacob/sys/glod_ris_repro",
-                   from_decomp(glod), "exp/out_final/multipipeline_evidence.json",
+                   from_decomp(glod, glod_o), "exp/out_final/multipipeline_evidence.json",
                    pool="SAM ViT-H pps 8"),
     ]
 
@@ -57,7 +65,7 @@ def main() -> int:
         for ds, p in zip(DATASETS, gl_files):
             d = json.loads(p.read_text())
             dss[ds] = dict(n=int(d["n"]), oracle=round(d["oracle_mIoU"], 4),
-                           achieved=round(d["mIoU"], 4),
+                           achieved=round(d["mIoU"], 4), oIoU=round(d["oIoU"], 4),
                            wrong_instance_share=round(d["wrong_instance_share"], 4))
             raw[ds] = d
         (OUTF / "globallocal_sam_all.json").write_text(json.dumps(raw, indent=2))
@@ -75,7 +83,7 @@ def main() -> int:
         for ds, p in zip(DATASETS, mc_files):
             d = json.loads(p.read_text())
             dss[ds] = dict(n=int(d["n"]), oracle=round(d["oracle_mIoU"], 4),
-                           achieved=round(d["mIoU"], 4),
+                           achieved=round(d["mIoU"], 4), oIoU=round(d["oIoU"], 4),
                            wrong_instance_share=round(d["wrong_instance_share"], 4))
             raw[ds] = d
         (OUTF / "maskclip_sam_all.json").write_text(json.dumps(raw, indent=2))
