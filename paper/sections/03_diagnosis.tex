@@ -83,8 +83,11 @@ MaskCLIP~\cite{zhou2022maskclip} is a dense open-vocabulary segmenter with no
 instance pool, so its row uses components of its own value map under a fixed
 rule. The exact pools
 and the two remaining released RIS pipelines (TAS, Ref-Diff) are documented
-as blocked in \S\ref{sec:diagnosis}; per-pipeline oIoU is recorded in the
-artifact.}
+as blocked in \S\ref{sec:diagnosis}; per-pipeline oIoU and its published
+numbers are recorded in the artifact. All achieved/oracle cells here are
+single-protocol (our unified official evaluator); published numbers are
+reported separately (Table~\ref{tab:sota}) and labelled as published
+(cross-harness), never pooled with these measurements.}
 \label{tab:multipipeline}
 \input{tables/multipipeline}
 \end{table*}

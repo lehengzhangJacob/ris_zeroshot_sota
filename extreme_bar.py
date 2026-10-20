@@ -840,6 +840,12 @@ def multipipeline_diagnosis():
         repo = p.get("repo")
         if not isinstance(repo, str) or not repo.strip():
             return fail(f"pipeline {i} needs a non-empty repo URL")
+        proto = p.get("protocol")
+        if not isinstance(proto, str) or not proto.strip():
+            return fail(f"pipeline {i} needs a non-empty protocol string")
+        pub = p.get("published")
+        if not isinstance(pub, dict) or not pub:
+            return fail(f"pipeline {i} needs published{{}} (per-dataset numbers or a not-comparable note)")
         dss = p.get("datasets")
         if not isinstance(dss, dict) or not dss:
             return fail(f"pipeline {i} needs datasets{{}}")

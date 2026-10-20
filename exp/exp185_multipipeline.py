@@ -106,12 +106,59 @@ def main() -> int:
             blocked.append(dict(name=b["name"], repo=b["repo"], reason=b["reason"],
                                 evidence=str(p.relative_to(ROOT))))
 
+    PUBLISHED = {
+        "HybridGL": {ds: {"mIoU": {"refcoco": 49.48, "refcocoplus": 43.40, "refcocog": 51.25}[ds],
+                          "oIoU": {"refcoco": 41.81, "refcocoplus": 35.74, "refcocog": 42.47}[ds],
+                          "source": "HybridGL CVPR 2025 val columns, quoted as published"}
+                    for ds in DATASETS},
+        "GLOD": {ds: {"mIoU": {"refcoco": 58.42, "refcocoplus": 54.01, "refcocog": 57.85}[ds],
+                      "oIoU": {"refcoco": 50.85, "refcocoplus": 45.96, "refcocog": 50.03}[ds],
+                      "source": "GLOD-RIS TCSVT 2026 Table I val columns, quoted as published"}
+                 for ds in DATASETS},
+        "Global-Local": {ds: {"mIoU": {"refcoco": 31.83, "refcocoplus": 34.97, "refcocog": 40.66}[ds],
+                              "oIoU": {"refcoco": 24.55, "refcocoplus": 26.62, "refcocog": 28.92}[ds],
+                              "source": "Global-Local (SAM) published val row, quoted as published; "
+                                        "the compared paper's original pool is FreeSOLO R101, so this "
+                                        "published row is cross-harness to our SAM-pool run"}
+                         for ds in DATASETS},
+        "MaskCLIP": {ds: {"mIoU": {"refcoco": 25.62, "refcocoplus": 27.49, "refcocog": 30.13}[ds],
+                          "oIoU": {"refcoco": 20.18, "refcocoplus": 22.06, "refcocog": 23.05}[ds],
+                          "comparable": False,
+                          "source": "MaskCLIP-based published RIS row, quoted as published; this run "
+                                    "uses a harness adaptation (dense value map + component pool), so "
+                                    "the published numbers are not directly comparable"}
+                     for ds in DATASETS},
+    }
+    PROTOCOL = {
+        "HybridGL": ("official val splits (RefCOCO/RefCOCO+ UNC; RefCOCOg UMD Val(U)); "
+                     "per-expression mIoU against the GT mask and pooled oIoU; our unified "
+                     "evaluator; SAM ViT-H pps 8 pool; released HybridGL code on our harness"),
+        "GLOD": ("official val splits (same); our unified evaluator; SAM ViT-H pps 8 pool; "
+                 "our end-to-end reimplementation of the described method; code unreleased"),
+        "Global-Local": ("official val splits (same); our unified evaluator; released CLIPViTFM "
+                         "selector (released CLIP ViT-B/32) on the shared SAM ViT-H pool; the "
+                         "original FreeSOLO R101 pool is unobtainable (documented blocker)"),
+        "MaskCLIP": ("official val splits (same); our unified evaluator; released MaskCLIP dense "
+                     "value map (CLIP ViT-B/16) with a fixed own-component pool (50/70/90th "
+                     "percentile thresholds, top-12 by mean value); this is a harness adaptation, "
+                     "not a released RIS procedure"),
+    }
+    for p in pipes:
+        for tag in ("HybridGL", "GLOD", "Global-Local", "MaskCLIP"):
+            if p["name"].startswith(tag):
+                p["protocol"] = PROTOCOL[tag]
+                p["published"] = PUBLISHED[tag]
+                break
+
     diag = dict(
         what="oracle-gap decomposition across released zero-shot pipelines, full official val splits",
         definition=("gap = oracle (best pool mask vs GT) - achieved (the pipeline's selected mask "
                     "vs GT); wrong-instance when achieved < 0.5 <= oracle; wrong_instance_share is "
                     "the fraction of the recoverable IoU mass in wrong-instance gaps. Every "
-                    "reported dataset uses the full official split n."),
+                    "reported dataset uses the full official split n. All achieved/oracle values "
+                    "in this file are single-protocol (our unified official evaluator); published "
+                    "numbers are reported separately per pipeline in `published` and are "
+                    "cross-harness as labelled there."),
         pipelines=pipes,
         blocked=blocked,
         evidence_index="exp/out_final/multipipeline_evidence.json (HybridGL, GLOD-RIS); "

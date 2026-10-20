@@ -1,6 +1,6 @@
 {
   "what": "oracle-gap decomposition across released zero-shot pipelines, full official val splits",
-  "definition": "gap = oracle (best pool mask vs GT) - achieved (the pipeline's selected mask vs GT); wrong-instance when achieved < 0.5 <= oracle; wrong_instance_share is the fraction of the recoverable IoU mass in wrong-instance gaps. Every reported dataset uses the full official split n.",
+  "definition": "gap = oracle (best pool mask vs GT) - achieved (the pipeline's selected mask vs GT); wrong-instance when achieved < 0.5 <= oracle; wrong_instance_share is the fraction of the recoverable IoU mass in wrong-instance gaps. Every reported dataset uses the full official split n. All achieved/oracle values in this file are single-protocol (our unified official evaluator); published numbers are reported separately per pipeline in `published` and are cross-harness as labelled there.",
   "pipelines": [
     {
       "name": "HybridGL released pipeline (this run)",
@@ -29,7 +29,25 @@
         }
       },
       "evidence": "exp/out_final/multipipeline_evidence.json",
-      "pool": "SAM ViT-H pps 8"
+      "pool": "SAM ViT-H pps 8",
+      "protocol": "official val splits (RefCOCO/RefCOCO+ UNC; RefCOCOg UMD Val(U)); per-expression mIoU against the GT mask and pooled oIoU; our unified evaluator; SAM ViT-H pps 8 pool; released HybridGL code on our harness",
+      "published": {
+        "refcoco": {
+          "mIoU": 49.48,
+          "oIoU": 41.81,
+          "source": "HybridGL CVPR 2025 val columns, quoted as published"
+        },
+        "refcocoplus": {
+          "mIoU": 43.4,
+          "oIoU": 35.74,
+          "source": "HybridGL CVPR 2025 val columns, quoted as published"
+        },
+        "refcocog": {
+          "mIoU": 51.25,
+          "oIoU": 42.47,
+          "source": "HybridGL CVPR 2025 val columns, quoted as published"
+        }
+      }
     },
     {
       "name": "GLOD-RIS reimplementation (our reading; no released code)",
@@ -58,7 +76,25 @@
         }
       },
       "evidence": "exp/out_final/multipipeline_evidence.json",
-      "pool": "SAM ViT-H pps 8"
+      "pool": "SAM ViT-H pps 8",
+      "protocol": "official val splits (same); our unified evaluator; SAM ViT-H pps 8 pool; our end-to-end reimplementation of the described method; code unreleased",
+      "published": {
+        "refcoco": {
+          "mIoU": 58.42,
+          "oIoU": 50.85,
+          "source": "GLOD-RIS TCSVT 2026 Table I val columns, quoted as published"
+        },
+        "refcocoplus": {
+          "mIoU": 54.01,
+          "oIoU": 45.96,
+          "source": "GLOD-RIS TCSVT 2026 Table I val columns, quoted as published"
+        },
+        "refcocog": {
+          "mIoU": 57.85,
+          "oIoU": 50.03,
+          "source": "GLOD-RIS TCSVT 2026 Table I val columns, quoted as published"
+        }
+      }
     },
     {
       "name": "Global-Local (Zero-shot-RIS) released selector, SAM ViT-H pool",
@@ -87,7 +123,25 @@
         }
       },
       "evidence": "exp/out_final/globallocal_sam_all.json",
-      "pool": "SAM ViT-H pps 8 (the released FreeSOLO R101 pool is blocked; the selector is the release's CLIPViTFM token-masking head)"
+      "pool": "SAM ViT-H pps 8 (the released FreeSOLO R101 pool is blocked; the selector is the release's CLIPViTFM token-masking head)",
+      "protocol": "official val splits (same); our unified evaluator; released CLIPViTFM selector (released CLIP ViT-B/32) on the shared SAM ViT-H pool; the original FreeSOLO R101 pool is unobtainable (documented blocker)",
+      "published": {
+        "refcoco": {
+          "mIoU": 31.83,
+          "oIoU": 24.55,
+          "source": "Global-Local (SAM) published val row, quoted as published; the compared paper's original pool is FreeSOLO R101, so this published row is cross-harness to our SAM-pool run"
+        },
+        "refcocoplus": {
+          "mIoU": 34.97,
+          "oIoU": 26.62,
+          "source": "Global-Local (SAM) published val row, quoted as published; the compared paper's original pool is FreeSOLO R101, so this published row is cross-harness to our SAM-pool run"
+        },
+        "refcocog": {
+          "mIoU": 40.66,
+          "oIoU": 28.92,
+          "source": "Global-Local (SAM) published val row, quoted as published; the compared paper's original pool is FreeSOLO R101, so this published row is cross-harness to our SAM-pool run"
+        }
+      }
     },
     {
       "name": "MaskCLIP-based dense value map, own component pool",
@@ -117,7 +171,28 @@
       },
       "evidence": "exp/out_final/maskclip_sam_all.json",
       "pool": "components of its own value map at fixed 50/70/90th-percentile thresholds, top-12 by mean value",
-      "adaptation": "MaskCLIP is a dense open-vocabulary segmenter without an instance pool; the component pool and the mean-value selection are this harness's fixed adaptation, not a released RIS procedure"
+      "adaptation": "MaskCLIP is a dense open-vocabulary segmenter without an instance pool; the component pool and the mean-value selection are this harness's fixed adaptation, not a released RIS procedure",
+      "protocol": "official val splits (same); our unified evaluator; released MaskCLIP dense value map (CLIP ViT-B/16) with a fixed own-component pool (50/70/90th percentile thresholds, top-12 by mean value); this is a harness adaptation, not a released RIS procedure",
+      "published": {
+        "refcoco": {
+          "mIoU": 25.62,
+          "oIoU": 20.18,
+          "comparable": false,
+          "source": "MaskCLIP-based published RIS row, quoted as published; this run uses a harness adaptation (dense value map + component pool), so the published numbers are not directly comparable"
+        },
+        "refcocoplus": {
+          "mIoU": 27.49,
+          "oIoU": 22.06,
+          "comparable": false,
+          "source": "MaskCLIP-based published RIS row, quoted as published; this run uses a harness adaptation (dense value map + component pool), so the published numbers are not directly comparable"
+        },
+        "refcocog": {
+          "mIoU": 30.13,
+          "oIoU": 23.05,
+          "comparable": false,
+          "source": "MaskCLIP-based published RIS row, quoted as published; this run uses a harness adaptation (dense value map + component pool), so the published numbers are not directly comparable"
+        }
+      }
     }
   ],
   "blocked": [

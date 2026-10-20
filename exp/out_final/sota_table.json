@@ -367,43 +367,6 @@
       "note": "shipped: per-term box selector, single pick per box (change 16, 2026-10-10, re-selected on the held-out train frame with SAM caches present), joint config change 14 + singles-only no-target fallback (exp124); complete official val split (n=14229) under the official gRefCOCO protocol (protocol_audit.json) | superseded as the shipped row by the transfer-aware learned recipe (change 17); retained as the training-free reference row"
     },
     {
-      "name": "GLOD-RIS (our independent reproduction)",
-      "venue": "this run",
-      "measured_by_us": true,
-      "evidence": "exp/out_final/glodris_repro.json",
-      "setting": "zero-shot, SAM ViT-H + CLIP ViT-B/16, GLM-4.1V-Thinking-Flash guidance",
-      "refcoco": {
-        "mIoU": 32.6781,
-        "oIoU": 27.9194,
-        "n": 10834,
-        "published": {
-          "mIoU": 58.42,
-          "oIoU": 50.85
-        },
-        "source": "independent reproduction, full official val split"
-      },
-      "refcocoplus": {
-        "mIoU": 30.9572,
-        "oIoU": 26.1309,
-        "n": 10758,
-        "published": {
-          "mIoU": 54.01,
-          "oIoU": 45.96
-        },
-        "source": "independent reproduction, full official val split"
-      },
-      "refcocog": {
-        "mIoU": 37.2403,
-        "oIoU": 31.9795,
-        "n": 4896,
-        "published": {
-          "mIoU": 57.85,
-          "oIoU": 50.03
-        },
-        "source": "independent reproduction, full official val split"
-      }
-    },
-    {
       "name": "Ours: DINO-free VLM-box SAM rule (shipped)",
       "venue": "this run",
       "measured_by_us": true,
