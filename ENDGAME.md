@@ -713,3 +713,14 @@ Cross-family review blocked externally: mcp__llm-chat__review returned HTTP 429
 (code 1113, "余额不足或无可用资源包"); a minimal glm-5.3 probe returned the same
 429. Recorded in `exp/out_final/review_attempt.json`; not self-reviewed with the
 executor family.
+
+Protocol alignment per reproduction (2026-10-20, follow-up): every pipeline in
+`multipipeline_diagnosis.json` now carries a `protocol` string and a
+`published` block (per-dataset mIoU/oIoU plus source; MaskCLIP marked
+`comparable: false` because its row is a harness adaptation). The diagnosis
+`definition` states that all achieved/oracle values are single-protocol (our
+unified official evaluator) and published numbers are reported separately,
+cross-harness. The paper Table 1 caption states the same. The independent
+GLOD-RIS reproduction row was removed from `sota_table.json` (the paper table
+already had only the released HybridGL baseline row). Paper rebuilt; gate PASS;
+pushed 5cea41e.
