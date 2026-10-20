@@ -13,7 +13,13 @@
       "scope": "post-protocol-fields review request (multipipeline schema, PDF)",
       "error": "API error 429: {\"error\":{\"code\":\"1113\",\"message\":\"\u4f59\u989d\u4e0d\u8db3\u6216\u65e0\u53ef\u7528\u8d44\u6e90\u5305,\u8bf7\u5145\u503c\u3002\"}}",
       "status": "blocked_external"
+    },
+    {
+      "attempted_at": "2026-10-20T14:55:56Z",
+      "scope": "post-traversal/S+S review request",
+      "status": "blocked_external",
+      "error": "API error 429: {\"error\":{\"code\":\"1113\",\"message\":\"\u4f59\u989d\u4e0d\u8db3\u6216\u65e0\u53ef\u7528\u8d44\u6e90\u5305,\u8bf7\u5145\u503c\u3002\"}}"
     }
   ],
-  "last_attempt": "2026-10-20T13:04:19Z"
+  "last_attempt": "2026-10-20T14:55:56Z"
 }
