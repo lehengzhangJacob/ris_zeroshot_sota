@@ -12,18 +12,34 @@ distribution; LGD~\cite{lgd2025} adds grounded region crops; HybridGL
 \cite{hybridgl2025} is the current state among SAM+CLIP-only pipelines, adding
 a GEM attention $\times$ position-mask coherence term and relation guidance;
 GLOD-RIS~\cite{wu2026glodris} reaches the highest zero-shot numbers but
-consults an external MLLM. We build on HybridGL because it is the strongest
-zero-shot method whose official code is released and runs without external
-services --- and we audit the released code against its paper
-(\S\ref{sec:repro}). Our contribution is orthogonal to all of these: it
+consults an external MLLM. IteRPrimE~\cite{iterprime2025} refines Grad-CAM
+heatmaps iteratively, while PinPoint~\cite{pinpoint2026} disambiguates SAM
+point prompts with stable interior points. We build on HybridGL because it is
+the strongest zero-shot method whose official code is released and runs
+without external services --- and we audit the released code against its
+paper (\S\ref{sec:repro}). Our contribution is orthogonal to all of these: it
 replaces the \emph{selection} step given their scores, and the diagnosis
 applies to any scorer of the family (\S\ref{sec:diagnosis}).
+
+\paragraph{Selection as the failure mode.}
+Our diagnosis is corroborated by independent work read in full here.
+Venice-H1~\cite{veniceh1_2026} measures that heuristic query selection
+succeeds on 82--93\% of samples but the residual failures dominate the error
+budget (3--11\% mIoU selection gap) and adds a learned re-ranker;
+S+S~\cite{splus2024} trains a corrector specifically to fix zero-shot
+selection mistakes; Prompt Sensitivity~\cite{promptsens2026} shows overlapping
+prompts select different instances (mean 2.11 distinct selections) while text
+similarity explains only 34\% of the disagreement. None of these changes the
+pool; all act on the choice among candidates, which is the axis this paper
+measures.
 
 \paragraph{Mask selection and merging.}
 Merging/growing proposals is a known idiom: ProposalCLIP~\cite{proposalclip2022}
 merges graph-connected proposals for class-agnostic generation;
 MARS~\cite{mars2026} gates and unions few-shot proposals;
-E-SAM~\cite{esam2025} merges adjacent entity masks. These operate on visual
+E-SAM~\cite{esam2025} merges adjacent entity masks;
+GF-SAM~\cite{gfsam2024} clusters point-mask graphs; Semantic-SAM~\cite{semanticsam2023} supplies multi-granularity pools, and
+T2S~\cite{t2s2026} expands diffusion seeds with SAM. These operate on visual
 similarity or containment alone and do not decide \emph{which instance} an
 expression denotes. The one-line containment snap we use as a control (and
 later as a component) is the simplest member of this family; we measure
@@ -47,7 +63,8 @@ single-mask selector is structurally unable to score well when
 \gresMultiPct\,\% of references denote several objects and
 \gresNoTargetPct\,\% denote none. Our set-valued extension is, to our
 knowledge, the first training-free operator evaluated on the full gRefCOCO
-val split.
+val split. Trained mask-group models such as RAS~\cite{ras2025} target the
+related omnimodal setting; they are reference systems, not same-class floors.
 
 \paragraph{Benchmarks.}
 RefCOCO/+/g~\cite{kazemzadeh2014refer, mao2016generation} remain the standard

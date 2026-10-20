@@ -719,8 +719,8 @@ def literature_deep_read():
     if not isinstance(data, dict):
         return fail("deep_read.json must be an object")
     papers = data.get("papers")
-    if not isinstance(papers, list) or len(papers) < 20:
-        return fail("deep_read.json needs papers[] of length >= 20")
+    if not isinstance(papers, list) or len(papers) < 35:
+        return fail("deep_read.json needs papers[] of length >= 35 (intensive traversal mandate)")
     bib_text = (ROOT / "paper" / "references.bib").read_text(errors="replace")
     import re as _re
     id_pat = _re.compile(r"(arxiv\s*[:/]\s*\d{4}\.\d{4,5}|10\.\d{4,9}/\S+)", _re.I)
@@ -794,12 +794,12 @@ def literature_deep_read():
                 if not isinstance(metrics, dict) or not any(isinstance(v, (int, float)) for v in metrics.values()):
                     return fail(f"deep_read paper {i} successful run needs numeric metrics")
                 ok_runs += 1
-    if ris < 15:
-        return fail(f"deep_read.json has only {ris} RIS papers; need >= 15")
-    if inspected < 8:
-        return fail(f"deep_read.json has only {inspected} source-code inspections; need >= 8")
-    if ok_runs < 5:
-        return fail(f"deep_read.json has only {ok_runs} successful repo runs; need >= 5")
+    if ris < 20:
+        return fail(f"deep_read.json has only {ris} RIS papers; need >= 20")
+    if inspected < 12:
+        return fail(f"deep_read.json has only {inspected} source-code inspections; need >= 12")
+    if ok_runs < 8:
+        return fail(f"deep_read.json has only {ok_runs} successful repo runs; need >= 8")
     mc = data.get("grefcoco_metric_check")
     if not isinstance(mc, dict):
         return fail("deep_read.json needs grefcoco_metric_check{}")
@@ -887,10 +887,23 @@ def multipipeline_diagnosis():
             tag = (b["name"] + " " + b["repo"]).lower()
             if "hybridgl" not in tag and "glod" not in tag:
                 new_blocked += 1
-    if new_full < 1:
-        return fail("need at least one NEW independent pipeline with full-split numbers beyond HybridGL/GLOD-RIS")
-    if new_full + new_blocked < 2:
-        return fail("need at least two NEW independent pipelines beyond HybridGL/GLOD-RIS (full results or documented blockers)")
+    if new_full < 3:
+        return fail("need at least THREE NEW independent pipeline(s) with full-split numbers beyond HybridGL/GLOD-RIS")
+    if new_full + new_blocked < 5:
+        return fail("need at least five NEW pipeline entries beyond HybridGL/GLOD-RIS (full results or evidence-backed blockers)")
+    fals = data.get("falsification")
+    if not isinstance(fals, list) or len(fals) < 3:
+        return fail("multipipeline_diagnosis.json needs falsification[] of length >= 3 (active attack on the diagnosis)")
+    for i, f in enumerate(fals):
+        if not isinstance(f, dict):
+            return fail(f"falsification {i} is not an object")
+        for field in ("claim", "test", "verdict"):
+            v = f.get(field)
+            if not isinstance(v, str) or not v.strip():
+                return fail(f"falsification {i} needs a non-empty {field}")
+        ev = f.get("evidence")
+        if not isinstance(ev, str) or not newer(ev):
+            return fail(f"falsification {i} needs fresh evidence")
     verdict = data.get("verdict")
     if not isinstance(verdict, str) or not verdict.strip():
         return fail("multipipeline_diagnosis.json needs a non-empty verdict string")

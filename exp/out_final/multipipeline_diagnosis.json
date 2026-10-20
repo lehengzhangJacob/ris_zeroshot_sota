@@ -193,6 +193,53 @@
           "source": "MaskCLIP-based published RIS row, quoted as published; this run uses a harness adaptation (dense value map + component pool), so the published numbers are not directly comparable"
         }
       }
+    },
+    {
+      "name": "S+S (Segment, Select, Correct) zero-shot select stage, SAM ViT-H pool",
+      "repo": "https://github.com/fgirbal/segment-select-correct",
+      "datasets": {
+        "refcoco": {
+          "n": 10834,
+          "oracle": 82.2113,
+          "achieved": 29.4591,
+          "oIoU": 22.1236,
+          "wrong_instance_share": 0.9538
+        },
+        "refcocoplus": {
+          "n": 10758,
+          "oracle": 82.3974,
+          "achieved": 35.3453,
+          "oIoU": 27.7031,
+          "wrong_instance_share": 0.9469
+        },
+        "refcocog": {
+          "n": 4896,
+          "oracle": 79.1206,
+          "achieved": 38.9233,
+          "oIoU": 30.059,
+          "wrong_instance_share": 0.9316
+        }
+      },
+      "evidence": "exp/out_final/spluss_sam_all.json",
+      "pool": "SAM ViT-H pps 8 shared pool (the released stage-1 pool is GroundingDINO+SAM; the released selection rule is run here)",
+      "protocol": "official val splits; per-expression mIoU and pooled oIoU under our unified evaluator; released reverse_blur CLIP selection; published S+S zero-shot numbers are oIoU 34.39/36.29/39.29 and mIoU 40.96/41.77/45.36 (RefCOCO/+/g val), quoted as published",
+      "published": {
+        "refcoco": {
+          "mIoU": 40.96,
+          "oIoU": 34.39,
+          "source": "S+S ECCV 2024 Workshops zero-shot row, quoted as published; the published pool is GroundingDINO+SAM, so this is cross-harness to our SAM-pool run"
+        },
+        "refcocoplus": {
+          "mIoU": 41.77,
+          "oIoU": 36.29,
+          "source": "S+S ECCV 2024 Workshops zero-shot row, quoted as published; the published pool is GroundingDINO+SAM, so this is cross-harness to our SAM-pool run"
+        },
+        "refcocog": {
+          "mIoU": 45.36,
+          "oIoU": 39.29,
+          "source": "S+S ECCV 2024 Workshops zero-shot row, quoted as published; the published pool is GroundingDINO+SAM, so this is cross-harness to our SAM-pool run"
+        }
+      }
     }
   ],
   "blocked": [
@@ -216,6 +263,26 @@
     }
   ],
   "evidence_index": "exp/out_final/multipipeline_evidence.json (HybridGL, GLOD-RIS); globallocal_sam_*.json; maskclip_sam_*.json; blocked_*.json",
-  "verdict": "Across the released HybridGL pipeline, the GLOD-RIS reimplementation and the Global-Local selector, wrong-instance selection carries the large majority of the recoverable oracle gap on every dataset (HybridGL 94.0/94.2/91.8%, GLOD-RIS 93.3/93.7/91.8%, Global-Local 95.1/94.2/92.5%). The MaskCLIP value-map adaptation is the contrast: its own component pool caps the oracle at 25.2/28.1/31.8 mIoU with wrong-instance shares 24.3/27.3/31.6%, so its gap is pool-limited; the same dense map on the shared SAM pool selects 8.2/9.8/11.6 mIoU and is wrong-instance dominated (96.7/96.3/95.2%). The diagnosis therefore replicates where a good pool exists and identifies the pool as the limit where it does not. The exact Global-Local FreeSOLO pool, TAS and Ref-Diff are documented as blocked with their reasons.",
+  "verdict": "Across the released HybridGL pipeline, the GLOD-RIS reimplementation and the Global-Local selector, wrong-instance selection carries the large majority of the recoverable oracle gap on every dataset (HybridGL 94.0/94.2/91.8%, GLOD-RIS 93.3/93.7/91.8%, Global-Local 95.1/94.2/92.5%, S+S 95.4/94.7/93.2%). The MaskCLIP value-map adaptation is the contrast: its own component pool caps the oracle at 25.2/28.1/31.8 mIoU with wrong-instance shares 24.3/27.3/31.6%, so its gap is pool-limited; the same dense map on the shared SAM pool selects 8.2/9.8/11.6 mIoU and is wrong-instance dominated (96.7/96.3/95.2%). The diagnosis therefore replicates where a good pool exists and identifies the pool as the limit where it does not. The exact Global-Local FreeSOLO pool, TAS and Ref-Diff are documented as blocked with their reasons.",
+  "falsification": [
+    {
+      "claim": "every score-based selection sits far below its own pool oracle and the gap is dominated by wrong-instance selection",
+      "test": "MaskCLIP's own dense-map component pool: oracle 25.20/28.08/31.79 mIoU vs achieved 8.21/10.55/14.30; wrong-instance share 24.3/27.3/31.6% of the gap mass",
+      "verdict": "REFUTED as a universal claim: for this pipeline the pool, not wrong-instance selection, is the limit (most of the gap is in records where even the oracle is below IoU 0.5). The diagnosis is conditional on the pool containing the referent, as the same-pool control shows.",
+      "evidence": "exp/out_final/maskclip_sam_all.json"
+    },
+    {
+      "claim": "a dense/compositional encoder that scores whole regions with global-local features repairs selection",
+      "test": "released Global-Local CLIPViTFM selector on the shared SAM ViT-H pool, full splits: achieved 32.95/36.31/41.62 vs oracle 82.21/82.40/79.12; wrong-instance share 95.1/94.2/92.5% of the gap mass",
+      "verdict": "NOT SUPPORTED: the global-local scorer remains wrong-instance dominated on every dataset; no repair of the selection failure is observed.",
+      "evidence": "exp/out_final/globallocal_sam_all.json"
+    },
+    {
+      "claim": "the diagnosis holds when the pool contains the referent, even for a selector that is pool-limited on its own masks",
+      "test": "the same MaskCLIP dense value map scoring the shared SAM ViT-H proposals: achieved 8.15/9.83/11.57 vs oracle 82.21/82.40/79.12; wrong-instance share 96.7/96.3/95.2%",
+      "verdict": "SUPPORTED: on a good pool the same dense selector's recoverable mass is wrong-instance dominated; its own-pool result bounds the claim rather than overturning it.",
+      "evidence": "exp/out_final/maskclip_sam_all.json"
+    }
+  ],
   "generated": "exp/exp185_multipipeline.py"
 }

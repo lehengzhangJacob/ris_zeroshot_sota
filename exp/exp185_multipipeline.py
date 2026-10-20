@@ -97,6 +97,34 @@ def main() -> int:
                        "pool; the component pool and the mean-value selection are this "
                        "harness's fixed adaptation, not a released RIS procedure"))
 
+    ss_files = [OUTF / f"spluss_sam_{ds}.json" for ds in DATASETS]
+    if all(p.is_file() for p in ss_files):
+        dss = {}
+        raw = {}
+        for ds, p in zip(DATASETS, ss_files):
+            d = json.loads(p.read_text())
+            dss[ds] = dict(n=int(d["n"]), oracle=round(d["oracle_mIoU"], 4),
+                           achieved=round(d["mIoU"], 4), oIoU=round(d["oIoU"], 4),
+                           wrong_instance_share=round(d["wrong_instance_share"], 4))
+            raw[ds] = d
+        (OUTF / "spluss_sam_all.json").write_text(json.dumps(raw, indent=2))
+        pipes.append(full_entry(
+            "S+S (Segment, Select, Correct) zero-shot select stage, SAM ViT-H pool",
+            "https://github.com/fgirbal/segment-select-correct", dss,
+            "exp/out_final/spluss_sam_all.json",
+            pool="SAM ViT-H pps 8 shared pool (the released stage-1 pool is "
+                 "GroundingDINO+SAM; the released selection rule is run here)",
+            protocol="official val splits; per-expression mIoU and pooled oIoU under our "
+                     "unified evaluator; released reverse_blur CLIP selection; published "
+                     "S+S zero-shot numbers are oIoU 34.39/36.29/39.29 and mIoU "
+                     "40.96/41.77/45.36 (RefCOCO/+/g val), quoted as published",
+            published={ds: {"mIoU": {"refcoco": 40.96, "refcocoplus": 41.77, "refcocog": 45.36}[ds],
+                            "oIoU": {"refcoco": 34.39, "refcocoplus": 36.29, "refcocog": 39.29}[ds],
+                            "source": "S+S ECCV 2024 Workshops zero-shot row, quoted as published; "
+                                      "the published pool is GroundingDINO+SAM, so this is "
+                                      "cross-harness to our SAM-pool run"}
+                       for ds in DATASETS}))
+
     blocked = []
     for f in ("blocked_tas.json", "blocked_refdiff.json",
               "blocked_globallocal_freesolo.json"):
@@ -166,7 +194,7 @@ def main() -> int:
         verdict=("Across the released HybridGL pipeline, the GLOD-RIS reimplementation and the "
                  "Global-Local selector, wrong-instance selection carries the large majority of "
                  "the recoverable oracle gap on every dataset (HybridGL 94.0/94.2/91.8%, "
-                 "GLOD-RIS 93.3/93.7/91.8%, Global-Local 95.1/94.2/92.5%). The MaskCLIP "
+                 "GLOD-RIS 93.3/93.7/91.8%, Global-Local 95.1/94.2/92.5%, S+S 95.4/94.7/93.2%). The MaskCLIP "
                  "value-map adaptation is the contrast: its own component pool caps the oracle "
                  "at 25.2/28.1/31.8 mIoU with wrong-instance shares 24.3/27.3/31.6%, so its gap "
                  "is pool-limited; the same dense map on the shared SAM pool selects "
@@ -174,13 +202,45 @@ def main() -> int:
                  "diagnosis therefore replicates where a good pool exists and identifies the "
                  "pool as the limit where it does not. The exact Global-Local FreeSOLO pool, "
                  "TAS and Ref-Diff are documented as blocked with their reasons."),
+        falsification=[
+            dict(
+                claim=("every score-based selection sits far below its own pool oracle and the gap is "
+                       "dominated by wrong-instance selection"),
+                test=("MaskCLIP's own dense-map component pool: oracle 25.20/28.08/31.79 mIoU vs "
+                      "achieved 8.21/10.55/14.30; wrong-instance share 24.3/27.3/31.6% of the gap mass"),
+                verdict=("REFUTED as a universal claim: for this pipeline the pool, not wrong-instance "
+                         "selection, is the limit (most of the gap is in records where even the oracle "
+                         "is below IoU 0.5). The diagnosis is conditional on the pool containing the "
+                         "referent, as the same-pool control shows."),
+                evidence="exp/out_final/maskclip_sam_all.json"),
+            dict(
+                claim=("a dense/compositional encoder that scores whole regions with global-local "
+                       "features repairs selection"),
+                test=("released Global-Local CLIPViTFM selector on the shared SAM ViT-H pool, full "
+                      "splits: achieved 32.95/36.31/41.62 vs oracle 82.21/82.40/79.12; wrong-instance "
+                      "share 95.1/94.2/92.5% of the gap mass"),
+                verdict=("NOT SUPPORTED: the global-local scorer remains wrong-instance dominated on "
+                         "every dataset; no repair of the selection failure is observed."),
+                evidence="exp/out_final/globallocal_sam_all.json"),
+            dict(
+                claim=("the diagnosis holds when the pool contains the referent, even for a selector "
+                       "that is pool-limited on its own masks"),
+                test=("the same MaskCLIP dense value map scoring the shared SAM ViT-H proposals: "
+                      "achieved 8.15/9.83/11.57 vs oracle 82.21/82.40/79.12; wrong-instance share "
+                      "96.7/96.3/95.2%"),
+                verdict=("SUPPORTED: on a good pool the same dense selector's recoverable mass is "
+                         "wrong-instance dominated; its own-pool result bounds the claim rather than "
+                         "overturning it."),
+                evidence="exp/out_final/maskclip_sam_all.json"),
+        ],
         generated="exp/exp185_multipipeline.py")
     (OUTF / "multipipeline_diagnosis.json").write_text(json.dumps(diag, indent=2))
 
     # ---- paper table ------------------------------------------------------
     rows = []
     short = {"HybridGL": "HybridGL (released)", "GLOD": "GLOD-RIS (reimpl.)",
-             "Global-Local": "Global-Local (SAM)", "MaskCLIP": "MaskCLIP (own pool)"}
+             "Global-Local": "Global-Local (SAM)", "MaskCLIP": "MaskCLIP (own pool)",
+             "S+S": "S+S (SAM)"}
     for p in pipes:
         cells = [next((v for k, v in short.items() if p["name"].startswith(k)), p["name"])]
         for ds in DATASETS:

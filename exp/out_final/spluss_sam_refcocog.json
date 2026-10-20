@@ -1,0 +1,14 @@
+{
+  "dataset": "refcocog",
+  "split": "val",
+  "n": 4896,
+  "mIoU": 38.92328613195725,
+  "oIoU": 30.059004629476973,
+  "oracle_mIoU": 79.12057891947094,
+  "wrong_instance_share": 0.9316077697255981,
+  "pool": "SAM ViT-H pps 8 shared pool (the released stage-1 pool is GroundingDINO+SAM; the selection rule is the release's)",
+  "selection": "released `vp_and_max_sim_clip_choice` with reverse_blur, CLIP ViT-B/32, std_dev=50, mask area >= 500, released >= tie-breaking",
+  "repo": "https://github.com/fgirbal/segment-select-correct",
+  "protocol": "official val splits; per-expression mIoU and pooled oIoU under our unified evaluator; SAM ViT-H pps 8 pool; published S+S zero-shot numbers are oIoU 34.39/36.29/39.29 and mIoU 40.96/41.77/45.36 (RefCOCO/+/g val), quoted as published",
+  "generated": "exp/exp188_splus_repro.py"
+}

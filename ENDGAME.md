@@ -724,3 +724,39 @@ cross-harness. The paper Table 1 caption states the same. The independent
 GLOD-RIS reproduction row was removed from `sota_table.json` (the paper table
 already had only the released HybridGL baseline row). Paper rebuilt; gate PASS;
 pushed 5cea41e.
+
+## 2026-10-20 (continued) — Intensive traversal, falsification, third full pipeline
+
+Deep-read dossier expanded to 36 full-text papers (24 RIS, 12 adjacent), each
+with a local source_file under exp/literature/papers/, verified arXiv/DOI id,
+>=2 reported numbers, >=2 anchors, a verbatim quote and a code{} block. 13 new
+full texts were downloaded and read (LGD, IteRPrimE, S+S, RAS, Venice-H1,
+PinPoint, Prompt Sensitivity, MARS, E-SAM, ProposalCLIP, GF-SAM, T2S,
+Semantic-SAM, plus HybridGL). New bib entries were added with verified titles/
+authors. Successful repo runs now 9 (adds HybridGL official code and the
+Global-Local/S+S reproductions).
+
+Falsification mandate: 3 attacks recorded in multipipeline_diagnosis.json:
+1) MaskCLIP own component pool (oracle 25.2/28.1/31.8, wrong share
+   24.3/27.3/31.6%) REFUTES the diagnosis as universal: this pipeline is
+   pool-limited.
+2) Global-Local global-local encoder (wrong shares 95.1/94.2/92.5%) does NOT
+   repair selection.
+3) The same MaskCLIP dense map on the shared SAM pool is wrong-instance
+   dominated (96.7/96.3/95.2%): the claim survives in its conditional form.
+
+Third new full pipeline: S+S (Segment, Select, Correct) released zero-shot
+select stage (`vp_and_max_sim_clip_choice`, reverse_blur, CLIP ViT-B/32,
+area>=500), full official val on the shared SAM ViT-H pool (published stage-1
+pool is expression-conditioned GroundingDINO+SAM, cross-harness stated):
+  RefCOCO  29.4591 mIoU / 22.1236 oIoU, oracle 82.2113, wrong share 0.9538
+  RefCOCO+ 35.3453 / 27.7031, oracle 82.3974, wrong share 0.9469
+  RefCOCOg 38.9233 / 30.0590, oracle 79.1206, wrong share 0.9316
+Published S+S zero-shot: mIoU 40.96/41.77/45.36, oIoU 34.39/36.29/39.29;
+the achieved gap is the pool substitution, stated in the protocol block.
+Evidence: exp/out_final/spluss_sam_all.json. The diagnosis now carries 5 full
+pipelines + 3 documented blockers and the 3 falsification rows; paper Table 1
+and the diagnosis text include S+S and the attack.
+
+Gate: `python3 extreme_bar.py` = PASS after the paper rebuild. Review still
+blocked externally (Zhipu 429 code 1113, balance); no self-review.
