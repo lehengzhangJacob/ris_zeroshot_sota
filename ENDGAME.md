@@ -760,3 +760,14 @@ and the diagnosis text include S+S and the attack.
 
 Gate: `python3 extreme_bar.py` = PASS after the paper rebuild. Review still
 blocked externally (Zhipu 429 code 1113, balance); no self-review.
+
+Review retry (2026-10-21): Zhipu access restored. Cross-family review completed
+via mcp__llm-chat__review (thread 9a8e89251e7e; reviewer glm-5.3, executor
+deepseek-flash). The first pass found a must-fix: duplicate SOTA rows with
+stale change-16/17 provenance notes, plus the shipped.config tune metrics
+being unlabelled and a stale "supervised gIoU 74.34 exceeded (74.72)" sentence
+in protocol_audit. Fixes: deduplicated sota_table.json and corrected the note
+to the actual DINO-free rule; added metrics_scope to main_grefcoco shipped
+config; appended the current 47.5854/73.7800 row and the 0.56-below-74.34
+boundary to protocol_audit, marking 74.72 superseded. Paper rebuilt, gate PASS.
+Follow-up verdict: PASS, MUST-FIX: none. Recorded in review_attempt.json.

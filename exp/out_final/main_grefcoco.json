@@ -318,7 +318,8 @@
       "p_sel": 0.26289467166338326,
       "cIoU": 53.64316173609093,
       "gIoU": 73.24187614654033,
-      "N_acc": 93.51851851851852
+      "N_acc": 93.51851851851852,
+      "metrics_scope": "held-out gRefCOCO train-tune search metrics; the shipped official val row is shipped.cIoU/shipped.gIoU"
     }
   },
   "class_wall": {

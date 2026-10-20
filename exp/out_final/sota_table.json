@@ -364,20 +364,7 @@
       },
       "n": 14229,
       "setting": "training-free; VLM clause/noun boxes + SAM box-prompted masks; no detector; config on held-out gRefCOCO train",
-      "note": "shipped: per-term box selector, single pick per box (change 16, 2026-10-10, re-selected on the held-out train frame with SAM caches present), joint config change 14 + singles-only no-target fallback (exp124); complete official val split (n=14229) under the official gRefCOCO protocol (protocol_audit.json) | superseded as the shipped row by the transfer-aware learned recipe (change 17); retained as the training-free reference row"
-    },
-    {
-      "name": "Ours: DINO-free VLM-box SAM rule (shipped)",
-      "venue": "this run",
-      "measured_by_us": true,
-      "evidence": "exp/out_final/vlm_sam_val_tacc.json",
-      "grefcoco": {
-        "cIoU": 47.5854,
-        "gIoU": 73.78
-      },
-      "n": 14229,
-      "setting": "training-free; VLM clause/noun boxes + SAM box-prompted masks; no detector; config on held-out gRefCOCO train",
-      "note": "above the previous training-free record on cIoU, with gIoU at parity: cluster bootstrap over val images (10k resamples) gives cIoU +1.38 [+0.60, +2.21] (decisive) and gIoU +0.17 [-0.03, +0.38] (parity or slightly above); mechanism = the transfer-inversion recipe in transfer_wall.json"
+      "note": "shipped: DINO-free VLM-box SAM rule \u2014 per-clause and per-noun LLaVA boxes, sxi pool picks inside each box unioned with SAM ViT-H box-prompted masks (predicted-IoU floor, area cap), three-prompt abstention, pair/union fallback; no GroundingDINO; configuration selected on the held-out gRefCOCO train-tune split; full official val (n=14229) under the protocol in protocol_audit.json"
     },
     {
       "name": "Ours: declared-trained transfer recipe (corrected; not shipped)",
