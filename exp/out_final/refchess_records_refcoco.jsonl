@@ -82,3 +82,123 @@
 {"sentence": "white dish in the top right corner", "iou": 0.0, "oracle_iou": 0.6667038202285767, "inter": 0.0, "union": 80459.0}
 {"sentence": "white pot upper right corner", "iou": 0.0, "oracle_iou": 0.6667038202285767, "inter": 0.0, "union": 20972.0}
 {"sentence": "front bowl wcarrots in it", "iou": 0.0, "oracle_iou": 0.5903356075286865, "inter": 0.0, "union": 118365.0}
+{"sentence": "bowl behind the others can only see part", "iou": 0.0, "oracle_iou": 0.6667038202285767, "inter": 0.0, "union": 49410.0}
+{"sentence": "dish in top right corner", "iou": 0.666703798596413, "oracle_iou": 0.6667038202285767, "inter": 11970.0, "union": 17954.0}
+{"sentence": "white dish in the top right corner", "iou": 0.666703798596413, "oracle_iou": 0.6667038202285767, "inter": 11970.0, "union": 17954.0}
+{"sentence": "white pot upper right corner", "iou": 0.666703798596413, "oracle_iou": 0.6667038202285767, "inter": 11970.0, "union": 17954.0}
+{"sentence": "front bowl wcarrots in it", "iou": 0.3205622855867833, "oracle_iou": 0.5903356075286865, "inter": 34480.0, "union": 107561.0}
+{"sentence": "bowl of carrots", "iou": 0.3205622855867833, "oracle_iou": 0.5903356075286865, "inter": 34480.0, "union": 107561.0}
+{"sentence": "bowl of carrots", "iou": 0.5903355805807691, "oracle_iou": 0.5903356075286865, "inter": 62696.0, "union": 106204.0}
+{"sentence": "carrots", "iou": 0.5903355805807691, "oracle_iou": 0.5903356075286865, "inter": 62696.0, "union": 106204.0}
+{"sentence": "little girl", "iou": 0.9074537540805223, "oracle_iou": 0.9074537754058838, "inter": 16679.0, "union": 18380.0}
+{"sentence": "pink", "iou": 0.9074537540805223, "oracle_iou": 0.9074537754058838, "inter": 16679.0, "union": 18380.0}
+{"sentence": "your monitors colors off friend p pink shirt girl", "iou": 0.9074537540805223, "oracle_iou": 0.9074537754058838, "inter": 16679.0, "union": 18380.0}
+{"sentence": "green woman", "iou": 0.0, "oracle_iou": 0.8476691842079163, "inter": 0.0, "union": 49917.0}
+{"sentence": "person holding umbrella", "iou": 0.0, "oracle_iou": 0.8476691842079163, "inter": 0.0, "union": 49917.0}
+{"sentence": "woman", "iou": 0.8476691693020786, "oracle_iou": 0.8476691842079163, "inter": 35113.0, "union": 41423.0}
+{"sentence": "mom", "iou": 0.8161805427358316, "oracle_iou": 0.8161805272102356, "inter": 35370.0, "union": 43336.0}
+{"sentence": "adult", "iou": 0.8161805427358316, "oracle_iou": 0.8161805272102356, "inter": 35370.0, "union": 43336.0}
+{"sentence": "lady sitting", "iou": 0.8161805427358316, "oracle_iou": 0.8161805272102356, "inter": 35370.0, "union": 43336.0}
+{"sentence": "child sitting on womans lap", "iou": 0.7925052047189451, "oracle_iou": 0.7925052046775818, "inter": 9136.0, "union": 11528.0}
+{"sentence": "small girl on lap", "iou": 0.7925052047189451, "oracle_iou": 0.7925052046775818, "inter": 9136.0, "union": 11528.0}
+{"sentence": "child", "iou": 0.7925052047189451, "oracle_iou": 0.7925052046775818, "inter": 9136.0, "union": 11528.0}
+{"sentence": "left guy", "iou": 0.13514175379108975, "oracle_iou": 0.5350092053413391, "inter": 7174.0, "union": 53085.0}
+{"sentence": "man on left", "iou": 0.5350092105018328, "oracle_iou": 0.5350092053413391, "inter": 28753.0, "union": 53743.0}
+{"sentence": "lady on right", "iou": 0.785985487681404, "oracle_iou": 0.7859854698181152, "inter": 18631.0, "union": 23704.0}
+{"sentence": "upper right woman", "iou": 0.785985487681404, "oracle_iou": 0.7859854698181152, "inter": 18631.0, "union": 23704.0}
+{"sentence": "bottom box left dude", "iou": 0.00021496130696474635, "oracle_iou": 0.9021502137184143, "inter": 4.0, "union": 18608.0}
+{"sentence": "guy wearing glasses", "iou": 0.0, "oracle_iou": 0.9021502137184143, "inter": 0.0, "union": 34567.0}
+{"sentence": "bottom picleft guy", "iou": 0.9021502251925033, "oracle_iou": 0.9021502137184143, "inter": 12419.0, "union": 13766.0}
+{"sentence": "woman in top picture on the left", "iou": 0.732785622593068, "oracle_iou": 0.7327856421470642, "inter": 14271.0, "union": 19475.0}
+{"sentence": "woman upper left", "iou": 0.0, "oracle_iou": 0.7327856421470642, "inter": 0.0, "union": 27324.0}
+{"sentence": "top left woman", "iou": 0.732785622593068, "oracle_iou": 0.7327856421470642, "inter": 14271.0, "union": 19475.0}
+{"sentence": "bottom right guy", "iou": 0.002231469754538327, "oracle_iou": 0.8974553346633911, "inter": 74.0, "union": 33162.0}
+{"sentence": "man on bottom right", "iou": 0.002231469754538327, "oracle_iou": 0.8974553346633911, "inter": 74.0, "union": 33162.0}
+{"sentence": "man right bottom", "iou": 0.002231469754538327, "oracle_iou": 0.8974553346633911, "inter": 74.0, "union": 33162.0}
+{"sentence": "cat on top", "iou": 0.8484968668200207, "oracle_iou": 0.8484968543052673, "inter": 10697.0, "union": 12607.0}
+{"sentence": "cat on the top", "iou": 0.8484968668200207, "oracle_iou": 0.8484968543052673, "inter": 10697.0, "union": 12607.0}
+{"sentence": "cat at faucet", "iou": 0.0, "oracle_iou": 0.8484968543052673, "inter": 0.0, "union": 12331.0}
+{"sentence": "black cat under sink", "iou": 0.0, "oracle_iou": 0.9066522717475891, "inter": 0.0, "union": 37430.0}
+{"sentence": "under", "iou": 0.012338334195550957, "oracle_iou": 0.9066522717475891, "inter": 477.0, "union": 38660.0}
+{"sentence": "bottom cat", "iou": 0.9066522778077546, "oracle_iou": 0.9066522717475891, "inter": 23524.0, "union": 25946.0}
+{"sentence": "man standing", "iou": 0.9195822920385577, "oracle_iou": 0.9195823073387146, "inter": 20606.0, "union": 22408.0}
+{"sentence": "man", "iou": 0.9195822920385577, "oracle_iou": 0.9195823073387146, "inter": 20606.0, "union": 22408.0}
+{"sentence": "guy standing playing wiifit", "iou": 0.003381642512077295, "oracle_iou": 0.9195823073387146, "inter": 77.0, "union": 22770.0}
+{"sentence": "person in chair at left", "iou": 0.0, "oracle_iou": 0.8968421816825867, "inter": 0.0, "union": 22817.0}
+{"sentence": "guy sitting on left", "iou": 0.0, "oracle_iou": 0.8968421816825867, "inter": 0.0, "union": 39700.0}
+{"sentence": "black shirt in chair on left", "iou": 0.006084176369536171, "oracle_iou": 0.8968421816825867, "inter": 255.0, "union": 41912.0}
+{"sentence": "gurl", "iou": 0.978258759584587, "oracle_iou": 0.9782587885856628, "inter": 20158.0, "union": 20606.0}
+{"sentence": "girl in purple", "iou": 0.978258759584587, "oracle_iou": 0.9782587885856628, "inter": 20158.0, "union": 20606.0}
+{"sentence": "child in front", "iou": 0.978258759584587, "oracle_iou": 0.9782587885856628, "inter": 20158.0, "union": 20606.0}
+{"sentence": "woman in shorts", "iou": 0.0, "oracle_iou": 0.8432392477989197, "inter": 0.0, "union": 40428.0}
+{"sentence": "right chick", "iou": 0.0056029765813088205, "oracle_iou": 0.8432392477989197, "inter": 128.0, "union": 22845.0}
+{"sentence": "man on right in shorts elephant wants to charge", "iou": 0.0005440988267390089, "oracle_iou": 0.8432392477989197, "inter": 71.0, "union": 130491.0}
+{"sentence": "psn boy", "iou": 0.9015284389877224, "oracle_iou": 0.9015284180641174, "inter": 21588.0, "union": 23946.0}
+{"sentence": "left kid", "iou": 0.9015284389877224, "oracle_iou": 0.9015284180641174, "inter": 21588.0, "union": 23946.0}
+{"sentence": "kid on left in blue", "iou": 0.9015284389877224, "oracle_iou": 0.9015284180641174, "inter": 21588.0, "union": 23946.0}
+{"sentence": "boy in black shirt front right", "iou": 0.8475686184227356, "oracle_iou": 0.8475686311721802, "inter": 33134.0, "union": 39093.0}
+{"sentence": "boy on right", "iou": 0.8475686184227356, "oracle_iou": 0.8475686311721802, "inter": 33134.0, "union": 39093.0}
+{"sentence": "kid on right in back blondish hair", "iou": 0.7012856462621025, "oracle_iou": 0.7012856602668762, "inter": 13255.0, "union": 18901.0}
+{"sentence": "blond boy on right", "iou": 0.7012856462621025, "oracle_iou": 0.7012856602668762, "inter": 13255.0, "union": 18901.0}
+{"sentence": "top right kid", "iou": 0.001083221275959958, "oracle_iou": 0.7012856602668762, "inter": 29.0, "union": 26772.0}
+{"sentence": "girl pink", "iou": 0.0, "oracle_iou": 0.9447034597396851, "inter": 0.0, "union": 24435.0}
+{"sentence": "pink gir", "iou": 0.0, "oracle_iou": 0.9447034597396851, "inter": 0.0, "union": 12381.0}
+{"sentence": "girl back left pink", "iou": 0.9447034764826175, "oracle_iou": 0.9447034597396851, "inter": 11549.0, "union": 12225.0}
+{"sentence": "person in white sleeping far away", "iou": 0.5739818341634926, "oracle_iou": 0.5739818215370178, "inter": 11754.0, "union": 20478.0}
+{"sentence": "sleeping guy in back", "iou": 0.20320973990038738, "oracle_iou": 0.5739818215370178, "inter": 3672.0, "union": 18070.0}
+{"sentence": "man sleeping top", "iou": 0.5739818341634926, "oracle_iou": 0.5739818215370178, "inter": 11754.0, "union": 20478.0}
+{"sentence": "lady on left laying on bed", "iou": 0.00477326968973747, "oracle_iou": 0.8652142882347107, "inter": 224.0, "union": 46928.0}
+{"sentence": "asleep", "iou": 0.04823445318084346, "oracle_iou": 0.8652142882347107, "inter": 1687.0, "union": 34975.0}
+{"sentence": "sleeping woman", "iou": 0.8652143055512698, "oracle_iou": 0.8652142882347107, "inter": 28039.0, "union": 32407.0}
+{"sentence": "left sandwich", "iou": 0.653049456642271, "oracle_iou": 0.6530494689941406, "inter": 29446.0, "union": 45090.0}
+{"sentence": "left sandwich", "iou": 0.653049456642271, "oracle_iou": 0.6530494689941406, "inter": 29446.0, "union": 45090.0}
+{"sentence": "green vegetable with leaves", "iou": 0.6507999366386821, "oracle_iou": 0.6507999300956726, "inter": 32868.0, "union": 50504.0}
+{"sentence": "green vegie", "iou": 0.6507999366386821, "oracle_iou": 0.6507999300956726, "inter": 32868.0, "union": 50504.0}
+{"sentence": "sandwich on right", "iou": 0.07588739290085679, "oracle_iou": 0.6507999300956726, "inter": 4526.0, "union": 59641.0}
+{"sentence": "left person with elbow bent", "iou": 0.9162862299607177, "oracle_iou": 0.9162862300872803, "inter": 17261.0, "union": 18838.0}
+{"sentence": "girl at the sink", "iou": 0.0001570665676671331, "oracle_iou": 0.9162862300872803, "inter": 11.0, "union": 70034.0}
+{"sentence": "smaller child over sink", "iou": 0.008324084350721421, "oracle_iou": 0.9162862300872803, "inter": 210.0, "union": 25228.0}
+{"sentence": "girl brushing teeth", "iou": 0.9501608948820104, "oracle_iou": 0.9501609206199646, "inter": 49606.0, "union": 52208.0}
+{"sentence": "girl brushing teeth", "iou": 0.9501608948820104, "oracle_iou": 0.9501609206199646, "inter": 49606.0, "union": 52208.0}
+{"sentence": "girl brush front", "iou": 0.9501608948820104, "oracle_iou": 0.9501609206199646, "inter": 49606.0, "union": 52208.0}
+{"sentence": "bottom right", "iou": 0.07785573609059576, "oracle_iou": 0.08048229664564133, "inter": 1265.0, "union": 16248.0}
+{"sentence": "bed on right bottom corner", "iou": 0.0, "oracle_iou": 0.08048229664564133, "inter": 0.0, "union": 85485.0}
+{"sentence": "the sheets on the bed in the bottom right corner", "iou": 0.0, "oracle_iou": 0.08048229664564133, "inter": 0.0, "union": 16340.0}
+{"sentence": "quilt", "iou": 0.84377442360297, "oracle_iou": 0.8437744379043579, "inter": 69095.0, "union": 81888.0}
+{"sentence": "bed", "iou": 0.84377442360297, "oracle_iou": 0.8437744379043579, "inter": 69095.0, "union": 81888.0}
+{"sentence": "bedspread", "iou": 0.84377442360297, "oracle_iou": 0.8437744379043579, "inter": 69095.0, "union": 81888.0}
+{"sentence": "zebra on left", "iou": 0.9145544036522731, "oracle_iou": 0.9145544171333313, "inter": 76925.0, "union": 84112.0}
+{"sentence": "a black and white striped animal on the left", "iou": 0.9145544036522731, "oracle_iou": 0.9145544171333313, "inter": 76925.0, "union": 84112.0}
+{"sentence": "the fully visible zebra", "iou": 0.9145544036522731, "oracle_iou": 0.9145544171333313, "inter": 76925.0, "union": 84112.0}
+{"sentence": "right zebra", "iou": 0.921620253164557, "oracle_iou": 0.92162024974823, "inter": 36404.0, "union": 39500.0}
+{"sentence": "right zebra", "iou": 0.921620253164557, "oracle_iou": 0.92162024974823, "inter": 36404.0, "union": 39500.0}
+{"sentence": "butt zebra cut in half", "iou": 0.921620253164557, "oracle_iou": 0.92162024974823, "inter": 36404.0, "union": 39500.0}
+{"sentence": "man in black coat", "iou": 0.9674709321863029, "oracle_iou": 0.9674709439277649, "inter": 14395.0, "union": 14879.0}
+{"sentence": "referee", "iou": 0.9674709321863029, "oracle_iou": 0.9674709439277649, "inter": 14395.0, "union": 14879.0}
+{"sentence": "guy in khakis", "iou": 0.9674709321863029, "oracle_iou": 0.9674709439277649, "inter": 14395.0, "union": 14879.0}
+{"sentence": "hitter", "iou": 0.9134584678707022, "oracle_iou": 0.9134584665298462, "inter": 25744.0, "union": 28183.0}
+{"sentence": "player", "iou": 0.9134584678707022, "oracle_iou": 0.9134584665298462, "inter": 25744.0, "union": 28183.0}
+{"sentence": "tennis player in white shirt", "iou": 0.9134584678707022, "oracle_iou": 0.9134584665298462, "inter": 25744.0, "union": 28183.0}
+{"sentence": "u2 man on left", "iou": 0.00013574046423238766, "oracle_iou": 0.9552791118621826, "inter": 14.0, "union": 103138.0}
+{"sentence": "dude in blue shirt tie", "iou": 0.9552790821513288, "oracle_iou": 0.9552791118621826, "inter": 98666.0, "union": 103285.0}
+{"sentence": "man", "iou": 0.9552790821513288, "oracle_iou": 0.9552791118621826, "inter": 98666.0, "union": 103285.0}
+{"sentence": "lady", "iou": 0.7708062619887384, "oracle_iou": 0.7708062529563904, "inter": 62285.0, "union": 80805.0}
+{"sentence": "pink", "iou": 0.7708062619887384, "oracle_iou": 0.7708062529563904, "inter": 62285.0, "union": 80805.0}
+{"sentence": "woman", "iou": 0.7708062619887384, "oracle_iou": 0.7708062529563904, "inter": 62285.0, "union": 80805.0}
+{"sentence": "woman on left", "iou": 0.884690414911231, "oracle_iou": 0.8846904039382935, "inter": 53967.0, "union": 61001.0}
+{"sentence": "the lady on the left", "iou": 0.884690414911231, "oracle_iou": 0.8846904039382935, "inter": 53967.0, "union": 61001.0}
+{"sentence": "woman", "iou": 0.884690414911231, "oracle_iou": 0.8846904039382935, "inter": 53967.0, "union": 61001.0}
+{"sentence": "man right", "iou": 0.023260004891423276, "oracle_iou": 0.9020812511444092, "inter": 1807.0, "union": 77687.0}
+{"sentence": "guy on right", "iou": 0.023260004891423276, "oracle_iou": 0.9020812511444092, "inter": 1807.0, "union": 77687.0}
+{"sentence": "bag on far left", "iou": 0.0, "oracle_iou": 0.5582324862480164, "inter": 0.0, "union": 24918.0}
+{"sentence": "first case on left", "iou": 0.5582324731673898, "oracle_iou": 0.5582324862480164, "inter": 24445.0, "union": 43790.0}
+{"sentence": "second bag from left", "iou": 0.4043831501331331, "oracle_iou": 0.4043831527233124, "inter": 17769.0, "union": 43941.0}
+{"sentence": "second suitcase from left", "iou": 0.4043831501331331, "oracle_iou": 0.4043831527233124, "inter": 17769.0, "union": 43941.0}
+{"sentence": "second suitcase from left", "iou": 0.4043831501331331, "oracle_iou": 0.4043831527233124, "inter": 17769.0, "union": 43941.0}
+{"sentence": "third from left", "iou": 0.0, "oracle_iou": 0.9553456902503967, "inter": 0.0, "union": 18628.0}
+{"sentence": "suitcase second from right", "iou": 0.0019991470306002773, "oracle_iou": 0.9553456902503967, "inter": 75.0, "union": 37516.0}
+{"sentence": "third from left", "iou": 0.0, "oracle_iou": 0.9553456902503967, "inter": 0.0, "union": 18628.0}
+{"sentence": "right one", "iou": 0.0, "oracle_iou": 0.9624993801116943, "inter": 0.0, "union": 21625.0}
+{"sentence": "far right luggage", "iou": 0.9624993561015814, "oracle_iou": 0.9624993801116943, "inter": 18685.0, "union": 19413.0}
+{"sentence": "right suitcase", "iou": 0.9624993561015814, "oracle_iou": 0.9624993801116943, "inter": 18685.0, "union": 19413.0}
+{"sentence": "bike on right", "iou": 0.8615258479330284, "oracle_iou": 0.86152583360672, "inter": 19965.0, "union": 23174.0}

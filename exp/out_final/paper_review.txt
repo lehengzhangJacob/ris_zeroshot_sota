@@ -1,0 +1,1398 @@
+                           Where Is It? A Dense Localization Prior
+                       for Training-Free Referring Image Segmentation
+
+                                        Anonymous CVPR submission
+                                              Paper ID ****
+
+
+                      Abstract                             ing — already exceeds the published GLOD-RIS row
+                                                           on all three benchmarks (69.99/65.22/64.83 mIoU),
+                                                           so the result is not an artifact of stacking on the
+   Training-free referring image segmentation is im-
+                                                           released pipeline. The method is tuned only on a
+plemented as propose-then-select: a frozen segmenter
+                                                           held-out split built from RefCOCO-family train ref-
+proposes masks, a frozen vision-language model scores
+                                                           erences (300-trial Optuna studies, objective = mini-
+them, and the argmax is returned. We measure what
+                                                           mum over datasets) and evaluated on the full validation
+actually limits this pipeline on full validation splits.
+                                                           sets. On gRefCOCO we locate where the training-free
+Every comparison against published rows is quoted as
+                                                           class stands. A three-prompt yes/no presence ensem-
+published and labelled cross-harness; GLOD-RIS re-
+                                                           ble solves the no-target decision above the trained state
+leases no code, and our independent reimplementa-
+                                                           of the art (N-acc 85.66 vs. 79.70), and a detector-free
+tion is documented in the appendix purely as a trans-
+                                                           rule beats every same-class (zero-shot) published num-
+parency record, not as a finding about the original
+                                                           ber on both metrics: 47.59/73.78 cIoU/gIoU vs. the
+work. We find that the proposal pool is not the
+                                                           best published zero-shot 44.40 (SELF1E-8B) / 43.30
+bottleneck — an oracle picker over the pool reaches
+                                                           (PSALM). Its gIoU sits 0.56 below the strongest su-
+82.21 mIoU on RefCOCO while the released pipeline
+                                                           pervised gIoU reference (InstAlign, 74.34); the super-
+returns 44.82, and the recoverable IoU is carried by
+                                                           vised cIoU level (68.94) remains out of reach. The
+wrong-instance selection, not by mask granularity. The
+                                                           shipped rule is DINO-free: per-clause and per-noun
+failure is one of localization rather than representa-
+                                                           VLM boxes with SAM box-prompted masks from the
+tion: the released scores compare whole-region em-
+                                                           same boxes. The gRefCOCO numbers also carry a
+beddings with whole-sentence embeddings, which are
+                                                           correction of our own measurement: refs group sev-
+ambiguous across instances on descriptive expressions,
+                                                           eral sentences, the oﬀicial evaluator is per sentence,
+and a stronger encoder does not help (SigLIP-so400m
+                                                           and our earlier term paths used a ref_id-keyed map
+selects worse than CLIP ViT-B/16 here). We there-
+                                                           (84.7% of targeted rows in multi-sentence refs used an-
+fore add one frozen, local component — a 7B vision-
+                                                           other sentence’s terms). After per-record alignment
+language model asked, in natural language, for the
+                                                           the frozen detector-bearing rule measures 49.63/74.60;
+referent’s bounding box — and select the candidate
+                                                           a held-out re-selection reaches 50.34/74.69, and a
+whose mask best fills that box. Passing the full re-
+                                                           declared-trained transfer recipe 49.40/74.26. Remov-
+ferring expression rather than a parsed noun phrase is
+                                                           ing GroundingDINO from the shipped path costs 2.76
+worth +13.4/+10.6/+11.6 mIoU in a held-out study;
+                                                           cIoU / 0.91 gIoU against that detector-bearing ab-
+no API is involved. A component-provenance study
+                                                           lation, and the recipe is detector-dependent and not
+measures this head as a conjunction of the released
+                                                           shipped; its earlier promotion (52.71/75.08), bootstrap
+scores’ candidate restriction and our box pick (drop-
+                                                           and mechanism account are withdrawn as artifacts of
+one deltas measured in both directions), rebuilds the
+                                                           the misalignment.
+restriction from our own terms, and promotes the re-
+sulting small selector head (declared trained; fitted
+on train-carved held-out rows only), which holds par-
+                                                           1. Introduction
+ity or better on all three full val splits and all five
+test columns (70.57/66.35/65.51 val mIoU), with the        Training-free referring image segmentation couples a
+training-free rule kept as the zero-shot reference row.    frozen segmenter that proposes masks with a frozen
+A minimal configuration — one segmenter plus one           vision-language model that scores them, and returns
+frozen VLM, no CLIP platform, no detector, no train-       the best-scoring mask. The field has spent its effort
+on the scorer, and the practice of reporting only end         the query — is worth +13.4/+10.6/+11.6 mIoU on the
+metrics has hidden which component actually fails. We         three benchmarks in a held-out study (Table 12). The
+measure it.                                                   component is local: a cached 7B checkpoint, 15 GB,
+    Before our own numbers, a comparison-protocol             no API key, no network at inference, and it runs 8-bit
+note frames them. The strongest published training-           quantised at 9.4 GB when GPUs are scarce.
+free method of this class, GLOD-RIS, releases no code;           We report the result under the protocol we would
+we therefore quote its published rows as published            want applied to ourselves. All hyperparameters — five
+throughout and label every comparison against them            scalars — are chosen by Optuna (300 trials per study)
+cross-harness. Our independent reimplementation of            on a held-out split built from RefCOCO family train
+the described method is documented in the appendix            references, with the objective set to the minimum over
+purely as a transparency record: it is not used as ev-        datasets so that no benchmark can be sacrificed; the
+idence and it says nothing about the original work —          oﬀicial validation and test splits are never used for tun-
+published results stand as published. As a controlled         ing. Every number in every table is a re-analysis of full-
+measurement of the described guidance we additionally         validation records written by this run, and the tables
+run the published selection equations (under our read-        themselves are generated from those records by script.
+ing) on our exact pools, features and its own cached             On gRefCOCO, whose metrics penalise false-
+MLLM guidance (Section 5.13); its numbers are re-             positive masks on no-target expressions, the no-target
+ported alongside the unguided released scorer on the          decision is solvable training-free: a three-prompt pres-
+same records, without judging the original method.            ence ensemble abstains at Nacc = 85.66 — above the
+    Our first finding is negative and decisive: at this op-   79.70 the trained state of the art reports. A detector-
+erating point the proposal pool is not the bottleneck.        free rule beats every same-class (zero-shot) published
+On full RefCOCO val the pool already contains a mask          number on both metrics: the best published zero-shot
+with IoU ≥ 0.5 for 93.4 % of expressions, and an ora-         cIoU 44.40 (SELF1E-8B) and gIoU 43.30 (PSALM) fall
+cle that always picked the best member would reach            to 47.59/73.78. Its gIoU sits 0.56 below the strongest
+82.21 mIoU; the released pipeline returns 44.82 mIoU.         supervised gIoU reference (InstAlign, 74.34); the su-
+The recoverable IoU is thus overwhelmingly in selec-          pervised cIoU level (68.94) remains out of reach.
+tion, and our error taxonomy attributes it to wrong-             The shipped gRefCOCO rule is DINO-free: per-
+instance selection rather than to mask granularity: on        clause and per-noun VLM boxes, with SAM box-
+wrong-instance failures the returned mask is nearly dis-      prompted masks from the same VLM boxes. The num-
+joint from the referent (mean IoU around 0.01) while          bers carry a correction that belongs in the paper. gRe-
+a correct mask sat in the pool.                               fCOCO refs group several sentences, and the oﬀicial
+    Our second finding is that this failure is a localiza-    evaluator scores each sentence separately; our earlier
+tion failure, not a representation failure. Both quan-        term-path evaluations looked terms up by ref_id, so
+tities the released pipeline uses to rank candidates are      84.7% of targeted rows in multi-sentence refs used an-
+region–text similarities: they compare a whole-region         other sentence’s terms. After correcting the alignment,
+embedding against a whole-sentence embedding. On              with parameters frozen, the detector-bearing rule mea-
+expressions that are descriptive rather than spatial          sures 49.63/74.60, and a held-out re-selection reaches
+— RefCOCO+ is constructed without location words,             50.34/74.69. A declared-trained part-acceptance recipe
+RefCOCOg uses long relational descriptions — such             measures 49.40/74.26; its part pool is detector-derived,
+scores are ambiguous across instances of the same cat-        so under the DINO-free requirement it is not shipped.
+egory, and the pipeline returns the wrong one. Replac-        The recipe promotion of an earlier draft (52.71/75.08),
+ing the encoder with a stronger one (SigLIP-so400m)           its bootstrap and its mechanism decomposition were
+makes selection worse, which rules out embedding qual-        artifacts of the misalignment and are withdrawn. Re-
+ity as the deficit.                                           moving GroundingDINO costs 2.76 cIoU / 0.91 gIoU
+    What the pipeline lacks is an explicit answer to          against the detector-bearing ablation and still clears
+“where is the referent”. We obtain one from a frozen          both same-class floors. We report the correction be-
+vision-language model, asked in natural language for          cause the alternative — tuning around a measurement
+the referent’s bounding box, and use it to select among       bug — would have inflated this paper’s claims.
+the candidates the released scores already propose: the          Contributions:
+candidate whose mask best fills the box. The choice of        • A measured diagnosis that selection — specifically
+prompt is the whole effect. Asking with the parsed               instance localization — is the bottleneck of training-
+noun phrase recovers little; asking with the full ex-            free RIS at the released operating point, with the
+pression — so that attributes and relations are part of          pool’s ceiling and the error taxonomy quantified on
+  full validation splits.                                  prompts with stable interior points. We build on Hy-
+• A dense localization prior: a frozen local VLM           bridGL because it is the strongest zero-shot method
+  queried with the full expression, used to select         whose oﬀicial code is released and runs without exter-
+  among the candidates the released scores pro-            nal services — and we audit the released code against
+  pose. It is training-free, API-free, and orthogonal      its paper (§5.12). Our contribution is orthogonal to
+  to the released scoring machinery; a component-          all of these: it replaces the selection step given their
+  provenance study measures the shipped head’s re-         scores, and the diagnosis applies to any scorer of the
+  leased and ours-side contributions, rebuilds the can-    family (§3).
+  didate restriction from our own terms, and pro-
+  motes a small declared-trained selector head (fitted     Selection as the failure mode. Our diagnosis is corrob-
+  on train-carved held-out rows only) as the shipped       orated by independent work read in full here. Venice-
+  RefCOCO-family head, with the training-free real-        H1 [22] measures that heuristic query selection suc-
+  ization kept as the zero-shot reference row (§5.4).      ceeds on 82–93% of samples but the residual failures
+• A minimal configuration that clears the pub-             dominate the error budget (3–11% mIoU selection gap)
+  lished GLOD-RIS row on all three RefCOCO-family          and adds a learned re-ranker; S+S [7] trains a corrector
+  benchmarks with one segmenter and one frozen             specifically to fix zero-shot selection mistakes; Prompt
+  VLM alone (69.99/65.22/64.83 mIoU; no CLIP plat-         Sensitivity [6] shows overlapping prompts select differ-
+  form, no detector, no training), so the improve-         ent instances (mean 2.11 distinct selections) while text
+  ment is not attributable to stacking on the released     similarity explains only 34% of the disagreement. None
+  pipeline.                                                of these changes the pool; all act on the choice among
+• A held-out tuning protocol (300-trial Optuna stud-       candidates, which is the axis this paper measures.
+  ies on train-derived refs, minimum-over-datasets ob-
+  jective) and a fully scripted evidence chain in which
+                                                           Representation limits. A complementary line of work
+  no number is transcribed by hand.
+                                                           argues that the frozen representation, not the selector,
+• A quantified boundary on gRefCOCO, with the de-          is the binding limit. Mid-layer probing [1] finds that
+  tector removed from the shipped path. The no-            positional information is strongest before the final layer
+  target decision is solved above the trained state of     and recovers 1–7 mIoU with a mid-layer spatial map.
+  the art (N-acc 85.66 vs. 79.70), and every same-         Training-free feature refinements such as SCI-CLIP [30]
+  class (zero-shot) published number is beaten on          and output-feedback attention [5] improve dense open-
+  both metrics by a DINO-free rule (47.59/73.78 vs.        vocabulary segmentation without training, and early-
+  44.40/43.30); the supervised cIoU level (68.94) re-      fusion or fine-grained backbones [27, 33] show large
+  mains the measured wall, and the detector-bearing        gains from better region-text alignment. Generative-
+  ablation (50.34/74.69) reports the 2.76/0.91 cost of     backbone methods [8] now reach 57.56 mIoU on Re-
+  removing the detector. A term-alignment audit and        fCOCO val zero-shot with a 12B editing DiT. These
+  its correction are reported with the numbers.            bounds matter for our claim: we test selection given a
+                                                           fixed pool and feature path, and we report the feature-
+2. Related Work                                            path ceiling as a scope condition rather than claiming
+                                                           selection is the only bottleneck.
+Zero-shot / training-free RIS. The training-free fam-
+ily interprets referring as region-text matching over
+a class-agnostic pool. Global-Local [29] builds both       Mask selection and merging. Merging/growing pro-
+global and masked-region CLIP features; Grad-CAM           posals is a known idiom: ProposalCLIP [35] merges
+and MaskCLIP [36] transfer classification activations;     graph-connected proposals for class-agnostic genera-
+Ref-Diff [20] uses diffusion priors; TAS [23] adds BLIP2   tion; MARS [4] gates and unions few-shot proposals; E-
+attention supervision; BMS [15] scores proposals with      SAM [28] merges adjacent entity masks; GF-SAM [31]
+a bidirectional mask-selection distribution; LGD [14]      clusters point-mask graphs; Semantic-SAM [13] sup-
+adds grounded region crops; HybridGL [17] is the cur-      plies multi-granularity pools, and T2S [9] expands dif-
+rent state among SAM+CLIP-only pipelines, adding a         fusion seeds with SAM. These operate on visual sim-
+GEM attention × position-mask coherence term and           ilarity or containment alone and do not decide which
+relation guidance; GLOD-RIS [26] reaches the highest       instance an expression denotes. The one-line contain-
+zero-shot numbers but consults an external MLLM.           ment snap we use as a control (and later as a compo-
+IteRPrimE [25] refines Grad-CAM heatmaps itera-            nent) is the simplest member of this family; we measure
+tively, while PinPoint [21] disambiguates SAM point        exactly what it can and cannot explain.
+Structured resolution of spatial reference. Relation-       The recoverable mass — the oracle gap — is thus
+aware RIS has a long supervised literature; in the          0.3739 mIoU, and the question is what composes it.
+training-free setting, direction words are used as posi-
+tion priors for scoring (Global-Local, HybridGL). Our
+operator goes further — it resolves the relation within a
+candidate set built from a spatial-stripped score, han-
+dles two-axis relations, and abstains on ordinals be-       Taxonomy of the oracle gap. We classify every
+cause a measured attempt to resolve them determinis-        expression by the relation between the selected and
+tically loses accuracy (§E).                                the oracle mask into correct, under-segmentation,
+                                                            over-segmentation,      wrong-instance (near-disjoint
+                                                            from the referent) and boundary. Table 2 shows
+Generalized referring (GRES). The gRefCOCO                  the result on the four benchmarks. Wrong-instance
+benchmark [16] admits multi-target and no-target            selection carries the overwhelming majority of the
+expressions; its metrics (cIoU, gIoU, N-acc/T-acc) are      recoverable IoU (77.4 % on RefCOCO, 86.4 % on
+standard for trained GRES models [16, 24]. Zero-shot        RefCOCOg, 80.1 % on RefCOCO+, and the same
+selection pipelines have not been extended to it, and       ordering on gRefCOCO), while under-segmentation
+the format is not a detail: a single-mask selector          — the failure that mask merging and granularity
+is structurally unable to score well when 64.6 % of         remedies exist to fix — carries 17.6 %. Wrong-instance
+references denote several objects and 62.6 % denote         failures are not a near-miss: the selected mask
+none. Our set-valued extension is, to our knowledge,        has mean IoU 0.015 against the referent, while the
+the first training-free operator evaluated on the full      oracle reaches 0.777. They are disproportionately
+gRefCOCO val split. Trained mask-group models such          spatial references, though modestly so: 73.1 % of
+as RAS [3] target the related omnimodal setting; they       wrong-instance failures carry a spatial word from the
+are reference systems, not same-class floors.               operator’s vocabulary against 64.9 % of all expressions
+                                                            (63.7 % vs 57.4 % under the stricter relation grammar
+                                                            the operator actually parses). The decomposition
+Benchmarks. RefCOCO/+/g [10, 18] remain the
+                                                            replicates across released pipelines on the full oﬀi-
+standard zero-shot RIS benchmark family; RefCOCO+
+                                                            cial splits (Table 1, multipipeline_diagnosis.json):
+is collected without location words, which makes it
+                                                            under a threshold definition (wrong-instance = the
+a natural control for any spatial-reference mechanism
+                                                            selected mask is below IoU 0.5 while the pool holds
+(§3).
+                                                            a mask at or above it), wrong-instance selection
+                                                            carries 94.0/94.2/91.8% of the recoverable IoU for
+3. Diagnosis: the bottleneck is selection                   the released HybridGL selection, 95.1/94.2/92.5% for
+                                                            Global-Local, and 95.4/94.7/93.2% for S+S, all on
+Setup. All measurements in this paper are re-analyses
+                                                            RefCOCO/RefCOCO+/RefCOCOg.                  Global-Local
+of one stored scoring pass per dataset: for every expres-
+                                                            reaches 32.95/36.31/41.62 mIoU, within 1.4 points
+sion we keep every per-proposal quantity the released
+                                                            of its published val rows despite running on the
+scorer computes (semantic scores under four text vari-
+                                                            shared SAM pool rather than its own FreeSOLO pool.
+ants, the GEM coherence score, mask geometry, pair-
+                                                            MaskCLIP is the contrast: its own dense-map com-
+wise mask IoU, and IoU against ground truth), so every
+                                                            ponent pool caps the oracle at 25.2/28.1/31.8 mIoU,
+table, control and ablation below is computed from the
+                                                            so its recoverable gap is pool-limited (wrong-instance
+same pass without re-running the encoders. Pools are
+                                                            share 24.3/27.3/31.6%); the same dense map on the
+SAM ViT-H with points_per_side = 8 (mean 49 pro-
+                                                            shared SAM pool selects at 8.2/9.8/11.6 mIoU and is
+posals/image); features are the released G2L masked-
+                                                            again wrong-instance dominated (96.7/96.3/95.2%).
+region features; the scorer is the released HybridGL
+                                                            S+S [7]’s released reverse-blur CLIP selection reaches
+guidance reimplemented faithfully (§5.12). “Oracle”
+                                                            29.46/35.35/38.92 mIoU with wrong-instance shares
+is the pool member with highest IoU against ground
+                                                            95.4/94.7/93.2% on the same pool (its published
+truth.
+                                                            stage-1 pool is expression-conditioned Ground-
+                                                            ingDINO+SAM, so its level is cross-harness, but the
+The pool is not the bottleneck. The oracle                  gap composition replicates). Its rectangle-prompt
+mask reaches 0.8221 mIoU on RefCOCO val                     option, a second released visual-prompt configuration,
+(0.7912/0.8240 on RefCOCOg / RefCOCO+), i.e.                reaches only 8.91/10.20/10.57 mIoU (wrong-instance
+the pool contains a good mask for 93.4 % of ex-             shares 96.7/96.5/95.3%), a measured selection-prompt
+pressions.   The released pipeline achieves 0.4482.         sensitivity that preserves the same failure composition.
+Two external checks. A 2026 zero-shot study [8]                                        1.0
+
+
+
+
+                                                            share of oracle-gap mass
+independently tabulates the released selectors: its                                    0.8
+Global-Local ViT-B row is 33.12/35.29/40.08 mIoU                                       0.6
+against our 32.95/36.31/41.62, a 0.2–1.5 point agree-                                  0.4
+ment on a different harness. Its MaskCLIP row is                                       0.2
+25.62/27.49/30.13 using SAM proposals, well above our                                  0.0
+dense-map component adaptation (8.21/10.55/14.30);                                           RefCOCO                        RefCOCO+                 RefCOCOg
+our row therefore characterizes the dense-map compo-                                                   correct                 over-segmentation   boundary
+                                                                                                       under-segmentation      wrong-instance
+nent pool, not MaskCLIP’s strongest SAM-proposal
+route. A second check replaces the released selec-          Figure 1. Share of the oracle-gap mass by error class
+tor with argmax GEM coherence alone, holding the            at the released operating point, full val splits. Wrong-
+pool and candidates fixed (gem_selector.json): it           instance selection dominates on every benchmark; under-
+reaches 44.81/32.81/42.20 mIoU against the released         segmentation, the class mask-merging remedies target, is
+44.82/40.23/50.08. Coherence alone matches within           second and small.
+0.01 mIoU on RefCOCO but loses 7.4/7.9 on Ref-
+COCO+/g, so the semantic term is load-bearing ex-
+actly where attribute and compositional language dom-       instance failures the referent is inside this set only
+inate, consistent with the mid-layer spatial bias mea-      28.8 % of the time (mean rank of the oracle: 10.4).
+sured by [1]. The diagnosis therefore holds for pipelines   The same expression scored with its spatial vocabu-
+whose pool contains the referent and names the pool         lary removed — the category score — puts the refer-
+as the limit when it does not. We attacked it with          ent in its top-8 67.6 % of the time. Candidate-set con-
+three falsification tests: the MaskCLIP own-pool re-        struction, not the guidance machinery, is the binding
+sult refutes it as a universal claim (pool-limited), the    constraint; a perfect chooser restricted to the released
+Global-Local global-local encoder does not repair selec-    top-3 still reaches 0.5812 mIoU, 2.38× the gain the re-
+tion, and the same MaskCLIP selector on the shared          leased pipeline actually realizes over argmax (0.4482 vs
+SAM pool is wrong-instance dominated; the claim sur-        0.3518) — almost all of the released gain is the one
+vives in its conditional form. The sample-level con-        structural widening of the candidate set that its top-3
+tainment taxonomy above is stricter, which is why its       confinement allows.
+shares are lower. The distinction matters for what fol-
+lows: the operator can act only on the parsed subset,       Where proposal quality does matter. The residual
+and its gain is exactly there — +0.1022 mIoU over the       gap not explained by selection is granularity: 17.6 % of
+6,220 parsed-spatial expressions on RefCOCO val, and        the recoverable IoU sits in masks of the correct instance
+zero elsewhere by construction — which is why the           that stop short of the referent, plus a small boundary
+cross-benchmark pattern below is the diagnostic’s de-       class. This is the second error class our second repair
+cisive test.                                                targets.
+   Two further released same-class pipelines are docu-
+mented as blocked rather than sampled, with the repo,       Pool density does not explain the diagnosis.
+reason and check in the evidence files. TAS [23]’s en-      Re-running the released pipeline with SAM at
+try point requires a per-sentence caption file that the     points_per_side = 16 on a fixed 716-expression sam-
+repository neither ships nor generates (its README          ple (110 % more proposals) raises the oracle by only
+asks the user to prepare captions with BLIP-2 first),       +0.0 mIoU while the released pipeline loses -0.0 mIoU
+and Ref-Diff [20]’s test entry loads a trained segmenter    — a denser pool adds distractors and concentrates
+checkpoint that was not released (its config leaves re-     selection failure rather than repairing it. The wrong-
+sume empty and its pretrain directory holds only a          instance share of the gap is stable (0.741 → 0.720) and
+stego head). The exact Global-Local [29] FreeSOLO           the operator’s gain is stable too (+0.0649 → +0.0583).
+pool is also blocked: its weight URL does not resolve       Evidence: pool_robustness.json.
+and the repository vendors no FreeSOLO code. Neither
+blocker is a negative result about those methods.           4. Method: a dense localization prior
+                                                            4.1. Setup and notation
+Why the released guidance cannot repair them. Hy-
+bridGL’s guidance computes relation and coherence           We build on the released HybridGL pipeline [17], the
+terms but ranks only topk(full-expression score, 3); its    strongest training-free referring segmentation family
+answer is always one of those three. On the wrong-          with runnable code. For an image I and expression
+Table 1. Oracle-gap decomposition on additional released pipelines, full oﬀicial val splits. Each cell is achieved / oracle
+mIoU; the last column is the fraction of the recoverable IoU mass carried by wrong-instance selection (selected IoU < 0.5
+while the pool holds a mask at ≥ 0.5). HybridGL and Global-Local use the shared SAM ViT-H pool; Global-Local [29] is
+its released selector on that pool (its own FreeSOLO pool is unavailable); S+S [7] is its released reverse-blur and rectangle
+CLIP selection options on that pool (its published stage-1 pool is GroundingDINO+SAM); MaskCLIP [36] is a dense
+open-vocabulary segmenter with no instance pool, so its row uses components of its own value map under a fixed rule; an
+independent 2026 table [8] reports a SAM-proposal MaskCLIP at 25.62/27.49/30.13 mIoU, so this row is an adaptation of
+the dense-map component pool, not that method’s strongest released route, while the same table’s Global-Local ViT-B row
+(33.12/35.29/40.08) agrees with ours to within 1.6 mIoU. The exact pools and the two remaining released RIS pipelines
+(TAS, Ref-Diff) are documented as blocked in §3; per-pipeline oIoU and its published numbers are recorded in the artifact.
+All achieved/oracle cells here are single-protocol (our unified oﬀicial evaluator); published numbers are reported separately
+(Table 6) and labelled as published (cross-harness), never pooled with these measurements.
+
+        Pipeline                                           RefCOCO                             RefCOCO+                                   RefCOCOg                    wrong-instance share
+                                                        achieved / oracle                    achieved / oracle                         achieved / oracle                (R / R+ / Rg)
+        HybridGL (released)                                 44.82 / 82.21                        40.23 / 82.40                             50.08 / 79.12                      94.0/94.2/91.8
+        Global-Local (SAM)                                  32.95 / 82.21                        36.31 / 82.40                             41.62 / 79.12                      95.1/94.2/92.5
+        MaskCLIP (own pool)                                 8.21 / 25.20                         10.55 / 28.08                             14.30 / 31.79                      24.3/27.3/31.6
+        S+S (SAM)                                           29.46 / 82.21                        35.35 / 82.40                             38.92 / 79.12                      95.4/94.7/93.2
+        S+S (rectangle)                                      8.91 / 82.21                        10.20 / 82.40                             10.57 / 79.12                      96.7/96.5/95.3
+
+
+
+                                       Frozen pretrained components (no RIS training, no ground truth)
+
+
+           Image                                     SAM ViT-H AMG
+          COCO val                                      frozen, pps = 8
+
+                                                            masks
+                                                                                                         Scoring (released quantities)
+
+
+                                                      Proposal pool                                                   Semantic score
+                                                         N ~ 50 masks                                                0.5 sentence + 0.5 noun
+
+                                                            regions                        features
+                                                                          text                                                                         Selection -> output
+          Expression
+      e.g. "the man in red, left"
+                                                       G2L encoder                                                   Coherence
+                                                                                                                           rank score                             Box-overlap selection
+                                                      frozen CLIP ViT-B/16                                           GEM attention contrast                          argmax IoU(mask, box)
+
+
+                                                                                                                              rank
+                                                                                                                                                 candidates
+
+                                    prompt                                                                                                                                   mask set
+                                                                                                                         Rank
+                                                                                                                         box    fusion
+                                                                                                                     top-k candidates, k = 15
+
+
+
+
+                                                   LLaVA-OneVision-7B                                                                                               Repairs (optional)
+                                                    frozen; expression -> box                                                                                       growth; relation operator
+
+
+
+
+Figure 2. The shipped pipeline. Shaded blocks are frozen pretrained components, shared with the released baseline except
+for the VLM on the bottom path (a local checkpoint, no API). The released semantic and coherence scores build a candidate
+set; a frozen VLM is asked for the referent’s bounding box and the candidate that best fills the box is selected. Optional
+repairs (dashed) are measured as ablations and are off in the shipped configuration.
+
+
+T it produces a pool of N masks M = {m1 , . . . , mN }                                                             for every mask with a frozen CLIP ViT-B/16 backbone
+with SAM ViT-H [11] (automatic mask generation,                                                                    (the masked region, and the image with its complement
+points_per_side= 8), extracts a G2L region feature                                                                 blurred), and computes two released quantities: a se-
+Table 2. Taxonomy of the oracle gap at the released oper-                    Selection then becomes geometric matching inside
+ating point (share of the recoverable IoU in parentheses).               the released candidate  set. Let B be the VLM    box and
+Wrong-instance selection dominates on every benchmark;                                  (                             )
+                                                                         let C = top- ki rank(Sidec ) + γ rank(Sicoh ) be the top-
+under-segmentation, the class mask-merging remedies tar-
+                                                                         k masks by rank fusion of the two released scores, with
+get, is second and small.
+                                                                         k, γ chosen on the held-out split. The output is
+split                      correct     under-seg.     wrong-inst.       boundary                                {
+                                                                                                                  mj ⋆ B ̸= none
+RefCOCO (10,834)        0.478 (0.027) 0.108 (0.176)   0.380 (0.774)      j ⋆ (0.004)
+                                                                      0.018  = arg max IoU(mi , B),       M̂ =
+RefCOCO+ (10,758)       0.428 (0.028) 0.106 (0.152)   0.437 (0.801)   0.015 (0.004)i∈C                            ∅     B = none
+RefCOCOg (4,896)        0.552 (0.028) 0.029 (0.052)   0.356 (0.864)   0.033 (0.012)                                            (1)
+                                                                         the candidate that best fills the region the VLM points
+                                                                         at. In the training-free realization the released scores
+mantic score Sidec (cosine of the region feature with the                are used only to keep the box match away from same-
+0.5 sentence + 0.5 noun-phrase text ensemble) and a                      class distractors; its value is dataset-dependent and
+coherence score Sicoh (the GEM [2] attention contrast                    measured in §5.4 (on the tuning split the restriction is
+inside minus outside the mask). The released pipeline                    worth +8.4 mIoU on RefCOCOg and slightly negative
+ranks by the semantic score and re-ranks only its own                    on the other two, which is why the min-over-datasets
+top-3 by a blend with the coherence score.                               study keeps it). The shipped head replaces that re-
+                                                                         striction stage with the learned selector of §4.4.
+4.2. The missing input is localization
+                                                                             Repairs from our earlier diagnosis remain available
+Our diagnosis (Section 3) shows the pool is not the                      and are measured separately: containment growth (re-
+bottleneck: for 93.4 % of RefCOCO val expressions it                     place the selection by its smallest strict container in
+already contains a mask with IoU ≥ 0.5, and the best                     the pool) and the relation-gated operator (for parsed
+achievable single choice sits at 82.21 mIoU. What the                    spatial expressions, re-rank the category-score top-8 by
+pipeline lacks is a signal that says where the referent                  the coherence score within the side selected by the rela-
+is when the expression is descriptive rather than spa-                   tion). Both are off in the shipped configuration — the
+tial. Both released scores are region–text similarities:                 VLM prior subsumes them — and appear as ablations.
+they compare a whole-region embedding with a whole-
+sentence embedding, so on RefCOCO+ — whose ex-                          4.4. Learned selector head (shipped for the Ref-
+pressions are constructed without location words — the                       COCO family)
+pipeline returns the wrong instance for most of its er-                 The component-provenance study of §5.4 measures the
+rors, and replacing the encoder with a stronger one                     head as a conjunction: the box pick inside a can-
+(SigLIP-so400m) does not help (§5.8): the deficit is                    didate set that the released scores restrict. We re-
+instance-level grounding, not embedding quality.                        built the restriction from our own terms and promoted
+                                                                        the result: a HistGradientBoostingClassifier (depth 3,
+4.3. Dense box prior from a frozen VLM
+                                                                        250 iterations) over eight per-proposal terms — the
+We therefore add a single off-the-shelf component: a                    full-sentence region-text score on the cached masked-
+frozen vision-language model, asked in natural lan-                     region features (our text protocol; no released text
+guage for the referent’s bounding box. We use LLaVA-                    ensemble, no GEM term), box-overlap IoU, center-
+OneVision-7B [12], queried locally — no external API,                   inside-box, log mask-to-box area ratio, log mask area,
+no key, no network at inference — with the prompt                       within-record ranks of the region-text score and of
+                                                                        the box overlap, and the containment-parent flag —
+        “Locate the {expression} in this image. Reply
+                                                                        fitted on the RefCOCO-family held-out train tune
+        with ONLY the bounding box as [x0,y0,x1,y1] in
+        pixel coordinates …, or the single word none if it
+                                                                        refs only (1,137/1,120/765 records; target = proposal
+        does not appear in the image.”                                  IoU ≥ 0.5); oﬀicial val and test are evaluation-only.
+                                                                        On records where the VLM answered none (a few
+parsing the first four numbers and treating val-                        dozen in each split) the head predicts from its box-
+ues ≤ 1.5 as normalised coordinates. Crucially we                       free features (box terms zeroed, exactly as in fit-
+pass the full referring expression, not a parsed noun                   ting), so no released score enters it on any record.
+phrase: on the held-out split this single choice is                     It holds parity or better on all three full val splits
+worth +13.4/+10.6/+11.6 mIoU over the noun-phrase                       (70.57/66.35/65.51 mIoU vs the training-free realiza-
+prompt (Table 12), because for RefCOCO+ and Ref-                        tion’s 68.53/64.67/65.12) and on all five compared-
+COCOg the discriminating information lives in the at-                   table test columns (+2.03/+1.93/+1.21/+1.26/+0.77
+tributes and relations, not in the head noun.                           mIoU). The head uses no released scores; it reads
+the cached masked-region features through our full-          dependent GLOD-RIS reimplementation is kept as a
+sentence text protocol, and the arms that avoid those        transparency record in the appendix.
+features entirely (geometric-only learned heads) fail           Hyperparameters come from a held-out split built
+parity on RefCOCOg by 0.5 mIoU, so the feature ex-           from RefCOCO-family train references (400 refs per
+tractor is retained as the declared platform, not the        dataset, seeded sample restricted to images already on
+decisive scorer.                                             disk). We ran two Optuna studies of 300 trials each;
+                                                             the objective is the minimum over the three datasets of
+4.5. Set-valued extension                                    mIoU, matching the requirement that a method must
+For benchmarks whose targets may be multiple or              not lose any dataset. The oﬀicial validation and test
+absent (gRefCOCO), we split the expression on                splits are never used for tuning.
+and/or/“,”, query one box per clause, select one can-
+didate per clause with Eq. 1, and return the union;          Metric protocols. Every number we compare against
+if every clause answers none the prediction is empty.        a published one is computed under the same
+This keeps the same frozen components and turns “no          metric definition that the compared paper uses;
+such object” into a decided output rather than a score       the per-dataset source, definition, and a re-
+threshold. Section 5.10 reports what this buys and why       evaluation of the saved predictions are recorded
+the remaining gap on that benchmark is a property of         in exp/out_final/protocol_audit.json. For the Ref-
+the comparison class, not of the selector.                   COCO family we use the oﬀicial val splits (RefCOCO
+                                                             unc, 10834 expressions; RefCOCO+ unc, 10758; Ref-
+4.6. What is and is not trained                              COCOg UMD, 4896, the Val(U) column of the com-
+Every base component — SAM, CLIP, GEM and                    pared work). mIoU — the metric we ship and the
+the VLM — is used frozen, exactly as released, and           one the published floors report
+                                                                                           ∪ — is the mean over
+no referring-data val/test signal enters any fit. The        val expressions of IoU(pred, GT masks) of that ex-
+training-free realization fits five scalars (candidate       pression, i.e. the per-sample mean that “averages IoU
+base, k, γ, overlap mode, growth flag) by Optuna on a        across all samples” in the compared paper’s∑      defini-
+held-out split built from RefCOCO-family train refer-        tion; oIoU
+                                                                      ∑   is the global pooled overlap     j |pred j ∩
+ences (§5.7), plus the shipped head of §4.4, which is a      GTj | / j |predj ∪ GTj | and is reported alongside,
+declared-trained component (a small gradient-boosted         matching the global-overlap definition it is printed
+selector fitted on the train-carved held-out rows only;      against. For gRefCOCO we follow the oﬀicial evalu-
+the oﬀicial validation and test splits are evaluation-only   ation sample for sample: one sample per (reference,
+for every component). On gRefCOCO the shipped row            sentence) over the complete val split (4,237 references,
+is likewise declared trained (§5.11). Trained-vs-frozen      14229 sentences); on a no-target sample an empty pre-
+declarations are carried in main_refcoco.json, com-          diction is a true positive contributing 1 to the gIoU
+ponent_provenance.json and transfer_wall.json. The           mean and is excluded from the cIoU sums, a non-empty
+VLM is a local checkpoint (15 GB) served at 0.6–1.8 s        prediction contributes 0 and its predicted area to the
+per expression on one RTX 4090; we also ran it 8-bit         cumulative union; on a targeted sample the sample
+quantised (9.4 GB, producing the same boxes on our           IoU against the union of the reference’s masks con-
+sample) so that extractions fit alongside other work.        tributes to both the gIoU mean and the cumulative
+                                                             intersection/union; Nacc and Tacc follow the oﬀicial
+5. Experiments                                               no-target/targeted accuracies. Every split is evalu-
+                                                             ated completely — one per-expression record per of-
+5.1. Protocol                                                ficial sentence — so no sample enters one metric and
+All numbers are produced by one evidence chain in-           not another.
+side this repository: GPU scoring passes over the full
+                                                             5.2. Main results
+validation splits (RefCOCO 10834 expressions, Ref-
+COCO+ 10758, RefCOCOg 4896, gRefCOCO 14229                   Tables 3–5 give the per-dataset picture; Table 6
+samples) write per-expression records; every reported        places the method among published training-free meth-
+row is a re-analysis of those records, and the LaTeX ta-     ods. Each main table reports both realizations: the
+bles are generated from the resulting JSON by script,        training-free box rule (the zero-shot reference) and the
+never transcribed by hand. The baseline is the released      shipped learned selector head of §4.4 (declared trained;
+HybridGL pipeline, reproduced and audited against its        fitted on train-carved held-out rows only), which holds
+own oﬀicial code on two disjoint 150-reference blocks        parity or better on every val split and every test col-
+(agreement within 0.6 mIoU; Section 5.12), and the in-       umn (§5.4).
+       Table 3. RefCOCO val (10834 expressions).               are consistent with the earlier seeded 2,000-expression
+                                                               samples; the result therefore cannot be attributed to a
+ Method                                                mIoU      oIoUor mismatched local box model. The comparison
+                                                               weak
+ Released HybridGL pipeline                            44.82   is38.16
+                                                                  component-matched (same SAM ViT-H, same CLIP
+ + containment growth                                  50.24   ViT-B/16,
+                                                                 40.72     the same MLLM) with one caveat stated:
+ Ours, box prior removed (control)                     43.33   the  GLM boxes come from our prompt template, not
+                                                                 35.99
+ Ours: dense VLM box prior (training-free reference)   68.53   GLOD-RIS’s
+                                                                 63.40       internal prompting.
+ Ours: learned selector head (shipped)                 70.57    64.66
+ Oracle (best pool mask)                               82.21
+                                                             5.3.– Full-table completion and the Pareto ledger
+                                                               The compared table’s remaining columns — Ref-
+      Table 4. RefCOCO+ val (10758 expressions).               COCO testA/testB, RefCOCO+ testA/testB, Ref-
+                                                               COCOg test(u) — are evaluated with the same frozen
+ Method                                                mIoU    components
+                                                                 oIoU         and the aligned protocol on the full oﬀi-
+                                                               cial splits (Table 9); the published numbers come from
+ Released HybridGL pipeline                            40.23     33.59
+                                                               the same GLOD-RIS Table I source as the audited
+ + containment growth                                  45.91     36.54
+ Ours, box prior removed (control)                     37.85   val  columns. The shipped method strictly exceeds the
+                                                                 30.82
+ Ours: dense VLM box prior (training-free reference)   64.67   published
+                                                                 58.31     GLOD-RIS row on every column where both
+ Ours: learned selector head (shipped)                 66.35   sides
+                                                                 59.40are reported: the three val mIoU and three val
+                                                               oIoU columns of Table 6 and all five test-column mIoU
+ Oracle (best pool mask)                               82.40       –
+                                                               and oIoU values of Table 9 — under both the training-
+                                                               free realization and the promoted learned head, which
+       Table 5. RefCOCOg val (4896 expressions).               strictly improves every column it touches (§5.4) (pub-
+                                                               lished test oIoU transcribed from the same Table I
+ Method                                                mIoU      oIoU the oIoU blocks verified against the audited val
+                                                               source,
+ Released HybridGL pipeline                            50.08   oIoU
+                                                                 41.45before transcription). GLOD-RIS does not report
+ + containment growth                                  50.92   gRefCOCO,
+                                                                 41.02        so our gRefCOCO results are compared
+ Ours, box prior removed (control)                     47.51   against
+                                                                 38.48 the same-class floors (PSALM ECCV 2024 Ta-
+ Ours: dense VLM box prior (training-free reference)   65.12   ble  12; SELF1E-8B, the higher cIoU floor per the es-
+                                                                 59.77
+ Ours: learned selector head (shipped)                 65.51     60.93
+                                                               calation rule) and the run’s own prior record as previ-
+ Oracle (best pool mask)                               79.12   ously
+                                                                   – reported (superseded by the term-alignment cor-
+                                                               rection; §5.10), not against them. Beyond the table
+                                                               the ledger carries the comparison protocol — GLOD-
+Component-matched check with GLOD-RIS’s own                    RIS releases no code, so every comparison quotes their
+MLLM. GLOD-RIS queries GLM-4.1V-Thinking-                      rows as published and labels it cross-harness (the ap-
+Flash through an API; our shipped path uses a lo-              pendix records an independent reimplementation as
+cal LLaVA-OneVision-7B. To remove the prior’s prove-           transparency only), and the same-pool rule swap is re-
+nance as an explanation we re-ran the same box-prior           ported as a controlled measurement of our reading of
+pipeline with GLOD-RIS’s exact MLLM (same end-                 the published equations (§5.13) — and deployability:
+point, same prompt template, boxes parsed from the             our path is fully local, while GLOD-RIS’s inference de-
+thinking model’s answer, every response cached) over           pends on a network MLLM API (a documented prop-
+the complete three oﬀicial val splits — every unique           erty of the described method, not a judgment). The
+(image, sentence) pair queried, 24,539 cached responses        one axis that was not dominated in earlier drafts —
+with 29 persistent API failures out of 24,568 pairs;           an extra frozen detector on the gRefCOCO path — is
+per-split box coverage 99.85/99.87/100.0% (the miss-           now removed: the shipped gRefCOCO path runs on the
+ing pairs fall back to the no-box rule and are counted).       VLM prior and SAM alone (DINO-free), at a measured
+Table 7 gives the result: with GLM boxes the pipeline          2.76 cIoU / 0.91 gIoU cost against the detector-bearing
+scores 67.88 / 64.21 / 63.82 mIoU (oIoU 61.50 / 56.49          ablation.
+/ 55.41), i.e. -0.65 / -0.46 / -1.30 against the same-
+                                                               5.4. Component provenance and the head rebuild
+rows LLaVA numbers, and still above every published
+row including GLOD-RIS’s own (58.42 / 54.01 / 57.85            The shipped RefCOCO-family head is a conjunction
+mIoU). The aligned comparison isolates the box prior:          of the released scores’ candidate restriction and our
+GLOD-RIS’s own MLLM is not better than the local               box pick, so we measured both directions as determin-
+7B prior on this pipeline, and the small negative deltas       istic re-analysis of the cached records (no vision re-
+Table 6. Training-free referring segmentation, full val splits. Every row carries both metrics from the same source table:
+published rows take the compared paper’s own mIoU and oIoU (GLOD-RIS Table I, val columns), our rows the aligned
+re-evaluations of §5.1. Rows marked † were measured in this run; the rest are the numbers reported by the cited papers.
+IteRPrimE reports mIoU only on these datasets (oIoU “–”). This table’s columns are val-scoped; the testA/testB and
+RefCOCOg test(u) columns appear separately in Table 9. The shipped method adds a dense box prior from a frozen local
+VLM to the released HybridGL pipeline; the shipped RefCOCO-family row is the declared-trained selector head of §4.4,
+with the training-free box rule reported as the zero-shot reference row. GLOD-RIS releases no code, so its rows are quoted
+as published and compared cross-harness; an independent reimplementation is recorded only as a transparency record in
+the appendix.
+
+                                                                                                   RefCOCO         RefCOCO+          RefCO
+ Method                                                                          Venue           mIoU     oIoU    mIoU       oIoU    mIoU
+ Grad-CAM                                                                        ICCV 2019        30.22   23.44   33.96      26.67   33.05
+ MaskCLIP                                                                        CVPR 2023        25.62   20.18   27.49      22.06   30.13
+ Global-Local (SAM)                                                              CVPR 2023        31.83   24.55   34.97      26.62   40.66
+ Ref-Diff                                                                        CoRR 2023        37.21   35.16   37.29      35.56   44.02
+ TAS                                                                             EMNLP 2023       39.84   29.53   43.63      33.21   46.62
+ BMS                                                                             TCSVT 2024       40.77   34.94   41.70      37.36   48.32
+ IteRPrimE                                                                       AAAI 2025        40.20     –     44.20        –     46.00
+ LGD                                                                             PR 2025          45.41   34.47   47.23      36.72   47.31
+ HybridGL (published)                                                            CVPR 2025        49.48   41.81   43.40      35.74   51.25
+ GLOD-RIS (published)                                                            TCSVT 2026       58.42   50.85   54.01      45.96   57.85
+ HybridGL released code (baseline, this run)†                                    this run         44.82   38.16   40.23      33.59   50.08
+ + containment growth (control)†                                                 this run         50.24   40.72   45.91      36.54   50.92
+ Ours: dense VLM box prior (training-free reference)†                            this run         68.53   63.40   64.67      58.31   65.12
+ Ours: learned selector head on RefCOCO family (shipped; declared trained)†      this run         70.57   64.66   66.35      59.40   65.51
+ Ours: no-box control†                                                           this run         43.33   35.99   37.85      30.82   47.51
+
+
+Table 7. Component-matched MLLM swap on the com-            ted on train-carved held-out rows only) holds parity
+plete oﬀicial val splits (identical rows per column pair): the
+                                                            or better everywhere (+2.03/+1.68/+0.39 val mIoU;
+shipped path with GLOD-RIS’s GLM-4.1V boxes vs the lo-      +0.77 to +2.03 on the five test columns) with no re-
+cal LLaVA boxes.
+                                                            leased score entering the head on any record — the few
+                                                            box-missing records (35/50/13) take the head’s own
+                                   mIoU                  oIoU
+                                                            prediction from its box-free features, not the released
+  dataset                  GLM-4.1V LLaVA GLM-4.1V fallback   LLaVA — so it is promoted into the shipped head;
+  RefCOCO (n=10,834)          67.88     68.53      61.50    the   released-score head is retained as the training-
+                                                               63.40
+  RefCOCO+ (n=10,758)         64.21     64.67      56.49    free  reference row. The component-provenance audit
+                                                               58.31
+  RefCOCOg (n=4,896)          63.82     65.12      55.41    (component_provenance.json;
+                                                               59.77                         appendix) accounts for
+                                                            every shipped component, and the one residual depen-
+                                                            dency is declared: the head’s region-text term reads
+                                                            exactly two released components, both frozen repre-
+generation): Table 10 lists every arm on the three full     sentations — the G2L masked-region extractor and
+oﬀicial val splits. The reference arm reproduces the        the matching modified-CLIP text tower — with no re-
+shipped released-score head bit-exactly (delta 0.0000).     leased score entering on any record. Its marginal value
+Given the box, the released restriction is worth            within the promoted head is +0.60/+0.81/+0.93 mIoU
+−1.45/−0.56/+0.29 mIoU (RefCOCO/+/g); given the             over the best feature-free learned arm, and without it
+restriction, the box is worth +25.2/+26.8/+17.6 —           that arm falls 0.54 mIoU short of the reference on Re-
+the box carries the conjunction, and the restriction’s      fCOCOg, which is why the feature path is kept. The
+value is dataset-dependent (§5.8 paragraph above).          promotion therefore rests on the platform declaration:
+Untrained rebuilds of the restriction from our own          the shipped head is ours-only scoring on a declared
+terms (our region-text key, geometric guards, both          released-feature platform, no feature-free arm held par-
+with the same box pick) stay near the reference but         ity, and the gap is published beside the gain rather than
+do not hold parity on every dataset. The learned se-        hidden.
+lector head over our own per-proposal terms (§4.4, fit-
+Table 8. gRefCOCO (GRES) val, oﬀicial cIoU/gIoU protocol. Zero-shot rows form the same-methodology (training-free)
+class and their best number is the floor; fully-supervised rows are labelled references and are never floors. † All base
+components are frozen off the shelf (released scorer, VLM, SAM, existence probes). The shipped DINO-free rule fits only
+its selector configuration on held-out rows carved from gRefCOCO train (the original studies plus the post-correction 802-
+configuration search) and is frozen before its single full-val pass. The detector-bearing rule and the declared-trained recipe
+are not shipped: the directive removes GroundingDINO, and the recipe’s part pool is detector-derived (transfer_wall.json).
+
+                       Method                                               cIoU          gIoU
+                       Zero-shot / training-free class (our class); best published number = the floor
+                       PSALM (zero-shot) [34]                                42.00        43.30
+                       SELF1E-8B (zero-shot) [32]                            44.40        37.50
+                       Ours: DINO-free VLM-box SAM rule (shipped)† 47.59                  73.78
+                       Not shipped: detector-dependent or detector-bearing ablations
+                       Ours: detector-bearing training-free rule†        50.34            74.69
+                       Ours: declared-trained transfer recipe†           49.40            74.26
+                       Fully-supervised reference rows (trained on gRefCOCO train); never floors
+                       LAVT (supervised)                                 57.64        58.40
+                       ReLA (supervised)                                 62.42        63.60
+                       SAM4MLLM (supervised)                             67.83        71.86
+                       InstAlign (supervised) [19]                       68.94        74.34
+
+
+Table 9. Test-column completion (mIoU; oIoU in the same          Table 10. Head rebuild on the three full oﬀicial val splits
+JSON, test_columns.json): full oﬀicial splits, same frozen       (deterministic re-analysis of the cached records; the refer-
+components, aligned protocol; published from GLOD-RIS            ence arm reproduces the shipped released-score head bit-
+Table I test columns.                                            exactly). Drop-one deltas below the rule: given the box,
+                                                                 the released restriction; given the restriction, the box.
+ Split                   n      mIoU     oIoU    pub. mIoU     pub. oIoU ∆mIoU
+                                                                  Arm                                                  RefCOCO    RefCOCO
+ RefCOCO testA         5,657    73.86    69.46      59.36        51.37      +14.50
+ RefCOCO testB         5,095    62.55    55.42      56.23        49.91       +6.32restriction + box (training-free)
+                                                                  released top-15                                        68.53       64.67
+ RefCOCO+ testA        5,726    71.88    67.10      57.33        49.07      +14.55
+                                                                  released scores only (no box)                          43.33       37.85
+ RefCOCO+ testB        4,889    56.90    48.51      48.73        41.31       +8.17
+                                                                  box over the  full pool (no restriction)               69.99       65.22
+ RefCOCOg test(u)      9,602    65.32    60.36      57.03        48.99       +8.29restriction + box
+                                                                  our region-text                                        66.81       63.87
+                                                                  geometric guards + box (no text)                       69.70       64.95
+                                                                  learned head, geometric terms only                     69.84       65.27
+                                                                  learned head, geometric terms, richer                  69.97       65.54
+                                                                  learned head, our terms (shipped)                      70.57       66.35
+Minimal configuration: one segmenter and one frozen
+VLM. The attribution rows of Table 10 imply a con-                 drop-one deltas (mIoU), RefCOCO/+/g:
+figuration far smaller than the shipped one: box-fill              restriction given the box                           -1.45/-0.56/+0.29
+                                                                   box given the restriction                           +25.21/+26.82/+17.61
+over the full pool — pick the SAM mask that best fills
+the VLM’s box, with no candidate restriction, no re-
+leased scoring platform, no detector, and no trained
+component — reaches 69.99/65.22/64.83 mIoU on the                5.5. Counterintuitive probes (measured, not pre-
+three full val splits, and the geometric-guard vari-                  ﬁltered)
+ants reach 69.72/64.95/64.88. Every number is above
+the published GLOD-RIS row (58.42/54.01/57.85) and               Seven unconventional mechanisms were each given one
+above every published same-class number on the Re-               focused test on a fixed 2,000-row RefCOCO val sam-
+fCOCO family: one generic segmenter (SAM ViT-H)                  ple, with candidates ranked by the released region–
+plus one frozen local VLM (LLaVA-OneVision-7B) al-               text score and the released pick (42.94 mIoU on those
+ready carries the result. The learned head of §4.4 and           rows) as the baseline. Four lose and are recorded in
+the released-platform terms add the remaining mar-               the graveyard with their numbers: Set-of-Mark index
+gins, but the class boundary is cleared without them.            selection (numbering the candidate masks and asking
+This is a positioning claim backed by the existing arms,         the MLLM for the index) 39.13; counterfactual dele-
+not a change to the shipped configuration.                       tion (grey-out and ask whether the referent survives)
+42.65; negative/elimination selection 40.99; and grid-       Table 11. gRefCOCO after the term-alignment correc-
+vote aggregation (candidates vote through the MLLM           tion (full oﬀicial val, n=14,229, a single frozen application
+grid cells) 11.11. Three measure positive, all as di-        per row). The training-free rule is the shipped row; the
+                                                             declared-trained transfer recipe is reported below it and is
+agnostic candidates only — each is a few-tenths-to-
+                                                             not shipped. The supervised reference (InstAlign) is a la-
+few-points effect on a fixed sample, and none is pro-        belled row, never a floor.
+moted into any shipped number without train-side re-
+validation. (i) Weak-signal democracy — three bi-
+                                                              Variant                                                         cIoU     gIo
+nary spatial questions per expression, candidates vot-
+ing by their own geometry — reaches 43.61, +0.67              DINO-free VLM-box SAM rule (shipped)                            47.59    73.
+over the released pick, a null-consistent effect (95%         Detector-bearing training-free rule (ablation)                  50.34    74.
+                                                              Declared-trained transfer recipe (detector-bearing; ablation)   49.40    74.
+CI [−5.9, +7.2] on these 200 rows) that changes 108
+of 200 picks (so it is not a rare tie-break either): a        InstAlign (supervised reference, labelled)                      68.94    74.
+candidate for the next training cycle, not a compo-
+nent. (ii) Boolean mask arithmetic: fixed unions of          Table 12. Box-prompt study, held-out split (train refs),
+the top-2 candidates score 37.77 against 35.04 for the       best of 300 Optuna trials each.
+single pick, and the pair oracle over the top-5 reaches
+63.52; the construction headroom that single-pick se-         Box prompt (held-out tuning split)      RefCOCO      RefCOCO+      RefCOC
+lection wastes is real, simple union policies capture only
+                                                              noun phrase                               55.53            –            50.14
+a fraction of it, and the union-of-two remains 6.3 below
+                                                              full sentence                             68.90            –            61.68
+the shipped single-pick rule — recorded as headroom
+analysis and a potential fallback when the box prior is
+missing, not as an improvement. (iii) Prompt-format
+                                                             constructions (“the man in the red shirt”) and Ref-
+sensitivity as a phenomenon: querying the same box
+                                                             COCOg expressions are relational descriptions, so the
+prior with the noun phrase instead of the full sentence
+                                                             noun phrase alone is ambiguous among all instances of
+costs 14.48 mIoU (68.32 → 53.84) while template para-
+                                                             the category.
+phrases change nothing, so much of the ordering in this
+field is prompt-format engineering rather than localiza-
+tion capability. All probes, positive and negative, are      The box prior is the effect; the candidate set is a
+in wild_ideas.json.                                          guardrail. Removing the box (ctrl_no_box) returns
+                                                             the pipeline to selection by the released scores alone
+5.6. Learned localization prior                              and loses most of the gain (−25.2/−26.8/−17.6 mIoU).
+An earlier draft trained a selector over the gRefCOCO        Removing the candidate restriction (letting the box
+part pool under the light-supervision allowance and          match against the whole pool) is dataset-dependent
+reported a progression from 38.79 to 50.52 cIoU, still       — −1.45/−0.56/+0.29 against the restricted pick on
+below the then-reported training-free rule. Those            the three val splits (restriction minus full-pool), and
+numbers were computed with the ref_id-keyed term             −2.5/−1.1/+8.4 on the train-carved tuning split: the
+map corrected in §5.10 and are withdrawn. The                restriction is worth several mIoU only on RefCOCOg,
+corrected comparison between the shipped DINO-               which is why the min-over-datasets study keeps it — a
+free rule (47.59/73.78), the detector-bearing abla-          measured boundary, not an unconditional gain (§5.4).
+tion (50.34/74.69) and the declared-trained detector-
+bearing recipe (49.40/74.26) leaves no learned gRef-         Repairs. Containment growth and the relation-gated
+COCO selector shippable: the recipe’s part pool is           operator were the shipped method of an earlier version
+detector-derived and the detector is removed from the        of this work. On top of the box prior they do not add:
+path. The RefCOCO-family learned selector head is a          the VLM box already designates the whole referent,
+separate component and is unaffected (§5.4).                 which is what growth was repairing. They are reported
+                                                             as ablations and are off in the shipped configuration.
+5.7. Held-out studies
+Table 12 is the decisive ablation of the paper: identi-      A stronger encoder does not substitute for grounding.
+cal pipeline, identical pools, identical scoring — only      Replacing the region scorer with SigLIP-so400m (1152-
+the text given to the VLM changes. Passing the full          d, same masked-region protocol) gives worse argmax
+referring expression instead of the parsed noun phrase       selection on full RefCOCO+ val (36.5 vs 40.4 mIoU):
+is worth +13.4/+10.6/+11.6 mIoU. The reason is vis-          the bottleneck is instance-level grounding, not embed-
+ible in the data: RefCOCO+ expressions are attribute         ding quality.
+5.8. Ablations                                              on val (38.79): the measured covariate shift (predicted
+                                                            part-IoU means 0.413 vs 0.355; term-composition and
+Table 13 isolates the components on both the held-out
+                                                            detector-box features differ in the detector-era part
+split and the oﬀicial val splits.
+                                                            pool) makes the hand rule, not a model fitted on 780
+5.9. Sensitivity, stability, and complexity                 train rows, the structure that transfers. A per-frame
+                                                            standardization plus a relative threshold narrows but
+Three packaged analyses (sensitivity.json, stabil-          does not close the gap (41.63). The negative result is
+ity.json, complexity.json) accompany the result.            recorded in gref_learned_selector_transfer.json; clos-
+                                                            ing the gap needs train-side scoring passes at scale,
+Parameter Sensitivity Analysis. Table 14 sweeps the         outside this run’s shared-GPU budget.
+RefCOCO-family rule’s key hyperparameters by re-
+composing the frozen rule under each setting on saved       Model Complexity. Table 16 totals 9.1B unique pa-
+records (no model inference).        The box-fill score     rameters, all frozen (0 trainable); the only fitted quan-
+weights are not read at all under the shipped com-          tities in the entire system are the selector’s 33 coeﬀi-
+bine=loc_only configuration (flat curves), the opera-       cients and scalars. Peak GPU memory is 10.7 GB, dom-
+tive box-fill measure is the overlap mode (inside/cover     inated by the 8-bit VLM, and the per-component laten-
+cost 46.3/2.9 mIoU), and the candidate count and se-        cies (measured on this run’s shared GPU; the historical
+mantic mix dominate the remaining variation (63.88          uncontended box-query figure is 0.6–1.8 s/expression)
+at k=5 to 70.93 at k=30). The curves are descriptive:       sum to a few seconds per expression, dominated by the
+they select nothing, and the shipped values are the 300-    VLM query and the SAM proposal pass over each im-
+trial studies’ output under their own pre-registered ob-    age. Training time: no gradient step is taken to fit
+jective. The gRefCOCO sweeps in an earlier draft used       any base component. The system’s only trained com-
+the misaligned term map and are withdrawn with that         ponent in the shipped configuration is the RefCOCO-
+measurement.                                                family selector head of §4.4 (one gradient-boosted fit on
+                                                            train-carved held-out rows; seconds per dataset). The
+Testing Stability. Table 15 reports four tests on the       gRefCOCO acceptance prior was evaluated and is not
+val-subset frame. (T1) Re-querying the frozen VLM           shipped (§5.11). On top of the head, the only fitting
+with a paraphrased box prompt and substituting the          is the selector configurations from the 300-trial Op-
+answers changes 0/608 non-abstaining predictions; the       tuna studies plus the two post-correction held-out re-
+aggressive control that drops every LLaVA box changes       searches of the gRefCOCO configuration, all on held-
+13/608, so the substitution path is live and the box        out rows, on the order of ten GPU-hours. Weaker
+prior’s picks are redundant with the detector picks and     lineups (§6, backbone_audit.json): the same full-table
+the SAM masks rather than fragile. (T2) The metric          SOTA holds with a strictly smaller 3.8B box VLM
+re-analysis is bit-identical across repeated evaluations;   (which also improves the numbers) and with our own
+the model side is near-reproducible — an identical-         plain masked-region CLIP features replacing the re-
+prompt re-query in a fresh namespace reproduces 5/12        leased G2L platform; the SAM ViT-B pool and the
+boxes exactly, with the mismatches traced to batch-         detector-free gRefCOCO variant fall below their floors
+ing/decoding artifacts (empty-string decodes and last-      and are reported as the measured boundaries.
+digit rounding), not to different answers. (T3/T4) The
+box-jitter and box-source cIoU deltas of an earlier draft   5.10. gRefCOCO: the same-class ﬂoors are cleared
+ran through the gRefCOCO term path and are with-                   without a detector; the supervised cIoU level
+drawn with the term-alignment correction; they are not             remains
+used here. (T1) and (T2) are box/VLM-level and are          Table 8 reports gRefCOCO. The released pipeline
+unaffected. The abstention threshold remains the one        scores 22.56/12.49 cIoU/gIoU. Our shipped extension
+term-independent knob that must be respected.               is detector-free: per-clause and per-noun boxes from
+                                                            the frozen VLM, a pool pick inside each box, and
+A trained selector was tried and does not transfer.         SAM ViT-H box-prompted masks from the same VLM
+The wall’s headroom suggested a learned selector over       boxes. GroundingDINO is not in the path. Two
+the same candidate pool. A gradient-boosted part            measured properties of the benchmark shape the de-
+scorer was fitted on the held-out train rows for ex-        sign. First, val targeted records are all multi-target
+actly that job (parts identical to the shipped pool;        (ntargets ≥ 2 for all 5,324), so the referent is a union
+70/30 held-out carve-out; one val pass). It improves        of objects; second, both localization and segmentation
+the held-out frame by +6.8 cIoU but loses 12.2 cIoU         improve when driven per object: a VLM box overlaps
+Table 13. Component ablations. Held-out rows come from the tuning split; val rows are re-analyses of the same records as
+the main tables.
+
+         Ablation                                                             RefCOCO       RefCOCO+        RefCOCOg
+         released HybridGL pipeline                                              44.82         40.23           50.08
+         + containment growth                                                    50.24         45.91           50.92
+         + dense VLM box prior (shipped)                                         68.53         64.67           65.12
+         box prior removed (control)                                             43.33         37.85           47.51
+         box prompt: noun phrase (held-out tuning split)                         55.53           –             50.14
+         box prompt: full sentence (held-out tuning split)                       68.90           –             61.68
+         minimal config: box-fill over the full pool (SAM + VLM only)            69.98         65.22           64.83
+         minimal config: geometric guards (SAM + VLM only)                       69.72         64.95           64.88
+
+
+Table 14. Parameter sensitivity of the RefCOCO-family            the VLM supplies a box; the rule picks pool masks
+rule: shipped value and the range of the reported metric         whose base score, scaled by box agreement, is high-
+across each sweep (§5.9). The gRefCOCO sweeps of an ear-         est inside the box (top-2 with margin), and unions
+lier draft are withdrawn (term-alignment correction, §5.10).
+                                                                 them with the SAM box-prompted masks from the
+                                                                 same VLM box, keeping the highest-confidence SAM
+  parameter                                                                  metric        shipped swept range range of metric
+                                                                 output above      a predicted-IoU     floor and under an area
+                                                                 cap. Abstention
+  mode (box-fill measure: the operative box-fill knob under loc_only)        mIoU is the three-prompt
+                                                                                                iou             existence 22.60–68.90
+                                                                                                         iou–cover          ensem-
+  k_dec (candidates kept)                                                    mIoU
+                                                                 ble, with the                   15
+                                                                                  pair/union selector          5–30 when
+                                                                                                          as fallback      63.88–70.93
+                                                                                                                                term
+  gem_mix (semantic mix)                                         boxes aremIoU absent. 0.490569
+                                                                                          Every selection and   0–1threshold
+                                                                                                                           68.01–69.76
+                                                                                                                                 was
+  beta (box-fill weight; inert under the shipped combine=loc_only)           mIoU
+                                                                 fitted on held-out        2.20722
+                                                                                        gRefCOCO              1–3.4
+                                                                                                       train populations,  68.90–68.90
+                                                                                                                              never
+  eps (box-agreement gate; inert under the shipped combine=loc_only) mIoU              0.0207948        0.005–0.04
+                                                                 val — the original         300-trial Optuna       studies 68.90–68.90
+                                                                                                                            plus a
+                                                                 post-correction 802-configuration held-out search over
+             Table 15. Testing Stability (§5.9).                 clause/noun source, sxi scalars, SAM mask selection
+                                                                 and abstention — and frozen before the full-val eval-
+  test                 measurement                               uation (the T-acc counters
+                                                                                         value      come from a deterministic
+                                                                 re-analysis of the same frozen configuration; no con-
+  T1 paraphrase        predictions changed by paraphrased boxes                         0/608
+  T1 control
+                                                                 figuration was selected on val). Trained versus frozen:
+                       predictions changed when ALL LLaVA boxes are dropped 13/608
+  T2 determinism       metric re-analysis, bit-identical         every base component       yes(the released scorer, the VLM,
+  T2 model             identical-prompt boxes reproduced         SAM)    is  frozen  off  the
+                                                                                          5/12shelf; the only fitted quantities
+  T3 box jitter        max |∆| cIoU over 6 perturbations         are  this  selector’s   configuration
+                                                                                           0.00           and thresholds, fitted
+  T4 detector swap ∆ cIoU, det0-only boxes                       on held-out rows +0.02  carved from gRefCOCO train; the
+                                                                 oﬀicial val split is evaluation-only.
+                                                                     On the complete oﬀicial val split (14229 sentences
+Table 16. Model Complexity: parameters, estimated
+FLOPs per query, peak memory and latency; FLOPs are
+                                                                 over  4,237 references; §5.1) the DINO-free rule reaches
+analytical estimates (2×MACs) with assumptions stated in         47.59/73.78     cIoU/gIoU, with Nacc = 85.66 and Tacc =
+complexity.json.                                                 88.71.   It  beats  every same-class (zero-shot) published
+                                                                 number on both metrics: the best published zero-
+  component                                                      shot cIoU
+                                                             params            44.40 (SELF1E-8B, CVPR 2026)
+                                                                         FLOPs/query                              peak andlatency
+                                                                                                                                gIoU
+                                                                 43.30 (PSALM, ECCV 2024), both by clear margins
+  selector                                                       —33stated explicitly,
+                                                                                    <1M because
+                                                                                             <50 MB    (host
+                                                                                                     the      numpy) is42.602
+                                                                                                          comparison       against ms
+  LLaVA-OneVision-7B                                            8.0B              25.30T                      10.7 GB       37.706 s
+                                                                 published numbers we did not re-measure: a cross-
+  GroundingDINO-base term detector                             233M              712.8G                        2.1 GB           0.15 s
+  SAM ViT-H proposals + CLIP ViT-B/16 region scoring
+                                                                 harness delta10.22T
+                                                               791M
+                                                                                   larger than the margin 6.6   would
+                                                                                                                   GB
+                                                                                                                       flip it,4.402
+                                                                                                                                 ands
+                                                                 the cross-paper comparability caveat of Section 5.12
+  total (unique)                                                9.1B
+                                                                 applies. Its gIoU –sits 0.56 below the       10.7 GB
+                                                                                                                 strongest   super-–
+                                                                 vised gIoU reference (InstAlign, 74.34); the supervised
+                                                                 cIoU level (68.94) remains out of reach, 21.4 points
+its object at IoU 0.580 (63.5% selecting ≥ 0.50) against         above the shipped rule.
+0.329 for its single union box, and box-prompted SAM                 The measured cost of removing the detector. The
+masks raise the achievable per-object IoU from 0.655             detector-bearing realization of the same rule — a la-
+to 0.885. For each clause (and each parsed noun term)            belled ablation, not shipped — reaches 50.34/74.69
+cIoU/gIoU (§5.11); removing GroundingDINO there-            of a ref_id-keyed map. The change was found while au-
+fore costs 2.76 cIoU / 0.91 gIoU, not a failure: the        diting the oﬀicial evaluator’s per-sentence arithmetic;
+VLM-box SAM construction closes the same-class gap          it affects every term-path number in this benchmark,
+that pool-only DINO-free arms could not (their best         including the learned part tables, and it does not af-
+was 40.56 cIoU). The gain comes from box-prompted           fect the RefCOCO-family results. The earlier promo-
+SAM masks on VLM boxes, which the detector-free             tion of the declared-trained recipe — its 52.71/75.08
+path had never used.                                        row, the +1.38 cIoU bootstrap interval, and the four-
+   The no-target axis is solved to a useful point: the      mechanism decomposition — was an artifact of the
+presence ensemble separates no-target expressions at        misaligned terms and is withdrawn.
+Nacc = 94.40 (Tacc = 84.70) on held-out train and              Under the detector-free requirement the recipe’s
+85.66 (88.71) on the full val split — above the 79.70 the   detector-derived part pool cannot be used.          The
+trained state of the art reports. The cIoU axis is where    measurements that remain are: detector-bearing
+the class stops. The bind is partly perceptual: a forced-   training-free rule 50.34/74.69 (ablation), declared-
+choice probe of the localizer — which of two candidate      trained detector-bearing recipe 49.40/74.26 (ablation),
+crops shows the referent, no “none” option — picks the      and the shipped DINO-free VLM-box SAM rule
+GT-best candidate at 29.8% on the held-out grid (n =        47.59/73.78. Removing the detector therefore costs
+858, mixed train prevalence; chance 25%); on the two-       2.76/0.91 against the detector-bearing training-free
+object slice the identical protocol reaches 59.3%, still    rule and 1.82/0.48 against the recipe. The shipped rule
+below the trivial largest-candidate heuristic (85.4%).      clears both same-class floors; the gap to the supervised
+Closing the cIoU gap needs a supervisor that selects        cIoU level (68.94) remains the measured boundary.
+boxes at near-oracle quality on two-object referents;
+every published cIoU number above us on gRefCOCO            5.12. Comparison protocol and released-code check
+comes from a trained model.                                 The released HybridGL code and our reimplementa-
+                                                            tion of it agree within 0.6 mIoU on two disjoint 150-
+A term-alignment audit. gRefCOCO refs group sev-            reference blocks, so the internal comparisons in this
+eral sentences (14,229 val records over 4,237 ref_ids),     paper are made on one harness. GLOD-RIS releases
+and the oﬀicial evaluator scores each sentence sep-         no code; its rows in Table 6 are quoted as published
+arately (we imported and ran its arithmetic; Ap-            and every comparison against them is labelled cross-
+pendix ??). Our earlier gRefCOCO term-path eval-            harness. An independent reimplementation of the de-
+uations — the rule above, the learned part tables,          scribed GLOD-RIS method, with its component con-
+and the studies built on them — looked noun terms           trols, is recorded in the appendix as a transparency
+up by ref_id. For 84.7% of targeted rows in multi-          record; those numbers are not used as evidence about
+sentence refs this used another sentence’s terms; the       the original work.
+RefCOCO-family path is unaffected because it uses
+each record’s own parsed sentence. After per-record         5.13. Same-pool rule swap
+alignment the frozen detector-bearing rule measures         To separate the described rule from the compo-
+49.63/74.60 (was 51.32/74.91), and a held-out re-           nents, we ran GLOD-RIS’s selection equations as we
+selection reaches 50.34/74.69.      A declared-trained      read them — the decoupled region–text similarity of
+transfer-aware recipe, re-evaluated under the same cor-     Eqs. (1)–(7), the 3×3 Gaussian localization term driven
+rection, measures 49.40/74.26 (was 52.71/75.08); its        by the MLLM guidance, and the category term, com-
+part pool is detector-derived, so under the DINO-free       bined as in our reimplementation — on our exact can-
+requirement it is retained only as a labelled ablation,     didate pools: the same records, the same SAM ViT-
+together with its bootstrap and the mechanism decom-        H masks, the same cached G2L CLIP ViT-B/16 fore-
+position. The DINO-free VLM-box SAM arm measures            ground/background features, with the GLM guidance
+47.59/73.78 and is shipped. This is a correction of our     read from the reproduction’s full-val cache (coverage
+own measurement, not of the benchmark: the same-            and failure handling identical: 15/14/0 parked expres-
+class comparisons above stand.                              sions, 92/169/64 all-zero grids). The rule’s constants
+                                                            (grid 3, scale 0.7, µ=0.3, τ =0.8, top-10) come from
+5.11. Term alignment, the transfer recipe, and the
+                                                            the paper; nothing was tuned on val. The released
+       detector-free rule
+                                                            ancestor scorer on these exact records reproduces its
+The corrected numbers in §5.10 come from a per-record       shipped row to the decimal (44.82/40.23/50.08), which
+sentence alignment: every gRefCOCO term lookup              validates the swap end to end. Under this reading
+now uses the row’s own sentence and file name instead       the transplanted rule scores 32.95/30.67/35.03 mIoU
+Table 17. Same-pool rule swap (mIoU, oﬀicial val splits):  The gRefCOCO numbers carry a term-alignment cor-
+GLOD-RIS’s own selection rule run on our exact pools, fea- rection. The gRefCOCO term-path evaluations in
+tures and guidance, against the released HybridGL scorer   earlier drafts used a ref_id-keyed sentence map al-
+and our box rule on the same records. Published numbers
+                                                           though the oﬀicial evaluator scores each sentence sep-
+are quoted as published elsewhere (Table 6) and are not
+part of this controlled table. oIoU follows the same order-
+                                                           arately; 84.7% of targeted rows in multi-sentence
+ing (28.18/25.92/30.06 for their rule).                    refs used another sentence’s terms. After per-record
+                                                           alignment the frozen detector-bearing rule measures
+  Dataset          n     Their rule Released (ours) Our box49.63/74.60
+                                                              rule       (was 51.32/74.91); a held-out re-selection
+                                                           reaches 50.34/74.69 (detector-bearing ablation). The
+  RefCOCO       10,834     32.95         44.82          68.53
+                                                           declared-trained transfer recipe measures 49.40/74.26
+  RefCOCO+ 10,758          30.67         40.23          64.67
+                                                           (was 52.71/75.08); its part pool is detector-derived, so
+  RefCOCOg       4,896     35.03         50.08          65.12
+                                                           it is not shipped. The DINO-free VLM-box SAM arm
+                                                           measures 47.59/73.78 and is the shipped row; remov-
+                                                           ing the detector costs 2.76/0.91 against the detector-
+(Table 17), 8–15 points below the unguided released        bearing ablation. The recipe promotion, its bootstrap
+scorer and 30–36 below our box rule on the same            interval and the mechanism decomposition built on the
+signals. With pool, features, guidance and evalua-         same part tables are withdrawn. The RefCOCO-family
+tion held fixed, the separation is a controlled mea-       results are unaffected (per-record text). The oﬀicial
+surement of the described rule as we read it — in-         metric arithmetic itself was re-executed from the re-
+cluding its interaction with our feature geometry,         leased evaluator and matches ours, with one convention
+since the published constants were fitted to theirs —      difference: an empty-prediction abstention contributes
+and it is reported as such: it measures our read-          the GT area to the cIoU denominator, where the oﬀicial
+ing of the published equations on our signals, not         targeted-false-positive case keeps a discarded mask’s
+the original system, and no judgment of the original       union.
+work is intended or supported. The released ances-
+tor’s same-records reproduction matches its shipped
+                                                           The VLM is pretrained on COCO images. LLaVA-
+row to full precision (44.8248/38.16, 40.2289/33.5875,
+                                                           OneVision’s pretraining data includes COCO (the
+50.0816/41.4453; recorded per dataset in the artifact),
+                                                           source of the benchmark images), as is true for the
+which validates the swap end to end.
+                                                           MLLM that GLOD-RIS queries through its API; no
+                                                           referring annotations are used by either. This is the
+6. Limitations                                             standard training-free setting in this literature, but it
+The same-class floors are cleared; the supervised          is a weaker notion of “zero-shot” than a model that has
+cIoU level is the measured boundary. The DINO-free         never seen the image pool.
+training-free rule clears every same-class (zero-shot)
+published number on both metrics (47.59/73.78 vs. the         Which backbones are load-bearing: a measured
+best published zero-shot 44.40/43.30), while its gIoU         weaker-lineup audit. The shipped lineup (SAM ViT-
+sits 0.56 below the strongest supervised gIoU reference       H, CLIP ViT-B/16, LLaVA-OneVision-7B boxes, the
+(74.34), and the no-target decision is above the trained      learned head; the gRefCOCO path is DINO-free)
+state of the art (Nacc = 85.66 vs. 79.70). The super-         was re-measured under strictly weaker replacements
+vised cIoU level (68.94) is where the class stops; the        on the full val splits, each under a head refit on
+corrected DINO-free cIoU (47.59) is 21.4 points below         train-carved rows wherever the platform changed
+it. The earlier r-decomposition of this gap used the          (backbone_audit.json). Two components can be weak-
+misaligned term map and is withdrawn rather than re-          ened for free — one of them profitably: the box
+derived here. What survives is qualitative and mea-           prior gets smaller and better (Qwen2.5-VL-3B, 3.8B,
+sured independently of terms: the bind is partly per-         holds full-table SOTA and improves on the 7B boxes:
+ceptual (the forced-choice probe picks the GT-best of         73.57/67.64/66.43 vs 70.57/66.35/65.51 mIoU — in
+two candidate crops at 29.8% against 25% chance on            this two-point comparison the advantage tracks the
+the held-out grid, and at 59.3% on the two-object slice,      model family, not its size; a within-family size sweep is
+below the 85.4% largest-candidate heuristic), so clos-        not measured), and replacing the released G2L region-
+ing the gap needs a supervisor that selects boxes at          text platform with our own plain masked-region CLIP
+near-oracle quality on two-object referents. Published        features (no fusion, no complement blur) costs only
+cIoU numbers at that level come from models trained           0.34/0.37/0.19 mIoU (70.22/65.98/65.32) while keep-
+to select at that quality.                                    ing SOTA. Two boundaries are real and measured:
+with SAM ViT-B (0.09B) the pool’s own oracle drops           signal is ambiguous across instances, and no stronger
+from 79.1 to 71.4 mIoU on RefCOCOg and the refit             encoder repairs it. Adding one frozen, local, API-free
+head lands 57.57, 0.28 below the published GLOD-RIS          component — a 7B vision-language model asked for
+floor — a margin that is within unquantified single-seed     the referent’s bounding box, with the full expression as
+refit noise, so the load-bearing conclusion rests on the     the prompt — converts selection into geometric match-
+pool-oracle gap, not on the 0.28 (the ViT-L point be-        ing and moves the three RefCOCO-family benchmarks
+tween them is unmeasured: its original-format check-         substantially, under a protocol in which every fitted
+point was unreachable offline, its HF port restructure       scalar comes from a held-out train-derived split and ev-
+being incompatible); and the detector-free gRefCOCO          ery reported number is a re-analysis of full-validation
+realization is now SOTA: adding SAM box-prompted             records.
+masks from the VLM clause and noun boxes lifts the              We also report the boundary of the class we work
+DINO-free rule from the pool-only boundary (best             in, together with a correction to our own gRefCOCO
+40.56 cIoU) to 47.59/73.78 on the full val split, clearing   measurement. On gRefCOCO the no-target decision is
+both same-class floors without GroundingDINO. The            solved above the trained state of the art (Nacc = 85.66
+detector-bearing ablation reaches 50.34/74.69, so the        vs. 79.70), and a DINO-free rule beats every same-
+measured cost of the strictly fewer-component lineup         class (zero-shot) published number on both metrics
+is 2.76 cIoU / 0.91 gIoU; the earlier pool-only arms         (47.59/73.78 vs. 44.40/43.30); its gIoU sits 0.56 below
+(base noun 38.56, full-clause 37.95, presence-filtered       the strongest supervised gIoU reference (74.34), and
+37.85, sentence box 36.70, pair/union 36.73) are the         the supervised cIoU level (68.94) remains out of reach.
+boundary those masks crossed. The declared-trained           gRefCOCO refs group several sentences and the oﬀicial
+no-detector head was not needed for the floor and is not     evaluator is per sentence; our earlier term paths looked
+shipped; its earlier 28.29 is withdrawn with the other       terms up by ref_id, so most multi-sentence rows used
+misaligned term-path numbers. The boundaries are             another sentence’s terms. After per-record alignment
+reported per component, not tuned around. The pool-          the frozen detector-bearing rule measures 49.63/74.60
+density axis was additionally varied (points_per_side        and a held-out re-selection 50.34/74.69; the declared-
+8 → 16, 110 % more proposals) and the diagnosis sur-         trained recipe measures 49.40/74.26 but is detector-
+vives (0.741 → 0.720).                                       dependent. The detector is removed from the shipped
+                                                             path: VLM boxes with SAM box-prompted masks
+Comparison protocol. The released HybridGL code              reach 47.59/73.78 (the measured cost of removal is
+and our reimplementation of it agree within 0.6 mIoU         2.76/0.91), and the earlier recipe promotion, its boot-
+on the control blocks, so the controlled comparisons in      strap and its mechanism account are withdrawn as arti-
+this paper are made on one harness. Cross-paper ab-          facts of the term misalignment. Finally, a comparison-
+solute comparisons in this baseline family are treated       protocol note: the released HybridGL code and our
+as cross-harness comparisons: every published row is         reimplementation of it agree within 0.6 mIoU on the
+quoted as published and labelled as such. GLOD-RIS           control blocks, so our controlled comparisons are made
+releases no code; an independent reimplementation is         on one harness; every published row is quoted as pub-
+recorded only as a transparency record in the appendix.      lished and labelled cross-harness. GLOD-RIS releases
+                                                             no code, and its independent reimplementation is kept
+                                                             only as a transparency record in the appendix.
+VLM latency. The box pass costs 0.6–1.8 s per expres-
+sion on one RTX 4090, which is 3–10× the released            A. Appendix: implementation details
+pipeline’s per-expression cost. The cost is cacheable
+(one box per unique expression) but not free, and the        Scoring pass. For every expression we store: the
+paper does not report a wall-clock comparison against        released semantic score under four text variants
+the MLLM-based prior it replaces.                            (full expression, spatial-stripped, content-only, head
+                                                             noun phrase), the negative-noun score, the released
+7. Conclusion                                                GEM coherence score, per-proposal mask area, cen-
+                                                             troid and bounding box, the strict-containment par-
+Training-free referring image segmentation has been          ent of every proposal, the pool pairwise IoU ma-
+optimised as a scoring problem, but at its operating         trix, and the per-proposal IoU against ground truth
+point the pool is not the bottleneck — selection is,         (the union of the reference’s masks on gRefCOCO).
+and the specific failure is localization. The released       Everything else in this paper is a re-analysis of
+scores compare whole-region embeddings with whole-           these records; the records themselves come from one
+sentence embeddings; on descriptive expressions that         forward pass per dataset (exp/exp4_guided_full.py,
+exp/exp21_grefcoco_full.py).                                probe ran on a seeded 800-row val sample under
+                                                            its own single-pick protocol (its number is a sam-
+Shipped       configuration. Candidate     base    =        ple mIoU, never a full-val cIoU). Arm, threshold
+rank(S dec ) + γ rank(S coh ) with γ = 0.49; k = 15;        and weight selection used the held-out train carve-
+overlap mode = IoU; selection = argmax of the mode          out only. Reproducing the shipped recipe bit-exactly
+over the candidates; growth off. These five values          requires OMP_NUM_THREADS=4 (as the shipped
+are the best of 300 Optuna trials on the held-out           runs used): under a different thread count the logistic-
+split, objective = minimum over datasets of mIoU            regression fits drift in the last decimal, two margin-
+(exp/out_final/optuna_study_sent.json); the noun-           boundary rows flip their rank-1 second part, and the
+phrase study is the second file. The earlier repairs        train table rebuilds with 10,352 parts instead of 10,351
+(relation-gated operator with k = 8 and a two-axis          (val 52.684 vs 52.706); under the pin an independent
+gate, containment growth at |A ∩ B|/|A| ≥ 0.95)             control refit reproduces the shipped row exactly.
+are reported as ablations and are off in the shipped
+configuration.                                              B. Appendix: per-dataset detail
+                                                            Taxonomy per dataset. Table 2 reports the oracle-gap
+Bounding-box prior. Prompt: “Locate the {expres-            taxonomy on all four benchmarks; the wrong-instance
+sion} in this image. Reply with ONLY the bound-             share is stable across datasets and across two scorers
+ing box as [x0,y0,x1,y1] in pixel coordinates mea-          that differ by 10 mIoU.
+sured from the top-left corner, or the single word
+none if it does not appear in the image.”, with             Strata and quartiles. On RefCOCO val the oper-
+the full expression substituted. Decoding is greedy,        ator’s gain decomposes by relation type: horizon-
+max_new_tokens= 32; the reply is parsed for its             tal n = 4,749 +0.1169, vertical n = 443 +0.0735,
+first four numbers and values ≤ 1.5 are read as nor-        middle n = 584 +0.0820, ordinal (abstains) and
+malised coordinates. Boxes are cached per (image,           no-relation (abstains) zero by construction.          By
+expression) under exp/out_vlm_boxes/; the vision            ground-truth area quartile the operator is positive in
+tower pass is cached per image. The 8-bit back-             all four (+0.0427 / +0.0553 / +0.0566 / +0.0801), while
+end (exp/convert_llavaov_hf.py converts the cached          the growth control’s gain is confined to the largest.
+checkpoint to the HF layout so the standard bitsand-
+bytes path applies) produced the same boxes as bf16
+on our agreement sample.                                    gRefCOCO rows. Table 8 lists every row of the gRef-
+                                                            COCO evaluation, including the margin sweep for plu-
+                                                            ral expansion and the two controls (no relation gate,
+GRES      extension. Clause      split   on   top-level     no growth).
+“and”/“or”/“,”; one box per clause; per-clause
+selection by Eq. 1; union of the selected masks; empty
+output when every clause answers none.                      Term-alignment audit and the oﬀicial metric. gRe-
+                                                            fCOCO refs group several sentences (14,229 val
+                                                            records over 4,237 ref_ids) and the oﬀicial evaluator
+Compute. All scoring passes ran on 4×RTX 4090.              scores each sentence separately. We imported the
+Per dataset the pass costs about 0.9–1.2 GPU-hours;         released ReLA ReferEvaluator with a minimal de-
+the entire paper (four datasets, plus controls and ab-      tectron2 stub and ran a five-case battery (targeted
+lations, which are CPU re-analyses) is under 6 GPU-         exact/wrong/abstain-FP, no-target TP/FN); its accu-
+hours.                                                      mulated cIoU/gIoU/N-acc/T-acc arithmetic matches
+                                                            ours, with one convention difference: a targeted
+Val-pass ledger and reproduction pins. Every arm            false positive in the oﬀicial path keeps the discarded
+in the learned-prior table and the transfer-inversion       mask’s union in the cIoU denominator, while our
+study is a single frozen application of the full oﬀi-       empty-prediction abstention contributes only the GT
+cial val split. Within the transfer-inversion study that    area. The audit also showed that our gRefCOCO term
+is five new configurations (recipe, recipe+combination      lookups were keyed by ref_id rather than by the row’s
+policy, strata-{1, 2}, weights-only, tau-only), seven       own sentence, so 84.7% of targeted rows in multi-
+pre-registered leave-one-rare-ref-out refits (diagnostics   sentence refs used another sentence’s terms. All gRef-
+only; the shipped row was declared unchanged on             COCO term-path results in this paper are re-evaluated
+any outcome), and two bit-reproduction passes for           with per-record alignment (gref_tf_aligned.json,
+the cluster bootstrap; the weak-signal democracy            gref_transfer_recipe_aligned.json,
+gref_search_val_part0.json); the RefCOCO-family               Table 18. Independent GLOD-RIS reimplementation, of-
+path uses per-record text and is unaffected. The              ficial val splits (top): its full pipeline, with the published
+corrected frozen detector-bearing rule is 49.63/74.60         mIoU (oIoU: 50.85, 45.96, 50.03) for reference. Controls
+                                                              (bottom) remove one scoring component at a time on Re-
+cIoU/gIoU; a held-out re-selection reaches 50.34/74.69
+                                                              fCOCO val; candidate generation is not the limit (oracle
+(retained as the detector-bearing ablation).      The         mIoU 82.2). All rows: this run, frozen components, GLM-
+declared-trained recipe measures 49.40/74.26 and              4.1V guidance at run time. Transparency record only.
+is detector-dependent, so it is not shipped. With
+GroundingDINO removed, the VLM-box SAM rule                    Dataset                            n      mIoU     oIoU     published mIoU
+reaches 47.59/73.78 and is the shipped gRefCOCO
+row; the earlier promotion is withdrawn.                       RefCOCO                         10,834    32.68    27.92        58.42
+                                                               RefCOCO+                        10,758    30.96    26.13        54.01
+                                                               RefCOCOg                         4,896    37.24    31.98        57.85
+Published-number transcription. Published rows in              RefCOCO val controls, this run (n=10,834)
+Table 6 were transcribed from the GLOD-RIS Ta-                   no guidance (DOD-only)     10,834 35.09          27.10          –
+ble I and HybridGL Table 1 PDFs (both in the reposi-             category only              10,834 36.11          28.84          –
+tory under papers/) and cross-checked between the two            localization only          10,834 28.98          24.38          –
+sources where they overlap.                                      no orthogonal decoupling 10,834 31.95            27.34          –
+
+C. Appendix: independent GLOD-RIS reim-
+   plementation                                               and may include differences between our prompt and
+                                                              the authors’ GLM usage and components their unre-
+GLOD-RIS’s code is unreleased. To record what the             leased code contains. The published rows remain the
+described method reaches under this harness, we reim-         comparison in the main text; this appendix is a trans-
+plemented it end to end on the same frozen stack              parency record of our reading of the description, not a
+as our baselines (SAM ViT-H candidates, CLIP ViT-             measurement of the original work.
+B/16 scoring) and queried its own MLLM, GLM-4.1V-
+Thinking-Flash, through the Zhipu API with our own
+prompt; every response is cached, and parsing and
+                                                              D. Appendix: qualitative examples
+transport failures are parked and counted rather than         E. Appendix: evidence map
+aborting a run (15, 14 and 0 expressions of the three
+splits ran the guidance-free path); degenerate answers        Every claim in the paper maps to a stored artifact:
+are handled explicitly rather than silently (an all-zero      exp/out_final/main_{refcoco,refcocoplus,refcocog,grefcoco}.json
+grid becomes a uniform, uninformative localization            (one per dataset; all rows, CIs, strata, quartiles, tax-
+map – 92, 169 and 64 expressions – and a category-less        onomy);      exp/out_final/gref_topk_reselection.json
+answer drops only the category term, which never trig-        and gref_learned_selector_transfer.json (change
+gered). The reimplementation completes on all three           16 and the documented negative transfer re-
+oﬀicial val splits; Table 18 records its full-pipeline num-   sult);      exp/out_final/protocol_audit.json       (the
+bers alongside the published val mIoU (oIoU: 50.85,           metric-protocol audit of §5.1: per-dataset proto-
+45.96, 50.03) for reference.                                  col source, metric definition, and the re-evaluation
+   Two measurements bound what this record covers.            of the saved predictions under it, with the num-
+(i) Candidate generation is not the limit: the oracle         bers after alignment — including the completed
+mIoU over the SAM pool is 82.2; under our reading of          gRefCOCO coverage and the pooled oIoU);
+the published equations the largest component effect          exp/out_final/ablation.json (each row with its
+is the Gaussian-grid localization term, whose removal         own evidence file); exp/out_final/sota_table.json
+raises RefCOCO val from 32.68 to 36.11 mIoU, while            (measured rows carry evidence paths;               pub-
+the category term adds about +1 mIoU and the or-              lished rows carry transcription sources); refine-
+thogonal decoupling about +0.7 (Table 18). These are          logs/METHOD_GRAVEYARD.md (killed meth-
+properties of this reimplementation. (ii) Feature-path        ods and the control that killed each); pa-
+anchor: the released ancestor scores 44.82 on the same        per/figures/specs/architecture.json       and        the
+split in this harness while the guidance-free reimple-        rendered     architecture.pdf    (deterministic     vec-
+mentation reaches 35.09; the two are different systems,       tor    figure);      exp/out_extreme/records_*.jsonl
+so the ≈ 10 mIoU between them is an anchor rather             (the    scoring   passes    every analysis reads);
+than a controlled isolation. It bounds the largest single     exp/out_final/headroom.json         (the     structural
+identified contributor; the remainder is not attributed,      cause: top-3 containment, oracle rank, category-
+                             refcoco: "bowl behind the others can only see part"
+                                             (VLM box in yellow)                       released (IoU 0.00)   ours (IoU 0.67)   oIoU 0.00 -> 0.67
+
+
+
+
+                                      refcoco: "dish in top right corner"
+                                             (VLM box in yellow)                       released (IoU 0.00)   ours (IoU 0.67)   oIoU 0.00 -> 0.67
+
+
+
+
+                                 refcoco: "white dish in the top right corner"
+                                             (VLM box in yellow)                       released (IoU 0.00)   ours (IoU 0.67)   oIoU 0.00 -> 0.67
+
+
+
+
+                                 refcoco+: "white bowl with vertical stripes"
+                                            (VLM box in yellow)                        released (IoU 0.00)   ours (IoU 0.67)   oIoU 0.00 -> 0.67
+
+
+
+
+                                      refcoco+: "white bowl on corner"
+                                             (VLM box in yellow)                       released (IoU 0.00)   ours (IoU 0.67)   oIoU 0.00 -> 0.67
+
+
+
+
+                                     refcoco+: "white bowl next to rice"
+                                            (VLM box in yellow)                        released (IoU 0.00)   ours (IoU 0.67)   oIoU 0.00 -> 0.67
+
+
+
+
+                               refcocog: "black and white dog with pointy ears"
+                                              (VLM box in yellow)                      released (IoU 0.00)   ours (IoU 0.93)   oIoU 0.00 -> 0.93
+
+
+
+
+                            refcocog: "the zebra on the left in the right hand pict"
+                                             (VLM box in yellow)                       released (IoU 0.00)   ours (IoU 0.81)   oIoU 0.00 -> 0.81
+
+
+
+
+                           refcocog: "green color vegetable in between potato and "
+                                              (VLM box in yellow)                      released (IoU 0.34)   ours (IoU 0.91)   oIoU 0.34 -> 0.91
+
+
+
+
+Figure 3. Examples where the box prior changes the selection (one per dataset family, selected by a criterion fixed in
+exp/exp45_qualitative.py: the method and the released pipeline disagree and the IoU gap exceeds 0.25). Column 1 shows
+the VLM box (yellow) overlaid on the image and the expression; columns 2–3 the released selection and ours. Ground-truth
+IoU is in each title. These are illustrative, not a random sample.
+score     top-8);     exp/out_final/cross_dataset.json       machinery and the three-prompt existence ensemble
+(the dose-response and the residual strata);                 (shipped DINO-free rule); the learned selector head;
+exp/out_final/pool_robustness.json (points-per-side          the protocol alignment; and, in the detector-bearing
+8 vs 16); exp/out_final/evidence/repro_blocks.json           ablation only, the declared-trained acceptance prior
+with the raw logs repro_oﬀicial_blockA.log                   (not shipped). Released HybridGL: the masked-region
+and        repro_oﬀicial_blockB.log         (the      two    feature extractor (modified CLIP ViT-B/16 with the
+disjoint           reproduction-audit             blocks);   G2L fusion), the released semantic score (0.5 sentence
+exp/out_final/optuna_study_{noun,sent}.json                  + 0.5 noun-phrase ensemble), the GEM coherence
+(the two 300-trial studies and their per-dataset             score, the fused selection, and the released-score
+held-out mIoU); exp/tuning/*_refs.json (the held-out         candidate restriction — used by the training-free
+split:    seeded train refs); exp/out_vlm_boxes/             reference realization and, as a feature path only,
+(one     cached     VLM       box      per    expression);   by the promoted head’s region-text term. Generic
+exp/out_final/gref_ceiling.json       (the    gRefCOCO       frozen: the SAM ViT-H pool and the Ground-
+no-target wall: oracle set-IoU, the leaky logistic           ingDINO detector gate. The head rebuild behind
+bound, and the N-acc requirement at perfect masks);          the promotion, and both drop-one deltas (restriction-
+exp/out_final/exp37_{refcoco,refcocog}_gt.json               given-box −1.45/−0.56/+0.29; box-given-restriction
+and       exp37_vlm_sample800.json          (the     box-    +25.2/+26.8/+17.6 mIoU), are reported in Table 10;
+prior ceiling and its realistic-box sample);                 an independently quoted box-over-full-pool figure
+exp/out_final/optuna_study_gref{2,3,4,5}.json                (50.20/40.24/49.48) could not be reproduced under
+(the gRefCOCO held-out studies: hand rules, learned          any tested configuration (overlap mode, box phrase,
+selector, decision rules, clause features; 300 trials        box source) and is recorded as unreconciled in the
+each); exp/out_final/gref_exists_probe_sh*.json and          artifact; the measured drop-one deltas above stand.
+the exists cache namespace (the single yes/no presence
+probe); exp/out_final/gref_ensemble_{roc,val}.json,          References
+gref_rule_showdown.json,                              and
+                                                              [1] Na Min An, Inha Kang, Minhyun Lee, and Hyunjung
+gref_ensemble_aggregates.json (the three-prompt
+                                                                  Shim. Blind to position, biased in language: Prob-
+presence ensemble: held-out rule selection, full-val              ing mid-layer representational bias in vision-language
+frontier, and the exact union-mass requirements behind            encoders for zero-shot language-grounded spatial un-
+the shipped row); exp/out_final/gref_wall.json (the               derstanding. arXiv:2509.23098, 2025.
+three-axis wall analysis and the exact oracle-realization     [2] Walid Bousselham, Felix Petersen, Vittorio Ferrari,
+requirement); exp/out_final/gref_tuned_val2000.json               and Hilde Kuehne. Grounding everything: Emerging
+and exp/out_final/gref_full_val.json (the frozen                  localization properties in vision-language transformers.
+gRefCOCO          model’s      validation     evaluation);        arXiv:2312.00878, 2023.
+exp/out_final/component_provenance.json              with     [3] Shengcao Cao, Zijun Wei, Jason Kuen, Kangning Liu,
+head_rebuild.json, head_rebuild_parts/*.json and                  Lingzhi Zhang, Jiuxiang Gu, HyunJoon Jung, Liang-
+exp159b_boxsource_probe.json (the component-                      Yan Gui, and Yu-Xiong Wang. Refer to any seg-
+provenance audit of §5.4: per-component provenance,               mentation mask group with vision-language prompts.
+the head-rebuild arms, and the box-source/phrase                  arXiv:2506.05342, 2025.
+probes used to reconcile the quoted attribu-                  [4] Nico Catalano et al. Mars: a multimodal alignment
+                                                                  and ranking system for few-shot segmentation. In Pro-
+tion);       exp/out_final/test_columns_learned.json
+                                                                  ceedings of the IEEE/CVF Winter Conference on Ap-
+with exp/out_test_columns/learned_*.json (the                     plications of Computer Vision (WACV), 2026.
+promoted       head’s     test-column      re-evaluation);
+                                                              [5] Zhixiang Chi, Yanan Wu, Li Gu, Huan Liu, Ziqiang
+exp/out_final/backbone_audit.json          with     back-         Wang, Yang Zhang, Yang Wang, and Konstantinos N.
+bone_swaps/*.json and gref_nodetector.json /                      Plataniotis. Plug-in feedback self-adaptive attention
+vlm_sam_val_tacc.json (the weaker-lineup audit of                 in clip for training-free open-vocabulary segmentation.
+§6: per-component swap arms on the full val splits,               arXiv:2508.20265, 2025.
+each under a head refit on train-carved rows where the        [6] Dawar Jyoti Deka, Amit Sethi, and Syed Mohammad
+platform changed).                                                Ali. Prompt sensitivity in vision-language grounding:
+                                                                  How small changes in wording affect object detection.
+                                                                  arXiv:2604.17126, 2026.
+Component                             provenance              [7] Francisco Eiras, Kemal Oksuz, Adel Bibi, Philip H. S.
+(component_provenance.json). Each shipped com-                    Torr, and Puneet K. Dokania. Segment, select, correct:
+ponent is tagged by origin. Ours: the VLM box                     A framework for weakly-supervised referring segmen-
+prior and box-fill pick; the gRefCOCO multi-term                  tation. arXiv:2310.13479, 2024.
+ [8] Jingxuan He, Xiyu Wang, Yunke Wang, Mengyu                     image segmentation with generative models. In arXiv
+     Zheng, and Chang Xu. Early semantic grounding in               preprint arXiv:2308.16777, 2023.
+     image editing models for zero-shot referring image seg-   [21] Pouya Sadeghi, Shawn He, Pedro Pablo Guerrero Vela,
+     mentation. arXiv:2605.13122, 2026.                             C. Thomas, Alex Wong, and Sirisha Rambhatla. Pin-
+ [9] Kumju Jo, Heesun Jung, and Sungyong Baik. Text-to-             point: Training-free referring segmentation via prompt
+     seed generation: Training-free open-vocabulary seeded          disambiguation. arXiv:2605.26689, 2026.
+     semantic segmentation via re-purposing diffusion as       [22] Nicolò Savioli. Venice-h1: Failure-aware query re-
+     text-guided seed generator. arXiv:2608.26624, 2026.            ranking with multi-scale grid signatures for referring
+[10] Sahar Kazemzadeh, Vicente Ordonez, Mark Matten,                image segmentation. arXiv:2606.22546, 2026.
+     and Tamara L. Berg. Referitgame: Referring to ob-         [23] Yucheng Suo, Linchao Zhu, and Yi Yang. Text aug-
+     jects in photographs of natural scenes. In Proceedings         mented spatial-aware zero-shot referring image seg-
+     of the Conference on Empirical Methods in Natural              mentation. In Findings of the Association for Com-
+     Language Processing (EMNLP), 2014.                             putational Linguistics: EMNLP 2023, 2023.
+[11] Alexander Kirillov, Eric Mintun, Nikhila Ravi, Hanzi      [24] Jingchao Wang, Zhijian Wu, Dingjiang Huang, Yefeng
+     Mao, Chloe Rolland, Laura Gustafson, Tete Xiao,                Zheng, and Hong Wang.            Unlocking the poten-
+     Spencer Whitehead, Alexander C. Berg, Wan-Yen Lo,              tial of mllms in referring expression segmentation
+     Piotr Dollár, and Ross Girshick. Segment anything.             via a light-weight mask decoder. In arXiv preprint
+     In Proceedings of the IEEE/CVF International Con-              arXiv:2508.04107, 2025.
+     ference on Computer Vision (ICCV), 2023.                  [25] Yuji Wang, Jingchen Ni, Yong Liu, Chun Yuan, and
+[12] Bo Li, Yuanhan Zhang, Dong Guo, Renrui Zhang,                  Yansong Tang. Iterprime: Zero-shot referring image
+     Feng Li, Hao Zhang, Kaichen Zhang, Yanwei Li, Ziwei            segmentation with iterative grad-cam refinement and
+     Liu, and Chunyuan Li. Llava-onevision: Easy visual             primary word emphasis. In Proceedings of the AAAI
+     task transfer. arXiv preprint arXiv:2408.03326, 2024.          Conference on Artificial Intelligence, 2025.
+[13] Feng Li, Hao Zhang, Peize Sun, Xueyan Zou, Shi-           [26] Junjie Wu et al. Glod-ris: Zero-shot referring image
+     long Liu, Chunyuan Li, Jianwei Yang, Lei Zhang, and            segmentation with gaussian localization and orthogo-
+     Jianfeng Gao. Semantic-sam: Segment and recognize              nal decoupling. IEEE Transactions on Circuits and
+     anything at any granularity. In Proceedings of the             Systems for Video Technology, 2026.
+     IEEE/CVF International Conference on Computer Vi-         [27] Chunyu Xie, Bin Wang, Fanjing Kong, Jincheng Li,
+     sion, 2023.                                                    Dawei Liang, Gengshen Zhang, Dawei Leng, and Yuhui
+[14] Jiachen Li, Qing Xie, Renshu Gu, Jinyu Xu, et al. Lgd:         Yin. Fg-clip: Fine-grained visual and textual align-
+     Leveraging generative descriptions for zero-shot refer-        ment. arXiv:2505.05071, 2025.
+     ring image segmentation. Pattern Recognition, 2025.       [28] Xiaoyang Xu et al. E-sam: Training-free segment ev-
+[15] Wenhui Li, Chao Pang, et al. Bidirectional mask selec-         ery entity model. In Proceedings of the IEEE/CVF
+     tion for zero-shot referring image segmentation. IEEE          International Conference on Computer Vision (ICCV),
+     Transactions on Circuits and Systems for Video Tech-           2025.
+     nology, 35(1), 2025.                                      [29] Seonghoon Yu, Paul Hongsuck Seo, and Jeany
+[16] Chang Liu, Henghui Ding, Xudong Jiang, et al. Gres:            Son. Zero-shot referring image segmentation with
+     Generalized referring expression segmentation. In Pro-         global-local context features. In Proceedings of the
+     ceedings of the IEEE/CVF Conference on Computer                IEEE/CVF Conference on Computer Vision and Pat-
+     Vision and Pattern Recognition (CVPR), 2023.                   tern Recognition (CVPR), 2023.
+[17] Ting Liu and Siyuan Li. Hybrid global-local represen-     [30] Mohamad Zamini and Diksha Shukla.                  Sci-
+     tation with augmented spatial guidance for zero-shot           clip: Segment-centric inference with reference mem-
+     referring image segmentation. In Proceedings of the            ory for training-free open-vocabulary segmentation.
+     IEEE/CVF Conference on Computer Vision and Pat-                arXiv:2608.05627, 2026.
+     tern Recognition (CVPR), pages 29634–29643, 2025.         [31] Anqi Zhang, Guangyu Gao, Jianbo Jiao, Chi Harold
+[18] Junhua Mao, Jonathan Huang, Alexander Toshev,                  Liu, and Yunchao Wei. Bridge the points: Graph-
+     Oana Camburu, Alan L. Yuille, and Kevin Murphy.                based few-shot segment anything semantically. In
+     Generation and comprehension of unambiguous object             Advances in Neural Information Processing Systems,
+     descriptions. In Proceedings of the IEEE/CVF Con-              2024.
+     ference on Computer Vision and Pattern Recognition        [32] Anqi Zhang, Xiaokang Ji, Guangyu Gao, Jianbo Jiao,
+     (CVPR), 2016.                                                  Chi Harold Liu, and Yunchao Wei. Rethinking MLLM
+[19] E-Ro Nguyen, Hieu Le, Dimitris Samaras, and                    itself as a segmenter with a single segmentation token.
+     Michael S. Ryoo. Phrase-instance alignment for gen-            In Proceedings of the IEEE/CVF Conference on Com-
+     eralized referring segmentation. In arXiv preprint             puter Vision and Pattern Recognition (CVPR), 2026.
+     arXiv:2411.15087, 2024.                                   [33] Yuxuan Zhang, Tianheng Cheng, Lianghui Zhu, Rui
+[20] Minheng Ni, Yabo Zhang, Ke Feng, Xiujun Li, Daxin              Hu, Lei Liu, Heng Liu, Longjin Ran, Xiaoxin Chen,
+     Guo, and Wangmeng Zuo. Ref-diff: Zero-shot referring           Wenyu Liu, and Xinggang Wang. Evf-sam: Early
+     vision-language fusion for text-prompted segment any-
+     thing model. arXiv:2406.20076, 2024.
+[34] Zheng Zhang, Yeyao Ma, Enming Zhang, and Xiang
+     Bai. PSALM: Pixelwise segmentation with large multi-
+     modal model. In arXiv preprint arXiv:2403.14598,
+     2024.
+[35] Yiwu Zhong, Jianwei Yang, Peng Wang, Ronghui
+     Tang, Cheng-Lin Zhao, Renjie Liu, Xiang Li, and
+     Yuhui Yuan.       Proposalclip: Unsupervised open-
+     category object proposal generation via exploiting clip
+     cues. In Proceedings of the IEEE/CVF Conference on
+     Computer Vision and Pattern Recognition (CVPR),
+     2022.
+[36] Chong Zhou, Chen Change Loy, and Bo Dai. Extract
+     free dense labels from CLIP. In Proceedings of the
+     European Conference on Computer Vision (ECCV),
+     2022.
+

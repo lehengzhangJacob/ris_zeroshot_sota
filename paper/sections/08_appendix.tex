@@ -249,9 +249,10 @@ the platform changed).
 
 \paragraph{Component provenance (\texttt{component\_provenance.json}).}
 Each shipped component is tagged by origin. \emph{Ours}: the VLM box prior
-and box-fill pick; the gRefCOCO multi-term machinery, the three-prompt
-existence ensemble, and the declared-trained acceptance prior; the learned
-selector head; the protocol alignment. \emph{Released HybridGL}: the masked-region
+and box-fill pick; the gRefCOCO multi-term machinery and the three-prompt
+existence ensemble (shipped DINO-free rule); the learned selector head; the
+protocol alignment; and, in the detector-bearing ablation only, the
+declared-trained acceptance prior (not shipped). \emph{Released HybridGL}: the masked-region
 feature extractor (modified CLIP ViT-B/16 with the G2L fusion), the released
 semantic score ($0.5$ sentence $+$ $0.5$ noun-phrase ensemble), the GEM
 coherence score, the fused selection, and the released-score candidate

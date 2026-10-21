@@ -1,0 +1,911 @@
+{
+ "what": "Reviewer packet for the 63-paper deep-read dossier: headline counts, the full ledger of keys/inspection/run status, and eight full entries (new or critical) so the reviewer can assess appreciation/critique quality without a 180KB payload.",
+ "counts": {
+  "n_papers": 63,
+  "n_ris": 40,
+  "inspected": 22,
+  "ok_runs": 15
+ },
+ "ledger": [
+  {
+   "key": "cmsa2019",
+   "category": "ris",
+   "inspected": false,
+   "ran": false,
+   "run_kind": null,
+   "full_split": null,
+   "blocker": false
+  },
+  {
+   "key": "cris2022",
+   "category": "ris",
+   "inspected": false,
+   "ran": false,
+   "run_kind": null,
+   "full_split": null,
+   "blocker": true
+  },
+  {
+   "key": "hybridgl2025",
+   "category": "ris",
+   "inspected": true,
+   "ran": true,
+   "run_kind": "method",
+   "full_split": true,
+   "blocker": false
+  },
+  {
+   "key": "instalign2024",
+   "category": "ris",
+   "inspected": false,
+   "ran": false,
+   "run_kind": null,
+   "full_split": null,
+   "blocker": false
+  },
+  {
+   "key": "iterprime2025",
+   "category": "ris",
+   "inspected": true,
+   "ran": false,
+   "run_kind": null,
+   "full_split": null,
+   "blocker": true
+  },
+  {
+   "key": "lavt2022",
+   "category": "ris",
+   "inspected": true,
+   "ran": false,
+   "run_kind": null,
+   "full_split": null,
+   "blocker": true
+  },
+  {
+   "key": "lgd2025",
+   "category": "ris",
+   "inspected": false,
+   "ran": false,
+   "run_kind": null,
+   "full_split": null,
+   "blocker": false
+  },
+  {
+   "key": "liu2023gres",
+   "category": "ris",
+   "inspected": true,
+   "ran": true,
+   "run_kind": "metric",
+   "full_split": false,
+   "blocker": false
+  },
+  {
+   "key": "lscm2020",
+   "category": "ris",
+   "inspected": true,
+   "ran": false,
+   "run_kind": null,
+   "full_split": null,
+   "blocker": true
+  },
+  {
+   "key": "mattnet2018",
+   "category": "ris",
+   "inspected": false,
+   "ran": false,
+   "run_kind": null,
+   "full_split": null,
+   "blocker": true
+  },
+  {
+   "key": "mmnet2023",
+   "category": "ris",
+   "inspected": false,
+   "ran": false,
+   "run_kind": null,
+   "full_split": null,
+   "blocker": false
+  },
+  {
+   "key": "ni2023refdiff",
+   "category": "ris",
+   "inspected": true,
+   "ran": false,
+   "run_kind": null,
+   "full_split": null,
+   "blocker": true
+  },
+  {
+   "key": "pinpoint2026",
+   "category": "ris",
+   "inspected": false,
+   "ran": false,
+   "run_kind": null,
+   "full_split": null,
+   "blocker": false
+  },
+  {
+   "key": "polyformer2023",
+   "category": "ris",
+   "inspected": false,
+   "ran": false,
+   "run_kind": null,
+   "full_split": null,
+   "blocker": true
+  },
+  {
+   "key": "promptsens2026",
+   "category": "ris",
+   "inspected": false,
+   "ran": false,
+   "run_kind": null,
+   "full_split": null,
+   "blocker": false
+  },
+  {
+   "key": "psalm2024",
+   "category": "ris",
+   "inspected": true,
+   "ran": false,
+   "run_kind": null,
+   "full_split": null,
+   "blocker": true
+  },
+  {
+   "key": "ras2025",
+   "category": "ris",
+   "inspected": false,
+   "ran": false,
+   "run_kind": null,
+   "full_split": null,
+   "blocker": false
+  },
+  {
+   "key": "restr2022",
+   "category": "ris",
+   "inspected": false,
+   "ran": false,
+   "run_kind": null,
+   "full_split": null,
+   "blocker": true
+  },
+  {
+   "key": "seqtr2022",
+   "category": "ris",
+   "inspected": true,
+   "ran": false,
+   "run_kind": null,
+   "full_split": null,
+   "blocker": true
+  },
+  {
+   "key": "shu2023tas",
+   "category": "ris",
+   "inspected": true,
+   "ran": false,
+   "run_kind": null,
+   "full_split": null,
+   "blocker": true
+  },
+  {
+   "key": "splus2024",
+   "category": "ris",
+   "inspected": true,
+   "ran": true,
+   "run_kind": "method",
+   "full_split": true,
+   "blocker": false
+  },
+  {
+   "key": "veniceh1_2026",
+   "category": "ris",
+   "inspected": false,
+   "ran": false,
+   "run_kind": null,
+   "full_split": null,
+   "blocker": false
+  },
+  {
+   "key": "vlt2022",
+   "category": "ris",
+   "inspected": true,
+   "ran": false,
+   "run_kind": null,
+   "full_split": null,
+   "blocker": true
+  },
+  {
+   "key": "yu2023global",
+   "category": "ris",
+   "inspected": true,
+   "ran": true,
+   "run_kind": "method",
+   "full_split": true,
+   "blocker": false
+  },
+  {
+   "key": "esam2025",
+   "category": "adjacent",
+   "inspected": false,
+   "ran": false,
+   "run_kind": null,
+   "full_split": null,
+   "blocker": false
+  },
+  {
+   "key": "gfsam2024",
+   "category": "adjacent",
+   "inspected": false,
+   "ran": false,
+   "run_kind": null,
+   "full_split": null,
+   "blocker": true
+  },
+  {
+   "key": "groundingdino2024",
+   "category": "adjacent",
+   "inspected": true,
+   "ran": true,
+   "run_kind": "component",
+   "full_split": false,
+   "blocker": false
+  },
+  {
+   "key": "kirillov2023sam",
+   "category": "adjacent",
+   "inspected": true,
+   "ran": true,
+   "run_kind": "component",
+   "full_split": true,
+   "blocker": false
+  },
+  {
+   "key": "li2024llavaov",
+   "category": "adjacent",
+   "inspected": true,
+   "ran": true,
+   "run_kind": "method",
+   "full_split": true,
+   "blocker": false
+  },
+  {
+   "key": "mars2026",
+   "category": "adjacent",
+   "inspected": false,
+   "ran": false,
+   "run_kind": null,
+   "full_split": null,
+   "blocker": false
+  },
+  {
+   "key": "proposalclip2022",
+   "category": "adjacent",
+   "inspected": false,
+   "ran": false,
+   "run_kind": null,
+   "full_split": null,
+   "blocker": false
+  },
+  {
+   "key": "qwen25vl2025",
+   "category": "adjacent",
+   "inspected": true,
+   "ran": true,
+   "run_kind": "method",
+   "full_split": true,
+   "blocker": false
+  },
+  {
+   "key": "radford2021clip",
+   "category": "adjacent",
+   "inspected": true,
+   "ran": true,
+   "run_kind": "method",
+   "full_split": true,
+   "blocker": false
+  },
+  {
+   "key": "semanticsam2023",
+   "category": "adjacent",
+   "inspected": false,
+   "ran": false,
+   "run_kind": null,
+   "full_split": null,
+   "blocker": true
+  },
+  {
+   "key": "t2s2026",
+   "category": "adjacent",
+   "inspected": false,
+   "ran": false,
+   "run_kind": null,
+   "full_split": null,
+   "blocker": false
+  },
+  {
+   "key": "zhou2022maskclip",
+   "category": "adjacent",
+   "inspected": true,
+   "ran": true,
+   "run_kind": "method",
+   "full_split": true,
+   "blocker": false
+  },
+  {
+   "key": "earlygrounding2026",
+   "category": "ris",
+   "inspected": false,
+   "ran": false,
+   "run_kind": null,
+   "full_split": null,
+   "blocker": false
+  },
+  {
+   "key": "blindposition2025",
+   "category": "ris",
+   "inspected": false,
+   "ran": false,
+   "run_kind": null,
+   "full_split": null,
+   "blocker": false
+  },
+  {
+   "key": "maskris2024",
+   "category": "ris",
+   "inspected": false,
+   "ran": false,
+   "run_kind": null,
+   "full_split": null,
+   "blocker": true
+  },
+  {
+   "key": "pseudoris2024",
+   "category": "ris",
+   "inspected": false,
+   "ran": false,
+   "run_kind": null,
+   "full_split": null,
+   "blocker": false
+  },
+  {
+   "key": "haris2024",
+   "category": "ris",
+   "inspected": false,
+   "ran": false,
+   "run_kind": null,
+   "full_split": null,
+   "blocker": false
+  },
+  {
+   "key": "targetcoherence2023",
+   "category": "ris",
+   "inspected": false,
+   "ran": false,
+   "run_kind": null,
+   "full_split": null,
+   "blocker": false
+  },
+  {
+   "key": "unifiedres2025",
+   "category": "ris",
+   "inspected": false,
+   "ran": false,
+   "run_kind": null,
+   "full_split": null,
+   "blocker": false
+  },
+  {
+   "key": "resanything2025",
+   "category": "ris",
+   "inspected": false,
+   "ran": false,
+   "run_kind": null,
+   "full_split": null,
+   "blocker": false
+  },
+  {
+   "key": "grex2026",
+   "category": "ris",
+   "inspected": true,
+   "ran": true,
+   "run_kind": "metric",
+   "full_split": false,
+   "blocker": false
+  },
+  {
+   "key": "resagent2026",
+   "category": "ris",
+   "inspected": false,
+   "ran": false,
+   "run_kind": null,
+   "full_split": null,
+   "blocker": false
+  },
+  {
+   "key": "qwen3vlseg2026",
+   "category": "ris",
+   "inspected": false,
+   "ran": false,
+   "run_kind": null,
+   "full_split": null,
+   "blocker": false
+  },
+  {
+   "key": "vespaseg2026",
+   "category": "ris",
+   "inspected": false,
+   "ran": false,
+   "run_kind": null,
+   "full_split": null,
+   "blocker": false
+  },
+  {
+   "key": "physmllm2026",
+   "category": "ris",
+   "inspected": false,
+   "ran": false,
+   "run_kind": null,
+   "full_split": null,
+   "blocker": false
+  },
+  {
+   "key": "elboalign2025",
+   "category": "adjacent",
+   "inspected": false,
+   "ran": false,
+   "run_kind": null,
+   "full_split": null,
+   "blocker": false
+  },
+  {
+   "key": "evfsam2024",
+   "category": "ris",
+   "inspected": false,
+   "ran": false,
+   "run_kind": null,
+   "full_split": null,
+   "blocker": true
+  },
+  {
+   "key": "text4seg2024",
+   "category": "ris",
+   "inspected": false,
+   "ran": false,
+   "run_kind": null,
+   "full_split": null,
+   "blocker": true
+  },
+  {
+   "key": "pluginfb2025",
+   "category": "adjacent",
+   "inspected": false,
+   "ran": false,
+   "run_kind": null,
+   "full_split": null,
+   "blocker": false
+  },
+  {
+   "key": "ovsdino2026",
+   "category": "adjacent",
+   "inspected": false,
+   "ran": false,
+   "run_kind": null,
+   "full_split": null,
+   "blocker": false
+  },
+  {
+   "key": "sciclip2026",
+   "category": "adjacent",
+   "inspected": false,
+   "ran": false,
+   "run_kind": null,
+   "full_split": null,
+   "blocker": false
+  },
+  {
+   "key": "maviseg2026",
+   "category": "adjacent",
+   "inspected": false,
+   "ran": false,
+   "run_kind": null,
+   "full_split": null,
+   "blocker": false
+  },
+  {
+   "key": "discoverseg2026",
+   "category": "adjacent",
+   "inspected": false,
+   "ran": false,
+   "run_kind": null,
+   "full_split": null,
+   "blocker": false
+  },
+  {
+   "key": "satov2026",
+   "category": "adjacent",
+   "inspected": false,
+   "ran": false,
+   "run_kind": null,
+   "full_split": null,
+   "blocker": false
+  },
+  {
+   "key": "lightmaskdecoder2025",
+   "category": "ris",
+   "inspected": false,
+   "ran": false,
+   "run_kind": null,
+   "full_split": null,
+   "blocker": false
+  },
+  {
+   "key": "gem2023",
+   "category": "adjacent",
+   "inspected": true,
+   "ran": true,
+   "run_kind": "method",
+   "full_split": true,
+   "blocker": false
+  },
+  {
+   "key": "fgclip2025",
+   "category": "adjacent",
+   "inspected": true,
+   "ran": true,
+   "run_kind": "component",
+   "full_split": false,
+   "blocker": false
+  },
+  {
+   "key": "siglip2023",
+   "category": "adjacent",
+   "inspected": false,
+   "ran": true,
+   "run_kind": "component",
+   "full_split": false,
+   "blocker": false
+  },
+  {
+   "key": "dinov2_2023",
+   "category": "adjacent",
+   "inspected": true,
+   "ran": true,
+   "run_kind": "component",
+   "full_split": false,
+   "blocker": false
+  }
+ ],
+ "full_entries": {
+  "earlygrounding2026": {
+   "key": "earlygrounding2026",
+   "title": "Early Semantic Grounding in Image Editing Models for Zero-Shot Referring Image Segmentation",
+   "identifier": "arXiv:2605.13122",
+   "category": "ris",
+   "method": "Training-free repurposing of instruction-based image editing DiTs: coarse attention maps supply a spatial prior and early-denoising-step features supply semantic discrimination, with a single denoising step.",
+   "claims": "Step1X-Edit (12B) reaches 57.56/48.50/54.52 mIoU on RefCOCO/RefCOCO+/RefCOCOg val (53.94/44.38/51.23 oIoU); the 9B FLUX.2-klein variant reaches 54.02/44.15/50.62 mIoU.",
+   "relation": "A 2026 zero-shot RIS family that uses a generative backbone rather than a SAM proposal pool; its Table 1 independently tabulates the Global-Local, MaskCLIP, Ref-Diff, TAS and HybridGL baselines we study, giving an external cross-harness check on our reproductions.",
+   "threat": "If attention-space grounding from a 12B editing DiT is a stronger zero-shot selector than our repair, the selection-diagnosis framing would be incomplete; its reported HybridGL row (49.48 mIoU on RefCOCO val) is also 4.7 points above our faithful released-code reproduction (44.82), which would challenge our baseline level if the two were protocol-comparable.",
+   "key_quote": "By leveraging feature-space separability, the framework produces accurate segmentation masks using only a single denoising step, without requiring full image synthesis.",
+   "depth": "full-text",
+   "reported_numbers": {
+    "refcoco_val_mIoU": 57.56,
+    "refcocoplus_val_mIoU": 48.5,
+    "refcocog_val_mIoU": 54.52,
+    "refcoco_val_oIoU": 53.94
+   },
+   "anchors": [
+    "Table 1",
+    "Section 4.3 Comparison with State-of-the-arts"
+   ],
+   "source_file": "exp/literature/papers/earlygrounding2026.txt",
+   "code": {
+    "available": false,
+    "inspected": false,
+    "repo": "",
+    "findings": "",
+    "ran": false
+   },
+   "appreciation": "Best idea and measured contribution: the paper shows that an image-editing DiT already contains a foreground/background spatial prior at the earliest denoising timestep, and separates where to look (attention maps) from what to segment (feature-space separability). The measured contribution is large and honest about its backbone: Step1X-Edit at 12B reaches 57.56/48.50/54.52 mIoU on RefCOCO/+/g val, beating the strongest zero-shot baseline it lists (RefAM, 57.24/43.59/47.11) on all three val columns and by 7.4 mIoU on RefCOCOg. Its Table 1 is also the most useful public cross-check we found: it reports Global-Local ViT-B at 33.12/35.29/40.08 mIoU, close to our own 32.95/36.31/41.62 on the shared SAM pool, so an independent group lands in the same range for that released selector.",
+   "critique": "Critique with evidence: the result is a 9-12B generative backbone evaluated on a 224/512-scale segmentation protocol, and the paper reports no inference cost, no pool/feature protocol for the baselines it tabulates, and no selection-level diagnostic. Its HybridGL row (49.48/43.40/51.25 mIoU, Table 1) is 4.7/3.2/1.2 above our released-code reproduction (44.82/40.23/50.08), while its MaskCLIP row (25.62/27.49/30.13) is 17/17/16 above our dense-map component adaptation (8.21/10.55/14.30). Those gaps are not explained in the paper and show that its table mixes harnesses; the MaskCLIP gap in particular says our component-pool construction is not MaskCLIP's strongest released route. We therefore treat its numbers as a labelled reference, not a same-protocol floor.",
+   "gap": "Gap addressed by this work: zero-shot RIS without a SAM proposal pool, using generative attention as the spatial prior. Gap left for us: no analysis of whether the failure mass is selection or pool, and no cost-controlled comparison; the 12B backbone makes it a distinct deployment class from our training-free selector. The MaskCLIP discrepancy is a direct invitation to re-run MaskCLIP with SAM proposals rather than dense-map components.",
+   "critique_evidence": "exp/out_final/deep_read_critique_evidence.json"
+  },
+  "gem2023": {
+   "key": "gem2023",
+   "title": "Grounding Everything: Emerging Localization Properties in Vision-Language Transformers",
+   "identifier": "arXiv:2312.00878",
+   "category": "adjacent",
+   "method": "Grounding Everything Module (GEM): generalizes CLIPSurgery's value-value attention to normalized self-self attention (q-q, k-k, v-v) and iterates it, producing training-free dense localization maps from a frozen CLIP ViT.",
+   "claims": "GEM with qkv self-self attention and normalization reaches 45.1 mIoU on Pascal VOC and 32.3 on Pascal Context, versus 10.4/7.7 for the plain CLIP baseline; the module requires no fine-tuning.",
+   "relation": "GEM is the coherence signal inside our gRefCOCO pipeline and the heatmap backend in RefChess; its self-self attention is the origin of the coherence term our selector uses. Our new full-val probe tests whether GEM coherence alone can replace semantic selection.",
+   "threat": "If GEM's coherence signal alone matches the released HybridGL selector, then the semantic terms in the released guidance may be less load-bearing than the paper's selection diagnosis assumes; conversely, if it fails on RefCOCO+/g, coherence is insufficient where attribute/compositional language matters.",
+   "key_quote": "we propose a Grounding Everything Module (GEM) that generalizes the idea of value-value attention introduced by CLIPSurgery to a self-self attention path.",
+   "depth": "full-text",
+   "reported_numbers": {
+    "voc_mIoU_qkv": 45.1,
+    "context_mIoU_qkv": 32.3,
+    "clip_voc_mIoU": 10.4,
+    "clip_context_mIoU": 7.7
+   },
+   "anchors": [
+    "Table 1",
+    "Section 3.1 GEM"
+   ],
+   "source_file": "exp/literature/papers/gem2023.txt",
+   "code": {
+    "available": true,
+    "inspected": true,
+    "repo": "https://github.com/WalBouss/GEM (inspected via the installed gem package used by the RefChess heatmap backend)",
+    "findings": "Inspected gem/gem.py, gem_utils.py and gem_wrapper.py in the glod-ris environment: GEMWrapper replaces the last `depth` ViT attention blocks with SelfSelfAttention (q-q, k-k, v-v projections), applies L2 normalization and adaptive temperature, and produces an image-text similarity heatmap from patch tokens. The RefChess GEM backend imports this package and uses the heatmap as the S_hot term; a shape mismatch on dense feature paths forced the earlier FG-CLIP arm to fall back to CLIP ViT-B/32, while the GEM path itself ran.",
+    "ran": true,
+    "run": {
+     "entry": "exp/exp189_gem_selector.py (full-val GEM coherence selector probe from the stored per-proposal gem scores)",
+     "sample_n": 26488,
+     "status": "ok",
+     "notes": "offline re-analysis of the stored GEM coherence score for every proposal on all three full official val splits; no new GEM forward pass; selects argmax coherence and compares with the released selector and argmax semantic score",
+     "metrics": {
+      "refcoco_mIoU": 44.8143,
+      "refcocoplus_mIoU": 32.8095,
+      "refcocog_mIoU": 42.1967,
+      "refcoco_released_mIoU": 44.8248
+     },
+     "kind": "method",
+     "full_split": true,
+     "split": "RefCOCO/RefCOCO+/RefCOCOg val",
+     "protocol": "full official val; offline argmax GEM coherence over the stored per-proposal scores for all three splits; no new GEM forward pass"
+    }
+   },
+   "appreciation": "Best idea and measured contribution: GEM shows that self-self attention is a clustering operation and that normalizing it, plus iterating, turns a frozen CLIP ViT into a surprisingly good dense localizer: 45.1 mIoU on VOC and 32.3 on Context with qkv attention, against 10.4/7.7 for plain CLIP (Table 1). It is training-free, architecture-agnostic, and the code is small; it is the cleanest explanation we have for why a coherence term is useful in a referring pipeline. Our own full-val probe confirms the signal is real but scoped: argmax GEM coherence alone reaches 44.81 mIoU on RefCOCO val, essentially matching the released HybridGL selector (44.82), but it falls to 32.81 on RefCOCO+ and 42.20 on RefCOCOg versus 40.23/50.08 for the released semantic-plus-coherence selector. That is a precise, measured statement of where coherence suffices and where semantics are load-bearing.",
+   "critique": "Critique with evidence: the paper's evaluation is class-level semantic segmentation on Pascal VOC/Context with a fixed vocabulary; it has no referring expressions, no instance pool and no multi-target/no-target protocol, so its 45.1/32.3 do not transfer to RIS. The self-self attention map is class-agnostic in the sense that it clusters visual tokens, and our probe shows that coherence-only selection loses 7.4 and 7.9 mIoU on RefCOCO+/g relative to the released selector (exp/out_final/gem_selector.json), so GEM is not a substitute for semantic selection. The paper also reports no cost for the iterative attention and its best qkv variant is an ensemble of three projections, which triples the attention passes; the ablation table shows a 1.2-point spread across projection choices, so the gain is partly an ensemble effect rather than a single mechanism.",
+   "gap": "Gap addressed by this work: training-free dense localization from CLIP. Gap left for us: GEM does not decide which instance the expression refers to when several same-class objects are present; it supplies coherence, not reference resolution. Our probe fills that gap by measuring coherence-only selection, and it motivates keeping a semantic term in the selector.",
+   "critique_evidence": "exp/out_final/deep_read_critique_evidence.json"
+  },
+  "fgclip2025": {
+   "key": "fgclip2025",
+   "title": "FG-CLIP: Fine-Grained Visual and Textual Alignment",
+   "identifier": "arXiv:2505.05071",
+   "category": "adjacent",
+   "method": "Fine-grained CLIP pretraining with 1.6B long caption-image pairs, 40M region-specific boxes, and hard fine-grained negatives; used as a vision-language backbone for region-text matching.",
+   "claims": "FG-CLIP ViT-B/16 reaches 46.1 on the hard FG-OVD split versus 12.0 for CLIP, 52.3 on COCO bounding-box classification versus 44.2 for CLIP, and regional contrastive learning lifts bbox classification from 46.8 to 53.7.",
+   "relation": "The fine-grained region-text backbone used in the RefChess arm; its region-level contrastive training is directly relevant to proposal-text matching, which is the scoring half of our selection problem.",
+   "threat": "If a fine-grained backbone improves proposal-text matching by large margins, our frozen CLIP selector may be limited by the backbone rather than by the selection rule; the RefChess substitution attempt is an early test of that.",
+   "key_quote": "we propose Fine-Grained CLIP (FG-CLIP), which enhances fine-grained understanding through three key innovations.",
+   "depth": "full-text",
+   "reported_numbers": {
+    "fg_ovd_hard_accuracy": 46.1,
+    "clip_fg_ovd_hard_accuracy": 12.0,
+    "coco_bbox_classification": 52.3,
+    "clip_coco_bbox_classification": 44.2
+   },
+   "anchors": [
+    "Table 1",
+    "Table 2",
+    "Section 4.3 regional contrastive learning"
+   ],
+   "source_file": "exp/literature/papers/fgclip2025.txt",
+   "code": {
+    "available": true,
+    "inspected": true,
+    "repo": "https://huggingface.co/qihoo360/fg-clip-base (official model code; GitHub: https://github.com/360CVGroup/FG-CLIP)",
+    "findings": "Inspected the HF implementation (modeling_fgclip.py, modeling_clip.py) loaded by RefChess: FG-CLIP provides region-aware image-text matching with a long/short text tower and returns dense token features. In the RefChess arm the dense FG-CLIP feature path hit an out-of-memory/shape mismatch, so the earlier run used CLIP ViT-B/32 as the backbone while the current 120-sample run loads the FG-CLIP base model; the attempt is recorded as a partial/ongoing run rather than a completed full pipeline.",
+    "ran": true,
+    "run": {
+     "entry": "exp/literature/repos/refchess/run_refchess.py --backbone qihoo360/fg-clip-base --max-samples 120 --sims 16 --heatmap-backend gem",
+     "sample_n": 120,
+     "status": "ok",
+     "notes": "released RefChess MCTS pipeline on the first 120 RefCOCO val expressions with the FG-CLIP base backbone and GEM heatmaps; 16 MCTS simulations; a 120-expression sample, not a full split, so it is not used as a pipeline number; it verifies the FG-CLIP loading and region-text encoding path inside a training-free selector",
+     "metrics": {
+      "refcoco_sample_mIoU": 54.1339,
+      "refcoco_sample_oIoU": 52.5956,
+      "acc@0.5": 62.5,
+      "acc@0.7": 51.6667
+     },
+     "kind": "component",
+     "full_split": false
+    }
+   },
+   "appreciation": "Best idea and measured contribution: FG-CLIP attacks the coarse-caption problem of CLIP with three data-side innovations, 1.6B long captions, 40M region boxes and 10M hard negatives, and the measured gains are large on fine-grained benchmarks: 46.1 vs 12.0 hard accuracy on FG-OVD, and 52.3 vs 44.2 on COCO bbox classification with ViT-B/16. The regional contrastive ablation (46.8 to 53.7 bbox classification, 42.9 to 49.5 FG-OVD easy) isolates the value of region-level supervision, which is exactly the signal a proposal scorer needs. It is a well-executed data-and-objective paper.",
+   "critique": "Critique with evidence: the evaluation is retrieval, classification and open-vocabulary detection, not referring segmentation; there is no RefCOCO-family table and no instance-selection metric. The gains come with a very large proprietary data pipeline (1.6B captions, 12M images, 40M boxes) that is not reproducible at our scale, and the released base model is the only practical entry point. In our RefChess arm, the dense FG-CLIP path hit an OOM/shape mismatch and the working runs fell back to CLIP ViT-B/32, so the backbone's RIS benefit is unproven in our harness. The paper's hard-negative recipe also depends on in-batch mining details that are not fully specified.",
+   "gap": "Gap addressed by this work: fine-grained region-text alignment. Gap left for us: it does not test selection among same-class proposals or multi-target expressions; our RefChess run is an attempt to close that gap, but it is not a full pipeline and is reported as such.",
+   "critique_evidence": "exp/out_final/deep_read_critique_evidence.json"
+  },
+  "grex2026": {
+   "key": "grex2026",
+   "title": "GREx: Generalized Referring Expression Segmentation, Comprehension, and Generation",
+   "identifier": "arXiv:2601.05244",
+   "category": "ris",
+   "method": "Builds the gRefCOCO benchmark for multi-target, no-target and single-target expressions and proposes ReLA, a baseline that models region-region and region-language dependencies.",
+   "claims": "ReLA reaches 62.91 cIoU / 63.98 gIoU on gRefCOCO val (69.43/70.12 testA, 60.15/61.29 testB) and 73.82 cIoU / 75.61 mIoU on RefCOCO val; N-acc is 56.29 on gRefCOCO val.",
+   "relation": "The source paper for gRefCOCO and the supervised ReLA baseline; it defines the cIoU/gIoU/N-acc protocol our gRefCOCO rows use and explains why our 47.59 cIoU is far from supervised but our 73.78 gIoU is competitive.",
+   "threat": "ReLA's 62.91 cIoU and 63.98 gIoU are the strongest same-protocol supervised reference on gRefCOCO val; if a reader treats them as the floor, our 47.59 cIoU looks weak. The paper also shows that N-acc is a distinct axis where training helps.",
+   "key_quote": "We construct the first large-scale GREx dataset gRefCOCO that contains multi-target, no-target, and single-target expressions and their corresponding images with labeled targets.",
+   "depth": "full-text",
+   "reported_numbers": {
+    "grefcoco_val_cIoU": 62.91,
+    "grefcoco_val_gIoU": 63.98,
+    "grefcoco_val_N_acc": 56.29,
+    "refcoco_val_mIoU": 75.61
+   },
+   "anchors": [
+    "Table 9",
+    "Table 11",
+    "Table 10"
+   ],
+   "source_file": "exp/literature/papers/grex2026.txt",
+   "code": {
+    "available": true,
+    "inspected": true,
+    "repo": "https://github.com/henghuiding/gRefCOCO (dataset and evaluation code)",
+    "findings": "Inspected the released gRefCOCO evaluation code used by our gRefCOCO rows: cIoU accumulates intersection/union over selected masks, a correct no-target prediction is assigned gIoU 1.0 and excluded from cIoU, an incorrect no-target prediction gets gIoU 0.0 and contributes to the cIoU union, and N-acc/T-acc are reported separately. This matches the protocol in our main_grefcoco.shipped configuration and the evaluator check run in exp/literature/runs/metric_check.py.",
+    "ran": true,
+    "run": {
+     "entry": "exp/literature/runs/multitarget_check.py (official ReLA ReferEvaluator, multi-target battery)",
+     "sample_n": 4,
+     "status": "ok",
+     "notes": "four-case multi-target battery (exact union, partial, wrong+miss, abstention false positive); imports the official GRES evaluator and records its cIoU/gIoU/T-acc/N-acc, complementing the earlier single-target battery",
+     "metrics": {
+      "cIoU": 33.3333,
+      "gIoU": 37.5,
+      "Pr@0.7": 25.0,
+      "T_acc": 0.0,
+      "N_acc": 0.0
+     },
+     "kind": "metric",
+     "full_split": false
+    }
+   },
+   "appreciation": "Best idea and measured contribution: the paper identifies the single-target assumption as the field's blind spot and builds gRefCOCO with multi-target, no-target and single-target expressions, plus a relationship-aware baseline ReLA. The measured contribution is a solid supervised baseline of 62.91 cIoU / 63.98 gIoU on gRefCOCO val with N-acc 56.29, and the dataset has become the standard for the generalized task. Its evaluation section is unusually explicit about how no-target predictions enter cIoU versus gIoU, which is exactly the metric detail our gRefCOCO row relies on.",
+   "critique": "Critique with evidence: ReLA is trained on the gRefCOCO train split, so its 62.91 cIoU is a supervised ceiling, not a zero-shot result; the paper sometimes compares it to classic RES methods retrained on gRefCOCO, which is a fair same-protocol comparison but not a training-free one. The N-acc of 56.29 shows that even the supervised model is far from solving no-target detection, yet the main results emphasize cIoU/gIoU; our training-free N-acc of 85.66 (with T 88.71) is higher, a contrast the paper's framing does not highlight. The paper does not isolate how much of the gain comes from the new data versus the ReLA architecture.",
+   "gap": "Gap addressed by this work: generalized references and a benchmark. Gap left for us: it does not provide a training-free baseline on gRefCOCO, and its aggregate cIoU does not separate wrong-instance selection from missing multi-target unions; our diagnosis fills that gap but cannot match its supervised level.",
+   "critique_evidence": "exp/out_final/deep_read_critique_evidence.json"
+  },
+  "blindposition2025": {
+   "key": "blindposition2025",
+   "title": "Blind to Position, Biased in Language: Probing Mid-Layer Representational Bias in Vision-Language Encoders for Zero-Shot Language-Grounded Spatial Understanding",
+   "identifier": "arXiv:2509.23098",
+   "category": "ris",
+   "method": "Layer-wise probing of vision-language encoders; a mid-layer spatial map (B2G) added to zero-shot RIS, optionally using mixed-language mid-layer embeddings for spatial queries.",
+   "claims": "Mid-layer spatial maps improve zero-shot RIS by 1-7 mIoU on nine RefCOCO benchmarks; mixed-language embeddings raise IoU@50 from 45.13 to 53.41 and mIoU from 42.42 to 49.62.",
+   "relation": "Directly supports our diagnosis that the final-layer semantic embedding is poorly localized: the paper finds final-layer vision embeddings weak on positional cues while mid-layers carry spatial structure. It is a candidate repair for spatial-term selection, the stratum our operator targets.",
+   "threat": "If a mid-layer spatial map alone lifts zero-shot RIS by up to 7 mIoU, part of our repair gain could be reproducible without the operator; if mixed-language embeddings add another 7-8 mIoU, the text-side contribution is larger than our parsed-vocabulary operator assumes.",
+   "key_quote": "we identify an underexplored pathway within VLE mid-layers to construct a spatial map, applicable for improving zero-shot RIS by 1-7 mIoU on nine RefCOCO benchmarks.",
+   "depth": "full-text",
+   "reported_numbers": {
+    "zero_shot_RIS_gain_mIoU_max": 7.0,
+    "multilingual_IoU50_before": 45.13,
+    "multilingual_IoU50_after": 53.41,
+    "multilingual_mIoU_before": 42.42,
+    "multilingual_mIoU_after": 49.62
+   },
+   "anchors": [
+    "Section 1 contributions",
+    "Section 3 mid-layer spatial map"
+   ],
+   "source_file": "exp/literature/papers/blindposition2025.txt",
+   "code": {
+    "available": false,
+    "inspected": false,
+    "repo": "",
+    "findings": "",
+    "ran": false
+   },
+   "appreciation": "Best idea and measured contribution: instead of accepting the final CLIP embedding as the alignment space, the paper probes layer by layer and shows that positional information survives in mid-layers while being washed out at the final layer. Constructing a spatial map from a mid-layer gives a consistent 1-7 mIoU gain on nine RefCOCO benchmarks, and mixed-language mid-layer embeddings move IoU@50 from 45.13 to 53.41 and mIoU from 42.42 to 49.62. The diagnostic is simple, training-free, and directly actionable: it explains why category-similar distractors are hard for a final-layer scorer.",
+   "critique": "Critique with evidence: the paper reports gains on a B2G-style proposal selector but gives no per-benchmark table of the plain mid-layer map versus the multilingual variant in the main text, and the multilingual route increases inference cost (stated in the abstract) without a cost-controlled comparison. The probe is on CLIP ViT-B/16 and the nine RefCOCO-series benchmarks, all English and all object-level; it does not test the multi-target/no-target gRefCOCO setting, and it reports no instance-selection taxonomy, so it cannot distinguish a better-ranked candidate set from a better-selected mask. Its 7 mIoU upper gain is smaller than our oracle gap and does not by itself establish that selection, not scoring, is the binding constraint.",
+   "gap": "Gap addressed by this work: positional blindness of final-layer VLE features. Gap left for us: whether a mid-layer spatial map re-ranks the instance-correct proposal or merely improves mask boundary quality is untested; our taxonomy says the latter class is small, so the mechanism should be checked on wrong-instance failures before adoption.",
+   "critique_evidence": "exp/out_final/deep_read_critique_evidence.json"
+  },
+  "sciclip2026": {
+   "key": "sciclip2026",
+   "title": "SCI-CLIP: Segment-Centric Inference with Reference Memory for Training-Free Open-Vocabulary Segmentation",
+   "identifier": "arXiv:2608.05627",
+   "category": "adjacent",
+   "method": "Training-free segment-centric inference: region-consistent interaction graph over frozen CLIP tokens, cross-window context recovery, and reference-memory retrieval for dense open-vocabulary segmentation.",
+   "claims": "SCI-CLIP reaches 52.9 average mIoU across eight OVSS benchmarks, improving over the dense baseline by 7.6 points; it reports 75.9 VOC21, 49.6 PC59, 44.7 Cityscapes and 29.8 ADE20K.",
+   "relation": "A training-free refinement of frozen CLIP features by region abstraction; it shares our premise that the feature map is usable without training, but it never forms an instance pool or performs selection.",
+   "threat": "If region-consistent inference lifts CLIP OVSS by 7.6 mIoU training-free, a similar region abstraction applied to our proposals could reduce the selection gap; our selector operates on scores over fixed masks and does not exploit inter-proposal structure.",
+   "key_quote": "SCI-CLIP first induces a region-consistent interaction graph over frozen visual tokens, then reconstructs dense features by propagating values over this graph.",
+   "depth": "full-text",
+   "reported_numbers": {
+    "avg_mIoU": 52.9,
+    "dense_baseline_mIoU": 45.3,
+    "gain_mIoU": 7.6,
+    "voc21_mIoU": 75.9,
+    "cityscapes_mIoU": 44.7
+   },
+   "anchors": [
+    "Table 1",
+    "Table 3 stagewise ablation"
+   ],
+   "source_file": "exp/literature/papers/sciclip2026.txt",
+   "code": {
+    "available": false,
+    "inspected": false,
+    "repo": "",
+    "findings": "",
+    "ran": false
+   },
+   "appreciation": "Best idea and measured contribution: SCI-CLIP argues that dense prediction needs a consistent region abstraction across interaction, propagation and retrieval, and implements it entirely on frozen features. The stagewise ablation is well instrumented: scope reconstruction lifts average mIoU from 45.8 to 49.5, cross-window aggregation to 49.8, and reference-memory fusion to 52.9, a 7.6-point gain over the dense baseline. The method is training-free and plug-in-like, and its 75.9 VOC21 / 49.6 PC59 numbers are strong for this class.",
+   "critique": "Critique with evidence: the benchmarks are open-vocabulary semantic segmentation (VOC, Context, Object, City, ADE), not referring segmentation; the reference memory stores class exemplars, not expression-conditioned instances, so it cannot select among same-class objects. The ablation shows the largest gain comes from scope reconstruction (45.8 to 49.5), with retrieval adding the rest; the paper's claim that all stages share one abstraction is plausible but not ablated against a retrieval-only baseline in the main text. It reports no cost, and the cross-window and memory components imply multiple forward passes or a cache, which matters for deployment.",
+   "gap": "Gap addressed by this work: spatial coherence of frozen CLIP features. Gap left for us: no proposal-level selection and no referring expressions; its region graph could be used to smooth per-proposal features, but it does not answer which candidate is the referent.",
+   "critique_evidence": "exp/out_final/deep_read_critique_evidence.json"
+  },
+  "shu2023tas": {
+   "key": "shu2023tas",
+   "title": "Text Augmented Spatial-aware Zero-shot Referring Image Segmentation",
+   "identifier": "arXiv:2310.18049",
+   "category": "ris",
+   "method": "Text-Augmented Spatial-aware zero-shot RIS: LLM-generated text augmentation plus spatial-aware CLIP scoring over instance proposals; training-free.",
+   "claims": "TAS (ResNet-50) reaches 39.91 RefCOCO val mIoU / 43.99 RefCOCO+ val, improving over global-local CLIP baselines.",
+   "relation": "Same-class zero-shot baseline; its CLIP-scoring-over-proposals recipe is the closest ancestor of our training-free selector.",
+   "threat": "A same-class method whose proposal source and text augmentation could be combined with our box prior; we do not test that combination.",
+   "key_quote": "Yet, CLIP only considers the global-level alignment of image-text pairs, neglecting fine-grained matching between the referring sentence and local image regions.",
+   "depth": "full-text",
+   "reported_numbers": {
+    "refcoco_val_mIoU": 39.91,
+    "refcocoplus_val_mIoU": 43.99,
+    "gref_val_mIoU": 47.68,
+    "refcoco_val_oIoU": 29.75
+   },
+   "anchors": [
+    "Sec. 3 TAS framework",
+    "Table 1 mIoU/oIoU"
+   ],
+   "source_file": "exp/literature/papers/tas.txt",
+   "code": {
+    "available": true,
+    "inspected": true,
+    "repo": "https://github.com/suoych/TAS",
+    "findings": "Inspected tas_main.py and the README: tas_main.py line 462 opens ./overall_caption_path/overall_caption_{dataset}_{split}_{splitby}.json, a per-sentence caption file the repository neither ships nor generates; README step 3 instructs the user to prepare captions with BLIP-2. Inference cannot start without it, so the method is documented as blocked rather than sampled.",
+    "ran": false,
+    "blocker": "TAS inference cannot start: tas_main.py line 462 requires a per-sentence caption JSON under overall_caption_path, which the repo neither ships nor generates; README step 3 tells the user to prepare captions with BLIP-2 first.",
+    "blocker_evidence": "exp/out_final/code_blockers.json"
+   },
+   "appreciation": "Appreciated contribution: TAS (ResNet-50) reaches 39.91 RefCOCO val mIoU / 43.99 RefCOCO+ val, improving over global-local CLIP baselines.",
+   "critique": "Critique: A same-class method whose proposal source and text augmentation could be combined with our box prior; we do not test that combination.",
+   "gap": "Gap addressed by this work: Same-class zero-shot baseline; its CLIP-scoring-over-proposals recipe is the closest ancestor of our training-free selector.",
+   "critique_evidence": "exp/out_final/deep_read_critique_evidence.json"
+  },
+  "ni2023refdiff": {
+   "key": "ni2023refdiff",
+   "title": "Ref-Diff: Zero-shot Referring Image Segmentation with Generative Models",
+   "identifier": "arXiv:2308.16777",
+   "category": "ris",
+   "method": "Ref-Diff combines Stable Diffusion generative features with CLIP discriminative features to score/segment proposals without paired training data.",
+   "claims": "Ref-Diff oIoU 35.16 RefCOCO val / 35.56 RefCOCO+ val / 38.62 G-Ref val, outperforming prior zero-shot methods.",
+   "relation": "Same-class zero-shot baseline; its generative prior is a different external source than our frozen VLM box prior.",
+   "threat": "Its zero-shot numbers are on a different metric mix (oIoU/mIoU over proposals); comparisons must stay within metric and class.",
+   "key_quote": "We demonstrate that without a proposal generator, a generative model alone can achieve comparable performance to existing SOTA weakly-supervised models.",
+   "depth": "full-text",
+   "reported_numbers": {
+    "refcoco_val_oIoU": 35.16,
+    "refcocoplus_val_oIoU": 35.56,
+    "gref_val_oIoU": 38.62
+   },
+   "anchors": [
+    "Table 1 oIoU",
+    "Table 2 mIoU",
+    "Sec. 3 Ref-Diff"
+   ],
+   "source_file": "exp/literature/papers/refdiff.txt",
+   "code": {
+    "available": true,
+    "inspected": true,
+    "repo": "https://github.com/kodenii/Ref-Diff",
+    "findings": "Inspected test.py: it builds the segmenter and loads a checkpoint only when args.resume is set, from output_dir/best_model.pth; no such checkpoint is released. The pretrain directory contains only vitb16_stego_head.ckpt (2.9MB), a stego head, not the segmenter. Blocked with no released weights.",
+    "ran": false,
+    "blocker": "Ref-Diff inference cannot start: test.py loads output_dir/best_model.pth only when --resume is set, and no segmenter checkpoint is released; pretrain contains only vitb16_stego_head.ckpt (2.9MB).",
+    "blocker_evidence": "exp/out_final/code_blockers.json"
+   },
+   "appreciation": "Appreciated contribution: Ref-Diff oIoU 35.16 RefCOCO val / 35.56 RefCOCO+ val / 38.62 G-Ref val, outperforming prior zero-shot methods.",
+   "critique": "Critique: Its zero-shot numbers are on a different metric mix (oIoU/mIoU over proposals); comparisons must stay within metric and class.",
+   "gap": "Gap addressed by this work: Same-class zero-shot baseline; its generative prior is a different external source than our frozen VLM box prior.",
+   "critique_evidence": "exp/out_final/deep_read_critique_evidence.json"
+  }
+ },
+ "grejcoco_metric_check": {
+  "method": "imported the official ReLA ReferEvaluator (gres_model/evaluation/refer_evaluation.py) with a minimal detectron2 stub and ran a five-case battery (targeted exact/wrong/abstain-FP, no-target TP/FN); compared its accumulated cIoU/gIoU/N_acc/T_acc with our metric convention",
+  "repo": "https://github.com/henghuiding/ReLA + https://github.com/henghuiding/gRefCOCO",
+  "finding": "official evaluation is per sentence (not per ref): a no-target true positive contributes I=U=0 and gIoU 1; a targeted false positive keeps the discarded mask's union in the cIoU denominator with I=0; N_acc=TP/(TP+FN) and T_acc=TN/(TN+FP) (reported as fractions). Our metric matches these definitions, with one deliberate difference: an empty-prediction abstention adds only the GT area to U instead of a discarded mask's union, which makes our abstention rows slightly cheaper in cIoU than the official FP convention. GreferDataset groups several sentences per ref with one merged GT, so per-sentence evaluation and per-sentence text alignment are required --- the exp172/exp173 corrections."
+ },
+ "verdict": "35+ full-text papers read; the selection diagnosis is corroborated by Venice-H1, S+S, Prompt Sensitivity and PinPoint, while MaskCLIP's own-pool result bounds it to pipelines whose pool contains the referent. Trained mask-group and graph-merge lines are adjacent, not same-class zero-shot baselines."
+}

@@ -1,0 +1,77 @@
+{
+  "idea": "GEM self-self attention coherence as a training-free selection signal",
+  "source": "Bousselham et al., Grounding Everything, arXiv:2312.00878",
+  "entry": "exp/exp189_gem_selector.py",
+  "protocol": "full official val; stored single scoring pass per dataset; the pool and candidate set are fixed, only the selection rule changes; argmax over the stored per-proposal GEM coherence ('score_gem') vs the released semantic score ('sc') and the released final pick ('final'); oIoU is pooled from the same records",
+  "datasets": {
+    "refcoco": {
+      "released_final": {
+        "n": 10834,
+        "mIoU": 44.82477756342483,
+        "oIoU": 38.15997559983311,
+        "oracle_mIoU": 82.21128030361983,
+        "wrong_instance_share": 0.9396151955408464
+      },
+      "argmax_semantic": {
+        "n": 10834,
+        "mIoU": 35.18132335749516,
+        "oIoU": 27.6768971759621,
+        "oracle_mIoU": 82.21128030361983,
+        "wrong_instance_share": 0.9480751753842573
+      },
+      "argmax_gem": {
+        "n": 10834,
+        "mIoU": 44.814317808117124,
+        "oIoU": 38.96649174571937,
+        "oracle_mIoU": 82.21128030361983,
+        "wrong_instance_share": 0.9458238667300538
+      }
+    },
+    "refcocoplus": {
+      "released_final": {
+        "n": 10758,
+        "mIoU": 40.22886622034719,
+        "oIoU": 33.58751363892564,
+        "oracle_mIoU": 82.39741889054987,
+        "wrong_instance_share": 0.9414728630128008
+      },
+      "argmax_semantic": {
+        "n": 10758,
+        "mIoU": 38.78641195843462,
+        "oIoU": 31.01319953072239,
+        "oracle_mIoU": 82.39741889054987,
+        "wrong_instance_share": 0.9432122102519427
+      },
+      "argmax_gem": {
+        "n": 10758,
+        "mIoU": 32.80947266719961,
+        "oIoU": 28.539647197221136,
+        "oracle_mIoU": 82.39741889054987,
+        "wrong_instance_share": 0.9532117938252012
+      }
+    },
+    "refcocog": {
+      "released_final": {
+        "n": 4896,
+        "mIoU": 50.081640290304165,
+        "oIoU": 41.4452630151242,
+        "oracle_mIoU": 79.12057892897425,
+        "wrong_instance_share": 0.9182035094744725
+      },
+      "argmax_semantic": {
+        "n": 4896,
+        "mIoU": 46.477015272739806,
+        "oIoU": 36.80043370970537,
+        "oracle_mIoU": 79.12057892897425,
+        "wrong_instance_share": 0.9230630835493049
+      },
+      "argmax_gem": {
+        "n": 4896,
+        "mIoU": 42.1966954474007,
+        "oIoU": 35.61482308958393,
+        "oracle_mIoU": 79.12057892897425,
+        "wrong_instance_share": 0.9331324550542945
+      }
+    }
+  }
+}

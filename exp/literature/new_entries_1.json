@@ -1,0 +1,384 @@
+[
+ {
+  "key": "earlygrounding2026",
+  "title": "Early Semantic Grounding in Image Editing Models for Zero-Shot Referring Image Segmentation",
+  "identifier": "arXiv:2605.13122",
+  "category": "ris",
+  "method": "Training-free repurposing of instruction-based image editing DiTs: coarse attention maps supply a spatial prior and early-denoising-step features supply semantic discrimination, with a single denoising step.",
+  "claims": "Step1X-Edit (12B) reaches 57.56/48.50/54.52 mIoU on RefCOCO/RefCOCO+/RefCOCOg val (53.94/44.38/51.23 oIoU); the 9B FLUX.2-klein variant reaches 54.02/44.15/50.62 mIoU.",
+  "relation": "A 2026 zero-shot RIS family that uses a generative backbone rather than a SAM proposal pool; its Table 1 independently tabulates the Global-Local, MaskCLIP, Ref-Diff, TAS and HybridGL baselines we study, giving an external cross-harness check on our reproductions.",
+  "threat": "If attention-space grounding from a 12B editing DiT is a stronger zero-shot selector than our repair, the selection-diagnosis framing would be incomplete; its reported HybridGL row (49.48 mIoU on RefCOCO val) is also 4.7 points above our faithful released-code reproduction (44.82), which would challenge our baseline level if the two were protocol-comparable.",
+  "key_quote": "By leveraging feature-space separability, the framework produces accurate segmentation masks using only a single denoising step, without requiring full image synthesis.",
+  "depth": "full-text",
+  "reported_numbers": {
+   "refcoco_val_mIoU": 57.56,
+   "refcocoplus_val_mIoU": 48.50,
+   "refcocog_val_mIoU": 54.52,
+   "refcoco_val_oIoU": 53.94
+  },
+  "anchors": ["Table 1", "Section 4.3 Comparison with State-of-the-arts"],
+  "source_file": "exp/literature/papers/earlygrounding2026.txt",
+  "code": {
+   "available": false,
+   "inspected": false,
+   "repo": "",
+   "findings": "",
+   "ran": false
+  },
+  "appreciation": "Best idea and measured contribution: the paper shows that an image-editing DiT already contains a foreground/background spatial prior at the earliest denoising timestep, and separates where to look (attention maps) from what to segment (feature-space separability). The measured contribution is large and honest about its backbone: Step1X-Edit at 12B reaches 57.56/48.50/54.52 mIoU on RefCOCO/+/g val, beating the strongest zero-shot baseline it lists (RefAM, 57.24/43.59/47.11) on all three val columns and by 7.4 mIoU on RefCOCOg. Its Table 1 is also the most useful public cross-check we found: it reports Global-Local ViT-B at 33.12/35.29/40.08 mIoU, close to our own 32.95/36.31/41.62 on the shared SAM pool, so an independent group lands in the same range for that released selector.",
+  "critique": "Critique with evidence: the result is a 9-12B generative backbone evaluated on a 224/512-scale segmentation protocol, and the paper reports no inference cost, no pool/feature protocol for the baselines it tabulates, and no selection-level diagnostic. Its HybridGL row (49.48/43.40/51.25 mIoU, Table 1) is 4.7/3.2/1.2 above our released-code reproduction (44.82/40.23/50.08), while its MaskCLIP row (25.62/27.49/30.13) is 17/17/16 above our dense-map component adaptation (8.21/10.55/14.30). Those gaps are not explained in the paper and show that its table mixes harnesses; the MaskCLIP gap in particular says our component-pool construction is not MaskCLIP's strongest released route. We therefore treat its numbers as a labelled reference, not a same-protocol floor.",
+  "gap": "Gap addressed by this work: zero-shot RIS without a SAM proposal pool, using generative attention as the spatial prior. Gap left for us: no analysis of whether the failure mass is selection or pool, and no cost-controlled comparison; the 12B backbone makes it a distinct deployment class from our training-free selector. The MaskCLIP discrepancy is a direct invitation to re-run MaskCLIP with SAM proposals rather than dense-map components.",
+  "critique_evidence": "exp/out_final/deep_read_critique_evidence.json"
+ },
+ {
+  "key": "blindposition2025",
+  "title": "Blind to Position, Biased in Language: Probing Mid-Layer Representational Bias in Vision-Language Encoders for Zero-Shot Language-Grounded Spatial Understanding",
+  "identifier": "arXiv:2509.23098",
+  "category": "ris",
+  "method": "Layer-wise probing of vision-language encoders; a mid-layer spatial map (B2G) added to zero-shot RIS, optionally using mixed-language mid-layer embeddings for spatial queries.",
+  "claims": "Mid-layer spatial maps improve zero-shot RIS by 1-7 mIoU on nine RefCOCO benchmarks; mixed-language embeddings raise IoU@50 from 45.13 to 53.41 and mIoU from 42.42 to 49.62.",
+  "relation": "Directly supports our diagnosis that the final-layer semantic embedding is poorly localized: the paper finds final-layer vision embeddings weak on positional cues while mid-layers carry spatial structure. It is a candidate repair for spatial-term selection, the stratum our operator targets.",
+  "threat": "If a mid-layer spatial map alone lifts zero-shot RIS by up to 7 mIoU, part of our repair gain could be reproducible without the operator; if mixed-language embeddings add another 7-8 mIoU, the text-side contribution is larger than our parsed-vocabulary operator assumes.",
+  "key_quote": "we identify an underexplored pathway within VLE mid-layers to construct a spatial map, applicable for improving zero-shot RIS by 1-7 mIoU on nine RefCOCO benchmarks.",
+  "depth": "full-text",
+  "reported_numbers": {
+   "zero_shot_RIS_gain_mIoU_max": 7.0,
+   "multilingual_IoU50_before": 45.13,
+   "multilingual_IoU50_after": 53.41,
+   "multilingual_mIoU_before": 42.42,
+   "multilingual_mIoU_after": 49.62
+  },
+  "anchors": ["Section 1 contributions", "Section 3 mid-layer spatial map"],
+  "source_file": "exp/literature/papers/blindposition2025.txt",
+  "code": {
+   "available": false,
+   "inspected": false,
+   "repo": "",
+   "findings": "",
+   "ran": false
+  },
+  "appreciation": "Best idea and measured contribution: instead of accepting the final CLIP embedding as the alignment space, the paper probes layer by layer and shows that positional information survives in mid-layers while being washed out at the final layer. Constructing a spatial map from a mid-layer gives a consistent 1-7 mIoU gain on nine RefCOCO benchmarks, and mixed-language mid-layer embeddings move IoU@50 from 45.13 to 53.41 and mIoU from 42.42 to 49.62. The diagnostic is simple, training-free, and directly actionable: it explains why category-similar distractors are hard for a final-layer scorer.",
+  "critique": "Critique with evidence: the paper reports gains on a B2G-style proposal selector but gives no per-benchmark table of the plain mid-layer map versus the multilingual variant in the main text, and the multilingual route increases inference cost (stated in the abstract) without a cost-controlled comparison. The probe is on CLIP ViT-B/16 and the nine RefCOCO-series benchmarks, all English and all object-level; it does not test the multi-target/no-target gRefCOCO setting, and it reports no instance-selection taxonomy, so it cannot distinguish a better-ranked candidate set from a better-selected mask. Its 7 mIoU upper gain is smaller than our oracle gap and does not by itself establish that selection, not scoring, is the binding constraint.",
+  "gap": "Gap addressed by this work: positional blindness of final-layer VLE features. Gap left for us: whether a mid-layer spatial map re-ranks the instance-correct proposal or merely improves mask boundary quality is untested; our taxonomy says the latter class is small, so the mechanism should be checked on wrong-instance failures before adoption.",
+  "critique_evidence": "exp/out_final/deep_read_critique_evidence.json"
+ },
+ {
+  "key": "maskris2024",
+  "title": "MaskRIS: Semantic Distortion-aware Data Augmentation for Referring Image Segmentation",
+  "identifier": "arXiv:2411.19067",
+  "category": "ris",
+  "method": "Supervised RIS training framework with image and text masking plus Distortion-aware Contextual Learning (DCL).",
+  "claims": "MaskRIS with Swin-B/BERT reaches 78.35/71.68/69.31 mIoU on RefCOCO/RefCOCO+/RefCOCOg val, improving over CGFormer (76.93/68.56/67.57) and LAVT (74.46/65.81/63.34).",
+  "relation": "Supervised reference row and evidence that masking augmentations help RIS robustness; it is not a training-free method and cannot be a same-class floor, but its distortion-aware idea is a useful contrast to our test-time repairs.",
+  "threat": "A 78.35 mIoU supervised row could be misread as a target for our method; the paper's own oIoU 76.49 also shows the gap between training-time augmentation and zero-shot selection is large and not closable by our operator.",
+  "key_quote": "MaskRIS uses both image and text masking, followed by Distortion-aware Contextual Learning (DCL) to fully exploit the benefits of the masking strategy.",
+  "depth": "full-text",
+  "reported_numbers": {
+   "refcoco_val_mIoU": 78.35,
+   "refcocoplus_val_mIoU": 71.68,
+   "refcocog_val_mIoU": 69.31,
+   "refcoco_val_oIoU": 76.49
+  },
+  "anchors": ["Table 1", "Section 4.2 Main Results"],
+  "source_file": "exp/literature/papers/maskris2024.txt",
+  "code": {
+   "available": true,
+   "inspected": false,
+   "repo": "https://github.com/naver-ai/maskris",
+   "findings": "",
+   "ran": false
+  },
+  "appreciation": "Best idea and measured contribution: the paper debunks the default recipe of borrowing generic image augmentations for RIS and shows that simple random image/text masking is the augmentation that helps, provided the model learns under distortion with DCL. The measured contribution is a clean +1.4/+3.1/+1.7 mIoU over CGFormer on RefCOCO/+/g val (78.35/71.68/69.31), with the same Swin-B/BERT backbone, and it transfers across several RIS models. It is a well-controlled supervised result and a useful reminder that occlusion-style robustness, not color jitter, is what the task rewards.",
+  "critique": "Critique with evidence: this is fully supervised training on each dataset's train split (Table 1, Standard setting), so its 78.35 mIoU is not comparable to zero-shot rows and cannot be a floor; the paper itself separates combined-dataset training. Its improvements come from training-time augmentation, so they say nothing about repairing a frozen released pipeline. The abstract claims state-of-the-art on all three datasets, but the combined-setting table shows MaskRIS at 78.71/70.26/69.12 oIoU against PolyFormer 74.82/67.64/69.05 and CARIS 76.67/68.23/67.42, a smaller margin than the per-dataset setting; the strongest claim depends on the protocol chosen.",
+  "gap": "Gap addressed by this work: training-time robustness to occlusion and linguistic distortion. Gap left for us: it does not test whether the same masking prior improves a frozen selector at test time; our method cannot retrain, so the actionable part is only the observation that occlusion is a dominant distortion, which we do not repair.",
+  "critique_evidence": "exp/out_final/deep_read_critique_evidence.json"
+ },
+ {
+  "key": "pseudoris2024",
+  "title": "Pseudo-RIS: Distinctive Pseudo-supervision Generation for Referring Image Segmentation",
+  "identifier": "arXiv:2407.07412",
+  "category": "ris",
+  "method": "Generate pseudo masks and distinctive referring expressions from SAM, a captioning model, and CLIP, then train any supervised RIS model on the pseudo labels.",
+  "claims": "Pseudo-RIS + ETRIS reaches 41.05/44.33/45.99 mIoU on RefCOCO/RefCOCO+/RefCOCOg val in the zero-shot evaluation, above Ref-Diff (37.21/37.29/44.02) and Global-Local (31.83/34.97/40.66).",
+  "relation": "A pseudo-supervised route to zero-shot RIS; it shows how far a trained model can go without human labels and gives a reference point for the pool-plus-selection architecture we use. It is not training-free at inference in the sense of our frozen selector.",
+  "threat": "If a trained-on-pseudo-labels model at 41-46 mIoU is considered same-class zero-shot, our training-free claims of SOTA need to distinguish pseudo-supervised training from training-free; the paper's Ref-Diff and Global-Local rows also give external numbers for methods we reproduce.",
+  "key_quote": "Our method significantly outperforms both weakly and zero-shot SoTA methods on the RIS benchmark datasets.",
+  "depth": "full-text",
+  "reported_numbers": {
+   "refcoco_val_mIoU": 41.05,
+   "refcocoplus_val_mIoU": 44.33,
+   "refcocog_val_mIoU": 45.99,
+   "refcoco_val_oIoU": 37.33
+  },
+  "anchors": ["Table 1", "Table 2"],
+  "source_file": "exp/literature/papers/pseudoris2024.txt",
+  "code": {
+   "available": false,
+   "inspected": false,
+   "repo": "",
+   "findings": "",
+   "ran": false
+  },
+  "appreciation": "Best idea and measured contribution: the paper identifies the real failure of naive pseudo-labeling for RIS, namely that generated expressions are not distinctive, and fixes it with distinctive caption sampling plus a distinctiveness filter before training. The measured contribution is a solid pseudo-supervised result, 41.05/44.33/45.99 mIoU with ETRIS on RefCOCO/+/g val, beating the zero-shot Ref-Diff rows (37.21/37.29/44.02) and Global-Local rows (31.83/34.97/40.66) in the same table. The idea that text distinctiveness, not mask quality alone, determines RIS supervision quality is directly relevant to our spatial-operator motivation.",
+  "critique": "Critique with evidence: the headline comparison is not training-free, because the pseudo labels train CRIS/ETRIS and the table is a zero-shot evaluation of a trained model; the paper's own Table 1 is labelled zero-shot but the method has human-free training and multiple foundation models (SAM, CoCa, CLIP). Its gains over Ref-Diff are 3.8/5.3/2.0 mIoU, but the comparison crosses supervision classes and the paper does not report a compute or annotation-free control. The distinctiveness filter is evaluated only by downstream mIoU; there is no direct precision/recall of the pseudo-expression filtering, so the mechanism is not separated from the base captioner.",
+  "gap": "Gap addressed by this work: annotation-free supervision for RIS. Gap left for us: the generated expressions are still short object descriptions; the paper does not test multi-target or no-target (gRefCOCO), and it does not ask whether the pseudo-supervision improves selection of the correct instance or merely mask fitting. Our diagnosis suggests the former is the bottleneck.",
+  "critique_evidence": "exp/out_final/deep_read_critique_evidence.json"
+ },
+ {
+  "key": "haris2024",
+  "title": "HARIS: Human-Like Attention for Reference Image Segmentation",
+  "identifier": "arXiv:2405.10707",
+  "category": "ris",
+  "method": "Supervised RIS with a Human-Like Attention block that feeds multi-modal feedback back into the attention, plus parameter-efficient fine-tuning of pretrained encoders.",
+  "claims": "HARIS reaches 76.17/66.01/65.05 mIoU on RefCOCO/RefCOCO+/G-Ref val with 25.4M trained parameters; zero-shot PhraseCut IoU is 21.62 after RefCOCO training versus 16.68 for LAVT.",
+  "relation": "A supervised method whose feedback attention is a candidate explanation for why simple bottom-up fusion admits irrelevant image-text pairs; its PEFT zero-shot transfer is a reference for cross-dataset generalization.",
+  "threat": "Its zero-shot PhraseCut number (21.62) is far below our 70+ RefCOCO-family levels, but it is a different benchmark; if its PEFT recipe were applied to our backbone, the training-free boundary would blur.",
+  "key_quote": "the Human-Like Attention gets a feedback signal from multi-modal features, which makes the network center on the specific objects and discard the irrelevant image-text pairs.",
+  "depth": "full-text",
+  "reported_numbers": {
+   "refcoco_val_mIoU": 76.17,
+   "refcocoplus_val_mIoU": 66.01,
+   "gref_val_mIoU": 65.05,
+   "phrasecut_zero_shot_IoU": 21.62
+  },
+  "anchors": ["Table I", "Table IV"],
+  "source_file": "exp/literature/papers/haris2024.txt",
+  "code": {
+   "available": false,
+   "inspected": false,
+   "repo": "",
+   "findings": "",
+   "ran": false
+  },
+  "appreciation": "Best idea and measured contribution: the Human-Like Attention block injects a feedback signal from the fused multimodal features back into the image-text attention, explicitly pruning irrelevant pairs instead of only adding cross-modal context. The measured contribution is competitive supervised accuracy, 76.17/66.01/65.05 mIoU on RefCOCO/+/G-Ref val, with only about 25.4M trainable parameters thanks to PEFT. Its zero-shot PhraseCut test is a useful check that PEFT preserves transfer better than full fine-tuning (21.62 vs LAVT 16.68), even though absolute transfer is low.",
+  "critique": "Critique with evidence: the method is trained on RIS labels (Table I) and its zero-shot claim is cross-dataset transfer after supervised training, not label-free inference; the PhraseCut absolute IoU of 21.62 is low despite the reported improvement. The feedback attention is evaluated only through final mask IoU; there is no measurement of whether it suppresses the wrong instance or merely sharpens boundaries, and the paper does not report gRefCOCO multi-target/no-target behavior. The comparison to LAVT uses a different parameter budget, so the gain cannot be attributed to feedback alone.",
+  "gap": "Gap addressed by this work: irrelevant image-text pairs in bottom-up fusion. Gap left for us: the feedback is learned and cannot be applied to a frozen released scorer; the paper does not show how to decide, at test time, which pairs to discard, which is exactly the selection problem we study.",
+  "critique_evidence": "exp/out_final/deep_read_critique_evidence.json"
+ },
+ {
+  "key": "targetcoherence2023",
+  "title": "Towards Generalizable Referring Image Segmentation via Target Prompt and Visual Coherence",
+  "identifier": "arXiv:2312.00452",
+  "category": "ris",
+  "method": "Supervised RIS with an explicit target prompt appended to the expression and a multi-modal fusion aggregation module guided by visual coherence from a pretrained model.",
+  "claims": "Under zero-shot cross-dataset evaluation the method improves over LAVT by 4.15, 5.45 and 4.64 mIoU on RefCOCO, RefCOCO+ and ReferIt respectively; it also reports gains on GraspNet-RIS.",
+  "relation": "Its target prompt is the training-based analogue of our training-free spatial/vocabulary parsing; its visual-coherence term is the same idea as our GEM coherence score. It supports the claim that text specificity and coherence are complementary.",
+  "threat": "If a learned target prompt plus coherence yields 4-5 mIoU cross-dataset gains, our operator's own gain (reported on parsed spatial expressions) could be seen as a weaker version of the same effect; the paper's abstract reports no absolute zero-shot numbers in the main text, making comparisons difficult.",
+  "key_quote": "we propose to boost a given expression with an explicit and crucial prompt, which complements the expression in a unified context, facilitating target capturing in the presence of linguistic style changes.",
+  "depth": "full-text",
+  "reported_numbers": {
+   "refcoco_zero_shot_gain_mIoU": 4.15,
+   "refcocoplus_zero_shot_gain_mIoU": 5.45,
+   "referit_zero_shot_gain_mIoU": 4.64
+  },
+  "anchors": ["Section I contributions", "Section IV.D Ablation Study"],
+  "source_file": "exp/literature/papers/targetcoherence2023.txt",
+  "code": {
+   "available": false,
+   "inspected": false,
+   "repo": "",
+   "findings": "",
+   "ran": false
+  },
+  "appreciation": "Best idea and measured contribution: two cheap inductive biases, an explicit target prompt that makes the expression self-contained and a visual-coherence aggregation that suppresses irregular false-positive clumps, produce consistent cross-dataset gains of 4.15/5.45/4.64 mIoU over LAVT on RefCOCO/RefCOCO+/ReferIt under the zero-shot protocol. This is one of the cleaner demonstrations that small text-side and coherence-side changes can move generalization without a new backbone, which aligns with our training-free operator and GEM-coherence probe.",
+  "critique": "Critique with evidence: the headline numbers are relative gains, not absolute zero-shot rows; the main tables list the trained model, and the zero-shot section reports the baseline LAVT values (for example 72.73 oIoU and 74.46 mIoU on RefCOCO val) alongside the gains, so a reader cannot recover the proposed method's absolute numbers from the abstract alone. The method is supervised, the target prompt is learned, and the visual-coherence module adds a pretrained model; there is no control isolating the prompt from the coherence term in the zero-shot setting. The claim of state-of-the-art generalization is therefore relative to a single backbone family.",
+  "gap": "Gap addressed by this work: expression ambiguity and incomplete masks under visual domain shift. Gap left for us: the paper does not test whether a training-free target prompt (our parsed spatial vocabulary) captures the same gain, nor whether coherence alone is sufficient; our GEM-only probe answers the second question and finds it is not.",
+  "critique_evidence": "exp/out_final/deep_read_critique_evidence.json"
+ },
+ {
+  "key": "unifiedres2025",
+  "title": "Towards Unified Referring Expression Segmentation Across Omni-Level Visual Target Granularities",
+  "identifier": "arXiv:2504.01954",
+  "category": "ris",
+  "method": "UniRES++, a unified multimodal LLM trained on the new MRES-32M dataset for object-level, part-level and multi-granularity referring segmentation.",
+  "claims": "UniRES++ reaches 80.8/73.6/74.4 mIoU on RefCOCO/RefCOCO+/RefCOCOg val and 69.9 cIoU / 74.4 gIoU on gRefCOCO val; it also reports part-level gains on RefCOCOm.",
+  "relation": "A fully supervised upper-bound reference that spans part and object granularity, and a source for the gRefCOCO supervised comparison (ReLA 62.4 cIoU / 63.6 gIoU in its Table IV). It shows how far trained models are from our 47.59 cIoU, and why gRefCOCO floors must stay same-class.",
+  "threat": "Its 69.9 cIoU and 74.4 gIoU on gRefCOCO are well above our shipped cIoU, but it is trained on gRefCOCO and MRES-32M; treating it as a floor would violate the same-class rule. Its N-acc 74.5 also exposes that our training-free no-target handling is weaker.",
+  "key_quote": "we introduce a new multi-granularity referring expression segmentation (MRES) task, alongside the RefCOCOm benchmark, which includes part-level annotations for advancing finer-grained visual understanding.",
+  "depth": "full-text",
+  "reported_numbers": {
+   "refcoco_val_mIoU": 80.8,
+   "refcocoplus_val_mIoU": 73.6,
+   "refcocog_val_mIoU": 74.4,
+   "grefcoco_val_cIoU": 69.9,
+   "grefcoco_val_gIoU": 74.4
+  },
+  "anchors": ["Table IV", "Table V"],
+  "source_file": "exp/literature/papers/unifiedres2025.txt",
+  "code": {
+   "available": false,
+   "inspected": false,
+   "repo": "",
+   "findings": "",
+   "ran": false
+  },
+  "appreciation": "Best idea and measured contribution: the paper widens RES from object-only to object, part and multi-object references, releases RefCOCOm and the 32.2M-mask MRES-32M corpus, and trains one model across granularities. The measured contribution is strong on every axis, 80.8/73.6/74.4 mIoU on RefCOCO/+/g and 69.9 cIoU / 74.4 gIoU on gRefCOCO val with N-acc 74.5, and its Table IV is a clean, same-protocol supervised reference for ReLA (62.4/63.6) that we use as context rather than a floor. The data contribution is likely to matter beyond this paper.",
+  "critique": "Critique with evidence: the gRefCOCO row is trained on gRefCOCO (the table labels specialists as trained exclusively on gRefCOCO), so comparing it to training-free zero-shot methods is apples-to-oranges; the paper does not claim otherwise, but secondary tables sometimes quote it without the supervision label. The model is a large MLLM trained on a 32M-mask corpus, and the paper reports no inference cost, no failure taxonomy, and no analysis of multi-target selection quality beyond aggregate cIoU/gIoU. Part-level gains are relative to a new benchmark whose difficulty is hard to calibrate against RefCOCO numbers.",
+  "gap": "Gap addressed by this work: data scarcity and granularity unification. Gap left for us: it does not provide a training-free recipe, and its aggregate gIoU hides whether multi-target masks are unioned correctly; our cIoU/gIoU split and N/T accuracies serve that diagnostic, but we cannot match its supervised level.",
+  "critique_evidence": "exp/out_final/deep_read_critique_evidence.json"
+ },
+ {
+  "key": "resanything2025",
+  "title": "RESAnything: Attribute Prompting for Arbitrary Referring Segmentation",
+  "identifier": "arXiv:2505.02867",
+  "category": "ris",
+  "method": "Training-free, LLM-based RES: chain-of-thought attribute prompting of a large language model over SAM proposals, with a mask selector and a new part-level benchmark.",
+  "claims": "RESAnything reaches 68.5/60.7/60.1 cIoU on RefCOCO/RefCOCO+/RefCOCOg val among training-free zero-shot methods, and 74.6 gIoU / 72.5 cIoU on ReasonSeg val.",
+  "relation": "A strong zero-shot training-free baseline on the three RefCOCO-family datasets and the closest published training-free competitor in the cIoU metric; its attribute prompting is a text-side alternative to our parsed spatial operator.",
+  "threat": "Its 68.5 cIoU on RefCOCO val is close to our shipped 70.57 mIoU but on a different metric (cIoU vs mIoU), and its 72.5 ReasonSeg cIoU is far above our pipeline; the paper is a reminder that training-free does not mean small, since it uses a large LLM and SAM proposals.",
+  "key_quote": "we generate detailed descriptions of object/part attributes including shape, color, and location for potential segment proposals through systematic prompting of a large language model (LLM), where the proposals are produced by a foundational image segmentation model.",
+  "depth": "full-text",
+  "reported_numbers": {
+   "refcoco_val_cIoU": 68.5,
+   "refcocoplus_val_cIoU": 60.7,
+   "refcocog_val_cIoU": 60.1,
+   "reasonseg_val_cIoU": 72.5,
+   "reasonseg_val_gIoU": 74.6
+  },
+  "anchors": ["Table 1", "Table 2"],
+  "source_file": "exp/literature/papers/resanything2025.txt",
+  "code": {
+   "available": false,
+   "inspected": false,
+   "repo": "",
+   "findings": "",
+   "ran": false
+  },
+  "appreciation": "Best idea and measured contribution: attribute prompting is a clever way to make implicit, function/style/material references explicit without part annotations, and the paper evaluates it on both standard RES and a curated arbitrary/part-level benchmark. The measured contribution is strong for a training-free method: 68.5/60.7/60.1 cIoU on RefCOCO/+/g val, and 74.6 gIoU / 72.5 cIoU on ReasonSeg val, where it beats LISA-13B and SAM4MLLM. The separation of attribute extraction from mask selection is a clean design we can reuse conceptually.",
+  "critique": "Critique with evidence: the comparison table is explicitly cIoU, while much of the RIS literature including our paper's main rows reports mIoU; the paper does not provide an mIoU row for RESAnything, so its 68.5 cannot be inserted into an mIoU leaderboard. The method relies on a large LLM and a foundation segmenter, and the new part-level benchmark (~3K instances) is authored by the same group, so part-level superiority is not independently calibrated. The table's training-free methods are a small set (GLCLIP, CaR, RESAnything); stronger training-free baselines such as HybridGL or S+S are absent, so the SOTA claim is scoped.",
+  "gap": "Gap addressed by this work: implicit and part-level references without training. Gap left for us: it does not address multi-target/no-target gRefCOCO, does not report mIoU, and does not measure selection-level failures; its LLM cost is a different deployment class from our frozen CLIP selector.",
+  "critique_evidence": "exp/out_final/deep_read_critique_evidence.json"
+ },
+ {
+  "key": "grex2026",
+  "title": "GREx: Generalized Referring Expression Segmentation, Comprehension, and Generation",
+  "identifier": "arXiv:2601.05244",
+  "category": "ris",
+  "method": "Builds the gRefCOCO benchmark for multi-target, no-target and single-target expressions and proposes ReLA, a baseline that models region-region and region-language dependencies.",
+  "claims": "ReLA reaches 62.91 cIoU / 63.98 gIoU on gRefCOCO val (69.43/70.12 testA, 60.15/61.29 testB) and 73.82 cIoU / 75.61 mIoU on RefCOCO val; N-acc is 56.29 on gRefCOCO val.",
+  "relation": "The source paper for gRefCOCO and the supervised ReLA baseline; it defines the cIoU/gIoU/N-acc protocol our gRefCOCO rows use and explains why our 47.59 cIoU is far from supervised but our 73.78 gIoU is competitive.",
+  "threat": "ReLA's 62.91 cIoU and 63.98 gIoU are the strongest same-protocol supervised reference on gRefCOCO val; if a reader treats them as the floor, our 47.59 cIoU looks weak. The paper also shows that N-acc is a distinct axis where training helps.",
+  "key_quote": "We construct the first large-scale GREx dataset gRefCOCO that contains multi-target, no-target, and single-target expressions and their corresponding images with labeled targets.",
+  "depth": "full-text",
+  "reported_numbers": {
+   "grefcoco_val_cIoU": 62.91,
+   "grefcoco_val_gIoU": 63.98,
+   "grefcoco_val_N_acc": 56.29,
+   "refcoco_val_mIoU": 75.61
+  },
+  "anchors": ["Table 9", "Table 11", "Table 10"],
+  "source_file": "exp/literature/papers/grex2026.txt",
+  "code": {
+   "available": true,
+   "inspected": true,
+   "repo": "https://github.com/henghuiding/gRefCOCO (dataset and evaluation code)",
+   "findings": "Inspected the released gRefCOCO evaluation code used by our gRefCOCO rows: cIoU accumulates intersection/union over selected masks, a correct no-target prediction is assigned gIoU 1.0 and excluded from cIoU, an incorrect no-target prediction gets gIoU 0.0 and contributes to the cIoU union, and N-acc/T-acc are reported separately. This matches the protocol in our main_grefcoco.shipped configuration and the evaluator check run in exp/literature/runs/metric_check.py.",
+   "ran": true,
+   "run": {
+    "entry": "exp/literature/runs/metric_check.py (imports the official ReLA ReferEvaluator)",
+    "sample_n": 5,
+    "status": "ok",
+    "notes": "hand-built case battery covering targeted exact/wrong/abstain-FP and no-target TP/FN; confirms the official arithmetic and that a targeted FP keeps the discarded mask union in the cIoU denominator",
+    "metrics": {"cIoU": 16.6667, "gIoU": 40.0, "N_acc": 0.5, "T_acc": 0.6667}
+   }
+  },
+  "appreciation": "Best idea and measured contribution: the paper identifies the single-target assumption as the field's blind spot and builds gRefCOCO with multi-target, no-target and single-target expressions, plus a relationship-aware baseline ReLA. The measured contribution is a solid supervised baseline of 62.91 cIoU / 63.98 gIoU on gRefCOCO val with N-acc 56.29, and the dataset has become the standard for the generalized task. Its evaluation section is unusually explicit about how no-target predictions enter cIoU versus gIoU, which is exactly the metric detail our gRefCOCO row relies on.",
+  "critique": "Critique with evidence: ReLA is trained on the gRefCOCO train split, so its 62.91 cIoU is a supervised ceiling, not a zero-shot result; the paper sometimes compares it to classic RES methods retrained on gRefCOCO, which is a fair same-protocol comparison but not a training-free one. The N-acc of 56.29 shows that even the supervised model is far from solving no-target detection, yet the main results emphasize cIoU/gIoU; our training-free N-acc of 85.66 (with T 88.71) is higher, a contrast the paper's framing does not highlight. The paper does not isolate how much of the gain comes from the new data versus the ReLA architecture.",
+  "gap": "Gap addressed by this work: generalized references and a benchmark. Gap left for us: it does not provide a training-free baseline on gRefCOCO, and its aggregate cIoU does not separate wrong-instance selection from missing multi-target unions; our diagnosis fills that gap but cannot match its supervised level.",
+  "critique_evidence": "exp/out_final/deep_read_critique_evidence.json"
+ },
+ {
+  "key": "resagent2026",
+  "title": "ResAgent: Entropy-based Prior Point Discovery and Visual Reasoning for Referring Expression Segmentation",
+  "identifier": "arXiv:2601.16394",
+  "category": "ris",
+  "method": "MLLM-based RES framework with entropy-based point discovery (EBD) and vision-based reasoning (VBR) over coarse boxes, followed by mask decoding.",
+  "claims": "ResAgent 4B reaches 80.50/75.13/76.89 mIoU on RefCOCO/RefCOCO+/RefCOCOg val, and 72.74 gIoU / 68.38 cIoU on ReasonSeg val; the 8B variant reaches 81.19/75.88/77.23.",
+  "relation": "A strong trained MLLM reference whose point-discovery idea (choose high-entropy points inside a coarse box) is a plausible alternative to our learned selector; its 4 mIoU ablation gain from EBD+VBR+PA quantifies how much a smarter point prompt is worth.",
+  "threat": "Its 80.5 mIoU on RefCOCO val is far above any training-free row; if quoted without its training label it would look like a same-class floor. Its VBR also challenges the idea that text-only re-ranking is enough, since it explicitly replaces textual coordinate reasoning with visual verification.",
+  "key_quote": "EBD identifies high-information candidate points by modeling spatial uncertainty within coarse bounding boxes, treating point selection as an information maximization process.",
+  "depth": "full-text",
+  "reported_numbers": {
+   "refcoco_val_mIoU": 80.50,
+   "refcocoplus_val_mIoU": 75.13,
+   "refcocog_val_mIoU": 76.89,
+   "reasonseg_gIoU": 72.74,
+   "reasonseg_cIoU": 68.38
+  },
+  "anchors": ["Table 1", "Table 2", "Table 3"],
+  "source_file": "exp/literature/papers/resagent2026.txt",
+  "code": {
+   "available": false,
+   "inspected": false,
+   "repo": "",
+   "findings": "",
+   "ran": false
+  },
+  "appreciation": "Best idea and measured contribution: rather than trusting a coarse MLLM box, ResAgent samples points where the box is uncertain (maximizing information) and verifies each point visually instead of via textual coordinates. The measured contribution is strong and well ablated: 80.50/75.13/76.89 mIoU with the 4B model on RefCOCO/+/g val, and the ablation shows EBD+VBR+PA add 4.04 mIoU over a box+SAM baseline (Table 2), while replacing textual-coordinate reasoning with VBR adds 2.43 mIoU (Table 3). The point-selection framing is close in spirit to our proposal selection, but at the prompt level.",
+  "critique": "Critique with evidence: ResAgent is fine-tuned (the paper calls the final stage additional fine-tuning adaptations), so its 80.5 is a trained MLLM result and not comparable to training-free rows; the paper does not put its numbers in a same-class table with zero-shot methods, and its point discovery depends on a coarse box from an MLLM. The gain from VBR is measured against a textual-coordinate variant within the same trained model, not against a frozen selector. Table 1 mixes non-LLM specialists, image generalists and video generalists, making the SOTA claim broad but the supervision classes heterogeneous; the paper reports no inference cost despite 4B/8B models.",
+  "gap": "Gap addressed by this work: unreliable point prompts and textual coordinate reasoning. Gap left for us: it does not test training-free selection or a fixed proposal pool, so it cannot tell us whether entropy-guided points would improve a frozen selector; that is a candidate extension we did not run.",
+  "critique_evidence": "exp/out_final/deep_read_critique_evidence.json"
+ },
+ {
+  "key": "qwen3vlseg2026",
+  "title": "Qwen3-VL-Seg: Unlocking Open-World Referring Segmentation with Vision-Language Grounding",
+  "identifier": "arXiv:2605.07141",
+  "category": "ris",
+  "method": "Parameter-efficient framework that treats an MLLM-predicted box as a structural prior and decodes it with a 17M-parameter box-guided mask decoder trained on SA1B-ORS.",
+  "claims": "Qwen3-VL-Seg reaches 82.8/78.5/78.6 mIoU on RefCOCO/RefCOCO+/RefCOCOg val (82.3/76.0/78.2 cIoU), improving over a Qwen box+SAM baseline by 8.5/9.2/5.7 mIoU.",
+  "relation": "A trained box-to-mask decoder that shares our box-prior premise; its ablation quantifies the value of converting a coarse MLLM box into a mask, which is the counterpart of our frozen box prior plus selector.",
+  "threat": "Its 82.8 mIoU is the strongest box-prior result we have seen; if a reader conflates it with our training-free box prior, our 70.57 looks weak. Its RefCOCO val evaluation despite open-world SA1B training also raises a possible overlap concern.",
+  "key_quote": "we present Qwen3-VL-Seg, a parameter-efficient framework that treats the MLLM-predicted box as a semantically grounded structural prior and decodes it into pixel-level referring segmentation.",
+  "depth": "full-text",
+  "reported_numbers": {
+   "refcoco_val_mIoU": 82.8,
+   "refcocoplus_val_mIoU": 78.5,
+   "refcocog_val_mIoU": 78.6,
+   "decoder_parameters_M": 17
+  },
+  "anchors": ["Table 5", "Section 4.3 ablation"],
+  "source_file": "exp/literature/papers/qwen3vlseg2026.txt",
+  "code": {
+   "available": false,
+   "inspected": false,
+   "repo": "",
+   "findings": "",
+   "ran": false
+  },
+  "appreciation": "Best idea and measured contribution: a small (17M) box-guided decoder with multi-scale feature injection and iterative query refinement turns an MLLM box into a precise mask without an external SAM, and the ablation isolates the gain cleanly: 82.8/78.5/78.6 mIoU versus 74.3/69.3/72.9 for Qwen box+SAM on RefCOCO/+/g val, with P@0.9 improving from 39.6 to 50.2 on RefCOCO. That is the strongest evidence we found that the box prior is a good structural interface and that the decoder, not the grounding step, carries much of the final accuracy.",
+  "critique": "Critique with evidence: the decoder is trained on SA1B-ORS (category- and description-oriented subsets derived from SA-1B) and evaluated on RefCOCO-family val, so this is a trained method, not training-free; the paper does not report a comparison to zero-shot methods in its main table, and its gains are relative to a weak Qwen box+SAM baseline. The open-world claim would be stronger with an overlap audit between SA1B-ORS and RefCOCO images; none is reported. The 17M decoder still requires a multi-billion-parameter MLLM at inference, so the parameter-efficiency claim is about the decoder only.",
+  "gap": "Gap addressed by this work: converting sparse MLLM boxes into dense masks without SAM. Gap left for us: the method is trained and its decoder is not transferable to our frozen training-free setting; we cannot adopt it without violating the no-training rule, and the paper does not analyze selection failures.",
+  "critique_evidence": "exp/out_final/deep_read_critique_evidence.json"
+ },
+ {
+  "key": "vespaseg2026",
+  "title": "VespaSeg: A Resource-Aware Ground-then-Segment Pipeline for Referring Expression Segmentation",
+  "identifier": "arXiv:2608.01077",
+  "category": "ris",
+  "method": "Modular ground-then-segment pipeline: a compact VLM (Florence-2 or Moondream2) predicts a box and MobileSAM converts it to a mask, with LoRA adaptation of the grounding stage.",
+  "claims": "On a repository-specific RefCOCO validation protocol (first expression for each of 3,811 referenced-object records) the adapted Florence-2-base pipeline reaches 73.64 mIoU and 84.60 P@0.5 at 22.8 queries/s and 2.20 GB mean GPU memory.",
+  "relation": "A resource-aware box-then-mask pipeline in the same family as our box prior; its protocol is explicitly nonstandard (3,811 records, first expression only), which makes it a cautionary example for cross-paper comparison.",
+  "threat": "Its 73.64 mIoU on a RefCOCO-derived protocol could be mistaken for an official full-val result and used as a floor; it is not, because the sample selection differs. Its 2.2 GB footprint also beats our SAM ViT-H pool on cost.",
+  "key_quote": "we present VespaSeg, a modular pipeline that grounds a text query with a compact vision-language model and converts the predicted box to a mask with MobileSAM.",
+  "depth": "full-text",
+  "reported_numbers": {
+   "mIoU_repo_protocol": 73.64,
+   "P_at_0.5": 84.60,
+   "queries_per_second": 22.8,
+   "gpu_memory_GB": 2.20
+  },
+  "anchors": ["Abstract", "Table 3", "Table 1"],
+  "source_file": "exp/literature/papers/vespaseg2026.txt",
+  "code": {
+   "available": false,
+   "inspected": false,
+   "repo": "",
+   "findings": "",
+   "ran": false
+  },
+  "appreciation": "Best idea and measured contribution: the paper takes deployment seriously, comparing three compact grounders with MobileSAM under a matched 500-query budget. The measured contribution is a clear efficiency-accuracy trade-off, 73.64 mIoU / 84.60 P@0.5 at 22.8 queries/s and 2.20 GB, with the base model 1.70x faster and 1.17 GB lighter than the large one at 73.73 vs 72.82 mIoU on the matched subset. The ablation showing ground-truth-box adaptation lifts MobileSAM from 82.22 to 86.61 is a useful quantification of how much the box, rather than the decoder, limits segmentation.",
+  "critique": "Critique with evidence: the evaluation is not the official RefCOCO val split; the abstract states it uses the first expression for each of 3,811 referenced-object records, which is a smaller and differently distributed protocol than the 10,834-expression val used here. That makes the 73.64 mIoU incomparable to published RefCOCO rows, and the paper itself flags the need for official evaluation. The grounder is adapted with LoRA on RefCOCO training data, so the pipeline is not training-free; the efficiency numbers are for cached images and do not include first-load or grounder download costs.",
+  "gap": "Gap addressed by this work: resource-aware modular referring segmentation. Gap left for us: its nonstandard protocol and trained adapter mean we cannot use it as a floor or as a like-for-like efficiency baseline; it does, however, support our choice of a box prior as a cheap structural interface.",
+  "critique_evidence": "exp/out_final/deep_read_critique_evidence.json"
+ }
+]

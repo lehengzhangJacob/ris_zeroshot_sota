@@ -1,0 +1,18 @@
+{
+  "cases": [
+    "two_target_union_exact",
+    "two_target_partial",
+    "two_target_wrong_plus_miss",
+    "two_target_abstain_FP"
+  ],
+  "official": {
+    "gIoU": 37.5,
+    "cIoU": 33.3333,
+    "T_acc": 0.0,
+    "N_acc": 0.0,
+    "Pr@0.7": 25.0,
+    "Pr@0.8": 25.0,
+    "Pr@0.9": 25.0
+  },
+  "note": "two-target GT union (8 px each square, 16 px total). Exact union should give cIoU 100; partial gives I=4, U=12 -> 33.33; wrong-plus-miss gives 0; the abstention-FP case keeps the discarded union in the denominator, so it is not credited."
+}

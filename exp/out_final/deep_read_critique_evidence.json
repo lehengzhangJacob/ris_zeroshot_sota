@@ -1,445 +1,838 @@
 {
-  "what": "Per-paper critique evidence for the deep-read dossier",
-  "checked_at": "2026-10-20T17:19:36Z",
-  "method": "Each critique is grounded in the local full text recorded in source_file; key_quote is verbatim from that file and anchors are section/table/equation locations in it.",
-  "papers": [
-    {
-      "key": "cmsa2019",
-      "title": "Cross-Modal Self-Attention Network for Referring Image Segmentation",
-      "source_file": "exp/literature/papers/cmsa.txt",
-      "critique": "Critique: Supervised and older; included for coverage, not as a comparison point.",
-      "gap": "Gap addressed by this work: Early supervised cross-modal-attention baseline; its protocol numbers appear in the lineage our paper reviews.",
-      "key_quote": "In this paper, we propose a cross-modal self-attention (CMSA) module that effectively captures the long-range dependencies between linguistic and visual features.",
-      "anchors": [
-        "Table 1",
-        "Sec. 3 CMSA"
-      ]
-    },
-    {
-      "key": "cris2022",
-      "title": "CRIS: CLIP-Driven Referring Image Segmentation",
-      "source_file": "exp/literature/papers/cris.txt",
-      "critique": "Critique: Supervised; the reported IoU is not a zero-shot number and must not be pooled with training-free rows.",
-      "gap": "Gap addressed by this work: Supervised baseline whose region-text scoring is the paradigm our diagnosis tests and finds localization-limited.",
-      "key_quote": "Inspired by the recent advance in Contrastive Language-Image Pretraining (CLIP), in this paper, we propose an end-to-end CLIP-Driven Referring Image Segmentation framework (CRIS).",
-      "anchors": [
-        "Sec. 3 CRIS",
-        "Table 1"
-      ]
-    },
-    {
-      "key": "hybridgl2025",
-      "title": "Hybrid Global-Local Representation with Augmented Spatial Guidance for Zero-Shot Referring Image Segmentation",
-      "source_file": "exp/literature/papers/hybridgl2025.txt",
-      "critique": "Critique: Same family; our contribution must be a measured improvement over it, not a restacking.",
-      "gap": "Gap addressed by this work: The released ancestor platform; its scores restrict the candidate set in our shipped head and its CLI-reproduced row is our baseline.",
-      "key_quote": "hybrid global-local feature extraction",
-      "anchors": [
-        "Sec. 3 (hybrid global-local features)",
-        "Table 1 (RefCOCO-family results)"
-      ]
-    },
-    {
-      "key": "instalign2024",
-      "title": "Phrase-Instance Alignment for Generalized Referring Segmentation",
-      "source_file": "exp/literature/papers/instalign.txt",
-      "critique": "Critique: If the published evaluation grouped sentences by ref rather than evaluating each sentence, the wall could shift; the official evaluator we inspected is per sentence.",
-      "gap": "Gap addressed by this work: Its supervised cIoU is the gRefCOCO wall our analysis targets; its gIoU is the strongest supervised gIoU reference our training-free rule exceeds.",
-      "key_quote": "To this end, we reformulate GRES as an instance-level reasoning problem, where the model first predicts multiple instance-aware object queries conditioned on the referring expression, then aligns each with its most relevant phrase.",
-      "anchors": [
-        "Sec. 3 Phrase-Object Alignment",
-        "Table 1 gRefCOCO"
-      ]
-    },
-    {
-      "key": "iterprime2025",
-      "title": "IteRPrimE: Zero-shot Referring Image Segmentation with Iterative Grad-CAM Refinement and Primary Word Emphasis",
-      "source_file": "exp/literature/papers/iterprime2025.txt",
-      "critique": "Critique: Shows heatmap refinement can lift selection, but its weights are hosted only on Baidu Pan and it is not component-matched.",
-      "gap": "Gap addressed by this work: Alternative training-free selection repair using Grad-CAM heatmaps; no explicit box prior.",
-      "key_quote": "Iterative Grad-CAM Refinement and Primary Word Emphasis",
-      "anchors": [
-        "Sec. 3 (IGRS)",
-        "Table 4 (mask position ablation)"
-      ]
-    },
-    {
-      "key": "lavt2022",
-      "title": "LAVT: Language-Aware Vision Transformer for Referring Image Segmentation",
-      "source_file": "exp/literature/papers/lavt.txt",
-      "critique": "Critique: Supervised, not same-class; a stronger learned selector could in principle close the selection gap our paper measures training-free.",
-      "gap": "Gap addressed by this work: Supervised RIS baseline; its mIoU/oIoU protocol is the one our RefCOCO-family tables use.",
-      "key_quote": "Adopting a different approach in this work, we show that significantly better cross-modal alignments can be achieved through the early fusion of linguistic and visual features in intermediate layers of a vision Transformer encoder network.",
-      "anchors": [
-        "Sec. 3 LAVT",
-        "Table 1"
-      ]
-    },
-    {
-      "key": "lgd2025",
-      "title": "LGD: Leveraging Generative Descriptions for Zero-Shot Referring Image Segmentation",
-      "source_file": "exp/literature/papers/lgd2025.txt",
-      "critique": "Critique: Text-augmentation baseline; does not test box-level localization and still uses argmax over proposals.",
-      "gap": "Gap addressed by this work: Same propose-then-select class; augments the text side with MLLM descriptions instead of a geometric localization prior.",
-      "key_quote": "we first design two kinds of prompts, the attribute prompt and the surrounding prompt",
-      "anchors": [
-        "Sec. 3 (attribute and surrounding prompts)",
-        "Table 2 (RefCOCO val/test results)"
-      ]
-    },
-    {
-      "key": "liu2023gres",
-      "title": "GRES: Generalized Referring Expression Segmentation",
-      "source_file": "exp/literature/papers/gres.txt",
-      "critique": "Critique: Published gRefCOCO numbers are trained models; if our abstention rows were scored with discarded masks under the official FP convention, cIoU would fall.",
-      "gap": "Gap addressed by this work: Defines the benchmark and metric protocol behind all our gRefCOCO numbers; our metric audit re-runs its official evaluator arithmetic.",
-      "key_quote": "In this paper, we introduce a new benchmark called Generalized Referring Expression Segmentation (GRES), which extends the classic RES to allow expressions to refer to an arbitrary number of target objects.",
-      "anchors": [
-        "Sec. 3 GRES benchmark",
-        "Sec. 4 metrics (cIoU, gIoU, N-acc, T-acc)",
-        "Table 1"
-      ]
-    },
-    {
-      "key": "lscm2020",
-      "title": "Linguistic Structure Guided Context Modeling for Referring Image Segmentation",
-      "source_file": "exp/literature/papers/lscm.txt",
-      "critique": "Critique: Supervised; fusion gains do not address the instance-selection failure we measure.",
-      "gap": "Gap addressed by this work: Supervised RIS baseline in the cross-modal-fusion line; its IoU and Pr@0.5 protocol are the same family our tables report.",
-      "key_quote": "To tackle this problem, we propose a \"gather-propagate-distribute\" scheme to model multimodal context by cross-modal interaction and implement this scheme as a novel Linguistic Structure guided Context Modeling (LSCM) module.",
-      "anchors": [
-        "Sec. 3 LSCM",
-        "Table 1"
-      ]
-    },
-    {
-      "key": "mattnet2018",
-      "title": "MAttNet: Modular Attention Network for Referring Expression Comprehension",
-      "source_file": "exp/literature/papers/mattnet.txt",
-      "critique": "Critique: Detector-dependent and trained; not comparable on modern splits, but its selection-over-proposals formulation is the lineage of our pipeline.",
-      "gap": "Gap addressed by this work: Early proposal-selection paradigm: it selects among proposals using language scores exactly where our diagnosis locates the training-free bottleneck.",
-      "key_quote": "While most recent work treats expressions as a single unit, we propose to decompose them into three modular components related to subject appearance, location, and relationship to other objects.",
-      "anchors": [
-        "Sec. 3 modules",
-        "Table 3",
-        "Table 4 segmentation"
-      ]
-    },
-    {
-      "key": "mmnet2023",
-      "title": "MMNet: Multi-Mask Network for Referring Image Segmentation",
-      "source_file": "exp/literature/papers/mmnet.txt",
-      "critique": "Critique: Supervised; its multi-mask head is trained and not comparable to our set-valued training-free rule.",
-      "gap": "Gap addressed by this work: Supervised uncertainty-aware multi-mask alternative; its multiple outputs are related to our union-of-masks realization for multi-target expressions.",
-      "key_quote": "To tackle these problems, we propose an end-to-end Multi-Mask Network for referring image segmentation(MMNet).",
-      "anchors": [
-        "Table 2 query numbers",
-        "Sec. 3 MMNet"
-      ]
-    },
-    {
-      "key": "ni2023refdiff",
-      "title": "Ref-Diff: Zero-shot Referring Image Segmentation with Generative Models",
-      "source_file": "exp/literature/papers/refdiff.txt",
-      "critique": "Critique: Its zero-shot numbers are on a different metric mix (oIoU/mIoU over proposals); comparisons must stay within metric and class.",
-      "gap": "Gap addressed by this work: Same-class zero-shot baseline; its generative prior is a different external source than our frozen VLM box prior.",
-      "key_quote": "We demonstrate that without a proposal generator, a generative model alone can achieve comparable performance to existing SOTA weakly-supervised models.",
-      "anchors": [
-        "Table 1 oIoU",
-        "Table 2 mIoU",
-        "Sec. 3 Ref-Diff"
-      ]
-    },
-    {
-      "key": "pinpoint2026",
-      "title": "PinPoint: Training-Free Referring Segmentation via Prompt Disambiguation",
-      "source_file": "exp/literature/papers/pinpoint2026.txt",
-      "critique": "Critique: Strong training-free point-selection baseline; does not model candidate pools or selection among masks.",
-      "gap": "Gap addressed by this work: Alternatives to a box prior: disambiguate SAM prompts with interior points; same VLM+SAM stack.",
-      "key_quote": "replacing naive sampling with stable, informative point selection",
-      "anchors": [
-        "Sec. 1 (prompt ambiguity)",
-        "Table 1 (cIoU comparison)"
-      ]
-    },
-    {
-      "key": "polyformer2023",
-      "title": "PolyFormer: Referring Image Segmentation as Sequential Polygon Generation",
-      "source_file": "exp/literature/papers/polyformer.txt",
-      "critique": "Critique: Supervised; its polygon head requires training and does not isolate selection quality.",
-      "gap": "Gap addressed by this work: Supervised geometry-output alternative to proposal selection; supports our point that the output representation is not the training-free bottleneck.",
-      "key_quote": "In this work, instead of directly predicting the pixel-level segmentation masks, the problem of referring image segmentation is formulated as sequential polygon generation, and the predicted polygons can be later converted into segmentation masks.",
-      "anchors": [
-        "Sec. 3 PolyFormer",
-        "Sec. 4 experiments"
-      ]
-    },
-    {
-      "key": "promptsens2026",
-      "title": "Prompt Sensitivity in Vision-Language Grounding: How Small Changes in Wording Affect Object Detection",
-      "source_file": "exp/literature/papers/promptsens2026.txt",
-      "critique": "Critique: No RIS method or fix; supports the premise rather than competing.",
-      "gap": "Gap addressed by this work: Direct external support for the diagnosis that argmax selection, not text embedding distance, drives brittleness.",
-      "key_quote": "mean instability of 2.11 distinct",
-      "anchors": [
-        "Sec. 4 (instability results)",
-        "Table 1 (CLIP text similarity vs grounding disagreement)"
-      ]
-    },
-    {
-      "key": "psalm2024",
-      "title": "PSALM: Pixelwise SegmentAtion with Large Multi-Modal Model",
-      "source_file": "exp/literature/papers/psalm.txt",
-      "critique": "Critique: Supervised and trained on the benchmarks; not comparable to the training-free class, and its strong RefCOCO/gRefCOCO results bound what supervised selection can reach.",
-      "gap": "Gap addressed by this work: Representative of the supervised LMM route; our method uses a frozen LMM only as a box prior inside a training-free selector.",
-      "key_quote": "To overcome the limitation of the LMM being limited to textual output, PSALM incorporates a mask decoder and a well-designed input schema to handle a variety of segmentation tasks.",
-      "anchors": [
-        "Sec. 3 method (mask tokens, task instructions)",
-        "Table 6 ablation",
-        "gRefCOCO results"
-      ]
-    },
-    {
-      "key": "ras2025",
-      "title": "Refer to Any Segmentation Mask Group With Vision-Language Prompts",
-      "source_file": "exp/literature/papers/ras2025.txt",
-      "critique": "Critique: Trained 13B system, not same-class zero-shot; reference only.",
-      "gap": "Gap addressed by this work: Trained mask-group LMM; different task (ORES/GRES) and no zero-shot proposal-pool selection.",
-      "key_quote": "omnimodal referring expression",
-      "anchors": [
-        "Sec. 3 (ORES task and RAS model)",
-        "Table 3 (MaskGroups-HQ results)"
-      ]
-    },
-    {
-      "key": "restr2022",
-      "title": "ReSTR: Convolution-free Referring Image Segmentation Using Transformers",
-      "source_file": "exp/literature/papers/restr.txt",
-      "critique": "Critique: Supervised; its fusion gains do not transfer to a training-free setting automatically.",
-      "gap": "Gap addressed by this work: Supervised baseline in the proposal-free line; complements our finding that representation quality is not the training-free bottleneck.",
-      "key_quote": "To address these issues, we present the first convolution-free model for referring image segmentation using transformers, dubbed ReSTR.",
-      "anchors": [
-        "Table 1",
-        "Sec. 3 fusion encoder"
-      ]
-    },
-    {
-      "key": "seqtr2022",
-      "title": "SeqTR: A Simple yet Universal Network for Visual Grounding",
-      "source_file": "exp/literature/papers/seqtr.txt",
-      "critique": "Critique: Supervised; its success shows that geometry is a viable output, but it does not measure training-free selection.",
-      "gap": "Gap addressed by this work: Supervised alternative that predicts geometry directly rather than selecting a proposal; its upper-bound analysis (95.63 mIoU with 36 GT-sampled points) bounds polygon-conversion error, not selection.",
-      "key_quote": "To simplify and unify the modeling, we cast visual grounding as a point prediction problem conditioned on image and text inputs, where either the bounding box or binary mask is represented as a sequence of discrete coordinate tokens.",
-      "anchors": [
-        "Sec. 3 SeqTR",
-        "Table 6 multi-task ablation"
-      ]
-    },
-    {
-      "key": "shu2023tas",
-      "title": "Text Augmented Spatial-aware Zero-shot Referring Image Segmentation",
-      "source_file": "exp/literature/papers/tas.txt",
-      "critique": "Critique: A same-class method whose proposal source and text augmentation could be combined with our box prior; we do not test that combination.",
-      "gap": "Gap addressed by this work: Same-class zero-shot baseline; its CLIP-scoring-over-proposals recipe is the closest ancestor of our training-free selector.",
-      "key_quote": "Yet, CLIP only considers the global-level alignment of image-text pairs, neglecting fine-grained matching between the referring sentence and local image regions.",
-      "anchors": [
-        "Sec. 3 TAS framework",
-        "Table 1 mIoU/oIoU"
-      ]
-    },
-    {
-      "key": "splus2024",
-      "title": "Segment, Select, Correct: A Framework for Weakly-Supervised Referring Segmentation",
-      "source_file": "exp/literature/papers/splus2024.txt",
-      "critique": "Critique: Adds a trained corrector, so it is not a training-free comparison; its zero-shot row is a baseline.",
-      "gap": "Gap addressed by this work: Direct evidence that selection is the known bottleneck: the paper trains a corrector specifically to fix selection errors.",
-      "key_quote": "decomposing it into three steps",
-      "anchors": [
-        "Sec. 3 (segment, select, correct)",
-        "Table 1 (zero-shot and weakly-supervised comparison)"
-      ]
-    },
-    {
-      "key": "veniceh1_2026",
-      "title": "Venice-H1: Failure-Aware Query Re-Ranking with Multi-Scale Grid Signatures for Referring Image Segmentation",
-      "source_file": "exp/literature/papers/veniceh1_2026.txt",
-      "critique": "Critique: Trained 11.3M re-ranker on top of strong DeRIS backbones; supports the diagnosis, does not contradict it.",
-      "gap": "Gap addressed by this work: Independent evidence that argmax selection is the failure mode; fixes it with a learned re-ranker rather than a geometric prior.",
-      "key_quote": "We identify query selection as a failure-case bottleneck",
-      "anchors": [
-        "Sec. 1 (query-selection bottleneck)",
-        "Table 1 (selection gap analysis)"
-      ]
-    },
-    {
-      "key": "vlt2022",
-      "title": "Vision-Language Transformer and Query Generation for Referring Segmentation",
-      "source_file": "exp/literature/papers/vlt.txt",
-      "critique": "Critique: Supervised; the learned query-balance mechanism could in principle be added to a training-free pipeline, which we do not test.",
-      "gap": "Gap addressed by this work: Supervised ancestor of candidate scoring: its query generation is the learned analogue of our per-candidate selection.",
-      "key_quote": "To achieve this, we reformulate referring segmentation as a direct attention problem: finding the region in the image where the query language expression is most attended to.",
-      "anchors": [
-        "Sec. 3 Query Generation",
-        "Table 4"
-      ]
-    },
-    {
-      "key": "yu2023global",
-      "title": "Zero-shot Referring Image Segmentation with Global-Local Context Features",
-      "source_file": "exp/literature/papers/gsva.txt",
-      "critique": "Critique: If a stronger global-local encoder fixed selection, our localization diagnosis would be weakened; we measure that stronger encoders (SigLIP) do not.",
-      "gap": "Gap addressed by this work: Direct ancestor of the released scoring machinery our diagnosis examines: whole-region vs whole-sentence scores over proposals.",
-      "key_quote": "To overcome this issue, we propose a simple yet effective zero-shot referring image segmentation method by leveraging the pre-trained cross-modal knowledge from CLIP.",
-      "anchors": [
-        "Sec. 3 global-local context",
-        "Table 1"
-      ]
-    },
-    {
-      "key": "esam2025",
-      "title": "E-SAM: Training-Free Segment Every Entity Model",
-      "source_file": "exp/literature/papers/esam2025.txt",
-      "critique": "Critique: Class-agnostic entity segmentation, no referring expressions.",
-      "gap": "Gap addressed by this work: Mask-merging without text; shows visual containment gating can repair granularity, orthogonal to selection.",
-      "key_quote": "significantly outperforms both SAM",
-      "anchors": [
-        "Sec. 3 (EMR and USR)",
-        "Fig. 1 (comparison)"
-      ]
-    },
-    {
-      "key": "gfsam2024",
-      "title": "Bridge the Points: Graph-based Few-shot Segment Anything Semantically",
-      "source_file": "exp/literature/papers/gfsam2024.txt",
-      "critique": "Critique: Few-shot segmentation; no referring text or instance pool oracle.",
-      "gap": "Gap addressed by this work: Graph-based grouping of the SAM pool with coverage gates; alternative to score-based single selection.",
-      "key_quote": "a simple yet effective approach based on graph analysis and representation learning",
-      "anchors": [
-        "Sec. 3 (point-mask clustering)",
-        "Abstract (COCO-20i and LVIS-92i results)"
-      ]
-    },
-    {
-      "key": "groundingdino2024",
-      "title": "Grounding DINO: Marrying DINO with Grounded Pre-Training for Open-Set Object Detection",
-      "source_file": "exp/literature/papers/groundingdino.txt",
-      "critique": "Critique: Detector removal drops the same-class gRefCOCO cIoU floor; we measure the boundary rather than assuming it.",
-      "gap": "Gap addressed by this work: The detector in the shipped gRefCOCO path (candidate masks); the component removed by the DINO-free rescue arm.",
-      "key_quote": "In this paper, we present an open-set object detector, called Grounding DINO, by marrying Transformer-based detector DINO with grounded pre-training, which can detect arbitrary objects with human inputs such as category names or referring expressions.",
-      "anchors": [
-        "Sec. 3 method",
-        "Sec. 4 experiments"
-      ]
-    },
-    {
-      "key": "kirillov2023sam",
-      "title": "Segment Anything",
-      "source_file": "exp/literature/papers/sam.txt",
-      "critique": "Critique: Pool recall and mask quality bound every training-free method; we measure the ViT-B boundary (pool oracle 71.4 vs 79.1 mIoU on RefCOCOg).",
-      "gap": "Gap addressed by this work: Our frozen segmenter and the source of our proposal pool; the pool oracle is measured on SAM ViT-H and ViT-B.",
-      "key_quote": "The model is designed and trained to be promptable, so it can transfer zero-shot to new image distributions and tasks.",
-      "anchors": [
-        "Sec. 3 model",
-        "Sec. 4 dataset",
-        "automatic mask generation"
-      ]
-    },
-    {
-      "key": "li2024llavaov",
-      "title": "LLaVA-OneVision: Easy Visual Task Transfer",
-      "source_file": "exp/literature/papers/llavaov.txt",
-      "critique": "Critique: Pretrained on COCO images (no referring annotations), a weaker zero-shot notion; box quality bounds selection.",
-      "gap": "Gap addressed by this work: The frozen 7B box prior in our shipped method (sentence-prompt boxes).",
-      "key_quote": "We present LLaVA-OneVision, a family of open large multimodal models (LMMs) developed by consolidating our insights into data, models, and visual representations in the LLaVA-NeXT blog series.",
-      "anchors": [
-        "Sec. 2 model",
-        "Table 2"
-      ]
-    },
-    {
-      "key": "mars2026",
-      "title": "MARS: a Multimodal Alignment and Ranking System for Few-Shot Segmentation",
-      "source_file": "exp/literature/papers/mars2026.txt",
-      "critique": "Critique: Few-shot, not referring; no text-conditioned region prior or RIS benchmarks.",
-      "gap": "Gap addressed by this work: Same proposal-score-filter-merge family; its gate+union is close to the combination-policy headroom this run measured.",
-      "key_quote": "a plug-and-play ranking system that leverages multimodal cues to filter and merge mask proposals robustly",
-      "anchors": [
-        "Sec. 3 (four scores)",
-        "Table 1 (COCO-20i ablation)"
-      ]
-    },
-    {
-      "key": "proposalclip2022",
-      "title": "ProposalCLIP: Unsupervised Open-Category Object Proposal Generation via Exploiting CLIP Cues",
-      "source_file": "exp/literature/papers/proposalclip2022.txt",
-      "critique": "Critique: Class-agnostic proposal generation, not text-conditioned selection.",
-      "gap": "Gap addressed by this work: Proposal merging guided by CLIP visual similarity; precursor to mask-graph combination policies.",
-      "key_quote": "Unsupervised Open-Category Object Proposal Generation",
-      "anchors": [
-        "Sec. 3.2 (graph-based merging)",
-        "Table 2 (PASCAL VOC and COCO proposals)"
-      ]
-    },
-    {
-      "key": "qwen25vl2025",
-      "title": "Qwen2.5-VL Technical Report",
-      "source_file": "exp/literature/papers/qwen25vl.txt",
-      "critique": "Critique: A within-family size sweep is unmeasured; the two-point comparison isolates family, not size.",
-      "gap": "Gap addressed by this work: The frozen 3B box prior in the backbone audit; smaller and better than the shipped 7B LLaVA prior on our tables.",
-      "key_quote": "Qwen2.5-VL achieves a major leap forward in understanding and interacting with the world through enhanced visual recognition, precise object localization, robust document parsing, and long-video comprehension.",
-      "anchors": [
-        "Sec. 2 model",
-        "Table 1"
-      ]
-    },
-    {
-      "key": "radford2021clip",
-      "title": "Learning Transferable Visual Models From Natural Language Supervision",
-      "source_file": "exp/literature/papers/clip.txt",
-      "critique": "Critique: A stronger CLIP-family encoder could change the absolute numbers; measured stronger encoders do not repair wrong-instance selection.",
-      "gap": "Gap addressed by this work: The region-text scoring platform our diagnosis examines; replacing it with SigLIP or our plain masked-region CLIP does not fix selection.",
-      "key_quote": "We demonstrate that the simple pre-training task of predicting which caption goes with which image is an efficient and scalable way to learn SOTA image representations from scratch on a dataset of 400 million (image, text) pairs collected from the internet.",
-      "anchors": [
-        "Sec. 2 approach",
-        "Sec. 3 experiments",
-        "Figure 1"
-      ]
-    },
-    {
-      "key": "semanticsam2023",
-      "title": "Semantic-SAM: Segment and Recognize Anything at Any Granularity",
-      "source_file": "exp/literature/papers/semanticsam2023.txt",
-      "critique": "Critique: Trained segmenter; different task family.",
-      "gap": "Gap addressed by this work: Richer multi-granularity pools; relevant to whether pool granularity, not selection, is the limit.",
-      "key_quote": "a universal image segmentation model to enable segment and recognize anything at any desired granularity",
-      "anchors": [
-        "Sec. 3 (multi-choice learning)",
-        "Table 3 (COCO panoptic results)"
-      ]
-    },
-    {
-      "key": "t2s2026",
-      "title": "Text-to-seed generation: Training-free open-vocabulary seeded semantic segmentation via re-purposing diffusion as text-guided seed generator",
-      "source_file": "exp/literature/papers/t2s2026.txt",
-      "critique": "Critique: Semantic segmentation (OVSS), not referring instance selection.",
-      "gap": "Gap addressed by this work: Text-guided seed + SAM expansion is a pipeline alternative to proposal scoring; supports seed/expansion design.",
-      "key_quote": "we argue that more reliable segmentation can be achieved by exploiting SAM as a region expansion module",
-      "anchors": [
-        "Sec. 3 (seed generation and SAM expansion)",
-        "Table 1 (OVSS comparison)"
-      ]
-    },
-    {
-      "key": "zhou2022maskclip",
-      "title": "Extract Free Dense Labels from CLIP",
-      "source_file": "exp/literature/papers/maskclip.txt",
-      "critique": "Critique: Dense CLIP could improve region-text scoring, but scoring is not the measured bottleneck in our diagnosis.",
-      "gap": "Gap addressed by this work: A training-free dense-CLIP alternative; our region scoring uses pooled CLIP features, and we measure a plain masked-region CLIP platform swap.",
-      "key_quote": "To this end, with minimal modification, we show that MaskCLIP yields compelling segmentation results on open concepts across various datasets in the absence of annotations and fine-tuning.",
-      "anchors": [
-        "Sec. 3 MaskCLIP",
-        "Sec. 4 experiments"
-      ]
-    }
-  ]
+ "what": "Per-paper critique evidence anchors for the deep-read dossier; each entry records the verbatim quote and the table/section that supports the critique and gap fields.",
+ "papers": [
+  {
+   "key": "cmsa2019",
+   "title": "Cross-Modal Self-Attention Network for Referring Image Segmentation",
+   "source_file": "exp/literature/papers/cmsa.txt",
+   "category": "ris",
+   "key_quote": "In this paper, we propose a cross-modal self-attention (CMSA) module that effectively captures the long-range dependencies between linguistic and visual features.",
+   "anchors": [
+    "Table 1",
+    "Sec. 3 CMSA"
+   ],
+   "critique": "Critique: Supervised and older; included for coverage, not as a comparison point.",
+   "gap": "Gap addressed by this work: Early supervised cross-modal-attention baseline; its protocol numbers appear in the lineage our paper reviews."
+  },
+  {
+   "key": "cris2022",
+   "title": "CRIS: CLIP-Driven Referring Image Segmentation",
+   "source_file": "exp/literature/papers/cris.txt",
+   "category": "ris",
+   "key_quote": "Inspired by the recent advance in Contrastive Language-Image Pretraining (CLIP), in this paper, we propose an end-to-end CLIP-Driven Referring Image Segmentation framework (CRIS).",
+   "anchors": [
+    "Sec. 3 CRIS",
+    "Table 1"
+   ],
+   "critique": "Critique: Supervised; the reported IoU is not a zero-shot number and must not be pooled with training-free rows.",
+   "gap": "Gap addressed by this work: Supervised baseline whose region-text scoring is the paradigm our diagnosis tests and finds localization-limited."
+  },
+  {
+   "key": "hybridgl2025",
+   "title": "Hybrid Global-Local Representation with Augmented Spatial Guidance for Zero-Shot Referring Image Segmentation",
+   "source_file": "exp/literature/papers/hybridgl2025.txt",
+   "category": "ris",
+   "key_quote": "hybrid global-local feature extraction",
+   "anchors": [
+    "Sec. 3 (hybrid global-local features)",
+    "Table 1 (RefCOCO-family results)"
+   ],
+   "critique": "Critique: Same family; our contribution must be a measured improvement over it, not a restacking.",
+   "gap": "Gap addressed by this work: The released ancestor platform; its scores restrict the candidate set in our shipped head and its CLI-reproduced row is our baseline."
+  },
+  {
+   "key": "instalign2024",
+   "title": "Phrase-Instance Alignment for Generalized Referring Segmentation",
+   "source_file": "exp/literature/papers/instalign.txt",
+   "category": "ris",
+   "key_quote": "To this end, we reformulate GRES as an instance-level reasoning problem, where the model first predicts multiple instance-aware object queries conditioned on the referring expression, then aligns each with its most relevant phrase.",
+   "anchors": [
+    "Sec. 3 Phrase-Object Alignment",
+    "Table 1 gRefCOCO"
+   ],
+   "critique": "Critique: If the published evaluation grouped sentences by ref rather than evaluating each sentence, the wall could shift; the official evaluator we inspected is per sentence.",
+   "gap": "Gap addressed by this work: Its supervised cIoU is the gRefCOCO wall our analysis targets; its gIoU is the strongest supervised gIoU reference our training-free rule exceeds."
+  },
+  {
+   "key": "iterprime2025",
+   "title": "IteRPrimE: Zero-shot Referring Image Segmentation with Iterative Grad-CAM Refinement and Primary Word Emphasis",
+   "source_file": "exp/literature/papers/iterprime2025.txt",
+   "category": "ris",
+   "key_quote": "Iterative Grad-CAM Refinement and Primary Word Emphasis",
+   "anchors": [
+    "Sec. 3 (IGRS)",
+    "Table 4 (mask position ablation)"
+   ],
+   "critique": "Critique: Shows heatmap refinement can lift selection, but its weights are hosted only on Baidu Pan and it is not component-matched.",
+   "gap": "Gap addressed by this work: Alternative training-free selection repair using Grad-CAM heatmaps; no explicit box prior."
+  },
+  {
+   "key": "lavt2022",
+   "title": "LAVT: Language-Aware Vision Transformer for Referring Image Segmentation",
+   "source_file": "exp/literature/papers/lavt.txt",
+   "category": "ris",
+   "key_quote": "Adopting a different approach in this work, we show that significantly better cross-modal alignments can be achieved through the early fusion of linguistic and visual features in intermediate layers of a vision Transformer encoder network.",
+   "anchors": [
+    "Sec. 3 LAVT",
+    "Table 1"
+   ],
+   "critique": "Critique: Supervised, not same-class; a stronger learned selector could in principle close the selection gap our paper measures training-free.",
+   "gap": "Gap addressed by this work: Supervised RIS baseline; its mIoU/oIoU protocol is the one our RefCOCO-family tables use."
+  },
+  {
+   "key": "lgd2025",
+   "title": "LGD: Leveraging Generative Descriptions for Zero-Shot Referring Image Segmentation",
+   "source_file": "exp/literature/papers/lgd2025.txt",
+   "category": "ris",
+   "key_quote": "we first design two kinds of prompts, the attribute prompt and the surrounding prompt",
+   "anchors": [
+    "Sec. 3 (attribute and surrounding prompts)",
+    "Table 2 (RefCOCO val/test results)"
+   ],
+   "critique": "Critique: Text-augmentation baseline; does not test box-level localization and still uses argmax over proposals.",
+   "gap": "Gap addressed by this work: Same propose-then-select class; augments the text side with MLLM descriptions instead of a geometric localization prior."
+  },
+  {
+   "key": "liu2023gres",
+   "title": "GRES: Generalized Referring Expression Segmentation",
+   "source_file": "exp/literature/papers/gres.txt",
+   "category": "ris",
+   "key_quote": "In this paper, we introduce a new benchmark called Generalized Referring Expression Segmentation (GRES), which extends the classic RES to allow expressions to refer to an arbitrary number of target objects.",
+   "anchors": [
+    "Sec. 3 GRES benchmark",
+    "Sec. 4 metrics (cIoU, gIoU, N-acc, T-acc)",
+    "Table 1"
+   ],
+   "critique": "Critique: Published gRefCOCO numbers are trained models; if our abstention rows were scored with discarded masks under the official FP convention, cIoU would fall.",
+   "gap": "Gap addressed by this work: Defines the benchmark and metric protocol behind all our gRefCOCO numbers; our metric audit re-runs its official evaluator arithmetic."
+  },
+  {
+   "key": "lscm2020",
+   "title": "Linguistic Structure Guided Context Modeling for Referring Image Segmentation",
+   "source_file": "exp/literature/papers/lscm.txt",
+   "category": "ris",
+   "key_quote": "To tackle this problem, we propose a \"gather-propagate-distribute\" scheme to model multimodal context by cross-modal interaction and implement this scheme as a novel Linguistic Structure guided Context Modeling (LSCM) module.",
+   "anchors": [
+    "Sec. 3 LSCM",
+    "Table 1"
+   ],
+   "critique": "Critique: Supervised; fusion gains do not address the instance-selection failure we measure.",
+   "gap": "Gap addressed by this work: Supervised RIS baseline in the cross-modal-fusion line; its IoU and Pr@0.5 protocol are the same family our tables report."
+  },
+  {
+   "key": "mattnet2018",
+   "title": "MAttNet: Modular Attention Network for Referring Expression Comprehension",
+   "source_file": "exp/literature/papers/mattnet.txt",
+   "category": "ris",
+   "key_quote": "While most recent work treats expressions as a single unit, we propose to decompose them into three modular components related to subject appearance, location, and relationship to other objects.",
+   "anchors": [
+    "Sec. 3 modules",
+    "Table 3",
+    "Table 4 segmentation"
+   ],
+   "critique": "Critique: Detector-dependent and trained; not comparable on modern splits, but its selection-over-proposals formulation is the lineage of our pipeline.",
+   "gap": "Gap addressed by this work: Early proposal-selection paradigm: it selects among proposals using language scores exactly where our diagnosis locates the training-free bottleneck."
+  },
+  {
+   "key": "mmnet2023",
+   "title": "MMNet: Multi-Mask Network for Referring Image Segmentation",
+   "source_file": "exp/literature/papers/mmnet.txt",
+   "category": "ris",
+   "key_quote": "To tackle these problems, we propose an end-to-end Multi-Mask Network for referring image segmentation(MMNet).",
+   "anchors": [
+    "Table 2 query numbers",
+    "Sec. 3 MMNet"
+   ],
+   "critique": "Critique: Supervised; its multi-mask head is trained and not comparable to our set-valued training-free rule.",
+   "gap": "Gap addressed by this work: Supervised uncertainty-aware multi-mask alternative; its multiple outputs are related to our union-of-masks realization for multi-target expressions."
+  },
+  {
+   "key": "ni2023refdiff",
+   "title": "Ref-Diff: Zero-shot Referring Image Segmentation with Generative Models",
+   "source_file": "exp/literature/papers/refdiff.txt",
+   "category": "ris",
+   "key_quote": "We demonstrate that without a proposal generator, a generative model alone can achieve comparable performance to existing SOTA weakly-supervised models.",
+   "anchors": [
+    "Table 1 oIoU",
+    "Table 2 mIoU",
+    "Sec. 3 Ref-Diff"
+   ],
+   "critique": "Critique: Its zero-shot numbers are on a different metric mix (oIoU/mIoU over proposals); comparisons must stay within metric and class.",
+   "gap": "Gap addressed by this work: Same-class zero-shot baseline; its generative prior is a different external source than our frozen VLM box prior."
+  },
+  {
+   "key": "pinpoint2026",
+   "title": "PinPoint: Training-Free Referring Segmentation via Prompt Disambiguation",
+   "source_file": "exp/literature/papers/pinpoint2026.txt",
+   "category": "ris",
+   "key_quote": "replacing naive sampling with stable, informative point selection",
+   "anchors": [
+    "Sec. 1 (prompt ambiguity)",
+    "Table 1 (cIoU comparison)"
+   ],
+   "critique": "Critique: Strong training-free point-selection baseline; does not model candidate pools or selection among masks.",
+   "gap": "Gap addressed by this work: Alternatives to a box prior: disambiguate SAM prompts with interior points; same VLM+SAM stack."
+  },
+  {
+   "key": "polyformer2023",
+   "title": "PolyFormer: Referring Image Segmentation as Sequential Polygon Generation",
+   "source_file": "exp/literature/papers/polyformer.txt",
+   "category": "ris",
+   "key_quote": "In this work, instead of directly predicting the pixel-level segmentation masks, the problem of referring image segmentation is formulated as sequential polygon generation, and the predicted polygons can be later converted into segmentation masks.",
+   "anchors": [
+    "Sec. 3 PolyFormer",
+    "Sec. 4 experiments"
+   ],
+   "critique": "Critique: Supervised; its polygon head requires training and does not isolate selection quality.",
+   "gap": "Gap addressed by this work: Supervised geometry-output alternative to proposal selection; supports our point that the output representation is not the training-free bottleneck."
+  },
+  {
+   "key": "promptsens2026",
+   "title": "Prompt Sensitivity in Vision-Language Grounding: How Small Changes in Wording Affect Object Detection",
+   "source_file": "exp/literature/papers/promptsens2026.txt",
+   "category": "ris",
+   "key_quote": "mean instability of 2.11 distinct",
+   "anchors": [
+    "Sec. 4 (instability results)",
+    "Table 1 (CLIP text similarity vs grounding disagreement)"
+   ],
+   "critique": "Critique: No RIS method or fix; supports the premise rather than competing.",
+   "gap": "Gap addressed by this work: Direct external support for the diagnosis that argmax selection, not text embedding distance, drives brittleness."
+  },
+  {
+   "key": "psalm2024",
+   "title": "PSALM: Pixelwise SegmentAtion with Large Multi-Modal Model",
+   "source_file": "exp/literature/papers/psalm.txt",
+   "category": "ris",
+   "key_quote": "To overcome the limitation of the LMM being limited to textual output, PSALM incorporates a mask decoder and a well-designed input schema to handle a variety of segmentation tasks.",
+   "anchors": [
+    "Sec. 3 method (mask tokens, task instructions)",
+    "Table 6 ablation",
+    "gRefCOCO results"
+   ],
+   "critique": "Critique: Supervised and trained on the benchmarks; not comparable to the training-free class, and its strong RefCOCO/gRefCOCO results bound what supervised selection can reach.",
+   "gap": "Gap addressed by this work: Representative of the supervised LMM route; our method uses a frozen LMM only as a box prior inside a training-free selector."
+  },
+  {
+   "key": "ras2025",
+   "title": "Refer to Any Segmentation Mask Group With Vision-Language Prompts",
+   "source_file": "exp/literature/papers/ras2025.txt",
+   "category": "ris",
+   "key_quote": "omnimodal referring expression",
+   "anchors": [
+    "Sec. 3 (ORES task and RAS model)",
+    "Table 3 (MaskGroups-HQ results)"
+   ],
+   "critique": "Critique: Trained 13B system, not same-class zero-shot; reference only.",
+   "gap": "Gap addressed by this work: Trained mask-group LMM; different task (ORES/GRES) and no zero-shot proposal-pool selection."
+  },
+  {
+   "key": "restr2022",
+   "title": "ReSTR: Convolution-free Referring Image Segmentation Using Transformers",
+   "source_file": "exp/literature/papers/restr.txt",
+   "category": "ris",
+   "key_quote": "To address these issues, we present the first convolution-free model for referring image segmentation using transformers, dubbed ReSTR.",
+   "anchors": [
+    "Table 1",
+    "Sec. 3 fusion encoder"
+   ],
+   "critique": "Critique: Supervised; its fusion gains do not transfer to a training-free setting automatically.",
+   "gap": "Gap addressed by this work: Supervised baseline in the proposal-free line; complements our finding that representation quality is not the training-free bottleneck."
+  },
+  {
+   "key": "seqtr2022",
+   "title": "SeqTR: A Simple yet Universal Network for Visual Grounding",
+   "source_file": "exp/literature/papers/seqtr.txt",
+   "category": "ris",
+   "key_quote": "To simplify and unify the modeling, we cast visual grounding as a point prediction problem conditioned on image and text inputs, where either the bounding box or binary mask is represented as a sequence of discrete coordinate tokens.",
+   "anchors": [
+    "Sec. 3 SeqTR",
+    "Table 6 multi-task ablation"
+   ],
+   "critique": "Critique: Supervised; its success shows that geometry is a viable output, but it does not measure training-free selection.",
+   "gap": "Gap addressed by this work: Supervised alternative that predicts geometry directly rather than selecting a proposal; its upper-bound analysis (95.63 mIoU with 36 GT-sampled points) bounds polygon-conversion error, not selection."
+  },
+  {
+   "key": "shu2023tas",
+   "title": "Text Augmented Spatial-aware Zero-shot Referring Image Segmentation",
+   "source_file": "exp/literature/papers/tas.txt",
+   "category": "ris",
+   "key_quote": "Yet, CLIP only considers the global-level alignment of image-text pairs, neglecting fine-grained matching between the referring sentence and local image regions.",
+   "anchors": [
+    "Sec. 3 TAS framework",
+    "Table 1 mIoU/oIoU"
+   ],
+   "critique": "Critique: A same-class method whose proposal source and text augmentation could be combined with our box prior; we do not test that combination.",
+   "gap": "Gap addressed by this work: Same-class zero-shot baseline; its CLIP-scoring-over-proposals recipe is the closest ancestor of our training-free selector."
+  },
+  {
+   "key": "splus2024",
+   "title": "Segment, Select, Correct: A Framework for Weakly-Supervised Referring Segmentation",
+   "source_file": "exp/literature/papers/splus2024.txt",
+   "category": "ris",
+   "key_quote": "decomposing it into three steps",
+   "anchors": [
+    "Sec. 3 (segment, select, correct)",
+    "Table 1 (zero-shot and weakly-supervised comparison)"
+   ],
+   "critique": "Critique: Adds a trained corrector, so it is not a training-free comparison; its zero-shot row is a baseline.",
+   "gap": "Gap addressed by this work: Direct evidence that selection is the known bottleneck: the paper trains a corrector specifically to fix selection errors."
+  },
+  {
+   "key": "veniceh1_2026",
+   "title": "Venice-H1: Failure-Aware Query Re-Ranking with Multi-Scale Grid Signatures for Referring Image Segmentation",
+   "source_file": "exp/literature/papers/veniceh1_2026.txt",
+   "category": "ris",
+   "key_quote": "We identify query selection as a failure-case bottleneck",
+   "anchors": [
+    "Sec. 1 (query-selection bottleneck)",
+    "Table 1 (selection gap analysis)"
+   ],
+   "critique": "Critique: Trained 11.3M re-ranker on top of strong DeRIS backbones; supports the diagnosis, does not contradict it.",
+   "gap": "Gap addressed by this work: Independent evidence that argmax selection is the failure mode; fixes it with a learned re-ranker rather than a geometric prior."
+  },
+  {
+   "key": "vlt2022",
+   "title": "Vision-Language Transformer and Query Generation for Referring Segmentation",
+   "source_file": "exp/literature/papers/vlt.txt",
+   "category": "ris",
+   "key_quote": "To achieve this, we reformulate referring segmentation as a direct attention problem: finding the region in the image where the query language expression is most attended to.",
+   "anchors": [
+    "Sec. 3 Query Generation",
+    "Table 4"
+   ],
+   "critique": "Critique: Supervised; the learned query-balance mechanism could in principle be added to a training-free pipeline, which we do not test.",
+   "gap": "Gap addressed by this work: Supervised ancestor of candidate scoring: its query generation is the learned analogue of our per-candidate selection."
+  },
+  {
+   "key": "yu2023global",
+   "title": "Zero-shot Referring Image Segmentation with Global-Local Context Features",
+   "source_file": "exp/literature/papers/gsva.txt",
+   "category": "ris",
+   "key_quote": "To overcome this issue, we propose a simple yet effective zero-shot referring image segmentation method by leveraging the pre-trained cross-modal knowledge from CLIP.",
+   "anchors": [
+    "Sec. 3 global-local context",
+    "Table 1"
+   ],
+   "critique": "Critique: If a stronger global-local encoder fixed selection, our localization diagnosis would be weakened; we measure that stronger encoders (SigLIP) do not.",
+   "gap": "Gap addressed by this work: Direct ancestor of the released scoring machinery our diagnosis examines: whole-region vs whole-sentence scores over proposals."
+  },
+  {
+   "key": "esam2025",
+   "title": "E-SAM: Training-Free Segment Every Entity Model",
+   "source_file": "exp/literature/papers/esam2025.txt",
+   "category": "adjacent",
+   "key_quote": "significantly outperforms both SAM",
+   "anchors": [
+    "Sec. 3 (EMR and USR)",
+    "Fig. 1 (comparison)"
+   ],
+   "critique": "Critique: Class-agnostic entity segmentation, no referring expressions.",
+   "gap": "Gap addressed by this work: Mask-merging without text; shows visual containment gating can repair granularity, orthogonal to selection."
+  },
+  {
+   "key": "gfsam2024",
+   "title": "Bridge the Points: Graph-based Few-shot Segment Anything Semantically",
+   "source_file": "exp/literature/papers/gfsam2024.txt",
+   "category": "adjacent",
+   "key_quote": "a simple yet effective approach based on graph analysis and representation learning",
+   "anchors": [
+    "Sec. 3 (point-mask clustering)",
+    "Abstract (COCO-20i and LVIS-92i results)"
+   ],
+   "critique": "Critique: Few-shot segmentation; no referring text or instance pool oracle.",
+   "gap": "Gap addressed by this work: Graph-based grouping of the SAM pool with coverage gates; alternative to score-based single selection."
+  },
+  {
+   "key": "groundingdino2024",
+   "title": "Grounding DINO: Marrying DINO with Grounded Pre-Training for Open-Set Object Detection",
+   "source_file": "exp/literature/papers/groundingdino.txt",
+   "category": "adjacent",
+   "key_quote": "In this paper, we present an open-set object detector, called Grounding DINO, by marrying Transformer-based detector DINO with grounded pre-training, which can detect arbitrary objects with human inputs such as category names or referring expressions.",
+   "anchors": [
+    "Sec. 3 method",
+    "Sec. 4 experiments"
+   ],
+   "critique": "Critique: Detector removal drops the same-class gRefCOCO cIoU floor; we measure the boundary rather than assuming it.",
+   "gap": "Gap addressed by this work: The detector in the shipped gRefCOCO path (candidate masks); the component removed by the DINO-free rescue arm."
+  },
+  {
+   "key": "kirillov2023sam",
+   "title": "Segment Anything",
+   "source_file": "exp/literature/papers/sam.txt",
+   "category": "adjacent",
+   "key_quote": "The model is designed and trained to be promptable, so it can transfer zero-shot to new image distributions and tasks.",
+   "anchors": [
+    "Sec. 3 model",
+    "Sec. 4 dataset",
+    "automatic mask generation"
+   ],
+   "critique": "Critique: Pool recall and mask quality bound every training-free method; we measure the ViT-B boundary (pool oracle 71.4 vs 79.1 mIoU on RefCOCOg).",
+   "gap": "Gap addressed by this work: Our frozen segmenter and the source of our proposal pool; the pool oracle is measured on SAM ViT-H and ViT-B."
+  },
+  {
+   "key": "li2024llavaov",
+   "title": "LLaVA-OneVision: Easy Visual Task Transfer",
+   "source_file": "exp/literature/papers/llavaov.txt",
+   "category": "adjacent",
+   "key_quote": "We present LLaVA-OneVision, a family of open large multimodal models (LMMs) developed by consolidating our insights into data, models, and visual representations in the LLaVA-NeXT blog series.",
+   "anchors": [
+    "Sec. 2 model",
+    "Table 2"
+   ],
+   "critique": "Critique: Pretrained on COCO images (no referring annotations), a weaker zero-shot notion; box quality bounds selection.",
+   "gap": "Gap addressed by this work: The frozen 7B box prior in our shipped method (sentence-prompt boxes)."
+  },
+  {
+   "key": "mars2026",
+   "title": "MARS: a Multimodal Alignment and Ranking System for Few-Shot Segmentation",
+   "source_file": "exp/literature/papers/mars2026.txt",
+   "category": "adjacent",
+   "key_quote": "a plug-and-play ranking system that leverages multimodal cues to filter and merge mask proposals robustly",
+   "anchors": [
+    "Sec. 3 (four scores)",
+    "Table 1 (COCO-20i ablation)"
+   ],
+   "critique": "Critique: Few-shot, not referring; no text-conditioned region prior or RIS benchmarks.",
+   "gap": "Gap addressed by this work: Same proposal-score-filter-merge family; its gate+union is close to the combination-policy headroom this run measured."
+  },
+  {
+   "key": "proposalclip2022",
+   "title": "ProposalCLIP: Unsupervised Open-Category Object Proposal Generation via Exploiting CLIP Cues",
+   "source_file": "exp/literature/papers/proposalclip2022.txt",
+   "category": "adjacent",
+   "key_quote": "Unsupervised Open-Category Object Proposal Generation",
+   "anchors": [
+    "Sec. 3.2 (graph-based merging)",
+    "Table 2 (PASCAL VOC and COCO proposals)"
+   ],
+   "critique": "Critique: Class-agnostic proposal generation, not text-conditioned selection.",
+   "gap": "Gap addressed by this work: Proposal merging guided by CLIP visual similarity; precursor to mask-graph combination policies."
+  },
+  {
+   "key": "qwen25vl2025",
+   "title": "Qwen2.5-VL Technical Report",
+   "source_file": "exp/literature/papers/qwen25vl.txt",
+   "category": "adjacent",
+   "key_quote": "Qwen2.5-VL achieves a major leap forward in understanding and interacting with the world through enhanced visual recognition, precise object localization, robust document parsing, and long-video comprehension.",
+   "anchors": [
+    "Sec. 2 model",
+    "Table 1"
+   ],
+   "critique": "Critique: A within-family size sweep is unmeasured; the two-point comparison isolates family, not size.",
+   "gap": "Gap addressed by this work: The frozen 3B box prior in the backbone audit; smaller and better than the shipped 7B LLaVA prior on our tables."
+  },
+  {
+   "key": "radford2021clip",
+   "title": "Learning Transferable Visual Models From Natural Language Supervision",
+   "source_file": "exp/literature/papers/clip.txt",
+   "category": "adjacent",
+   "key_quote": "We demonstrate that the simple pre-training task of predicting which caption goes with which image is an efficient and scalable way to learn SOTA image representations from scratch on a dataset of 400 million (image, text) pairs collected from the internet.",
+   "anchors": [
+    "Sec. 2 approach",
+    "Sec. 3 experiments",
+    "Figure 1"
+   ],
+   "critique": "Critique: A stronger CLIP-family encoder could change the absolute numbers; measured stronger encoders do not repair wrong-instance selection.",
+   "gap": "Gap addressed by this work: The region-text scoring platform our diagnosis examines; replacing it with SigLIP or our plain masked-region CLIP does not fix selection."
+  },
+  {
+   "key": "semanticsam2023",
+   "title": "Semantic-SAM: Segment and Recognize Anything at Any Granularity",
+   "source_file": "exp/literature/papers/semanticsam2023.txt",
+   "category": "adjacent",
+   "key_quote": "a universal image segmentation model to enable segment and recognize anything at any desired granularity",
+   "anchors": [
+    "Sec. 3 (multi-choice learning)",
+    "Table 3 (COCO panoptic results)"
+   ],
+   "critique": "Critique: Trained segmenter; different task family.",
+   "gap": "Gap addressed by this work: Richer multi-granularity pools; relevant to whether pool granularity, not selection, is the limit."
+  },
+  {
+   "key": "t2s2026",
+   "title": "Text-to-seed generation: Training-free open-vocabulary seeded semantic segmentation via re-purposing diffusion as text-guided seed generator",
+   "source_file": "exp/literature/papers/t2s2026.txt",
+   "category": "adjacent",
+   "key_quote": "we argue that more reliable segmentation can be achieved by exploiting SAM as a region expansion module",
+   "anchors": [
+    "Sec. 3 (seed generation and SAM expansion)",
+    "Table 1 (OVSS comparison)"
+   ],
+   "critique": "Critique: Semantic segmentation (OVSS), not referring instance selection.",
+   "gap": "Gap addressed by this work: Text-guided seed + SAM expansion is a pipeline alternative to proposal scoring; supports seed/expansion design."
+  },
+  {
+   "key": "zhou2022maskclip",
+   "title": "Extract Free Dense Labels from CLIP",
+   "source_file": "exp/literature/papers/maskclip.txt",
+   "category": "adjacent",
+   "key_quote": "To this end, with minimal modification, we show that MaskCLIP yields compelling segmentation results on open concepts across various datasets in the absence of annotations and fine-tuning.",
+   "anchors": [
+    "Sec. 3 MaskCLIP",
+    "Sec. 4 experiments"
+   ],
+   "critique": "Critique: Dense CLIP could improve region-text scoring, but scoring is not the measured bottleneck in our diagnosis.",
+   "gap": "Gap addressed by this work: A training-free dense-CLIP alternative; our region scoring uses pooled CLIP features, and we measure a plain masked-region CLIP platform swap."
+  },
+  {
+   "key": "earlygrounding2026",
+   "title": "Early Semantic Grounding in Image Editing Models for Zero-Shot Referring Image Segmentation",
+   "source_file": "exp/literature/papers/earlygrounding2026.txt",
+   "category": "ris",
+   "key_quote": "By leveraging feature-space separability, the framework produces accurate segmentation masks using only a single denoising step, without requiring full image synthesis.",
+   "anchors": [
+    "Table 1",
+    "Section 4.3 Comparison with State-of-the-arts"
+   ],
+   "critique": "Critique with evidence: the result is a 9-12B generative backbone evaluated on a 224/512-scale segmentation protocol, and the paper reports no inference cost, no pool/feature protocol for the baselines it tabulates, and no selection-level diagnostic. Its HybridGL row (49.48/43.40/51.25 mIoU, Table 1) is 4.7/3.2/1.2 above our released-code reproduction (44.82/40.23/50.08), while its MaskCLIP row (25.62/27.49/30.13) is 17/17/16 above our dense-map component adaptation (8.21/10.55/14.30). Those gaps are not explained in the paper and show that its table mixes harnesses; the MaskCLIP gap in particular says our component-pool construction is not MaskCLIP's strongest released route. We therefore treat its numbers as a labelled reference, not a same-protocol floor.",
+   "gap": "Gap addressed by this work: zero-shot RIS without a SAM proposal pool, using generative attention as the spatial prior. Gap left for us: no analysis of whether the failure mass is selection or pool, and no cost-controlled comparison; the 12B backbone makes it a distinct deployment class from our training-free selector. The MaskCLIP discrepancy is a direct invitation to re-run MaskCLIP with SAM proposals rather than dense-map components."
+  },
+  {
+   "key": "blindposition2025",
+   "title": "Blind to Position, Biased in Language: Probing Mid-Layer Representational Bias in Vision-Language Encoders for Zero-Shot Language-Grounded Spatial Understanding",
+   "source_file": "exp/literature/papers/blindposition2025.txt",
+   "category": "ris",
+   "key_quote": "we identify an underexplored pathway within VLE mid-layers to construct a spatial map, applicable for improving zero-shot RIS by 1-7 mIoU on nine RefCOCO benchmarks.",
+   "anchors": [
+    "Section 1 contributions",
+    "Section 3 mid-layer spatial map"
+   ],
+   "critique": "Critique with evidence: the paper reports gains on a B2G-style proposal selector but gives no per-benchmark table of the plain mid-layer map versus the multilingual variant in the main text, and the multilingual route increases inference cost (stated in the abstract) without a cost-controlled comparison. The probe is on CLIP ViT-B/16 and the nine RefCOCO-series benchmarks, all English and all object-level; it does not test the multi-target/no-target gRefCOCO setting, and it reports no instance-selection taxonomy, so it cannot distinguish a better-ranked candidate set from a better-selected mask. Its 7 mIoU upper gain is smaller than our oracle gap and does not by itself establish that selection, not scoring, is the binding constraint.",
+   "gap": "Gap addressed by this work: positional blindness of final-layer VLE features. Gap left for us: whether a mid-layer spatial map re-ranks the instance-correct proposal or merely improves mask boundary quality is untested; our taxonomy says the latter class is small, so the mechanism should be checked on wrong-instance failures before adoption."
+  },
+  {
+   "key": "maskris2024",
+   "title": "MaskRIS: Semantic Distortion-aware Data Augmentation for Referring Image Segmentation",
+   "source_file": "exp/literature/papers/maskris2024.txt",
+   "category": "ris",
+   "key_quote": "MaskRIS uses both image and text masking, followed by Distortion-aware Contextual Learning (DCL) to fully exploit the benefits of the masking strategy.",
+   "anchors": [
+    "Table 1",
+    "Section 4.2 Main Results"
+   ],
+   "critique": "Critique with evidence: this is fully supervised training on each dataset's train split (Table 1, Standard setting), so its 78.35 mIoU is not comparable to zero-shot rows and cannot be a floor; the paper itself separates combined-dataset training. Its improvements come from training-time augmentation, so they say nothing about repairing a frozen released pipeline. The abstract claims state-of-the-art on all three datasets, but the combined-setting table shows MaskRIS at 78.71/70.26/69.12 oIoU against PolyFormer 74.82/67.64/69.05 and CARIS 76.67/68.23/67.42, a smaller margin than the per-dataset setting; the strongest claim depends on the protocol chosen.",
+   "gap": "Gap addressed by this work: training-time robustness to occlusion and linguistic distortion. Gap left for us: it does not test whether the same masking prior improves a frozen selector at test time; our method cannot retrain, so the actionable part is only the observation that occlusion is a dominant distortion, which we do not repair."
+  },
+  {
+   "key": "pseudoris2024",
+   "title": "Pseudo-RIS: Distinctive Pseudo-supervision Generation for Referring Image Segmentation",
+   "source_file": "exp/literature/papers/pseudoris2024.txt",
+   "category": "ris",
+   "key_quote": "Our method significantly outperforms both weakly and zero-shot SoTA methods on the RIS benchmark datasets.",
+   "anchors": [
+    "Table 1",
+    "Table 2"
+   ],
+   "critique": "Critique with evidence: the headline comparison is not training-free, because the pseudo labels train CRIS/ETRIS and the table is a zero-shot evaluation of a trained model; the paper's own Table 1 is labelled zero-shot but the method has human-free training and multiple foundation models (SAM, CoCa, CLIP). Its gains over Ref-Diff are 3.8/5.3/2.0 mIoU, but the comparison crosses supervision classes and the paper does not report a compute or annotation-free control. The distinctiveness filter is evaluated only by downstream mIoU; there is no direct precision/recall of the pseudo-expression filtering, so the mechanism is not separated from the base captioner.",
+   "gap": "Gap addressed by this work: annotation-free supervision for RIS. Gap left for us: the generated expressions are still short object descriptions; the paper does not test multi-target or no-target (gRefCOCO), and it does not ask whether the pseudo-supervision improves selection of the correct instance or merely mask fitting. Our diagnosis suggests the former is the bottleneck."
+  },
+  {
+   "key": "haris2024",
+   "title": "HARIS: Human-Like Attention for Reference Image Segmentation",
+   "source_file": "exp/literature/papers/haris2024.txt",
+   "category": "ris",
+   "key_quote": "the Human-Like Attention gets a feedback signal from multi-modal features, which makes the network center on the specific objects and discard the irrelevant image-text pairs.",
+   "anchors": [
+    "Table I",
+    "Table IV"
+   ],
+   "critique": "Critique with evidence: the method is trained on RIS labels (Table I) and its zero-shot claim is cross-dataset transfer after supervised training, not label-free inference; the PhraseCut absolute IoU of 21.62 is low despite the reported improvement. The feedback attention is evaluated only through final mask IoU; there is no measurement of whether it suppresses the wrong instance or merely sharpens boundaries, and the paper does not report gRefCOCO multi-target/no-target behavior. The comparison to LAVT uses a different parameter budget, so the gain cannot be attributed to feedback alone.",
+   "gap": "Gap addressed by this work: irrelevant image-text pairs in bottom-up fusion. Gap left for us: the feedback is learned and cannot be applied to a frozen released scorer; the paper does not show how to decide, at test time, which pairs to discard, which is exactly the selection problem we study."
+  },
+  {
+   "key": "targetcoherence2023",
+   "title": "Towards Generalizable Referring Image Segmentation via Target Prompt and Visual Coherence",
+   "source_file": "exp/literature/papers/targetcoherence2023.txt",
+   "category": "ris",
+   "key_quote": "we propose to boost a given expression with an explicit and crucial prompt, which complements the expression in a unified context, facilitating target capturing in the presence of linguistic style changes.",
+   "anchors": [
+    "Section I contributions",
+    "Section IV.D Ablation Study"
+   ],
+   "critique": "Critique with evidence: the headline numbers are relative gains, not absolute zero-shot rows; the main tables list the trained model, and the zero-shot section reports the baseline LAVT values (for example 72.73 oIoU and 74.46 mIoU on RefCOCO val) alongside the gains, so a reader cannot recover the proposed method's absolute numbers from the abstract alone. The method is supervised, the target prompt is learned, and the visual-coherence module adds a pretrained model; there is no control isolating the prompt from the coherence term in the zero-shot setting. The claim of state-of-the-art generalization is therefore relative to a single backbone family.",
+   "gap": "Gap addressed by this work: expression ambiguity and incomplete masks under visual domain shift. Gap left for us: the paper does not test whether a training-free target prompt (our parsed spatial vocabulary) captures the same gain, nor whether coherence alone is sufficient; our GEM-only probe answers the second question and finds it is not."
+  },
+  {
+   "key": "unifiedres2025",
+   "title": "Towards Unified Referring Expression Segmentation Across Omni-Level Visual Target Granularities",
+   "source_file": "exp/literature/papers/unifiedres2025.txt",
+   "category": "ris",
+   "key_quote": "we introduce a new multi-granularity referring expression segmentation (MRES) task, alongside the RefCOCOm benchmark, which includes part-level annotations for advancing finer-grained visual understanding.",
+   "anchors": [
+    "Table IV",
+    "Table V"
+   ],
+   "critique": "Critique with evidence: the gRefCOCO row is trained on gRefCOCO (the table labels specialists as trained exclusively on gRefCOCO), so comparing it to training-free zero-shot methods is apples-to-oranges; the paper does not claim otherwise, but secondary tables sometimes quote it without the supervision label. The model is a large MLLM trained on a 32M-mask corpus, and the paper reports no inference cost, no failure taxonomy, and no analysis of multi-target selection quality beyond aggregate cIoU/gIoU. Part-level gains are relative to a new benchmark whose difficulty is hard to calibrate against RefCOCO numbers.",
+   "gap": "Gap addressed by this work: data scarcity and granularity unification. Gap left for us: it does not provide a training-free recipe, and its aggregate gIoU hides whether multi-target masks are unioned correctly; our cIoU/gIoU split and N/T accuracies serve that diagnostic, but we cannot match its supervised level."
+  },
+  {
+   "key": "resanything2025",
+   "title": "RESAnything: Attribute Prompting for Arbitrary Referring Segmentation",
+   "source_file": "exp/literature/papers/resanything2025.txt",
+   "category": "ris",
+   "key_quote": "we generate detailed descriptions of object/part attributes including shape, color, and location for potential segment proposals through systematic prompting of a large language model (LLM), where the proposals are produced by a foundational image segmentation model.",
+   "anchors": [
+    "Table 1",
+    "Table 2"
+   ],
+   "critique": "Critique with evidence: the comparison table is explicitly cIoU, while much of the RIS literature including our paper's main rows reports mIoU; the paper does not provide an mIoU row for RESAnything, so its 68.5 cannot be inserted into an mIoU leaderboard. The method relies on a large LLM and a foundation segmenter, and the new part-level benchmark (~3K instances) is authored by the same group, so part-level superiority is not independently calibrated. The table's training-free methods are a small set (GLCLIP, CaR, RESAnything); stronger training-free baselines such as HybridGL or S+S are absent, so the SOTA claim is scoped.",
+   "gap": "Gap addressed by this work: implicit and part-level references without training. Gap left for us: it does not address multi-target/no-target gRefCOCO, does not report mIoU, and does not measure selection-level failures; its LLM cost is a different deployment class from our frozen CLIP selector."
+  },
+  {
+   "key": "grex2026",
+   "title": "GREx: Generalized Referring Expression Segmentation, Comprehension, and Generation",
+   "source_file": "exp/literature/papers/grex2026.txt",
+   "category": "ris",
+   "key_quote": "We construct the first large-scale GREx dataset gRefCOCO that contains multi-target, no-target, and single-target expressions and their corresponding images with labeled targets.",
+   "anchors": [
+    "Table 9",
+    "Table 11",
+    "Table 10"
+   ],
+   "critique": "Critique with evidence: ReLA is trained on the gRefCOCO train split, so its 62.91 cIoU is a supervised ceiling, not a zero-shot result; the paper sometimes compares it to classic RES methods retrained on gRefCOCO, which is a fair same-protocol comparison but not a training-free one. The N-acc of 56.29 shows that even the supervised model is far from solving no-target detection, yet the main results emphasize cIoU/gIoU; our training-free N-acc of 85.66 (with T 88.71) is higher, a contrast the paper's framing does not highlight. The paper does not isolate how much of the gain comes from the new data versus the ReLA architecture.",
+   "gap": "Gap addressed by this work: generalized references and a benchmark. Gap left for us: it does not provide a training-free baseline on gRefCOCO, and its aggregate cIoU does not separate wrong-instance selection from missing multi-target unions; our diagnosis fills that gap but cannot match its supervised level."
+  },
+  {
+   "key": "resagent2026",
+   "title": "ResAgent: Entropy-based Prior Point Discovery and Visual Reasoning for Referring Expression Segmentation",
+   "source_file": "exp/literature/papers/resagent2026.txt",
+   "category": "ris",
+   "key_quote": "EBD identifies high-information candidate points by modeling spatial uncertainty within coarse bounding boxes, treating point selection as an information maximization process.",
+   "anchors": [
+    "Table 1",
+    "Table 2",
+    "Table 3"
+   ],
+   "critique": "Critique with evidence: ResAgent is fine-tuned (the paper calls the final stage additional fine-tuning adaptations), so its 80.5 is a trained MLLM result and not comparable to training-free rows; the paper does not put its numbers in a same-class table with zero-shot methods, and its point discovery depends on a coarse box from an MLLM. The gain from VBR is measured against a textual-coordinate variant within the same trained model, not against a frozen selector. Table 1 mixes non-LLM specialists, image generalists and video generalists, making the SOTA claim broad but the supervision classes heterogeneous; the paper reports no inference cost despite 4B/8B models.",
+   "gap": "Gap addressed by this work: unreliable point prompts and textual coordinate reasoning. Gap left for us: it does not test training-free selection or a fixed proposal pool, so it cannot tell us whether entropy-guided points would improve a frozen selector; that is a candidate extension we did not run."
+  },
+  {
+   "key": "qwen3vlseg2026",
+   "title": "Qwen3-VL-Seg: Unlocking Open-World Referring Segmentation with Vision-Language Grounding",
+   "source_file": "exp/literature/papers/qwen3vlseg2026.txt",
+   "category": "ris",
+   "key_quote": "we present Qwen3-VL-Seg, a parameter-efficient framework that treats the MLLM-predicted box as a semantically grounded structural prior and decodes it into pixel-level referring segmentation.",
+   "anchors": [
+    "Table 5",
+    "Section 4.3 ablation"
+   ],
+   "critique": "Critique with evidence: the decoder is trained on SA1B-ORS (category- and description-oriented subsets derived from SA-1B) and evaluated on RefCOCO-family val, so this is a trained method, not training-free; the paper does not report a comparison to zero-shot methods in its main table, and its gains are relative to a weak Qwen box+SAM baseline. The open-world claim would be stronger with an overlap audit between SA1B-ORS and RefCOCO images; none is reported. The 17M decoder still requires a multi-billion-parameter MLLM at inference, so the parameter-efficiency claim is about the decoder only.",
+   "gap": "Gap addressed by this work: converting sparse MLLM boxes into dense masks without SAM. Gap left for us: the method is trained and its decoder is not transferable to our frozen training-free setting; we cannot adopt it without violating the no-training rule, and the paper does not analyze selection failures."
+  },
+  {
+   "key": "vespaseg2026",
+   "title": "VespaSeg: A Resource-Aware Ground-then-Segment Pipeline for Referring Expression Segmentation",
+   "source_file": "exp/literature/papers/vespaseg2026.txt",
+   "category": "ris",
+   "key_quote": "we present VespaSeg, a modular pipeline that grounds a text query with a compact vision-language model and converts the predicted box to a mask with MobileSAM.",
+   "anchors": [
+    "Abstract",
+    "Table 3",
+    "Table 1"
+   ],
+   "critique": "Critique with evidence: the evaluation is not the official RefCOCO val split; the abstract states it uses the first expression for each of 3,811 referenced-object records, which is a smaller and differently distributed protocol than the 10,834-expression val used here. That makes the 73.64 mIoU incomparable to published RefCOCO rows, and the paper itself flags the need for official evaluation. The grounder is adapted with LoRA on RefCOCO training data, so the pipeline is not training-free; the efficiency numbers are for cached images and do not include first-load or grounder download costs.",
+   "gap": "Gap addressed by this work: resource-aware modular referring segmentation. Gap left for us: its nonstandard protocol and trained adapter mean we cannot use it as a floor or as a like-for-like efficiency baseline; it does, however, support our choice of a box prior as a cheap structural interface."
+  },
+  {
+   "key": "physmllm2026",
+   "title": "PhysMLLMs: Spatial Priors for Unified Referring Segmentation and Grounded Reasoning of Images and Videos",
+   "source_file": "exp/literature/papers/physmllm2026.txt",
+   "category": "ris",
+   "key_quote": "We present PhysMLLMs, a training-stage prior injection architecture that injects physics-inspired spatial continuity priors into Video MLLMs.",
+   "anchors": [
+    "Abstract",
+    "Section 4 results"
+   ],
+   "critique": "Critique with evidence: the method is trained (distillation plus calibrated PEFT) and the reported gains are on video, while the RefCOCO-family results are explicitly used only as a non-degradation check, not as an improvement. The paper does not report a zero-shot image RIS table, and the +1.35/+1.20 gains are small relative to the failure gaps it documents (20.96 and 23.32 points below the overall score). The claim of no inference cost is true only for the student, but the training adds a teacher pass and an offline embedding cache; no wall-clock or memory numbers are reported. The benchmark suite is mostly video, so its relevance to static RIS selection is indirect.",
+   "gap": "Gap addressed by this work: temporal identity and spatial continuity in video referring segmentation. Gap left for us: nothing in the method addresses which proposal is selected in a single image, and its RefCOCO rows do not improve the static task; our selection diagnosis is untouched by it."
+  },
+  {
+   "key": "elboalign2025",
+   "title": "ELBO-T2IAlign: A Generic ELBO-Based Method for Calibrating Pixel-level Text-Image Alignment in Diffusion Models",
+   "source_file": "exp/literature/papers/elboalign2025.txt",
+   "category": "adjacent",
+   "key_quote": "we propose using zero-shot referring image segmentation as a proxy task to evaluate the pixel-level image and class-level text alignment of popular diffusion models.",
+   "anchors": [
+    "Table IV",
+    "Table V"
+   ],
+   "critique": "Critique with evidence: the headline mIoU is on the AEP dataset, not on RefCOCO/+/g, and the paper does not report a standard RIS val table, so its numbers cannot be placed alongside the zero-shot RIS literature. The method depends on a diffusion model and an ELBO computation at generation time; the paper does not report inference cost, and the gains on SD3.5 are only 0.27 mIoU (52.63 to 52.90), so the calibration is not uniformly effective. The comparison is against diffusion baselines, not against CLIP-based training-free RIS methods; the proxy-task framing is insightful but the evidence is scoped to the generation stack.",
+   "gap": "Gap addressed by this work: pixel-text misalignment in diffusion models. Gap left for us: it does not test whether the same calibration helps a frozen CLIP proposal scorer, and its small-object failure mode is the one our taxonomy finds is second to wrong-instance selection, so it cannot be the main repair."
+  },
+  {
+   "key": "evfsam2024",
+   "title": "EVF-SAM: Early Vision-Language Fusion for Text-Prompted Segment Anything Model",
+   "source_file": "exp/literature/papers/evfsam2024.txt",
+   "category": "ris",
+   "key_quote": "(1) multimodal prompts and (2) vision-language models with early fusion (e.g., BEIT-3) are beneficial for prompting SAM for accurate referring segmentation.",
+   "anchors": [
+    "Table 1",
+    "Table 2"
+   ],
+   "critique": "Critique with evidence: EVF-SAM is fully supervised on RefCOCO-family training data (Table 1), so its 82.1/75.2/76.8 cIoU is not a zero-shot result and cannot be a floor for our method. The motivation comparison uses RefCOCO testA only, a single split, and the CLIP-prompted baseline is a reproduction by the authors, not a released number; the 83.7 early-fusion figure is therefore not directly comparable to published CLIP-based pipelines. The paper does not report selection diagnostics, and its large gain from the feature path could reflect task-specific training of the fusion layers as much as the fusion design.",
+   "gap": "Gap addressed by this work: text-prompted SAM and the choice of vision-language fusion. Gap left for us: the method requires supervised training and cannot be used in our training-free setting; but its evidence bounds how much a frozen CLIP path can gain from selection alone, which we should acknowledge as a ceiling."
+  },
+  {
+   "key": "text4seg2024",
+   "title": "Text4Seg: Reimagining Image Segmentation as Text Generation",
+   "source_file": "exp/literature/papers/text4seg2024.txt",
+   "category": "ris",
+   "key_quote": "we introduce Text4Seg, a novel text-as-mask paradigm that casts image segmentation as a text generation problem, eliminating the need for additional decoders and significantly simplifying the segmentation process.",
+   "anchors": [
+    "Abstract",
+    "Table 1",
+    "Section 4.4 efficiency"
+   ],
+   "critique": "Critique with evidence: the model is fine-tuned on RIS data and evaluated on the same benchmarks, so the 76.2 cIoU is supervised and not comparable to zero-shot rows. The 16x16 descriptor grid limits spatial resolution; the paper adds a SAM refiner to recover detail, which reintroduces the heavy segmenter it claimed to eliminate, and the refiner raises average cIoU from 73.5 to 79.1 (Section 4.4), so the decoder-free claim is only true for the coarse stage. The efficiency comparison is against its own uncompressed format, not against SAM-based pipelines end-to-end.",
+   "gap": "Gap addressed by this work: mask decoding as text generation. Gap left for us: it requires training and does not expose instance-selection decisions; the 16x16 grid cannot represent multiple small instances faithfully, which is exactly the gRefCOCO multi-target regime."
+  },
+  {
+   "key": "pluginfb2025",
+   "title": "Plug-in Feedback Self-adaptive Attention in CLIP for Training-free Open-Vocabulary Segmentation",
+   "source_file": "exp/literature/papers/pluginfb2025.txt",
+   "category": "adjacent",
+   "key_quote": "we propose a training-free, feedback-driven self-adaptive framework that adapts output-based patch-level correspondences back to the intermediate attention.",
+   "anchors": [
+    "Table 2",
+    "Table 3",
+    "Section 5.2 Main results"
+   ],
+   "critique": "Critique with evidence: the evaluation is open-vocabulary semantic segmentation on VOC/Context/Object/City/ADE, not referring segmentation; there is no text-conditioned instance selection and no RefCOCO-family table. The gains are relative to weak dense baselines and the absolute ProxyCLIP number (57.4 mIoU on VOC) is below specialized OVSS methods in other papers. The feedback loop introduces several hyperparameters (isolation, pruning, ensemble) whose sensitivity is not fully reported, and the method still produces a dense class map, so it cannot resolve multi-instance references. It is therefore a feature-path repair, not a competitor to our selector.",
+   "gap": "Gap addressed by this work: coherence propagation inside CLIP. Gap left for us: the paper does not test whether feedback attention improves proposal-level ranking; applying it to our feature path is a plausible but untested repair that would not by itself answer the selection question."
+  },
+  {
+   "key": "ovsdino2026",
+   "title": "OVS-DINO: Open-Vocabulary Segmentation via Structure-Aligned SAM-DINO with Language Guidance",
+   "source_file": "exp/literature/papers/ovsdino2026.txt",
+   "category": "adjacent",
+   "key_quote": "we analyze internal representations of DINO and discover that its inherent boundary awareness is not absent but rather undergoes progressive attenuation as features transition into deeper transformer blocks.",
+   "anchors": [
+    "Table 1",
+    "Table 2"
+   ],
+   "critique": "Critique with evidence: OVS-DINO is trained with SAM pseudo-masks and a supervision strategy, so it is not training-free; calling it weakly supervised is accurate but its 46.9 cannot be compared with training-free rows. The evaluation is semantic segmentation with a fixed class set, not referring expressions; there is no instance-selection metric and no multi-target handling. The paper attributes gains to structure alignment, but the ablation removes DINO or the encoder without a same-parameter control, so architecture and supervision are confounded. Its VOC20 result is 83.5, below DSGS (85.0) and Talk2DINO (87.1), which the paper acknowledges.",
+   "gap": "Gap addressed by this work: boundary fidelity in OVSS. Gap left for us: it does not test whether structure alignment changes which proposal is selected; our wrong-instance failures are near-disjoint masks, not boundary misses, so this repair would address the smaller share of our oracle gap."
+  },
+  {
+   "key": "sciclip2026",
+   "title": "SCI-CLIP: Segment-Centric Inference with Reference Memory for Training-Free Open-Vocabulary Segmentation",
+   "source_file": "exp/literature/papers/sciclip2026.txt",
+   "category": "adjacent",
+   "key_quote": "SCI-CLIP first induces a region-consistent interaction graph over frozen visual tokens, then reconstructs dense features by propagating values over this graph.",
+   "anchors": [
+    "Table 1",
+    "Table 3 stagewise ablation"
+   ],
+   "critique": "Critique with evidence: the benchmarks are open-vocabulary semantic segmentation (VOC, Context, Object, City, ADE), not referring segmentation; the reference memory stores class exemplars, not expression-conditioned instances, so it cannot select among same-class objects. The ablation shows the largest gain comes from scope reconstruction (45.8 to 49.5), with retrieval adding the rest; the paper's claim that all stages share one abstraction is plausible but not ablated against a retrieval-only baseline in the main text. It reports no cost, and the cross-window and memory components imply multiple forward passes or a cache, which matters for deployment.",
+   "gap": "Gap addressed by this work: spatial coherence of frozen CLIP features. Gap left for us: no proposal-level selection and no referring expressions; its region graph could be used to smooth per-proposal features, but it does not answer which candidate is the referent."
+  },
+  {
+   "key": "maviseg2026",
+   "title": "MAVISEG: Manifold Propagation and Visual Prototypes for Zero-Shot Open-Vocabulary Segmentation in Diffusion Transformers",
+   "source_file": "exp/literature/papers/maviseg2026.txt",
+   "category": "adjacent",
+   "key_quote": "We present MAVISEG, a training-free refinement layer that recovers these signals.",
+   "anchors": [
+    "Table 2 operator ablation",
+    "Section 4.1 Settings"
+   ],
+   "critique": "Critique with evidence: the method is evaluated on open-vocabulary semantic segmentation with a fixed concept list; there is no referring expression, no instance pool and no selection metric. Its gains are reported on PASCAL VOC val and five other OVSS benchmarks, not RefCOCO-family, so the 4.0-4.5 mIoU cannot be transferred to our tables. The refinement depends on a diffusion transformer (FLUX) and multiple timesteps, which is far more expensive than our single frozen CLIP pass; the paper does not report runtime. Several hyperparameters (propagation weight, neighborhood, bandwidth) are tuned on VOC val, so the zero-shot claim is weakened by benchmark-specific tuning.",
+   "gap": "Gap addressed by this work: post-hoc refinement of dense score fields. Gap left for us: it cannot select a specific instance among same-class candidates and has no expression conditioning; its manifold smoothing is a candidate feature-path repair, but it would not address our wrong-instance mass."
+  },
+  {
+   "key": "discoverseg2026",
+   "title": "Discover, Segment, and Select: A Progressive Mechanism for Zero-shot Camouflaged Object Segmentation",
+   "source_file": "exp/literature/papers/discoverseg2026.txt",
+   "category": "adjacent",
+   "key_quote": "we propose the Discover-Segment-Select (DSS) mechanism, a progressive framework designed to refine segmentation step by step.",
+   "anchors": [
+    "Table 2",
+    "Table 6 SMS ablation"
+   ],
+   "critique": "Critique with evidence: the task is camouflaged object segmentation, not referring expression segmentation; there is no language-conditioned expression and no multi-target/no-target setting, so the results do not transfer to our benchmarks. The selection is MLLM-based and the paper reports no cost or latency, despite multiple candidates per image and an MLLM call per candidate set. The benchmark suite is small (CAMO 250 images, CHAMELEON 87), and the zero-shot comparison set excludes recent RIS-specific selectors; the claims are scoped to COD. The SMS ablation (Table 6) shows selection helps, but the paper does not separate selection quality from discovery quality.",
+   "gap": "Gap addressed by this work: proposal selection for camouflaged objects. Gap left for us: it does not test referring expressions, and its MLLM selector is a different cost class; still, it supports our premise that selection is a first-class stage rather than a detail."
+  },
+  {
+   "key": "satov2026",
+   "title": "SatOV: Restoring Spatial Priors for Training-Free Open-Vocabulary Segmentation in Remote Sensing Imagery",
+   "source_file": "exp/literature/papers/satov2026.txt",
+   "category": "adjacent",
+   "key_quote": "we propose SatOV, a training-free framework for open-vocabulary remote sensing segmentation that restores spatial priors at two stages of the representation pipeline.",
+   "anchors": [
+    "Table 2",
+    "Table 4"
+   ],
+   "critique": "Critique with evidence: the evaluation is remote-sensing OVSS, where the class vocabulary is fixed and images are large; there is no referring expression and no instance selection. The benchmark set is domain-specific (UDD, DOTA, LoveDA, Vaihingen), so the 43.3 average cannot be compared to RefCOCO. The paper reports no runtime or memory cost despite high-resolution images, and the ablation is run only on DOTA for component removals (Table 4), so the component rankings are not validated across the other three datasets. The zero-shot claim is also within a domain-specific pretraining distribution (remote-sensing foundation models), not open-world.",
+   "gap": "Gap addressed by this work: spatial-prior loss in high-resolution remote sensing. Gap left for us: no language-conditioned instance selection; the ResQQ mechanism is a candidate feature-path improvement for our pipeline, but the domain gap makes it a speculative transfer."
+  },
+  {
+   "key": "lightmaskdecoder2025",
+   "title": "Unlocking the Potential of MLLMs in Referring Expression Segmentation via a Light-weight Mask Decoder",
+   "source_file": "exp/literature/papers/lightmaskdecoder2025.txt",
+   "category": "ris",
+   "key_quote": "we establish a light-weight mask decoder with only 34M network parameters that optimally leverages detailed spatial features from the visual encoder and semantic features from the LLM to achieve precise mask prediction.",
+   "anchors": [
+    "Table 1",
+    "Table 3"
+   ],
+   "critique": "Critique with evidence: the model is trained on RefCOCO-family and gRefCOCO train splits (the paper states it trains on those splits), so all numbers are supervised and not zero-shot; the zero-shot rows in Table 3 are marked with an asterisk and belong to other methods. The 93.5 cIoU on RefCOCO val is high even for supervised RES, and the comparison table mixes models with and without SAM and different parameter budgets; the paper does not report inference cost. Its gRefCOCO gIoU 75.1 is only 1.3 above our training-free 73.78, which is a useful honesty check but does not make the methods comparable.",
+   "gap": "Gap addressed by this work: heavy SAM decoders for MLLM-based RES. Gap left for us: it requires task-specific training and does not analyze selection failures; its gRefCOCO N-acc 73.2 is below our 85.66, so the training-free abstention logic is not obviously inferior on the no-target axis."
+  },
+  {
+   "key": "gem2023",
+   "title": "Grounding Everything: Emerging Localization Properties in Vision-Language Transformers",
+   "source_file": "exp/literature/papers/gem2023.txt",
+   "category": "adjacent",
+   "key_quote": "we propose a Grounding Everything Module (GEM) that generalizes the idea of value-value attention introduced by CLIPSurgery to a self-self attention path.",
+   "anchors": [
+    "Table 1",
+    "Section 3.1 GEM"
+   ],
+   "critique": "Critique with evidence: the paper's evaluation is class-level semantic segmentation on Pascal VOC/Context with a fixed vocabulary; it has no referring expressions, no instance pool and no multi-target/no-target protocol, so its 45.1/32.3 do not transfer to RIS. The self-self attention map is class-agnostic in the sense that it clusters visual tokens, and our probe shows that coherence-only selection loses 7.4 and 7.9 mIoU on RefCOCO+/g relative to the released selector (exp/out_final/gem_selector.json), so GEM is not a substitute for semantic selection. The paper also reports no cost for the iterative attention and its best qkv variant is an ensemble of three projections, which triples the attention passes; the ablation table shows a 1.2-point spread across projection choices, so the gain is partly an ensemble effect rather than a single mechanism.",
+   "gap": "Gap addressed by this work: training-free dense localization from CLIP. Gap left for us: GEM does not decide which instance the expression refers to when several same-class objects are present; it supplies coherence, not reference resolution. Our probe fills that gap by measuring coherence-only selection, and it motivates keeping a semantic term in the selector."
+  },
+  {
+   "key": "fgclip2025",
+   "title": "FG-CLIP: Fine-Grained Visual and Textual Alignment",
+   "source_file": "exp/literature/papers/fgclip2025.txt",
+   "category": "adjacent",
+   "key_quote": "we propose Fine-Grained CLIP (FG-CLIP), which enhances fine-grained understanding through three key innovations.",
+   "anchors": [
+    "Table 1",
+    "Table 2",
+    "Section 4.3 regional contrastive learning"
+   ],
+   "critique": "Critique with evidence: the evaluation is retrieval, classification and open-vocabulary detection, not referring segmentation; there is no RefCOCO-family table and no instance-selection metric. The gains come with a very large proprietary data pipeline (1.6B captions, 12M images, 40M boxes) that is not reproducible at our scale, and the released base model is the only practical entry point. In our RefChess arm, the dense FG-CLIP path hit an OOM/shape mismatch and the working runs fell back to CLIP ViT-B/32, so the backbone's RIS benefit is unproven in our harness. The paper's hard-negative recipe also depends on in-batch mining details that are not fully specified.",
+   "gap": "Gap addressed by this work: fine-grained region-text alignment. Gap left for us: it does not test selection among same-class proposals or multi-target expressions; our RefChess run is an attempt to close that gap, but it is not a full pipeline and is reported as such."
+  },
+  {
+   "key": "siglip2023",
+   "title": "Sigmoid Loss for Language Image Pre-Training",
+   "source_file": "exp/literature/papers/siglip2023.txt",
+   "category": "adjacent",
+   "key_quote": "SigLiT is surprisingly efficient, reaching 79.7% zero-shot accuracy on ImageNet with only 32 TPUv4 chips for one day.",
+   "anchors": [
+    "Abstract",
+    "Table 1",
+    "Section 3 sigmoid loss"
+   ],
+   "critique": "Critique with evidence: the evaluation is classification and retrieval, not dense prediction or referring segmentation; the paper reports no region-level or mask metric and no RefCOCO-family table. The headline 84.5% is SigLiT, a specific model/data recipe with caption filtering, not the base SigLIP result, and the comparison to softmax CLIP is at matched scale rather than a controlled architecture study. Our smoke run is five images and only checks embedding geometry; it does not test whether sigmoid embeddings rank SAM proposals better than our CLIP features, so the threat remains untested.",
+   "gap": "Gap addressed by this work: efficient language-image pre-training. Gap left for us: no localization or selection evaluation; a SigLIP proposal-scoring arm on the held-out carve-out would be needed before claiming anything about the feature path."
+  },
+  {
+   "key": "dinov2_2023",
+   "title": "DINOv2: Learning Robust Visual Features without Supervision",
+   "source_file": "exp/literature/papers/dinov2_2023.txt",
+   "category": "adjacent",
+   "key_quote": "We show that existing self-supervised methods can be scaled up to produce general-purpose visual features that work well across domains without fine-tuning.",
+   "anchors": [
+    "Table 2",
+    "Section 4",
+    "Abstract"
+   ],
+   "critique": "Critique with evidence: DINOv2 is class-agnostic and has no language alignment; it cannot take a referring expression and choose an instance, so it cannot be a selector without a text head. The headline 86.5% is a linear probe on ImageNet, not zero-shot segmentation, and the dense-task results use task-specific heads or fine-tuning. The 142M-image curated dataset is not released as raw data, so the training result is not reproducible at our scale. Our five-image token check verifies geometry only and says nothing about proposal ranking; PhysMLLMs uses the teacher for video priors, not for RIS selection.",
+   "gap": "Gap addressed by this work: general-purpose visual features without labels. Gap left for us: no text conditioning and no instance selection; it is a feature-path/teacher candidate, and our wrong-instance failures are semantic, so stronger visual features alone are unlikely to repair them."
+  }
+ ]
 }

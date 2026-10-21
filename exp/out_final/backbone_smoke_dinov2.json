@@ -1,0 +1,10 @@
+{
+  "backbone": "dinov2_vits14",
+  "n": 5,
+  "patch_tokens_per_image": 256,
+  "feature_dim": 384,
+  "mean_token_norm": 48.2128791809082,
+  "token_norm_std": 2.4531214237213135,
+  "seconds": 39.73,
+  "protocol": "five RefCOCO val images resized to 224; released DINOv2 ViT-S/14 patch tokens; geometry/norm check only, a component smoke run, not a segmentation evaluation"
+}

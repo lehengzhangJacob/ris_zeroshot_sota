@@ -33,6 +33,21 @@ similarity explains only 34\% of the disagreement. None of these changes the
 pool; all act on the choice among candidates, which is the axis this paper
 measures.
 
+\paragraph{Representation limits.}
+A complementary line of work argues that the frozen representation, not the
+selector, is the binding limit. Mid-layer probing~\cite{blindposition2025}
+finds that positional information is strongest before the final layer and
+recovers 1--7 mIoU with a mid-layer spatial map. Training-free feature
+refinements such as SCI-CLIP~\cite{sciclip2026} and output-feedback
+attention~\cite{pluginfb2025} improve dense open-vocabulary segmentation
+without training, and early-fusion or fine-grained backbones
+\cite{evfsam2024,fgclip2025} show large gains from better region-text
+alignment. Generative-backbone methods~\cite{earlygrounding2026} now reach
+57.56 mIoU on RefCOCO val zero-shot with a 12B editing DiT. These bounds
+matter for our claim: we test selection given a fixed pool and feature path,
+and we report the feature-path ceiling as a scope condition rather than
+claiming selection is the only bottleneck.
+
 \paragraph{Mask selection and merging.}
 Merging/growing proposals is a known idiom: ProposalCLIP~\cite{proposalclip2022}
 merges graph-connected proposals for class-agnostic generation;

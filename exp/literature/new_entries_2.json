@@ -1,0 +1,422 @@
+[
+ {
+  "key": "physmllm2026",
+  "title": "PhysMLLMs: Spatial Priors for Unified Referring Segmentation and Grounded Reasoning of Images and Videos",
+  "identifier": "arXiv:2608.24574",
+  "category": "ris",
+  "method": "Training-stage prior injection for video MLLMs: a frozen DINOv2 teacher distills global visual representations (REPA-Global) to improve spatio-temporal consistency, with no inference-time change.",
+  "claims": "On video referring segmentation it improves ReVOS by 1.35 and MeVIS-U by 1.20 over the Sa2VA-InternVL3-2B baseline; the baseline ReVOS J&F is 54.61 overall but 33.65 on small targets.",
+  "relation": "A video extension of the referring segmentation task; its diagnosis of small-target and occlusion failures parallels our under-segmentation class, but its fix is training-time distillation and does not address candidate selection.",
+  "threat": "If temporal priors were the dominant missing signal, our single-image selection diagnosis would be incomplete for video; the paper does not test image-level RefCOCO improvements, reporting RefCOCO only as a non-degradation check.",
+  "key_quote": "We present PhysMLLMs, a training-stage prior injection architecture that injects physics-inspired spatial continuity priors into Video MLLMs.",
+  "depth": "full-text",
+  "reported_numbers": {
+   "revos_gain_JF": 1.35,
+   "mevisU_gain_JF": 1.20,
+   "revos_baseline_JF": 54.61,
+   "revos_small_target_JF": 33.65
+  },
+  "anchors": ["Abstract", "Section 4 results"],
+  "source_file": "exp/literature/papers/physmllm2026.txt",
+  "code": {
+   "available": false,
+   "inspected": false,
+   "repo": "",
+   "findings": "",
+   "ran": false
+  },
+  "appreciation": "Best idea and measured contribution: the paper localizes a real failure, spatio-temporal inconsistency under occlusion and similar distractors, and shows that a frozen DINOv2 teacher can inject a spatial-continuity prior at training time without adding inference cost. The measured contribution is consistent but modest on video benchmarks (+1.35 ReVOS J&F, +1.20 MeVIS-U), and the analysis of the Sa2VA baseline is valuable: 54.61 J&F overall collapses to 33.65 on small targets and 31.29 under occlusion, so the aggregate hides where the model fails. That kind of stratified reporting is the right instinct.",
+  "critique": "Critique with evidence: the method is trained (distillation plus calibrated PEFT) and the reported gains are on video, while the RefCOCO-family results are explicitly used only as a non-degradation check, not as an improvement. The paper does not report a zero-shot image RIS table, and the +1.35/+1.20 gains are small relative to the failure gaps it documents (20.96 and 23.32 points below the overall score). The claim of no inference cost is true only for the student, but the training adds a teacher pass and an offline embedding cache; no wall-clock or memory numbers are reported. The benchmark suite is mostly video, so its relevance to static RIS selection is indirect.",
+  "gap": "Gap addressed by this work: temporal identity and spatial continuity in video referring segmentation. Gap left for us: nothing in the method addresses which proposal is selected in a single image, and its RefCOCO rows do not improve the static task; our selection diagnosis is untouched by it.",
+  "critique_evidence": "exp/out_final/deep_read_critique_evidence.json"
+ },
+ {
+  "key": "elboalign2025",
+  "title": "ELBO-T2IAlign: A Generic ELBO-Based Method for Calibrating Pixel-level Text-Image Alignment in Diffusion Models",
+  "identifier": "arXiv:2506.09740",
+  "category": "adjacent",
+  "method": "Training-free calibration of pixel-text alignment in diffusion models using the evidence lower bound; applied to zero-shot RIS as a proxy task and to compositional generation.",
+  "claims": "On the AEP dataset, SD1.5 mIoU rises from 58.70 to 60.58 (ELB with AE) and CLIP score on A&E from 31.45 to 32.70; SDXL mIoU rises from 52.55 to 53.82.",
+  "relation": "A diffusion-based alternative to CLIP dense features for zero-shot RIS; its diagnosis that misalignment concentrates on small, occluded and rare objects overlaps our under-segmentation and wrong-instance classes.",
+  "threat": "If ELBO calibration at the diffusion readout improves pixel alignment by 1.9 mIoU on AEP, it suggests the semantic feature path itself, not just selection, is miscalibrated; our method keeps a fixed CLIP feature path.",
+  "key_quote": "we propose using zero-shot referring image segmentation as a proxy task to evaluate the pixel-level image and class-level text alignment of popular diffusion models.",
+  "depth": "full-text",
+  "reported_numbers": {
+   "sd15_mIoU_before": 58.70,
+   "sd15_mIoU_after": 60.58,
+   "clip_score_AE_before": 31.45,
+   "clip_score_AE_after": 32.70,
+   "sdxl_mIoU_before": 52.55,
+   "sdxl_mIoU_after": 53.82
+  },
+  "anchors": ["Table IV", "Table V"],
+  "source_file": "exp/literature/papers/elboalign2025.txt",
+  "code": {
+   "available": false,
+   "inspected": false,
+   "repo": "",
+   "findings": "",
+   "ran": false
+  },
+  "appreciation": "Best idea and measured contribution: the paper treats zero-shot RIS as a diagnostic for diffusion-model text-image alignment and proposes an ELBO-based, training-free calibration that requires no retraining or architecture change. The measured contribution is a consistent 1.4-1.9 mIoU improvement across backbones (SD1.5 58.70 to 60.58, SDXL 52.55 to 53.82, SD3.5 52.63 to 52.90) and better compositional CLIP scores. The analysis that misalignment concentrates on small, occluded and rare objects is a useful, testable characterization of a feature-path failure.",
+  "critique": "Critique with evidence: the headline mIoU is on the AEP dataset, not on RefCOCO/+/g, and the paper does not report a standard RIS val table, so its numbers cannot be placed alongside the zero-shot RIS literature. The method depends on a diffusion model and an ELBO computation at generation time; the paper does not report inference cost, and the gains on SD3.5 are only 0.27 mIoU (52.63 to 52.90), so the calibration is not uniformly effective. The comparison is against diffusion baselines, not against CLIP-based training-free RIS methods; the proxy-task framing is insightful but the evidence is scoped to the generation stack.",
+  "gap": "Gap addressed by this work: pixel-text misalignment in diffusion models. Gap left for us: it does not test whether the same calibration helps a frozen CLIP proposal scorer, and its small-object failure mode is the one our taxonomy finds is second to wrong-instance selection, so it cannot be the main repair.",
+  "critique_evidence": "exp/out_final/deep_read_critique_evidence.json"
+ },
+ {
+  "key": "evfsam2024",
+  "title": "EVF-SAM: Early Vision-Language Fusion for Text-Prompted Segment Anything Model",
+  "identifier": "arXiv:2406.20076",
+  "category": "ris",
+  "method": "Supervised referring segmentation that prompts SAM with early-fusion multimodal features from BEIT-3 instead of late-fusion CLIP or LLM embeddings.",
+  "claims": "EVF-SAM reaches 82.1/75.2/76.8 cIoU on RefCOCO/RefCOCO+/RefCOCOg val with RC training (78.0 average), and 82.4/76.5/78.2 cIoU when trained on additional data (79.0 average).",
+  "relation": "Strong evidence that the vision-language feature path matters: early fusion with BEIT-3 lifts a CLIP-prompted SAM from 63.4 to 83.7 cIoU in its motivation analysis. Our G2L feature path is a frozen version of the same early-fusion lesson.",
+  "threat": "Its 79.0 average cIoU is far above our zero-shot rows and could be mistaken for a same-class number; it is fully supervised with 1.32B parameters. Its early-fusion ablation also suggests that our CLIP-based feature path leaves a large gap that selection repair cannot close.",
+  "key_quote": "(1) multimodal prompts and (2) vision-language models with early fusion (e.g., BEIT-3) are beneficial for prompting SAM for accurate referring segmentation.",
+  "depth": "full-text",
+  "reported_numbers": {
+   "refcoco_val_cIoU": 82.1,
+   "refcocoplus_val_cIoU": 75.2,
+   "refcocog_val_cIoU": 76.8,
+   "average_cIoU": 78.0,
+   "params_B": 1.32
+  },
+  "anchors": ["Table 1", "Table 2"],
+  "source_file": "exp/literature/papers/evfsam2024.txt",
+  "code": {
+   "available": true,
+   "inspected": false,
+   "repo": "https://github.com/hustvl/EVF-SAM",
+   "findings": "",
+   "ran": false
+  },
+  "appreciation": "Best idea and measured contribution: the motivation experiment is unusually clean. Holding SAM fixed and changing only the text prompt encoder, CLIP-prompted SAM gets 63.4 cIoU, CLIP with multimodal prompts 67.9, BEIT-3 text-only 65.1, and BEIT-3 with early multimodal fusion 83.7 (Table 2). That is a 20-point swing attributable to the feature path, and it explains why a frozen CLIP selector has a ceiling. The full model reaches 78.0 average cIoU on eight RefCOCO-series benchmarks with 1.32B parameters, reducing parameters by about 82% versus large-LMM SAM methods while improving accuracy.",
+  "critique": "Critique with evidence: EVF-SAM is fully supervised on RefCOCO-family training data (Table 1), so its 82.1/75.2/76.8 cIoU is not a zero-shot result and cannot be a floor for our method. The motivation comparison uses RefCOCO testA only, a single split, and the CLIP-prompted baseline is a reproduction by the authors, not a released number; the 83.7 early-fusion figure is therefore not directly comparable to published CLIP-based pipelines. The paper does not report selection diagnostics, and its large gain from the feature path could reflect task-specific training of the fusion layers as much as the fusion design.",
+  "gap": "Gap addressed by this work: text-prompted SAM and the choice of vision-language fusion. Gap left for us: the method requires supervised training and cannot be used in our training-free setting; but its evidence bounds how much a frozen CLIP path can gain from selection alone, which we should acknowledge as a ceiling.",
+  "critique_evidence": "exp/out_final/deep_read_critique_evidence.json"
+ },
+ {
+  "key": "text4seg2024",
+  "title": "Text4Seg: Reimagining Image Segmentation as Text Generation",
+  "identifier": "arXiv:2410.09855",
+  "category": "ris",
+  "method": "MLLM segmentation via semantic descriptors: each image patch is represented as a text label and generated autoregressively, with Row-wise Run-Length Encoding for efficiency.",
+  "claims": "Text4Seg LLaVA-1.5-13B reaches an average 76.2 cIoU on RES benchmarks, and the 8B variant 75.0 cIoU; R-RLE reduces descriptor length by 74% and accelerates inference 3x without loss.",
+  "relation": "A trained MLLM alternative to mask-decoder architectures; its average cIoU is a reference for how far supervised text-generation models get, and its 16x16 descriptor grid is a different granularity choice from SAM masks.",
+  "threat": "Its 76.2 average cIoU is a strong supervised number; if averaged across the same benchmarks and mistaken for zero-shot, it would dwarf our method. Its text-as-mask paradigm also raises the question of whether mask tokenization, not selection, is the right interface.",
+  "key_quote": "we introduce Text4Seg, a novel text-as-mask paradigm that casts image segmentation as a text generation problem, eliminating the need for additional decoders and significantly simplifying the segmentation process.",
+  "depth": "full-text",
+  "reported_numbers": {
+   "avg_cIoU_13B": 76.2,
+   "avg_cIoU_8B": 75.0,
+   "descriptor_length_reduction_pct": 74,
+   "speedup_x": 3
+  },
+  "anchors": ["Abstract", "Table 1", "Section 4.4 efficiency"],
+  "source_file": "exp/literature/papers/text4seg2024.txt",
+  "code": {
+   "available": true,
+   "inspected": false,
+   "repo": "https://github.com/mc-lan/Text4Seg",
+   "findings": "",
+   "ran": false
+  },
+  "appreciation": "Best idea and measured contribution: representing a 16x16 mask as a sequence of semantic descriptors lets an off-the-shelf MLLM produce segmentation without a mask decoder, and R-RLE makes the representation practical (74% shorter descriptors, 3x faster). The measured contribution is competitive supervised accuracy, 76.2 average cIoU with LLaVA-1.5-13B and 75.0 with the 8B model, plus gains from a SAM refiner. The text-as-mask interface is a genuinely different design from SAM-pool selection and worth knowing about.",
+  "critique": "Critique with evidence: the model is fine-tuned on RIS data and evaluated on the same benchmarks, so the 76.2 cIoU is supervised and not comparable to zero-shot rows. The 16x16 descriptor grid limits spatial resolution; the paper adds a SAM refiner to recover detail, which reintroduces the heavy segmenter it claimed to eliminate, and the refiner raises average cIoU from 73.5 to 79.1 (Section 4.4), so the decoder-free claim is only true for the coarse stage. The efficiency comparison is against its own uncompressed format, not against SAM-based pipelines end-to-end.",
+  "gap": "Gap addressed by this work: mask decoding as text generation. Gap left for us: it requires training and does not expose instance-selection decisions; the 16x16 grid cannot represent multiple small instances faithfully, which is exactly the gRefCOCO multi-target regime.",
+  "critique_evidence": "exp/out_final/deep_read_critique_evidence.json"
+ },
+ {
+  "key": "pluginfb2025",
+  "title": "Plug-in Feedback Self-adaptive Attention in CLIP for Training-free Open-Vocabulary Segmentation",
+  "identifier": "arXiv:2508.20265",
+  "category": "adjacent",
+  "method": "Training-free feedback module that adapts output-based patch correspondences back into intermediate CLIP attention, with attention isolation, confidence pruning and ensemble.",
+  "claims": "As a plug-in it improves MaskCLIP by +7.9, +18.7 and +14.1 mIoU with ViT-B/16, L/14 and H/14; integrated into ProxyCLIP it reaches 57.4 mIoU on VOC with ViT-B/14.",
+  "relation": "Evidence that CLIP's final output coherence can be fed back to fix internal attention, a mechanism adjacent to our coherence-score selection; it is training-free and improves OVSS, but it does not do instance selection.",
+  "threat": "If output-feedback improves dense CLIP segmentation by 8-19 mIoU training-free, then a feature-path repair might close part of our oracle gap without touching selection; our claim that selection is the binding constraint would need a feature-path control of this kind.",
+  "key_quote": "we propose a training-free, feedback-driven self-adaptive framework that adapts output-based patch-level correspondences back to the intermediate attention.",
+  "depth": "full-text",
+  "reported_numbers": {
+   "maskclip_gain_vitb": 7.9,
+   "maskclip_gain_vitl": 18.7,
+   "maskclip_gain_vith": 14.1,
+   "proxyclip_voc_mIoU": 57.4
+  },
+  "anchors": ["Table 2", "Table 3", "Section 5.2 Main results"],
+  "source_file": "exp/literature/papers/pluginfb2025.txt",
+  "code": {
+   "available": false,
+   "inspected": false,
+   "repo": "",
+   "findings": "",
+   "ran": false
+  },
+  "appreciation": "Best idea and measured contribution: the paper's diagnosis is sharp, intermediate attention coherence is not propagated to the final output because later projections and operations wash it out, so it feeds the output correspondences back into the attention. The plug-in is broadly effective: +7.9/+18.7/+14.1 mIoU on MaskCLIP across ViT-B/16, L/14 and H/14, and consistent gains when integrated into SCLIP, ClearCLIP and ProxyCLIP (ProxyCLIP reaches 57.4 mIoU on VOC with ViT-B/14). The confidence-pruned sparse feedback is a sensible way to avoid corrupting attention globally.",
+  "critique": "Critique with evidence: the evaluation is open-vocabulary semantic segmentation on VOC/Context/Object/City/ADE, not referring segmentation; there is no text-conditioned instance selection and no RefCOCO-family table. The gains are relative to weak dense baselines and the absolute ProxyCLIP number (57.4 mIoU on VOC) is below specialized OVSS methods in other papers. The feedback loop introduces several hyperparameters (isolation, pruning, ensemble) whose sensitivity is not fully reported, and the method still produces a dense class map, so it cannot resolve multi-instance references. It is therefore a feature-path repair, not a competitor to our selector.",
+  "gap": "Gap addressed by this work: coherence propagation inside CLIP. Gap left for us: the paper does not test whether feedback attention improves proposal-level ranking; applying it to our feature path is a plausible but untested repair that would not by itself answer the selection question.",
+  "critique_evidence": "exp/out_final/deep_read_critique_evidence.json"
+ },
+ {
+  "key": "ovsdino2026",
+  "title": "OVS-DINO: Open-Vocabulary Segmentation via Structure-Aligned SAM-DINO with Language Guidance",
+  "identifier": "arXiv:2604.08461",
+  "category": "adjacent",
+  "method": "Weakly supervised OVSS that aligns DINO features with SAM structural priors through a Structure-Aware Encoder and Structure-Modulated Decoder, using SAM pseudo-masks.",
+  "claims": "OVS-DINO reaches 46.9 average mIoU across eight OVSS benchmarks, including 64.0 VOC21, 42.0 Context60, 42.9 Cityscapes and 34.2 COCO-Stuff; it is within 3.6/3.7 points of the best VOC20/VOC21 results.",
+  "relation": "A structure-alignment method in the same family as our G2L feature path; it shows that boundary awareness in DINO attenuates with depth and can be recovered with SAM supervision, which is a feature-path alternative to selection repair.",
+  "threat": "Its 46.9 average is well above training-free OVSS and far above our MaskCLIP adaptation; if structure alignment can be done at low cost, the feature path could be strengthened without changing the selector, weakening the selection-only framing.",
+  "key_quote": "we analyze internal representations of DINO and discover that its inherent boundary awareness is not absent but rather undergoes progressive attenuation as features transition into deeper transformer blocks.",
+  "depth": "full-text",
+  "reported_numbers": {
+   "avg_mIoU": 46.9,
+   "voc21_mIoU": 64.0,
+   "context60_mIoU": 42.0,
+   "cityscapes_mIoU": 42.9,
+   "coco_stuff_mIoU": 34.2
+  },
+  "anchors": ["Table 1", "Table 2"],
+  "source_file": "exp/literature/papers/ovsdino2026.txt",
+  "code": {
+   "available": false,
+   "inspected": false,
+   "repo": "",
+   "findings": "",
+   "ran": false
+  },
+  "appreciation": "Best idea and measured contribution: the paper diagnoses boundary attenuation in DINO's deeper blocks rather than blaming the backbone, and reactivates the latent edge sensitivity by aligning DINO features with SAM structural priors. The measured contribution is a strong OVSS average of 46.9 mIoU, with large margins on Cityscapes (42.9 vs 36.6 for Talk2DINO) and COCO-Stuff (34.2 vs 28.1), while staying within 3.7 points on VOC21. The boundary-awareness analysis is a useful, mechanistic addition to the feature-path literature.",
+  "critique": "Critique with evidence: OVS-DINO is trained with SAM pseudo-masks and a supervision strategy, so it is not training-free; calling it weakly supervised is accurate but its 46.9 cannot be compared with training-free rows. The evaluation is semantic segmentation with a fixed class set, not referring expressions; there is no instance-selection metric and no multi-target handling. The paper attributes gains to structure alignment, but the ablation removes DINO or the encoder without a same-parameter control, so architecture and supervision are confounded. Its VOC20 result is 83.5, below DSGS (85.0) and Talk2DINO (87.1), which the paper acknowledges.",
+  "gap": "Gap addressed by this work: boundary fidelity in OVSS. Gap left for us: it does not test whether structure alignment changes which proposal is selected; our wrong-instance failures are near-disjoint masks, not boundary misses, so this repair would address the smaller share of our oracle gap.",
+  "critique_evidence": "exp/out_final/deep_read_critique_evidence.json"
+ },
+ {
+  "key": "sciclip2026",
+  "title": "SCI-CLIP: Segment-Centric Inference with Reference Memory for Training-Free Open-Vocabulary Segmentation",
+  "identifier": "arXiv:2608.05627",
+  "category": "adjacent",
+  "method": "Training-free segment-centric inference: region-consistent interaction graph over frozen CLIP tokens, cross-window context recovery, and reference-memory retrieval for dense open-vocabulary segmentation.",
+  "claims": "SCI-CLIP reaches 52.9 average mIoU across eight OVSS benchmarks, improving over the dense baseline by 7.6 points; it reports 75.9 VOC21, 49.6 PC59, 44.7 Cityscapes and 29.8 ADE20K.",
+  "relation": "A training-free refinement of frozen CLIP features by region abstraction; it shares our premise that the feature map is usable without training, but it never forms an instance pool or performs selection.",
+  "threat": "If region-consistent inference lifts CLIP OVSS by 7.6 mIoU training-free, a similar region abstraction applied to our proposals could reduce the selection gap; our selector operates on scores over fixed masks and does not exploit inter-proposal structure.",
+  "key_quote": "SCI-CLIP first induces a region-consistent interaction graph over frozen visual tokens, then reconstructs dense features by propagating values over this graph.",
+  "depth": "full-text",
+  "reported_numbers": {
+   "avg_mIoU": 52.9,
+   "dense_baseline_mIoU": 45.3,
+   "gain_mIoU": 7.6,
+   "voc21_mIoU": 75.9,
+   "cityscapes_mIoU": 44.7
+  },
+  "anchors": ["Table 1", "Table 3 stagewise ablation"],
+  "source_file": "exp/literature/papers/sciclip2026.txt",
+  "code": {
+   "available": false,
+   "inspected": false,
+   "repo": "",
+   "findings": "",
+   "ran": false
+  },
+  "appreciation": "Best idea and measured contribution: SCI-CLIP argues that dense prediction needs a consistent region abstraction across interaction, propagation and retrieval, and implements it entirely on frozen features. The stagewise ablation is well instrumented: scope reconstruction lifts average mIoU from 45.8 to 49.5, cross-window aggregation to 49.8, and reference-memory fusion to 52.9, a 7.6-point gain over the dense baseline. The method is training-free and plug-in-like, and its 75.9 VOC21 / 49.6 PC59 numbers are strong for this class.",
+  "critique": "Critique with evidence: the benchmarks are open-vocabulary semantic segmentation (VOC, Context, Object, City, ADE), not referring segmentation; the reference memory stores class exemplars, not expression-conditioned instances, so it cannot select among same-class objects. The ablation shows the largest gain comes from scope reconstruction (45.8 to 49.5), with retrieval adding the rest; the paper's claim that all stages share one abstraction is plausible but not ablated against a retrieval-only baseline in the main text. It reports no cost, and the cross-window and memory components imply multiple forward passes or a cache, which matters for deployment.",
+  "gap": "Gap addressed by this work: spatial coherence of frozen CLIP features. Gap left for us: no proposal-level selection and no referring expressions; its region graph could be used to smooth per-proposal features, but it does not answer which candidate is the referent.",
+  "critique_evidence": "exp/out_final/deep_read_critique_evidence.json"
+ },
+ {
+  "key": "maviseg2026",
+  "title": "MAVISEG: Manifold Propagation and Visual Prototypes for Zero-Shot Open-Vocabulary Segmentation in Diffusion Transformers",
+  "identifier": "arXiv:2608.05878",
+  "category": "adjacent",
+  "method": "Training-free refinement layer for diffusion-transformer attribution: timestep-diversity ensembling, bootstrapped visual prototypes and manifold diffusion over a pixel-by-concept score field.",
+  "claims": "On PASCAL VOC val, MAVISEG reaches 0.574 mIoU, 0.896 pixel accuracy and 0.777 mAP, improving over ConceptAttention by +4.0 mIoU and Seg4Diff by +4.5 mIoU on average across six benchmarks.",
+  "relation": "A training-free score-field refinement that is capture-agnostic; its operators could in principle refine our per-proposal scores, but it is designed for dense OVSS with a concept vocabulary, not for expression-conditioned instance selection.",
+  "threat": "Its +4.0-4.5 mIoU training-free gains suggest that post-hoc score refinement is a strong lever; if applied to our selector, some of our operator gain might be reproducible by generic manifold smoothing, which we have not tested.",
+  "key_quote": "We present MAVISEG, a training-free refinement layer that recovers these signals.",
+  "depth": "full-text",
+  "reported_numbers": {
+   "voc_val_mIoU": 0.574,
+   "voc_val_pixel_accuracy": 0.896,
+   "voc_val_mAP": 0.777,
+   "gain_over_conceptattention_mIoU": 4.0,
+   "gain_over_seg4diff_mIoU": 4.5
+  },
+  "anchors": ["Table 2 operator ablation", "Section 4.1 Settings"],
+  "source_file": "exp/literature/papers/maviseg2026.txt",
+  "code": {
+   "available": false,
+   "inspected": false,
+   "repo": "",
+   "findings": "",
+   "ran": false
+  },
+  "appreciation": "Best idea and measured contribution: MAVISEG treats the pixel-by-concept score field as a signal to be refined rather than a final answer, and shows that three simple operators (timestep diversity, visual prototypes, manifold diffusion) improve every one of six OVSS benchmarks. On VOC val it reaches 0.574 mIoU / 0.896 pixel accuracy / 0.777 mAP, and the operator ablation is transparent (row 1 baseline 0.527, full 0.574). The finding that gains are largest where the initial capture is weakest is a useful, general lesson about post-hoc refinement.",
+  "critique": "Critique with evidence: the method is evaluated on open-vocabulary semantic segmentation with a fixed concept list; there is no referring expression, no instance pool and no selection metric. Its gains are reported on PASCAL VOC val and five other OVSS benchmarks, not RefCOCO-family, so the 4.0-4.5 mIoU cannot be transferred to our tables. The refinement depends on a diffusion transformer (FLUX) and multiple timesteps, which is far more expensive than our single frozen CLIP pass; the paper does not report runtime. Several hyperparameters (propagation weight, neighborhood, bandwidth) are tuned on VOC val, so the zero-shot claim is weakened by benchmark-specific tuning.",
+  "gap": "Gap addressed by this work: post-hoc refinement of dense score fields. Gap left for us: it cannot select a specific instance among same-class candidates and has no expression conditioning; its manifold smoothing is a candidate feature-path repair, but it would not address our wrong-instance mass.",
+  "critique_evidence": "exp/out_final/deep_read_critique_evidence.json"
+ },
+ {
+  "key": "discoverseg2026",
+  "title": "Discover, Segment, and Select: A Progressive Mechanism for Zero-shot Camouflaged Object Segmentation",
+  "identifier": "arXiv:2602.19944",
+  "category": "adjacent",
+  "method": "Zero-shot camouflaged object segmentation with feature-coherent object discovery, SAM segmentation of proposals, and MLLM-based semantic mask selection.",
+  "claims": "DSS reaches CAMO Fbw 0.766 / Sα 0.808, NC4K 0.870 / 0.891, COD10K 0.849 / 0.887 and CHAMELEON 0.848 / 0.883 under the zero-shot setting, improving over IAPF and RDVP-MSD.",
+  "relation": "Its discover-segment-select decomposition is the same architecture as ours, and its explicit selection stage is evidence that selection is a distinct, valuable component even in another dense task.",
+  "threat": "If an MLLM-based semantic selector improves zero-shot camouflaged segmentation by a large margin, a stronger selector (rather than our training-free rule) may be the better repair; it also suggests our CLIP-only selector may be leaving accuracy on the table.",
+  "key_quote": "we propose the Discover-Segment-Select (DSS) mechanism, a progressive framework designed to refine segmentation step by step.",
+  "depth": "full-text",
+  "reported_numbers": {
+   "camo_Fbw": 0.766,
+   "camo_Salpha": 0.808,
+   "cod10k_Fbw": 0.849,
+   "cod10k_Salpha": 0.887,
+   "nc4k_Fbw": 0.870
+  },
+  "anchors": ["Table 2", "Table 6 SMS ablation"],
+  "source_file": "exp/literature/papers/discoverseg2026.txt",
+  "code": {
+   "available": false,
+   "inspected": false,
+   "repo": "",
+   "findings": "",
+   "ran": false
+  },
+  "appreciation": "Best idea and measured contribution: DSS separates discovery, segmentation and selection, and uses an MLLM to choose among SAM candidates rather than trusting the first proposal. The zero-shot result is strong for camouflaged objects: CAMO Fbw 0.766 / Sα 0.808, COD10K 0.849 / 0.887, NC4K 0.870 / 0.891, with the SMS ablation showing that semantic selection contributes on top of discovery and SAM. This is independent evidence that a selection stage carries real accuracy in a task where the target is hard to localize.",
+  "critique": "Critique with evidence: the task is camouflaged object segmentation, not referring expression segmentation; there is no language-conditioned expression and no multi-target/no-target setting, so the results do not transfer to our benchmarks. The selection is MLLM-based and the paper reports no cost or latency, despite multiple candidates per image and an MLLM call per candidate set. The benchmark suite is small (CAMO 250 images, CHAMELEON 87), and the zero-shot comparison set excludes recent RIS-specific selectors; the claims are scoped to COD. The SMS ablation (Table 6) shows selection helps, but the paper does not separate selection quality from discovery quality.",
+  "gap": "Gap addressed by this work: proposal selection for camouflaged objects. Gap left for us: it does not test referring expressions, and its MLLM selector is a different cost class; still, it supports our premise that selection is a first-class stage rather than a detail.",
+  "critique_evidence": "exp/out_final/deep_read_critique_evidence.json"
+ },
+ {
+  "key": "satov2026",
+  "title": "SatOV: Restoring Spatial Priors for Training-Free Open-Vocabulary Segmentation in Remote Sensing Imagery",
+  "identifier": "arXiv:2609.22834",
+  "category": "adjacent",
+  "method": "Training-free remote-sensing OVSS that restores spatial priors with Residual QQ attention from an intermediate CLIP layer and spatially modulated upsampling.",
+  "claims": "SatOV reaches 43.3 average mIoU on UDD/DOTA/LoveDA/Vaihingen (45.9/40.4/39.8/47.3), about 2 points above SegEarth-OV (41.2 average), with an ablation showing SatUp removal costs 5.6 mIoU on DOTA.",
+  "relation": "A spatial-prior restoration method in a different domain; its ResQQ uses intermediate-layer query-query attention, the same mid-layer mechanism the blind-position probe advocates, and its training-free constraint matches ours.",
+  "threat": "It shows that a training-free spatial-prior fix can produce large gains (SatUp +5.6 mIoU on DOTA); if the same applies to RIS, feature-path repair might compete with our selection repair. But the domain and task differ.",
+  "key_quote": "we propose SatOV, a training-free framework for open-vocabulary remote sensing segmentation that restores spatial priors at two stages of the representation pipeline.",
+  "depth": "full-text",
+  "reported_numbers": {
+   "avg_mIoU": 43.3,
+   "dota_mIoU": 40.4,
+   "loveda_mIoU": 39.8,
+   "vaihingen_mIoU": 47.3,
+   "satup_removal_drop_dota": 5.6
+  },
+  "anchors": ["Table 2", "Table 4"],
+  "source_file": "exp/literature/papers/satov2026.txt",
+  "code": {
+   "available": false,
+   "inspected": false,
+   "repo": "",
+   "findings": "",
+   "ran": false
+  },
+  "appreciation": "Best idea and measured contribution: SatOV restores spatial priors at two points, an intermediate-layer residual QQ attention that recovers structure lost in deeper features and a guided upsampling that restores high-resolution detail from the RGB image. The training-free design is clean and the gain is consistent: 43.3 average mIoU versus 41.2 for SegEarth-OV, and the ablation attributes +5.6 mIoU on DOTA to SatUp alone. The intermediate-layer mechanism echoes the blind-position finding, which strengthens the case that final-layer features are spatially impoverished.",
+  "critique": "Critique with evidence: the evaluation is remote-sensing OVSS, where the class vocabulary is fixed and images are large; there is no referring expression and no instance selection. The benchmark set is domain-specific (UDD, DOTA, LoveDA, Vaihingen), so the 43.3 average cannot be compared to RefCOCO. The paper reports no runtime or memory cost despite high-resolution images, and the ablation is run only on DOTA for component removals (Table 4), so the component rankings are not validated across the other three datasets. The zero-shot claim is also within a domain-specific pretraining distribution (remote-sensing foundation models), not open-world.",
+  "gap": "Gap addressed by this work: spatial-prior loss in high-resolution remote sensing. Gap left for us: no language-conditioned instance selection; the ResQQ mechanism is a candidate feature-path improvement for our pipeline, but the domain gap makes it a speculative transfer.",
+  "critique_evidence": "exp/out_final/deep_read_critique_evidence.json"
+ },
+ {
+  "key": "lightmaskdecoder2025",
+  "title": "Unlocking the Potential of MLLMs in Referring Expression Segmentation via a Light-weight Mask Decoder",
+  "identifier": "arXiv:2508.04107",
+  "category": "ris",
+  "method": "MLLMSeg: an MLLM with a lightweight 34M-parameter mask decoder and a detail-enhanced semantic-consistent fusion module, trained for RES, REC and GRES.",
+  "claims": "MLLMSeg with InternVL2.5 reaches 93.5/89.4/91.1 cIoU on RefCOCO/RefCOCO+/RefCOCOg val (91.0 average) and 75.1 gIoU / 71.6 cIoU with N-acc 73.2 on gRefCOCO val.",
+  "relation": "A trained, SAM-free MLLM baseline with the same gRefCOCO metrics we report; its gIoU 75.1 is close to our 73.78, while its cIoU 71.6 is far above ours. It quantifies the supervised-versus-training-free gap on the exact metric pair.",
+  "threat": "Its gRefCOCO gIoU (75.1) is above our 73.78, and its cIoU (71.6) is much higher; if it were misclassified as same-class zero-shot, our gRefCOCO claim would fail. It is trained, so the same-class rule protects us, but it shows our cIoU margin is not a universal superiority.",
+  "key_quote": "we establish a light-weight mask decoder with only 34M network parameters that optimally leverages detailed spatial features from the visual encoder and semantic features from the LLM to achieve precise mask prediction.",
+  "depth": "full-text",
+  "reported_numbers": {
+   "refcoco_val_cIoU": 93.5,
+   "refcocoplus_val_cIoU": 89.4,
+   "refcocog_val_cIoU": 91.1,
+   "grefcoco_val_gIoU": 75.1,
+   "grefcoco_val_cIoU": 71.6,
+   "grefcoco_val_N_acc": 73.2
+  },
+  "anchors": ["Table 1", "Table 3"],
+  "source_file": "exp/literature/papers/lightmaskdecoder2025.txt",
+  "code": {
+   "available": false,
+   "inspected": false,
+   "repo": "",
+   "findings": "",
+   "ran": false
+  },
+  "appreciation": "Best idea and measured contribution: the paper shows that an MLLM's own visual encoder already carries enough detail for segmentation if it is fused properly with LLM semantics, so a 34M-parameter decoder can replace a 632M SAM. The measured contribution is excellent supervised accuracy, 93.5/89.4/91.1 cIoU on RefCOCO/+/g val, and on gRefCOCO it reports 75.1 gIoU / 71.6 cIoU with N-acc 73.2, outperforming LISA, GSVA and Text4Seg. The design is a strong argument that heavy external segmenters are not necessary for dense prediction.",
+  "critique": "Critique with evidence: the model is trained on RefCOCO-family and gRefCOCO train splits (the paper states it trains on those splits), so all numbers are supervised and not zero-shot; the zero-shot rows in Table 3 are marked with an asterisk and belong to other methods. The 93.5 cIoU on RefCOCO val is high even for supervised RES, and the comparison table mixes models with and without SAM and different parameter budgets; the paper does not report inference cost. Its gRefCOCO gIoU 75.1 is only 1.3 above our training-free 73.78, which is a useful honesty check but does not make the methods comparable.",
+  "gap": "Gap addressed by this work: heavy SAM decoders for MLLM-based RES. Gap left for us: it requires task-specific training and does not analyze selection failures; its gRefCOCO N-acc 73.2 is below our 85.66, so the training-free abstention logic is not obviously inferior on the no-target axis.",
+  "critique_evidence": "exp/out_final/deep_read_critique_evidence.json"
+ },
+ {
+  "key": "gem2023",
+  "title": "Grounding Everything: Emerging Localization Properties in Vision-Language Transformers",
+  "identifier": "arXiv:2312.00878",
+  "category": "adjacent",
+  "method": "Grounding Everything Module (GEM): generalizes CLIPSurgery's value-value attention to normalized self-self attention (q-q, k-k, v-v) and iterates it, producing training-free dense localization maps from a frozen CLIP ViT.",
+  "claims": "GEM with qkv self-self attention and normalization reaches 45.1 mIoU on Pascal VOC and 32.3 on Pascal Context, versus 10.4/7.7 for the plain CLIP baseline; the module requires no fine-tuning.",
+  "relation": "GEM is the coherence signal inside our gRefCOCO pipeline and the heatmap backend in RefChess; its self-self attention is the origin of the coherence term our selector uses. Our new full-val probe tests whether GEM coherence alone can replace semantic selection.",
+  "threat": "If GEM's coherence signal alone matches the released HybridGL selector, then the semantic terms in the released guidance may be less load-bearing than the paper's selection diagnosis assumes; conversely, if it fails on RefCOCO+/g, coherence is insufficient where attribute/compositional language matters.",
+  "key_quote": "we propose a Grounding Everything Module (GEM) that generalizes the idea of value-value attention introduced by CLIPSurgery to a self-self attention path.",
+  "depth": "full-text",
+  "reported_numbers": {
+   "voc_mIoU_qkv": 45.1,
+   "context_mIoU_qkv": 32.3,
+   "clip_voc_mIoU": 10.4,
+   "clip_context_mIoU": 7.7
+  },
+  "anchors": ["Table 1", "Section 3.1 GEM"],
+  "source_file": "exp/literature/papers/gem2023.txt",
+  "code": {
+   "available": true,
+   "inspected": true,
+   "repo": "https://github.com/WalBouss/GEM (inspected via the installed gem package used by the RefChess heatmap backend)",
+   "findings": "Inspected gem/gem.py, gem_utils.py and gem_wrapper.py in the glod-ris environment: GEMWrapper replaces the last `depth` ViT attention blocks with SelfSelfAttention (q-q, k-k, v-v projections), applies L2 normalization and adaptive temperature, and produces an image-text similarity heatmap from patch tokens. The RefChess GEM backend imports this package and uses the heatmap as the S_hot term; a shape mismatch on dense feature paths forced the earlier FG-CLIP arm to fall back to CLIP ViT-B/32, while the GEM path itself ran.",
+   "ran": true,
+   "run": {
+    "entry": "exp/exp189_gem_selector.py (full-val GEM coherence selector probe from the stored per-proposal gem scores)",
+    "sample_n": 26488,
+    "status": "ok",
+    "notes": "offline re-analysis of the stored GEM coherence score for every proposal on all three full official val splits; no new GEM forward pass; selects argmax coherence and compares with the released selector and argmax semantic score",
+    "metrics": {"refcoco_mIoU": 44.8143, "refcocoplus_mIoU": 32.8095, "refcocog_mIoU": 42.1967, "refcoco_released_mIoU": 44.8248}
+   }
+  },
+  "appreciation": "Best idea and measured contribution: GEM shows that self-self attention is a clustering operation and that normalizing it, plus iterating, turns a frozen CLIP ViT into a surprisingly good dense localizer: 45.1 mIoU on VOC and 32.3 on Context with qkv attention, against 10.4/7.7 for plain CLIP (Table 1). It is training-free, architecture-agnostic, and the code is small; it is the cleanest explanation we have for why a coherence term is useful in a referring pipeline. Our own full-val probe confirms the signal is real but scoped: argmax GEM coherence alone reaches 44.81 mIoU on RefCOCO val, essentially matching the released HybridGL selector (44.82), but it falls to 32.81 on RefCOCO+ and 42.20 on RefCOCOg versus 40.23/50.08 for the released semantic-plus-coherence selector. That is a precise, measured statement of where coherence suffices and where semantics are load-bearing.",
+  "critique": "Critique with evidence: the paper's evaluation is class-level semantic segmentation on Pascal VOC/Context with a fixed vocabulary; it has no referring expressions, no instance pool and no multi-target/no-target protocol, so its 45.1/32.3 do not transfer to RIS. The self-self attention map is class-agnostic in the sense that it clusters visual tokens, and our probe shows that coherence-only selection loses 7.4 and 7.9 mIoU on RefCOCO+/g relative to the released selector (exp/out_final/gem_selector.json), so GEM is not a substitute for semantic selection. The paper also reports no cost for the iterative attention and its best qkv variant is an ensemble of three projections, which triples the attention passes; the ablation table shows a 1.2-point spread across projection choices, so the gain is partly an ensemble effect rather than a single mechanism.",
+  "gap": "Gap addressed by this work: training-free dense localization from CLIP. Gap left for us: GEM does not decide which instance the expression refers to when several same-class objects are present; it supplies coherence, not reference resolution. Our probe fills that gap by measuring coherence-only selection, and it motivates keeping a semantic term in the selector.",
+  "critique_evidence": "exp/out_final/deep_read_critique_evidence.json"
+ },
+ {
+  "key": "fgclip2025",
+  "title": "FG-CLIP: Fine-Grained Visual and Textual Alignment",
+  "identifier": "arXiv:2505.05071",
+  "category": "adjacent",
+  "method": "Fine-grained CLIP pretraining with 1.6B long caption-image pairs, 40M region-specific boxes, and hard fine-grained negatives; used as a vision-language backbone for region-text matching.",
+  "claims": "FG-CLIP ViT-B/16 reaches 46.1 on the hard FG-OVD split versus 12.0 for CLIP, 52.3 on COCO bounding-box classification versus 44.2 for CLIP, and regional contrastive learning lifts bbox classification from 46.8 to 53.7.",
+  "relation": "The fine-grained region-text backbone used in the RefChess arm; its region-level contrastive training is directly relevant to proposal-text matching, which is the scoring half of our selection problem.",
+  "threat": "If a fine-grained backbone improves proposal-text matching by large margins, our frozen CLIP selector may be limited by the backbone rather than by the selection rule; the RefChess substitution attempt is an early test of that.",
+  "key_quote": "we propose Fine-Grained CLIP (FG-CLIP), which enhances fine-grained understanding through three key innovations.",
+  "depth": "full-text",
+  "reported_numbers": {
+   "fg_ovd_hard_accuracy": 46.1,
+   "clip_fg_ovd_hard_accuracy": 12.0,
+   "coco_bbox_classification": 52.3,
+   "clip_coco_bbox_classification": 44.2
+  },
+  "anchors": ["Table 1", "Table 2", "Section 4.3 regional contrastive learning"],
+  "source_file": "exp/literature/papers/fgclip2025.txt",
+  "code": {
+   "available": true,
+   "inspected": true,
+   "repo": "https://huggingface.co/qihoo360/fg-clip-base (official model code; GitHub: https://github.com/360CVGroup/FG-CLIP)",
+   "findings": "Inspected the HF implementation (modeling_fgclip.py, modeling_clip.py) loaded by RefChess: FG-CLIP provides region-aware image-text matching with a long/short text tower and returns dense token features. In the RefChess arm the dense FG-CLIP feature path hit an out-of-memory/shape mismatch, so the earlier run used CLIP ViT-B/32 as the backbone while the current 120-sample run loads the FG-CLIP base model; the attempt is recorded as a partial/ongoing run rather than a completed full pipeline.",
+   "ran": false
+  },
+  "appreciation": "Best idea and measured contribution: FG-CLIP attacks the coarse-caption problem of CLIP with three data-side innovations, 1.6B long captions, 40M region boxes and 10M hard negatives, and the measured gains are large on fine-grained benchmarks: 46.1 vs 12.0 hard accuracy on FG-OVD, and 52.3 vs 44.2 on COCO bbox classification with ViT-B/16. The regional contrastive ablation (46.8 to 53.7 bbox classification, 42.9 to 49.5 FG-OVD easy) isolates the value of region-level supervision, which is exactly the signal a proposal scorer needs. It is a well-executed data-and-objective paper.",
+  "critique": "Critique with evidence: the evaluation is retrieval, classification and open-vocabulary detection, not referring segmentation; there is no RefCOCO-family table and no instance-selection metric. The gains come with a very large proprietary data pipeline (1.6B captions, 12M images, 40M boxes) that is not reproducible at our scale, and the released base model is the only practical entry point. In our RefChess arm, the dense FG-CLIP path hit an OOM/shape mismatch and the working runs fell back to CLIP ViT-B/32, so the backbone's RIS benefit is unproven in our harness. The paper's hard-negative recipe also depends on in-batch mining details that are not fully specified.",
+  "gap": "Gap addressed by this work: fine-grained region-text alignment. Gap left for us: it does not test selection among same-class proposals or multi-target expressions; our RefChess run is an attempt to close that gap, but it is not a full pipeline and is reported as such.",
+  "critique_evidence": "exp/out_final/deep_read_critique_evidence.json"
+ }
+]

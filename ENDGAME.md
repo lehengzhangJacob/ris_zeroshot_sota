@@ -804,3 +804,58 @@ split for the MaskCLIP own-pool vs same-pool runs; rectangle published block
 comparable:false; verdict/what wording qualification; stale GLOD-RIS caption
 claim removed. Follow-up verdict PASS, none. Recorded in review_attempt.json.
 Gate `python3 extreme_bar.py` = PASS after the rebuild.
+
+## 2026-10-21 — continuous literature traversal (63 papers), synthesis, adopted GEM probe, review PASS
+
+Raised the dossier from 36 to 63 full-text papers (40 RIS/same-class), with
+appreciation, critique, gap and a fresh critique_evidence path on every entry;
+22 source repositories inspected and 15 successful runs (full-split method
+runs: HybridGL, S+S reverse, Global-Local, LLaVA-OneVision box rule,
+Qwen2.5-VL, plain CLIP, MaskCLIP, GEM-only; component/metric runs: SAM ViT-B
+pool, GroundingDINO cache, ReLA single- and multi-target batteries, FG-CLIP
+via RefChess, SigLIP and DINOv2 smoke runs). Each paper carries both a
+strengths statement (best idea and measured contribution) and an
+evidence-backed critique; the new entries include earlygrounding2026,
+blindposition2025, MaskRIS, Pseudo-RIS, HARIS, target-coherence, UniRES++,
+RESAnything, GREx, ResAgent, Qwen3-VL-Seg, VespaSeg, PhysMLLMs, ELBO-T2IAlign,
+EVF-SAM, Text4Seg, plug-in feedback, OVS-DINO, SCI-CLIP, MAVISEG, DSS, SatOV,
+MLLMSeg, GEM, FG-CLIP, SigLIP and DINOv2.
+
+Findings adopted into measurements:
+- GEM-only selection on all three full val splits (exp189_gem_selector.py,
+  gem_selector.json): 44.81/32.81/42.20 mIoU vs released 44.82/40.23/50.08.
+  Coherence alone matches within 0.01 mIoU on RefCOCO but loses 7.4/7.9 on
+  RefCOCO+/g, so the semantic term is load-bearing where attribute and
+  compositional language dominate. The paper reports this as a scoped ablation;
+  the shipped method is unchanged.
+- External cross-checks: earlygrounding2026's independent table reports
+  Global-Local ViT-B at 33.12/35.29/40.08 mIoU vs our 32.95/36.31/41.62
+  (actual max difference 1.54, now stated as 0.2-1.5 points / within 1.6 mIoU),
+  and a SAM-proposal MaskCLIP at 25.62/27.49/30.13 vs our dense-map adaptation
+  8.21/10.55/14.30. The paper now labels the MaskCLIP row as an adaptation,
+  not that method's strongest released route.
+- RefChess released MCTS (FG-CLIP base + GEM, 120 RefCOCO val expressions,
+  16 simulations) completed at 54.13 mIoU / 52.60 oIoU / acc@0.5 62.5 in 3m32s;
+  a full 10,834-expression split would take ~5.3h per dataset, so it is
+  recorded as an evidence-backed blocker and an FG-CLIP component run, not a
+  full pipeline.
+
+Artifacts: exp/out_final/literature_synthesis.json (17 ideas, 7 gaps, 7
+venues, 8 years, 6 queries; one adopted-this-cycle measured idea);
+exp/out_final/deep_read.json; exp/out_final/deep_read_critique_evidence.json;
+exp/out_final/code_blockers.json (17 public-code papers not run, each with an
+honest scope or artifact blocker); exp/out_final/backbone_smoke_siglip.json and
+backbone_smoke_dinov2.json.
+
+Corrections made in response to review: removed the "GLOD-RIS (reimpl.)" row
+and its quoted wrong-instance shares from the main diagnosis Table 1 (the
+independent reproduction is appendix-only and remains in
+multipipeline_diagnosis.json); removed the "Published" column from the
+same-pool rule-swap table; corrected the Global-Local agreement range; changed
+the gRefCOCO learned acceptance prior in literature_synthesis from adopted to
+rejected (measured but not shipped under the DINO-free requirement) and
+labelled it "not shipped" in the appendix provenance.
+
+Review (2026-10-21, current package): cross-family review PASS, thread
+7e14b02315e0 (glm-5.3 / deepseek-flash), must-fix none after the four fixes
+above; recorded in review_attempt.json. `python3 extreme_bar.py` = PASS.

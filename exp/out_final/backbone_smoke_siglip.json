@@ -1,0 +1,10 @@
+{
+  "backbone": "google/siglip-so400m-patch14-384",
+  "n": 5,
+  "embedding_dim": 1152,
+  "mean_correct_similarity": 0.0892067402601242,
+  "mean_mismatch_similarity": 0.0330214761197567,
+  "diagonal_minus_mismatch": 0.05618526414036751,
+  "seconds": 19.05,
+  "protocol": "five RefCOCO val images each paired with their own sentence; released SigLIP features, diagonal vs off-diagonal cosine similarity; a component smoke run, not a segmentation evaluation"
+}

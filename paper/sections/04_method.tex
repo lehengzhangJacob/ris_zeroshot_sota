@@ -24,7 +24,7 @@ mask with a frozen CLIP ViT-B/16 backbone (the masked region, and the image
 with its complement blurred), and computes two released quantities: a
 \emph{semantic score} $S^{\mathrm{dec}}_i$ (cosine of the region feature with
 the $0.5$ sentence $+$ $0.5$ noun-phrase text ensemble) and a \emph{coherence
-score} $S^{\mathrm{coh}}_i$ (the GEM~\cite{hybridgl2025} attention contrast inside
+score} $S^{\mathrm{coh}}_i$ (the GEM~\cite{gem2023} attention contrast inside
 minus outside the mask). The released pipeline ranks by the semantic score
 and re-ranks only its own top-3 by a blend with the coherence score.
 

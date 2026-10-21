@@ -1,0 +1,124 @@
+{
+ "what": "Evidence-backed blockers for public-code papers that were not run in the deep-read dossier. Each entry records the repository, the concrete check, and why no run is reported; supervised reference rows are blocked by scope, zero-shot pipelines by missing artifacts or environment failures.",
+ "papers": [
+  {
+   "key": "cris2022",
+   "repo": "https://github.com/yuhengsss/CRIS",
+   "blocker": "Supervised CRIS reference; its official code is a training pipeline and the released checkpoint is a Google Drive link. It is a labelled reference row, not a zero-shot pipeline, so no run was attempted.",
+   "checked": "repository/README/code inspection or documented download attempt; see deep_read code.findings where inspected",
+   "scope": "supervised reference"
+  },
+  {
+   "key": "mattnet2018",
+   "repo": "https://github.com/yuhengsss/CRIS",
+   "blocker": "Supervised 2018 MATTNet reference in a legacy PyTorch codebase; it has no zero-shot inference path and is included for lineage only.",
+   "checked": "repository/README/code inspection or documented download attempt; see deep_read code.findings where inspected",
+   "scope": "supervised reference"
+  },
+  {
+   "key": "polyformer2023",
+   "repo": "https://github.com/ylabbe/polyformer",
+   "blocker": "Supervised PolyFormer reference with multi-GB weights and a training-oriented repository; it is not a zero-shot pipeline and was not run.",
+   "checked": "repository/README/code inspection or documented download attempt; see deep_read code.findings where inspected",
+   "scope": "supervised reference"
+  },
+  {
+   "key": "restr2022",
+   "repo": "https://github.com/bytedance/ReSTR",
+   "blocker": "Supervised ReSTR reference; no released inference checkpoint was fetched and the method has no zero-shot path.",
+   "checked": "repository/README/code inspection or documented download attempt; see deep_read code.findings where inspected",
+   "scope": "supervised reference"
+  },
+  {
+   "key": "lavt2022",
+   "repo": "https://github.com/yz93/LAVT-RIS",
+   "blocker": "Repo inspected. LAVT is supervised and its checkpoint is distributed through a Google Drive link that was not fetched; it is reported as a reference row, not run.",
+   "checked": "repository/README/code inspection or documented download attempt; see deep_read code.findings where inspected",
+   "scope": "supervised reference"
+  },
+  {
+   "key": "lscm2020",
+   "repo": "https://github.com/spyflying/LSCM-Refseg",
+   "blocker": "Repo inspected. LSCM is supervised and the repository ships no released checkpoint; no zero-shot inference path exists.",
+   "checked": "repository/README/code inspection or documented download attempt; see deep_read code.findings where inspected",
+   "scope": "supervised reference"
+  },
+  {
+   "key": "vlt2022",
+   "repo": "https://github.com/henghuiding/Vision-Language-Transformer",
+   "blocker": "Repo inspected. VLT is supervised and the repository ships no released checkpoint; included as a reference row only.",
+   "checked": "repository/README/code inspection or documented download attempt; see deep_read code.findings where inspected",
+   "scope": "supervised reference"
+  },
+  {
+   "key": "seqtr2022",
+   "repo": "https://github.com/sean-zhuh/SeqTR",
+   "blocker": "Repo inspected. SeqTR is supervised and its pretrained weights are Google Drive links that were not fetched; reference-only.",
+   "checked": "repository/README/code inspection or documented download attempt; see deep_read code.findings where inspected",
+   "scope": "supervised reference"
+  },
+  {
+   "key": "iterprime2025",
+   "repo": "https://github.com/VoyageWang/IteRPrimE",
+   "blocker": "Zero-shot, but every checkpoint (Mask2Former, ALBEF, Stanza, BERT) is a Baidu Pan link requiring an interactive account; the README gives no direct URL, so the released pipeline could not be reproduced unattended.",
+   "checked": "repository/README/code inspection or documented download attempt; see deep_read code.findings where inspected",
+   "scope": "zero-shot pipeline"
+  },
+  {
+   "key": "psalm2024",
+   "repo": "https://github.com/zamling/PSALM",
+   "blocker": "PSALM is the target same-class zero-shot baseline. Its ~6GB weights were downloaded, but the official detectron2 stack fails to build (MSDeformAttn CUDA ops) and the import path hangs in the transformers Phi module; a PyTorch fallback for MSDeformAttn was written but inference did not complete. Recorded as blocked, not sampled.",
+   "checked": "repository/README/code inspection or documented download attempt; see deep_read code.findings where inspected",
+   "scope": "zero-shot pipeline"
+  },
+  {
+   "key": "shu2023tas",
+   "repo": "https://github.com/suoych/TAS",
+   "blocker": "TAS inference cannot start: tas_main.py line 462 requires a per-sentence caption JSON under overall_caption_path, which the repo neither ships nor generates; README step 3 tells the user to prepare captions with BLIP-2 first.",
+   "checked": "repository/README/code inspection or documented download attempt; see deep_read code.findings where inspected",
+   "scope": "zero-shot pipeline"
+  },
+  {
+   "key": "ni2023refdiff",
+   "repo": "https://github.com/kodenii/Ref-Diff",
+   "blocker": "Ref-Diff inference cannot start: test.py loads output_dir/best_model.pth only when --resume is set, and no segmenter checkpoint is released; pretrain contains only vitb16_stego_head.ckpt (2.9MB).",
+   "checked": "repository/README/code inspection or documented download attempt; see deep_read code.findings where inspected",
+   "scope": "zero-shot pipeline"
+  },
+  {
+   "key": "maskris2024",
+   "repo": "https://github.com/naver-ai/maskris",
+   "blocker": "MaskRIS is a supervised training framework (image/text masking plus DCL); it has no frozen zero-shot inference path, so running it would require training a RIS model, outside the training-free comparison.",
+   "checked": "repository/README/code inspection or documented download attempt; see deep_read code.findings where inspected",
+   "scope": "supervised reference"
+  },
+  {
+   "key": "evfsam2024",
+   "repo": "https://github.com/hustvl/EVF-SAM",
+   "blocker": "EVF-SAM is a supervised 1.32B model trained on RefCOCO-family data; released weights exist, but its BEIT-3+SAM inference stack is outside this cycle's budget and it is not a same-class zero-shot pipeline.",
+   "checked": "repository/README/code inspection or documented download attempt; see deep_read code.findings where inspected",
+   "scope": "supervised reference"
+  },
+  {
+   "key": "text4seg2024",
+   "repo": "https://github.com/mc-lan/Text4Seg",
+   "blocker": "Text4Seg is a fine-tuned MLLM (InternVL2/LLaVA) with no zero-shot inference path; its checkpoints and multi-GPU setup were not fetched.",
+   "checked": "repository/README/code inspection or documented download attempt; see deep_read code.findings where inspected",
+   "scope": "supervised reference"
+  },
+  {
+   "key": "gfsam2024",
+   "repo": "https://github.com/ANDYZAQ/GF-SAM",
+   "blocker": "The GF-SAM repository was not obtained and no released checkpoint was verified in this cycle; the method is a proposal/merging component rather than a full released zero-shot pipeline, so it remains reference-only.",
+   "checked": "repository/README/code inspection or documented download attempt; see deep_read code.findings where inspected",
+   "scope": "supervised reference"
+  },
+  {
+   "key": "semanticsam2023",
+   "repo": "https://github.com/UX-Decoder/Semantic-SAM",
+   "blocker": "Semantic-SAM requires custom CUDA operators and multi-GB weights; the environment was not built in this cycle. It is a multi-granularity pool component, not a full RIS selector.",
+   "checked": "repository/README/code inspection or documented download attempt; see deep_read code.findings where inspected",
+   "scope": "supervised reference"
+  }
+ ]
+}

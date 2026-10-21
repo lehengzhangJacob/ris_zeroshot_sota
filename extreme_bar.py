@@ -719,14 +719,15 @@ def literature_deep_read():
     if not isinstance(data, dict):
         return fail("deep_read.json must be an object")
     papers = data.get("papers")
-    if not isinstance(papers, list) or len(papers) < 35:
-        return fail("deep_read.json needs papers[] of length >= 35 (intensive traversal mandate)")
+    if not isinstance(papers, list) or len(papers) < 60:
+        return fail("deep_read.json needs papers[] of length >= 60 (continuous traversal mandate)")
     bib_text = (ROOT / "paper" / "references.bib").read_text(errors="replace")
     import re as _re
     id_pat = _re.compile(r"(arxiv\s*[:/]\s*\d{4}\.\d{4,5}|10\.\d{4,9}/\S+)", _re.I)
     ris = 0
     inspected = 0
     ok_runs = 0
+    method_full = 0
     for i, p in enumerate(papers):
         if not isinstance(p, dict):
             return fail(f"deep_read paper {i} is not an object")
@@ -773,6 +774,13 @@ def literature_deep_read():
             if not code["repo"].strip() or not code["findings"].strip():
                 return fail(f"deep_read paper {i} inspected code needs repo and findings")
             inspected += 1
+        if code["available"] is True and code.get("ran", False) is not True:
+            blk = code.get("blocker")
+            if not isinstance(blk, str) or not blk.strip():
+                return fail(f"deep_read paper {i}: public code is available but was not run --- run it or record an evidence-backed blocker")
+            bev = code.get("blocker_evidence")
+            if not isinstance(bev, str) or not newer(bev):
+                return fail(f"deep_read paper {i}: blocker needs fresh blocker_evidence")
         ran = code.get("ran", False)
         if not isinstance(ran, bool):
             return fail(f"deep_read paper {i} code.ran must be bool")
@@ -792,17 +800,43 @@ def literature_deep_read():
             notes = run.get("notes")
             if not isinstance(notes, str) or not notes.strip():
                 return fail(f"deep_read paper {i} run.notes must be non-empty")
+            kind = run.get("kind")
+            if kind not in ("method", "component", "metric"):
+                return fail(f"deep_read paper {i} run.kind must be method/component/metric")
+            fs = run.get("full_split")
+            if not isinstance(fs, bool):
+                return fail(f"deep_read paper {i} run.full_split must be bool")
+            if kind == "method":
+                if fs:
+                    sp = run.get("split")
+                    if not isinstance(sp, str) or not sp.strip():
+                        return fail(f"deep_read paper {i} method run needs a non-empty split")
+                    pr = run.get("protocol")
+                    if not isinstance(pr, str) or not pr.strip():
+                        return fail(f"deep_read paper {i} method run needs a non-empty protocol")
+                    if n < 1000:
+                        return fail(f"deep_read paper {i} full-split method run needs n >= 1000 (run to completion)")
+                    method_full += 1
+                else:
+                    blk = run.get("blocker")
+                    if not isinstance(blk, str) or not blk.strip():
+                        return fail(f"deep_read paper {i} method run not full-split needs a blocker")
+                    bev = run.get("blocker_evidence")
+                    if not isinstance(bev, str) or not newer(bev):
+                        return fail(f"deep_read paper {i} method-run blocker needs fresh blocker_evidence")
             if status == "ok":
                 metrics = run.get("metrics")
                 if not isinstance(metrics, dict) or not any(isinstance(v, (int, float)) for v in metrics.values()):
                     return fail(f"deep_read paper {i} successful run needs numeric metrics")
                 ok_runs += 1
-    if ris < 20:
-        return fail(f"deep_read.json has only {ris} RIS papers; need >= 20")
-    if inspected < 12:
-        return fail(f"deep_read.json has only {inspected} source-code inspections; need >= 12")
-    if ok_runs < 8:
-        return fail(f"deep_read.json has only {ok_runs} successful repo runs; need >= 8")
+    if ris < 35:
+        return fail(f"deep_read.json has only {ris} RIS papers; need >= 35")
+    if inspected < 20:
+        return fail(f"deep_read.json has only {inspected} source-code inspections; need >= 20")
+    if ok_runs < 15:
+        return fail(f"deep_read.json has only {ok_runs} successful repo runs; need >= 15")
+    if method_full < 6:
+        return fail(f"deep_read.json has only {method_full} full-split METHOD runs; need >= 6 (run to completion, not samples)")
     mc = data.get("grefcoco_metric_check")
     if not isinstance(mc, dict):
         return fail("deep_read.json needs grefcoco_metric_check{}")
@@ -916,6 +950,62 @@ def multipipeline_diagnosis():
     return True
 
 
+def literature_synthesis():
+    """Actionable synthesis from the literature (operator directive 2026-10-21)."""
+    rel = "exp/out_final/literature_synthesis.json"
+    if not newer(rel):
+        return False
+    try:
+        data = json.loads((ROOT / rel).read_text())
+    except Exception as exc:
+        return fail(f"bad json {rel}: {exc}")
+    if not isinstance(data, dict):
+        return fail("literature_synthesis.json must be an object")
+    cov = data.get("coverage")
+    if not isinstance(cov, dict):
+        return fail("literature_synthesis.json needs coverage{}")
+    for key in ("venues", "years", "queries"):
+        v = cov.get(key)
+        if not isinstance(v, list) or len(v) < 3:
+            return fail(f"coverage.{key} needs >= 3 entries")
+    ideas = data.get("ideas")
+    if not isinstance(ideas, list) or len(ideas) < 10:
+        return fail("literature_synthesis.json needs ideas[] of length >= 10")
+    for i, idea in enumerate(ideas):
+        if not isinstance(idea, dict):
+            return fail(f"idea {i} is not an object")
+        for field in ("idea", "test", "status"):
+            v = idea.get(field)
+            if not isinstance(v, str) or not v.strip():
+                return fail(f"idea {i} needs a non-empty {field}")
+        if idea["status"] not in ("adopted", "rejected", "pending"):
+            return fail(f"idea {i} status must be adopted/rejected/pending")
+        src = idea.get("source_papers")
+        if not isinstance(src, list) or len(src) < 1:
+            return fail(f"idea {i} needs source_papers[] with >= 1 entry")
+        if idea["status"] != "pending":
+            ev = idea.get("evidence")
+            if not isinstance(ev, str) or not newer(ev):
+                return fail(f"idea {i} ({idea['status']}) needs fresh evidence")
+    gaps = data.get("gaps")
+    if not isinstance(gaps, list) or len(gaps) < 5:
+        return fail("literature_synthesis.json needs gaps[] of length >= 5")
+    for i, g in enumerate(gaps):
+        if not isinstance(g, dict):
+            return fail(f"gap {i} is not an object")
+        for field in ("paper", "gap"):
+            v = g.get(field)
+            if not isinstance(v, str) or not v.strip():
+                return fail(f"gap {i} needs a non-empty {field}")
+    verdict = data.get("verdict")
+    if not isinstance(verdict, str) or not verdict.strip():
+        return fail("literature_synthesis.json needs a non-empty verdict string")
+    pdf_path = ROOT / "paper" / "main.pdf"
+    if not pdf_path.is_file() or pdf_path.stat().st_mtime < (ROOT / rel).stat().st_mtime:
+        return fail("paper/main.pdf must be rebuilt after exp/out_final/literature_synthesis.json")
+    return True
+
+
 def as_percent(value):
     value = float(value)
     if value <= 1.5:
@@ -1001,7 +1091,7 @@ def main():
     if not STAMP.is_file():
         print("FAIL: extreme_started.txt missing")
         return 1
-    checks = [tex_has_appendix, architecture, sota, ablation, mains, graveyard, protocol_audit, metrics_sota, analysis_pack, glm_swap, glodris_repro, rule_swap, wild_ideas, learned_prior, test_columns, transfer_wall, component_provenance, backbone_audit, detector_free_grefcoco, glm_aligned, literature_coverage, literature_deep_read, multipipeline_diagnosis, sota_line, pdf]
+    checks = [tex_has_appendix, architecture, sota, ablation, mains, graveyard, protocol_audit, metrics_sota, analysis_pack, glm_swap, glodris_repro, rule_swap, wild_ideas, learned_prior, test_columns, transfer_wall, component_provenance, backbone_audit, detector_free_grefcoco, glm_aligned, literature_coverage, literature_deep_read, multipipeline_diagnosis, literature_synthesis, sota_line, pdf]
     passed = all(check() for check in checks)
     print("PASS" if passed else "NOT_READY")
     return 0 if passed else 1
