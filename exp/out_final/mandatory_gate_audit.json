@@ -43,7 +43,7 @@
       "attempts": 5
     },
     "VLT": {
-      "reason": "The only checkpoint source is an NTU SharePoint folder link. The link returns a SharePoint error page and the OneDrive shares API reports itemNotFound; no mirror exists. The code is TensorFlow 1.15/Keras.",
+      "reason": "The only checkpoint source is an NTU SharePoint folder link. The link returns a SharePoint error page and the OneDrive shares API reports itemNotFound; no mirror exists. The code is TensorFlow 1.15/Keras. No public mirror was found; without the authors' weights a TF1.15 VLT run is not possible in this environment.",
       "evidence": [
         "exp/literature/repos/vlt/README.md:43-45",
         "SharePoint probes 2026-10-23 (HTTP 200 error page; shares API 404 itemNotFound)"
@@ -91,8 +91,27 @@
     },
     "TAS": {
       "status": "zero-shot code inspected; BLIP-2 captions must be generated and en_core_web_trf staged; not yet run"
+    },
+    "LSCM": {
+      "status": "checkpoint obtained; full inference not yet complete",
+      "detail": "The documented Baidu share is live. Password verification + authenticated transfer via the environment's Baidu account succeeded; the RefCOCO checkpoint files (unc_iter_700000.tfmodel.data-00000-of-00001 1,229,843,288 B, .meta 32,796,436 B, .index 42,184 B) are now in the account at /apps/bypy/ris_ckpts/lscm and are downloading. A Python2.7/TensorFlow1.5 environment was built; spaCy 2.1.9 + en_core_web_sm, REFER (with a pycocotools mask shim), DrSleep deeplab_resnet, and DarkNet weights are staged. RefCOCO val batch generation is running (unc/val_batch).",
+      "evidence": [
+        "/home/msj_team/.config/BaiduPCS-Go/pcs_config.json (account session, not printed)",
+        "share/list and transfer API responses 2026-10-23",
+        "/home/msj_team/Jacob/sys/lscm_run",
+        "build_unc_val.log"
+      ]
+    },
+    "SeqTR": {
+      "status": "checkpoint obtained; environment and pipeline smoke-tested; full val pending checkpoint download",
+      "detail": "Baidu share password + authenticated transfer succeeded; segm_best.pth (1,498,467,420 B) is in the account at /apps/bypy/ris_ckpts and is downloading. Dedicated seqtr20 env: Python3.8 + torch 2.0.1+cu117 + mmcv-full 1.7.2 (cu117/torch2.0 wheel) + mmdet 2.28.2. Data: SeqTR preprocessed instances (train 42,404 / val 10,834 / testA 5,657 / testB 5,095), token maps, word_emb, DarkNet53 weights from the author's HuggingFace repo. Dataset build, model build, forward and the released evaluate_model loop all run end-to-end on a 20-ref smoke set (random head mIoU 9.36).",
+      "evidence": [
+        "/home/msj_team/Jacob/sys/seqtr_run",
+        "/home/msj_team/Jacob/sys/seqtr_run/data/annotations/refcoco-unc/instances.json",
+        "seqtr_apis smoke log"
+      ]
     }
   },
-  "conclusion": "The gate now advances past PSALM and IteRPrimE and hard-fails on LSCM. LSCM and SeqTR checkpoints are confirmed present on live Baidu shares but anonymous downloads are denied (errno 118); VLT's SharePoint link is dead; MaskRIS releases no trained RIS checkpoint; ReSTR ships no checkpoint; GF-SAM is not an RIS pipeline. The package does not fabricate run.status='ok' for these. Text4Seg/Semantic-SAM/Ref-Diff/TAS remain in progress with obtainable components.",
+  "conclusion": "Gate currently fails at LSCM because its full inference has not completed. The LSCM and SeqTR checkpoint-availability blockers are resolved via an authenticated Baidu transfer, and both pipelines are built and running toward full val. VLT (dead SharePoint link, no mirror), MaskRIS/ReSTR (no trained checkpoints; training required) and GF-SAM (not an RIS pipeline) remain unresolved; gate PASS is not attainable this cycle without those artifacts. No run status is fabricated.",
   "gate_command": "python3 extreme_bar.py"
 }
