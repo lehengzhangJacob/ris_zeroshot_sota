@@ -1,0 +1,24 @@
+LSCM / SeqTR reproduction setup (2026-10-23)
+LSCM:
+- env: conda lscm, Python 2.7.18, tensorflow 1.5.0 (CPU), numpy 1.16.6, scipy 1.2.3,
+  scikit-image 0.14.2, spacy 2.1.9, en_core_web_sm 2.1.0, pycocotools 2.0.0, pydensecrf
+- external: chenxi116/refer (mask.py replaced by pycocotools), DrSleep/tensorflow-deeplab-resnet
+  (deeplab_resnet package), spaCy model
+- data: GloVe 840B 300d -> data/Gref_spacy_emb.npy (21,692 x 300; 16,891 found);
+  10,834 RefCOCO val batches in unc/val_batch
+- checkpoint: obtained by authenticated Baidu transfer from the README share
+  (unc_iter_700000.tfmodel data/meta/index) into /apps/bypy/ris_ckpts/lscm; downloading locally
+- run: trainval_model.py -m test -d unc -t val -i 700000 -f ckpts/unc/lscm_p2345
+SeqTR:
+- env: conda seqtr20 (clone of GLIP), Python 3.8.20, torch 2.0.1+cu117,
+  mmcv-full 1.7.2 (cu117/torch2.0 wheel), mmdet 2.28.2, pycocotools, pydantic
+- data: author-preprocessed RefCOCO instances from HF lmh315/maskris
+  (train 42,404 / val 10,834 / testA 5,657 / testB 5,095), token maps, word_emb,
+  DarkNet53 weights; repo data symlinks
+- code patch: seqtr/apis/__init__.py guards the missing visualization import
+- run: tools/test.py configs/seqtr/segmentation/seqtr_segm_refcoco-unc.py
+  --load-from <segm_best.pth> --cfg-options ema=False
+- checkpoint: authenticated Baidu transfer from the README share into
+  /apps/bypy/ris_ckpts/segm_best.pth; downloading locally
+Evidence: exp/out_final/lscm_patches.diff, seqtr_patches.diff,
+mandatory_gate_audit.json.

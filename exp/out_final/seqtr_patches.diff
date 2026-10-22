@@ -1,0 +1,24 @@
+diff --git a/exp/literature/repos/iterprime b/exp/literature/repos/iterprime
+--- a/exp/literature/repos/iterprime
++++ b/exp/literature/repos/iterprime
+@@ -1 +1 @@
+-Subproject commit 8e19b860c890442f4bbe63c552adb11e6dfe99e0
++Subproject commit 8e19b860c890442f4bbe63c552adb11e6dfe99e0-dirty
+diff --git a/exp/literature/repos/lscm b/exp/literature/repos/lscm
+--- a/exp/literature/repos/lscm
++++ b/exp/literature/repos/lscm
+@@ -1 +1 @@
+-Subproject commit e8ce3f160f0df9e86f0c2d8b6218ebe54e5e78e7
++Subproject commit e8ce3f160f0df9e86f0c2d8b6218ebe54e5e78e7-dirty
+diff --git a/exp/literature/repos/psalm b/exp/literature/repos/psalm
+--- a/exp/literature/repos/psalm
++++ b/exp/literature/repos/psalm
+@@ -1 +1 @@
+-Subproject commit d5dbfdad0c9b51e6324f461ab886c28d9fc8e448
++Subproject commit d5dbfdad0c9b51e6324f461ab886c28d9fc8e448-dirty
+diff --git a/exp/literature/repos/refchess b/exp/literature/repos/refchess
+--- a/exp/literature/repos/refchess
++++ b/exp/literature/repos/refchess
+@@ -1 +1 @@
+-Subproject commit cddcd60e3b985b2abf5cc70648af621a77c8fc53
++Subproject commit cddcd60e3b985b2abf5cc70648af621a77c8fc53-dirty

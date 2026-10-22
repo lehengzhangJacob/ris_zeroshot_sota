@@ -1,0 +1,55 @@
+diff --git a/external/tensorflow-deeplab-resnet/deeplab_resnet/model.py b/external/tensorflow-deeplab-resnet/deeplab_resnet/model.py
+index 6163cf2..1a67d57 100644
+--- a/external/tensorflow-deeplab-resnet/deeplab_resnet/model.py
++++ b/external/tensorflow-deeplab-resnet/deeplab_resnet/model.py
+@@ -398,25 +398,20 @@ class DeepLabResNetModel(Network):
+         (self.feed('res5b_relu', 
+                    'bn5c_branch2c')
+              .add(name='res5c')
+-             .relu(name='res5c_relu'))
++             .relu(name='res5c_relu')
++             .atrous_conv(3, 3, num_classes, 6, padding='SAME', relu=False, name='fc1_voc12_c0'))
+ 
+-        # (self.feed('res5b_relu', 
+-        #            'bn5c_branch2c')
+-        #      .add(name='res5c')
+-        #      .relu(name='res5c_relu')
+-        #      .atrous_conv(3, 3, num_classes, 6, padding='SAME', relu=False, name='fc1_voc12_c0'))
++        (self.feed('res5c_relu')
++             .atrous_conv(3, 3, num_classes, 12, padding='SAME', relu=False, name='fc1_voc12_c1'))
+ 
+-        # (self.feed('res5c_relu')
+-        #      .atrous_conv(3, 3, num_classes, 12, padding='SAME', relu=False, name='fc1_voc12_c1'))
++        (self.feed('res5c_relu')
++             .atrous_conv(3, 3, num_classes, 18, padding='SAME', relu=False, name='fc1_voc12_c2'))
+ 
+-        # (self.feed('res5c_relu')
+-        #      .atrous_conv(3, 3, num_classes, 18, padding='SAME', relu=False, name='fc1_voc12_c2'))
++        (self.feed('res5c_relu')
++             .atrous_conv(3, 3, num_classes, 24, padding='SAME', relu=False, name='fc1_voc12_c3'))
+ 
+-        # (self.feed('res5c_relu')
+-        #      .atrous_conv(3, 3, num_classes, 24, padding='SAME', relu=False, name='fc1_voc12_c3'))
+-
+-        # (self.feed('fc1_voc12_c0', 
+-        #            'fc1_voc12_c1', 
+-        #            'fc1_voc12_c2', 
+-        #            'fc1_voc12_c3')
+-        #      .add(name='fc1_voc12'))
++        (self.feed('fc1_voc12_c0', 
++                   'fc1_voc12_c1', 
++                   'fc1_voc12_c2', 
++                   'fc1_voc12_c3')
++             .add(name='fc1_voc12'))
+diff --git a/util/__init__.pyc b/util/__init__.pyc
+index 254bf81..9e7d643 100644
+Binary files a/util/__init__.pyc and b/util/__init__.pyc differ
+diff --git a/util/functions.pyc b/util/functions.pyc
+index 42c9c80..033a6e6 100644
+Binary files a/util/functions.pyc and b/util/functions.pyc differ
+diff --git a/util/im_processing.pyc b/util/im_processing.pyc
+index 82390a5..3dfb19a 100644
+Binary files a/util/im_processing.pyc and b/util/im_processing.pyc differ
+diff --git a/util/text_processing.pyc b/util/text_processing.pyc
+index 61d8aeb..b846f4e 100644
+Binary files a/util/text_processing.pyc and b/util/text_processing.pyc differ
