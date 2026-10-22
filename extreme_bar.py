@@ -830,6 +830,32 @@ def literature_deep_read():
                     envs = run.get("env")
                     if not isinstance(envs, str) or not envs.strip():
                         return fail(f"deep_read paper {i} full-split method run needs a non-empty env spec (dedicated envs allowed and expected)")
+                    fam = {"refcoco_val": 10834, "refcoco_testA": 5657, "refcoco_testB": 5095,
+                           "refcocoplus_val": 10758, "refcocoplus_testA": 5726, "refcocoplus_testB": 4889,
+                           "refcocog_val": 4896, "refcocog_testu": 9602, "grefcoco_val": 14229}
+                    dss = run.get("datasets")
+                    sb = run.get("split_blockers")
+                    if not isinstance(dss, dict):
+                        return fail(f"deep_read paper {i} method run needs datasets{{}} covering all official splits")
+                    if not isinstance(sb, dict):
+                        sb = {}
+                    for sname, smin in fam.items():
+                        de = dss.get(sname)
+                        if isinstance(de, dict):
+                            if not isinstance(de.get("n"), int) or de["n"] < smin:
+                                return fail(f"deep_read paper {i} datasets.{sname}.n must be >= {smin} (full split)")
+                            if not isinstance(de.get("metric"), (int, float)):
+                                return fail(f"deep_read paper {i} datasets.{sname}.metric must be numeric")
+                        else:
+                            blk = sb.get(sname)
+                            if not isinstance(blk, dict):
+                                return fail(f"deep_read paper {i} missing split {sname}: provide results or a split_blocker")
+                            reason = blk.get("reason")
+                            if not isinstance(reason, str) or not reason.strip():
+                                return fail(f"deep_read paper {i} split_blocker {sname} needs a reason")
+                            evb = blk.get("evidence")
+                            if not isinstance(evb, str) or not newer(evb):
+                                return fail(f"deep_read paper {i} split_blocker {sname} needs fresh evidence")
                     if n < 1000:
                         return fail(f"deep_read paper {i} full-split method run needs n >= 1000 (run to completion)")
                     method_full += 1
@@ -845,14 +871,34 @@ def literature_deep_read():
                 if not isinstance(metrics, dict) or not any(isinstance(v, (int, float)) for v in metrics.values()):
                     return fail(f"deep_read paper {i} successful run needs numeric metrics")
                 ok_runs += 1
+            extra_runs = run.get("additional_runs", [])
+            if isinstance(extra_runs, list):
+                for ar in extra_runs:
+                    if not isinstance(ar, dict):
+                        return fail(f"deep_read paper {i} additional run is not an object")
+                    if ar.get("kind") != "method" or ar.get("full_split") is not True:
+                        return fail(f"deep_read paper {i} additional run must be a full-split method run")
+                    if ar.get("status") != "ok":
+                        return fail(f"deep_read paper {i} additional method run must be ok")
+                    an = ar.get("sample_n")
+                    if not isinstance(an, int) or an < 1000:
+                        return fail(f"deep_read paper {i} additional method run needs n >= 1000")
+                    for field in ("split", "protocol", "env"):
+                        v = ar.get(field)
+                        if not isinstance(v, str) or not v.strip():
+                            return fail(f"deep_read paper {i} additional method run needs {field}")
+                    am = ar.get("metrics")
+                    if not isinstance(am, dict) or not any(isinstance(v, (int, float)) for v in am.values()):
+                        return fail(f"deep_read paper {i} additional method run needs numeric metrics")
+                    method_full += 1
     if ris < 35:
         return fail(f"deep_read.json has only {ris} RIS papers; need >= 35")
     if inspected < 20:
         return fail(f"deep_read.json has only {inspected} source-code inspections; need >= 20")
     if ok_runs < 15:
         return fail(f"deep_read.json has only {ok_runs} successful repo runs; need >= 15")
-    if method_full < 10:
-        return fail(f"deep_read.json has only {method_full} full-split METHOD runs; need >= 10 (run to completion, not samples)")
+    if method_full < 14:
+        return fail(f"deep_read.json has only {method_full} full-split METHOD runs; need >= 14 (run to completion, not samples)")
     mc = data.get("grefcoco_metric_check")
     if not isinstance(mc, dict):
         return fail("deep_read.json needs grefcoco_metric_check{}")

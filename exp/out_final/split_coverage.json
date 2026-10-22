@@ -1,0 +1,170 @@
+{
+ "what": "Split coverage record for full-split method runs: val results are present; unrun official splits carry a blocker with the reason and the evidence file.",
+ "runs": {
+  "hybridgl2025": {
+   "has": [
+    "refcoco_val",
+    "refcocoplus_val",
+    "refcocog_val"
+   ],
+   "blocked": [
+    "refcoco_testA",
+    "refcoco_testB",
+    "refcocoplus_testA",
+    "refcocoplus_testB",
+    "refcocog_testu",
+    "grefcoco_val"
+   ]
+  },
+  "lavt2022": {
+   "has": [
+    "refcoco_val"
+   ],
+   "blocked": [
+    "refcocoplus_val",
+    "refcocog_val",
+    "refcoco_testA",
+    "refcoco_testB",
+    "refcocoplus_testA",
+    "refcocoplus_testB",
+    "refcocog_testu",
+    "grefcoco_val"
+   ]
+  },
+  "splus2024": {
+   "has": [
+    "refcoco_val",
+    "refcocoplus_val",
+    "refcocog_val"
+   ],
+   "blocked": [
+    "refcoco_testA",
+    "refcoco_testB",
+    "refcocoplus_testA",
+    "refcocoplus_testB",
+    "refcocog_testu",
+    "grefcoco_val"
+   ]
+  },
+  "yu2023global": {
+   "has": [
+    "refcoco_val",
+    "refcocoplus_val",
+    "refcocog_val"
+   ],
+   "blocked": [
+    "refcoco_testA",
+    "refcoco_testB",
+    "refcocoplus_testA",
+    "refcocoplus_testB",
+    "refcocog_testu",
+    "grefcoco_val"
+   ]
+  },
+  "li2024llavaov": {
+   "has": [
+    "refcoco_val",
+    "refcocoplus_val",
+    "refcocog_val"
+   ],
+   "blocked": [
+    "refcoco_testA",
+    "refcoco_testB",
+    "refcocoplus_testA",
+    "refcocoplus_testB",
+    "refcocog_testu",
+    "grefcoco_val"
+   ]
+  },
+  "qwen25vl2025": {
+   "has": [
+    "refcoco_val",
+    "refcocoplus_val",
+    "refcocog_val"
+   ],
+   "blocked": [
+    "refcoco_testA",
+    "refcoco_testB",
+    "refcocoplus_testA",
+    "refcocoplus_testB",
+    "refcocog_testu",
+    "grefcoco_val"
+   ]
+  },
+  "radford2021clip": {
+   "has": [
+    "refcoco_val",
+    "refcocoplus_val",
+    "refcocog_val"
+   ],
+   "blocked": [
+    "refcoco_testA",
+    "refcoco_testB",
+    "refcocoplus_testA",
+    "refcocoplus_testB",
+    "refcocog_testu",
+    "grefcoco_val"
+   ]
+  },
+  "zhou2022maskclip": {
+   "has": [
+    "refcoco_val",
+    "refcocoplus_val",
+    "refcocog_val"
+   ],
+   "blocked": [
+    "refcoco_testA",
+    "refcoco_testB",
+    "refcocoplus_testA",
+    "refcocoplus_testB",
+    "refcocog_testu",
+    "grefcoco_val"
+   ]
+  },
+  "evfsam2024": {
+   "has": [
+    "refcoco_val"
+   ],
+   "blocked": [
+    "refcocoplus_val",
+    "refcocog_val",
+    "refcoco_testA",
+    "refcoco_testB",
+    "refcocoplus_testA",
+    "refcocoplus_testB",
+    "refcocog_testu",
+    "grefcoco_val"
+   ]
+  },
+  "gem2023": {
+   "has": [
+    "refcoco_val",
+    "refcocoplus_val",
+    "refcocog_val"
+   ],
+   "blocked": [
+    "refcoco_testA",
+    "refcoco_testB",
+    "refcocoplus_testA",
+    "refcocoplus_testB",
+    "refcocog_testu",
+    "grefcoco_val"
+   ]
+  },
+  "wu2026glodris": {
+   "has": [
+    "refcoco_val",
+    "refcocoplus_val",
+    "refcocog_val"
+   ],
+   "blocked": [
+    "refcoco_testA",
+    "refcoco_testB",
+    "refcocoplus_testA",
+    "refcocoplus_testB",
+    "refcocog_testu",
+    "grefcoco_val"
+   ]
+  }
+ }
+}

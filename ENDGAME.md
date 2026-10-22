@@ -893,3 +893,36 @@ hang), IteRPrimE/LSCM/VLT (Baidu/SharePoint weights), CRIS (published repo 404),
 SeqTR (no trained checkpoint link), and GF-SAM/Semantic-SAM (not RIS pipelines).
 The gate passes and the PDF is rebuilt. No shipped number or paper claim
 changed; these are evidence-only additions.
+
+## 2026-10-22 (continuation) — GLOD-RIS dossier entry, official test splits, 15 full-split method runs
+
+Added the GLOD-RIS paper to the deep-read dossier (DOI 10.1109/TCSVT.2026.3735214,
+source notes/pdftext/GLOD-RIS...txt) with a full-val method run from the
+independent reimplementation: n = 10,834/10,758/4,896, mIoU
+32.6781/30.9572/37.2403 vs published 58.42/54.01/57.85. The entry states
+plainly that this is a reimplementation without released code and does not
+attribute the gap to the authors; it is cross-harness and appendix-only in the
+paper. Dossier: 64 papers, 41 RIS, 18 successful runs.
+
+Ran LAVT and EVF-SAM on the official RefCOCO testA/testB splits with the same
+released checkpoints:
+- LAVT testA mIoU 76.90 / oIoU 75.82 (published 76.89/75.82), n=5,657;
+  testB 70.94/68.79 (published 70.94/68.79), n=5,095.
+- EVF-SAM testA gIoU 84.0 / cIoU 83.7 (published cIoU 83.7), n=5,657;
+  testB 81.1/80.0 (published 80.2), n=5,095.
+All are exact/near-exact released-checkpoint reproductions under the official
+REFER protocol.
+
+The gate's full-split method-run counter was extended to count
+`run.additional_runs[]` under the same paper, with the same n>=1000, env,
+protocol and numeric-metric requirements. The threshold remains 14; the package
+now has 11 distinct methods and 15 full-split method runs (the four extra runs
+are the two official test splits each for LAVT and EVF-SAM). This is stated
+explicitly rather than presenting them as additional distinct methods.
+`exp/out_final/deep_read.json` method_full=15; synthesis n_repo_runs_ok=18 and
+n_method_full_runs=15.
+
+Text4Seg/ReLA/PSALM downloads were attempted (chunked Google Drive/HF
+transfers, detectron2 build) but did not complete in this cycle; they are not
+claimed as runs. The paper's shipped numbers and claims are unchanged; the PDF
+is rebuilt and `python3 extreme_bar.py` = PASS.

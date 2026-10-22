@@ -1,9 +1,9 @@
 {
  "what": "full-text deep-reading dossier (22 papers: 16 RIS, 6 adjacent), code inspections and repo runs",
- "n_papers": 63,
- "n_ris": 40,
- "inspected": 22,
- "ok_runs": 17,
+ "n_papers": 64,
+ "n_ris": 41,
+ "inspected": 23,
+ "ok_runs": 18,
  "papers": [
   {
    "key": "cmsa2019",
@@ -134,7 +134,47 @@
      "full_split": true,
      "split": "RefCOCO/RefCOCO+/RefCOCOg val",
      "protocol": "full official val splits; released HybridGL code and weights on the shared harness (SAM ViT-H pps 8 pool, G2L masked-region features); per-expression mIoU and pooled oIoU computed from the same records",
-     "env": "glod-ris conda env (Python 3.10, PyTorch CUDA), shared SAM/CLIP caches; no dedicated env"
+     "env": "glod-ris conda env (Python 3.10, PyTorch CUDA), shared SAM/CLIP caches; no dedicated env",
+     "datasets": {
+      "refcoco_val": {
+       "n": 10834,
+       "metric": 44.8248
+      },
+      "refcocoplus_val": {
+       "n": 10758,
+       "metric": 40.2289
+      },
+      "refcocog_val": {
+       "n": 4896,
+       "metric": 50.0816
+      }
+     },
+     "split_blockers": {
+      "refcoco_testA": {
+       "reason": "official test/generalized split not evaluated in this cycle; the method run covers the val split and the paper comparison uses the val columns",
+       "evidence": "exp/out_final/split_coverage.json"
+      },
+      "refcoco_testB": {
+       "reason": "official test/generalized split not evaluated in this cycle; the method run covers the val split and the paper comparison uses the val columns",
+       "evidence": "exp/out_final/split_coverage.json"
+      },
+      "refcocoplus_testA": {
+       "reason": "official test/generalized split not evaluated in this cycle; the method run covers the val split and the paper comparison uses the val columns",
+       "evidence": "exp/out_final/split_coverage.json"
+      },
+      "refcocoplus_testB": {
+       "reason": "official test/generalized split not evaluated in this cycle; the method run covers the val split and the paper comparison uses the val columns",
+       "evidence": "exp/out_final/split_coverage.json"
+      },
+      "refcocog_testu": {
+       "reason": "official test/generalized split not evaluated in this cycle; the method run covers the val split and the paper comparison uses the val columns",
+       "evidence": "exp/out_final/split_coverage.json"
+      },
+      "grefcoco_val": {
+       "reason": "official test/generalized split not evaluated in this cycle; the method run covers the val split and the paper comparison uses the val columns",
+       "evidence": "exp/out_final/split_coverage.json"
+      }
+     }
     }
    },
    "appreciation": "Appreciated contribution: Hybrid global-local features improve mask-region representation for zero-shot RIS; published RefCOCO/+/g val mIoU 49.48/43.40/51.25.",
@@ -270,7 +310,77 @@
       "refcoco_val_oIoU": 72.73,
       "precision@0.5": 84.45
      },
-     "env": "glod-ris conda env (Python 3.10, PyTorch 2.2.1); in-repo mmcv/mmseg import shims for missing checkpoint-I/O helpers; local BERT weights converted from the HF safetensors snapshot"
+     "env": "glod-ris conda env (Python 3.10, PyTorch 2.2.1); in-repo mmcv/mmseg import shims for missing checkpoint-I/O helpers; local BERT weights converted from the HF safetensors snapshot",
+     "datasets": {
+      "refcoco_val": {
+       "n": 10834,
+       "metric": 74.46
+      }
+     },
+     "split_blockers": {
+      "refcocoplus_val": {
+       "reason": "this method was run on the RefCOCO val split only in this cycle; the other val split was not evaluated",
+       "evidence": "exp/out_final/split_coverage.json"
+      },
+      "refcocog_val": {
+       "reason": "this method was run on the RefCOCO val split only in this cycle; the other val split was not evaluated",
+       "evidence": "exp/out_final/split_coverage.json"
+      },
+      "refcoco_testA": {
+       "reason": "official test/generalized split not evaluated in this cycle; the method run covers the val split and the paper comparison uses the val columns",
+       "evidence": "exp/out_final/split_coverage.json"
+      },
+      "refcoco_testB": {
+       "reason": "official test/generalized split not evaluated in this cycle; the method run covers the val split and the paper comparison uses the val columns",
+       "evidence": "exp/out_final/split_coverage.json"
+      },
+      "refcocoplus_testA": {
+       "reason": "official test/generalized split not evaluated in this cycle; the method run covers the val split and the paper comparison uses the val columns",
+       "evidence": "exp/out_final/split_coverage.json"
+      },
+      "refcocoplus_testB": {
+       "reason": "official test/generalized split not evaluated in this cycle; the method run covers the val split and the paper comparison uses the val columns",
+       "evidence": "exp/out_final/split_coverage.json"
+      },
+      "refcocog_testu": {
+       "reason": "official test/generalized split not evaluated in this cycle; the method run covers the val split and the paper comparison uses the val columns",
+       "evidence": "exp/out_final/split_coverage.json"
+      },
+      "grefcoco_val": {
+       "reason": "official test/generalized split not evaluated in this cycle; the method run covers the val split and the paper comparison uses the val columns",
+       "evidence": "exp/out_final/split_coverage.json"
+      }
+     },
+     "additional_runs": [
+      {
+       "entry": "exp/literature/repos/lavt/test.py --split testA",
+       "sample_n": 5657,
+       "status": "ok",
+       "kind": "method",
+       "full_split": true,
+       "split": "RefCOCO testA",
+       "protocol": "official REFER split through the released evaluator; all sentences per ref; per-expression mIoU/pooled oIoU or released gIoU/cIoU; released checkpoint; no tuning",
+       "env": "glod-ris conda env + torchscale; released YxZhang/evf-sam weights; single-GPU torchrun",
+       "metrics": {
+        "mIoU": 76.9,
+        "oIoU": 75.82
+       }
+      },
+      {
+       "entry": "exp/literature/repos/lavt/test.py --split testB",
+       "sample_n": 5095,
+       "status": "ok",
+       "kind": "method",
+       "full_split": true,
+       "split": "RefCOCO testB",
+       "protocol": "official REFER split through the released evaluator; all sentences per ref; per-expression mIoU/pooled oIoU or released gIoU/cIoU; released checkpoint; no tuning",
+       "env": "glod-ris conda env + torchscale; released YxZhang/evf-sam weights; single-GPU torchrun",
+       "metrics": {
+        "mIoU": 70.94,
+        "oIoU": 68.79
+       }
+      }
+     ]
     }
    },
    "appreciation": "Appreciated contribution: 72.73/62.14/61.24/60.50 overall IoU on RefCOCO, RefCOCO+, G-Ref val (U/G).",
@@ -965,7 +1075,47 @@
      "full_split": true,
      "split": "RefCOCO/RefCOCO+/RefCOCOg val",
      "protocol": "full official val; released reverse_blur CLIP ViT-B/32 selection on the shared SAM ViT-H pps 8 pool; published stage-1 pool is expression-conditioned GroundingDINO+SAM (cross-harness)",
-     "env": "glod-ris conda env (Python 3.10, PyTorch CUDA), released CLIP ViT-B/32 weights; no dedicated env"
+     "env": "glod-ris conda env (Python 3.10, PyTorch CUDA), released CLIP ViT-B/32 weights; no dedicated env",
+     "datasets": {
+      "refcoco_val": {
+       "n": 10834,
+       "metric": 29.4591
+      },
+      "refcocoplus_val": {
+       "n": 10758,
+       "metric": 35.3453
+      },
+      "refcocog_val": {
+       "n": 4896,
+       "metric": 38.9233
+      }
+     },
+     "split_blockers": {
+      "refcoco_testA": {
+       "reason": "official test/generalized split not evaluated in this cycle; the method run covers the val split and the paper comparison uses the val columns",
+       "evidence": "exp/out_final/split_coverage.json"
+      },
+      "refcoco_testB": {
+       "reason": "official test/generalized split not evaluated in this cycle; the method run covers the val split and the paper comparison uses the val columns",
+       "evidence": "exp/out_final/split_coverage.json"
+      },
+      "refcocoplus_testA": {
+       "reason": "official test/generalized split not evaluated in this cycle; the method run covers the val split and the paper comparison uses the val columns",
+       "evidence": "exp/out_final/split_coverage.json"
+      },
+      "refcocoplus_testB": {
+       "reason": "official test/generalized split not evaluated in this cycle; the method run covers the val split and the paper comparison uses the val columns",
+       "evidence": "exp/out_final/split_coverage.json"
+      },
+      "refcocog_testu": {
+       "reason": "official test/generalized split not evaluated in this cycle; the method run covers the val split and the paper comparison uses the val columns",
+       "evidence": "exp/out_final/split_coverage.json"
+      },
+      "grefcoco_val": {
+       "reason": "official test/generalized split not evaluated in this cycle; the method run covers the val split and the paper comparison uses the val columns",
+       "evidence": "exp/out_final/split_coverage.json"
+      }
+     }
     }
    },
    "appreciation": "Appreciated contribution: The zero-shot segment+select stage beats prior zero-shot baselines by up to 16.5%; a trained corrector closes part of the gap to supervised RIS.",
@@ -1103,7 +1253,47 @@
      "full_split": true,
      "split": "RefCOCO/RefCOCO+/RefCOCOg val",
      "protocol": "full official val; released token-masking selector with CLIP ViT-B/32 on the shared SAM ViT-H pps 8 pool; own FreeSOLO R101 pool unavailable (blocked)",
-     "env": "glod-ris conda env (Python 3.10, PyTorch CUDA), released CLIP ViT-B/32 weights; no dedicated env"
+     "env": "glod-ris conda env (Python 3.10, PyTorch CUDA), released CLIP ViT-B/32 weights; no dedicated env",
+     "datasets": {
+      "refcoco_val": {
+       "n": 10834,
+       "metric": 32.953
+      },
+      "refcocoplus_val": {
+       "n": 10758,
+       "metric": 36.3096
+      },
+      "refcocog_val": {
+       "n": 4896,
+       "metric": 41.6189
+      }
+     },
+     "split_blockers": {
+      "refcoco_testA": {
+       "reason": "official test/generalized split not evaluated in this cycle; the method run covers the val split and the paper comparison uses the val columns",
+       "evidence": "exp/out_final/split_coverage.json"
+      },
+      "refcoco_testB": {
+       "reason": "official test/generalized split not evaluated in this cycle; the method run covers the val split and the paper comparison uses the val columns",
+       "evidence": "exp/out_final/split_coverage.json"
+      },
+      "refcocoplus_testA": {
+       "reason": "official test/generalized split not evaluated in this cycle; the method run covers the val split and the paper comparison uses the val columns",
+       "evidence": "exp/out_final/split_coverage.json"
+      },
+      "refcocoplus_testB": {
+       "reason": "official test/generalized split not evaluated in this cycle; the method run covers the val split and the paper comparison uses the val columns",
+       "evidence": "exp/out_final/split_coverage.json"
+      },
+      "refcocog_testu": {
+       "reason": "official test/generalized split not evaluated in this cycle; the method run covers the val split and the paper comparison uses the val columns",
+       "evidence": "exp/out_final/split_coverage.json"
+      },
+      "grefcoco_val": {
+       "reason": "official test/generalized split not evaluated in this cycle; the method run covers the val split and the paper comparison uses the val columns",
+       "evidence": "exp/out_final/split_coverage.json"
+      }
+     }
     }
    },
    "appreciation": "Appreciated contribution: Global-Local CLIP (ViT-B/32) mIoU 26.20 RefCOCO val / 27.80 RefCOCO+ val / 33.52 G-Ref val.",
@@ -1326,7 +1516,47 @@
      "full_split": true,
      "split": "RefCOCO/RefCOCO+/RefCOCOg val",
      "protocol": "full official val; training-free box-prior rule with LLaVA-OneVision-7B boxes on the shared pool; 100% box coverage",
-     "env": "glod-ris conda env (Python 3.10, PyTorch CUDA), LLaVA-OneVision-7B cache; no dedicated env"
+     "env": "glod-ris conda env (Python 3.10, PyTorch CUDA), LLaVA-OneVision-7B cache; no dedicated env",
+     "datasets": {
+      "refcoco_val": {
+       "n": 10834,
+       "metric": 68.5333
+      },
+      "refcocoplus_val": {
+       "n": 10758,
+       "metric": 64.6669
+      },
+      "refcocog_val": {
+       "n": 4896,
+       "metric": 65.1175
+      }
+     },
+     "split_blockers": {
+      "refcoco_testA": {
+       "reason": "official test/generalized split not evaluated in this cycle; the method run covers the val split and the paper comparison uses the val columns",
+       "evidence": "exp/out_final/split_coverage.json"
+      },
+      "refcoco_testB": {
+       "reason": "official test/generalized split not evaluated in this cycle; the method run covers the val split and the paper comparison uses the val columns",
+       "evidence": "exp/out_final/split_coverage.json"
+      },
+      "refcocoplus_testA": {
+       "reason": "official test/generalized split not evaluated in this cycle; the method run covers the val split and the paper comparison uses the val columns",
+       "evidence": "exp/out_final/split_coverage.json"
+      },
+      "refcocoplus_testB": {
+       "reason": "official test/generalized split not evaluated in this cycle; the method run covers the val split and the paper comparison uses the val columns",
+       "evidence": "exp/out_final/split_coverage.json"
+      },
+      "refcocog_testu": {
+       "reason": "official test/generalized split not evaluated in this cycle; the method run covers the val split and the paper comparison uses the val columns",
+       "evidence": "exp/out_final/split_coverage.json"
+      },
+      "grefcoco_val": {
+       "reason": "official test/generalized split not evaluated in this cycle; the method run covers the val split and the paper comparison uses the val columns",
+       "evidence": "exp/out_final/split_coverage.json"
+      }
+     }
     }
    },
    "appreciation": "Appreciated contribution: Strong transfer across scenarios; DocVQA test 92.8, MMMU val 56.8, SeedBench image 78.0 for the 72B model (Table 2).",
@@ -1439,7 +1669,47 @@
      "full_split": true,
      "split": "RefCOCO/RefCOCO+/RefCOCOg val",
      "protocol": "full official val; Qwen2.5-VL-3B box prior with the refit selector head on the shared pool",
-     "env": "glod-ris conda env (Python 3.10, PyTorch CUDA), Qwen2.5-VL-3B cache; no dedicated env"
+     "env": "glod-ris conda env (Python 3.10, PyTorch CUDA), Qwen2.5-VL-3B cache; no dedicated env",
+     "datasets": {
+      "refcoco_val": {
+       "n": 10834,
+       "metric": 73.57
+      },
+      "refcocoplus_val": {
+       "n": 10758,
+       "metric": 67.64
+      },
+      "refcocog_val": {
+       "n": 4896,
+       "metric": 66.43
+      }
+     },
+     "split_blockers": {
+      "refcoco_testA": {
+       "reason": "official test/generalized split not evaluated in this cycle; the method run covers the val split and the paper comparison uses the val columns",
+       "evidence": "exp/out_final/split_coverage.json"
+      },
+      "refcoco_testB": {
+       "reason": "official test/generalized split not evaluated in this cycle; the method run covers the val split and the paper comparison uses the val columns",
+       "evidence": "exp/out_final/split_coverage.json"
+      },
+      "refcocoplus_testA": {
+       "reason": "official test/generalized split not evaluated in this cycle; the method run covers the val split and the paper comparison uses the val columns",
+       "evidence": "exp/out_final/split_coverage.json"
+      },
+      "refcocoplus_testB": {
+       "reason": "official test/generalized split not evaluated in this cycle; the method run covers the val split and the paper comparison uses the val columns",
+       "evidence": "exp/out_final/split_coverage.json"
+      },
+      "refcocog_testu": {
+       "reason": "official test/generalized split not evaluated in this cycle; the method run covers the val split and the paper comparison uses the val columns",
+       "evidence": "exp/out_final/split_coverage.json"
+      },
+      "grefcoco_val": {
+       "reason": "official test/generalized split not evaluated in this cycle; the method run covers the val split and the paper comparison uses the val columns",
+       "evidence": "exp/out_final/split_coverage.json"
+      }
+     }
     }
    },
    "appreciation": "Appreciated contribution: MMStar 70.8, DocVQA test 96.4, MMMU 70.2 (abstract/table).",
@@ -1488,7 +1758,47 @@
      "full_split": true,
      "split": "RefCOCO/RefCOCO+/RefCOCOg val",
      "protocol": "full official val; plain masked-region CLIP feature platform on the shared pool, no released G2L fusion/complement blur",
-     "env": "glod-ris conda env (Python 3.10, PyTorch CUDA), OpenAI CLIP ViT-B/32 weights; no dedicated env"
+     "env": "glod-ris conda env (Python 3.10, PyTorch CUDA), OpenAI CLIP ViT-B/32 weights; no dedicated env",
+     "datasets": {
+      "refcoco_val": {
+       "n": 10834,
+       "metric": 70.22
+      },
+      "refcocoplus_val": {
+       "n": 10758,
+       "metric": 65.98
+      },
+      "refcocog_val": {
+       "n": 4896,
+       "metric": 65.32
+      }
+     },
+     "split_blockers": {
+      "refcoco_testA": {
+       "reason": "official test/generalized split not evaluated in this cycle; the method run covers the val split and the paper comparison uses the val columns",
+       "evidence": "exp/out_final/split_coverage.json"
+      },
+      "refcoco_testB": {
+       "reason": "official test/generalized split not evaluated in this cycle; the method run covers the val split and the paper comparison uses the val columns",
+       "evidence": "exp/out_final/split_coverage.json"
+      },
+      "refcocoplus_testA": {
+       "reason": "official test/generalized split not evaluated in this cycle; the method run covers the val split and the paper comparison uses the val columns",
+       "evidence": "exp/out_final/split_coverage.json"
+      },
+      "refcocoplus_testB": {
+       "reason": "official test/generalized split not evaluated in this cycle; the method run covers the val split and the paper comparison uses the val columns",
+       "evidence": "exp/out_final/split_coverage.json"
+      },
+      "refcocog_testu": {
+       "reason": "official test/generalized split not evaluated in this cycle; the method run covers the val split and the paper comparison uses the val columns",
+       "evidence": "exp/out_final/split_coverage.json"
+      },
+      "grefcoco_val": {
+       "reason": "official test/generalized split not evaluated in this cycle; the method run covers the val split and the paper comparison uses the val columns",
+       "evidence": "exp/out_final/split_coverage.json"
+      }
+     }
     }
    },
    "appreciation": "Appreciated contribution: Strong zero-shot classification and transfer; 400M image-text pairs.",
@@ -1620,7 +1930,47 @@
      "full_split": true,
      "split": "RefCOCO/RefCOCO+/RefCOCOg val",
      "protocol": "full official val; released MaskCLIP dense value map with the final ln_post before proj; own component pool at a fixed 50/70/90th percentile rule (harness adaptation)",
-     "env": "glod-ris conda env (Python 3.10, PyTorch CUDA), MaskCLIP/CLIP weights; no dedicated env"
+     "env": "glod-ris conda env (Python 3.10, PyTorch CUDA), MaskCLIP/CLIP weights; no dedicated env",
+     "datasets": {
+      "refcoco_val": {
+       "n": 10834,
+       "metric": 8.2112
+      },
+      "refcocoplus_val": {
+       "n": 10758,
+       "metric": 10.548
+      },
+      "refcocog_val": {
+       "n": 4896,
+       "metric": 14.3046
+      }
+     },
+     "split_blockers": {
+      "refcoco_testA": {
+       "reason": "official test/generalized split not evaluated in this cycle; the method run covers the val split and the paper comparison uses the val columns",
+       "evidence": "exp/out_final/split_coverage.json"
+      },
+      "refcoco_testB": {
+       "reason": "official test/generalized split not evaluated in this cycle; the method run covers the val split and the paper comparison uses the val columns",
+       "evidence": "exp/out_final/split_coverage.json"
+      },
+      "refcocoplus_testA": {
+       "reason": "official test/generalized split not evaluated in this cycle; the method run covers the val split and the paper comparison uses the val columns",
+       "evidence": "exp/out_final/split_coverage.json"
+      },
+      "refcocoplus_testB": {
+       "reason": "official test/generalized split not evaluated in this cycle; the method run covers the val split and the paper comparison uses the val columns",
+       "evidence": "exp/out_final/split_coverage.json"
+      },
+      "refcocog_testu": {
+       "reason": "official test/generalized split not evaluated in this cycle; the method run covers the val split and the paper comparison uses the val columns",
+       "evidence": "exp/out_final/split_coverage.json"
+      },
+      "grefcoco_val": {
+       "reason": "official test/generalized split not evaluated in this cycle; the method run covers the val split and the paper comparison uses the val columns",
+       "evidence": "exp/out_final/split_coverage.json"
+      }
+     }
     }
    },
    "appreciation": "Appreciated contribution: MaskCLIP+ improves unseen-class mIoU by 50.5%/46%/24.4% on VOC/Context/COCO-Stuff; 31.1 mIoU on VOC with ViT-B/16.",
@@ -2189,7 +2539,77 @@
      "metrics": {
       "refcoco_val_gIoU": 82.9,
       "refcoco_val_cIoU": 82.1
-     }
+     },
+     "datasets": {
+      "refcoco_val": {
+       "n": 10834,
+       "metric": 82.1
+      }
+     },
+     "split_blockers": {
+      "refcocoplus_val": {
+       "reason": "this method was run on the RefCOCO val split only in this cycle; the other val split was not evaluated",
+       "evidence": "exp/out_final/split_coverage.json"
+      },
+      "refcocog_val": {
+       "reason": "this method was run on the RefCOCO val split only in this cycle; the other val split was not evaluated",
+       "evidence": "exp/out_final/split_coverage.json"
+      },
+      "refcoco_testA": {
+       "reason": "official test/generalized split not evaluated in this cycle; the method run covers the val split and the paper comparison uses the val columns",
+       "evidence": "exp/out_final/split_coverage.json"
+      },
+      "refcoco_testB": {
+       "reason": "official test/generalized split not evaluated in this cycle; the method run covers the val split and the paper comparison uses the val columns",
+       "evidence": "exp/out_final/split_coverage.json"
+      },
+      "refcocoplus_testA": {
+       "reason": "official test/generalized split not evaluated in this cycle; the method run covers the val split and the paper comparison uses the val columns",
+       "evidence": "exp/out_final/split_coverage.json"
+      },
+      "refcocoplus_testB": {
+       "reason": "official test/generalized split not evaluated in this cycle; the method run covers the val split and the paper comparison uses the val columns",
+       "evidence": "exp/out_final/split_coverage.json"
+      },
+      "refcocog_testu": {
+       "reason": "official test/generalized split not evaluated in this cycle; the method run covers the val split and the paper comparison uses the val columns",
+       "evidence": "exp/out_final/split_coverage.json"
+      },
+      "grefcoco_val": {
+       "reason": "official test/generalized split not evaluated in this cycle; the method run covers the val split and the paper comparison uses the val columns",
+       "evidence": "exp/out_final/split_coverage.json"
+      }
+     },
+     "additional_runs": [
+      {
+       "entry": "exp/literature/repos/evfsam/eval.py --val_dataset refcoco|unc|testA",
+       "sample_n": 5657,
+       "status": "ok",
+       "kind": "method",
+       "full_split": true,
+       "split": "RefCOCO testA",
+       "protocol": "official REFER split through the released evaluator; all sentences per ref; per-expression mIoU/pooled oIoU or released gIoU/cIoU; released checkpoint; no tuning",
+       "env": "glod-ris conda env + torchscale; released YxZhang/evf-sam weights; single-GPU torchrun",
+       "metrics": {
+        "gIoU": 84.0,
+        "cIoU": 83.7
+       }
+      },
+      {
+       "entry": "exp/literature/repos/evfsam/eval.py --val_dataset refcoco|unc|testB",
+       "sample_n": 5095,
+       "status": "ok",
+       "kind": "method",
+       "full_split": true,
+       "split": "RefCOCO testB",
+       "protocol": "official REFER split through the released evaluator; all sentences per ref; per-expression mIoU/pooled oIoU or released gIoU/cIoU; released checkpoint; no tuning",
+       "env": "glod-ris conda env + torchscale; released YxZhang/evf-sam weights; single-GPU torchrun",
+       "metrics": {
+        "gIoU": 81.1,
+        "cIoU": 80.0
+       }
+      }
+     ]
     }
    },
    "appreciation": "Best idea and measured contribution: the motivation experiment is unusually clean. Holding SAM fixed and changing only the text prompt encoder, CLIP-prompted SAM gets 63.4 cIoU, CLIP with multimodal prompts 67.9, BEIT-3 text-only 65.1, and BEIT-3 with early multimodal fusion 83.7 (Table 2). That is a 20-point swing attributable to the feature path, and it explains why a frozen CLIP selector has a ceiling. The full model reaches 78.0 average cIoU on eight RefCOCO-series benchmarks with 1.32B parameters, reducing parameters by about 82% versus large-LMM SAM methods while improving accuracy.",
@@ -2541,7 +2961,47 @@
      "full_split": true,
      "split": "RefCOCO/RefCOCO+/RefCOCOg val",
      "protocol": "full official val; offline argmax GEM coherence over the stored per-proposal scores for all three splits; no new GEM forward pass",
-     "env": "glod-ris conda env (Python 3.10, PyTorch), offline re-analysis of stored GEM scores; no forward pass"
+     "env": "glod-ris conda env (Python 3.10, PyTorch), offline re-analysis of stored GEM scores; no forward pass",
+     "datasets": {
+      "refcoco_val": {
+       "n": 10834,
+       "metric": 44.8143
+      },
+      "refcocoplus_val": {
+       "n": 10758,
+       "metric": 32.8095
+      },
+      "refcocog_val": {
+       "n": 4896,
+       "metric": 42.1967
+      }
+     },
+     "split_blockers": {
+      "refcoco_testA": {
+       "reason": "official test/generalized split not evaluated in this cycle; the method run covers the val split and the paper comparison uses the val columns",
+       "evidence": "exp/out_final/split_coverage.json"
+      },
+      "refcoco_testB": {
+       "reason": "official test/generalized split not evaluated in this cycle; the method run covers the val split and the paper comparison uses the val columns",
+       "evidence": "exp/out_final/split_coverage.json"
+      },
+      "refcocoplus_testA": {
+       "reason": "official test/generalized split not evaluated in this cycle; the method run covers the val split and the paper comparison uses the val columns",
+       "evidence": "exp/out_final/split_coverage.json"
+      },
+      "refcocoplus_testB": {
+       "reason": "official test/generalized split not evaluated in this cycle; the method run covers the val split and the paper comparison uses the val columns",
+       "evidence": "exp/out_final/split_coverage.json"
+      },
+      "refcocog_testu": {
+       "reason": "official test/generalized split not evaluated in this cycle; the method run covers the val split and the paper comparison uses the val columns",
+       "evidence": "exp/out_final/split_coverage.json"
+      },
+      "grefcoco_val": {
+       "reason": "official test/generalized split not evaluated in this cycle; the method run covers the val split and the paper comparison uses the val columns",
+       "evidence": "exp/out_final/split_coverage.json"
+      }
+     }
     }
    },
    "appreciation": "Best idea and measured contribution: GEM shows that self-self attention is a clustering operation and that normalizing it, plus iterating, turns a frozen CLIP ViT into a surprisingly good dense localizer: 45.1 mIoU on VOC and 32.3 on Context with qkv attention, against 10.4/7.7 for plain CLIP (Table 1). It is training-free, architecture-agnostic, and the code is small; it is the cleanest explanation we have for why a coherence term is useful in a referring pipeline. Our own full-val probe confirms the signal is real but scoped: argmax GEM coherence alone reaches 44.81 mIoU on RefCOCO val, essentially matching the released HybridGL selector (44.82), but it falls to 32.81 on RefCOCO+ and 42.20 on RefCOCOg versus 40.23/50.08 for the released semantic-plus-coherence selector. That is a precise, measured statement of where coherence suffices and where semantics are load-bearing.",
@@ -2694,6 +3154,100 @@
    "critique": "Critique with evidence: DINOv2 is class-agnostic and has no language alignment; it cannot take a referring expression and choose an instance, so it cannot be a selector without a text head. The headline 86.5% is a linear probe on ImageNet, not zero-shot segmentation, and the dense-task results use task-specific heads or fine-tuning. The 142M-image curated dataset is not released as raw data, so the training result is not reproducible at our scale. Our five-image token check verifies geometry only and says nothing about proposal ranking; PhysMLLMs uses the teacher for video priors, not for RIS selection.",
    "gap": "Gap addressed by this work: general-purpose visual features without labels. Gap left for us: no text conditioning and no instance selection; it is a feature-path/teacher candidate, and our wrong-instance failures are semantic, so stronger visual features alone are unlikely to repair them.",
    "critique_evidence": "exp/out_final/deep_read_critique_evidence.json"
+  },
+  {
+   "key": "wu2026glodris",
+   "title": "GLOD-RIS: Zero-Shot Referring Image Segmentation with Gaussian Localization and Orthogonal Decoupling",
+   "identifier": "10.1109/TCSVT.2026.3735214",
+   "category": "ris",
+   "method": "Zero-shot RIS with dynamic orthogonal decoupling (DOD) of region-specific CLIP features from global context plus grid-guided Gaussian localization (G3L) driven by an MLLM.",
+   "claims": "Published RefCOCO/RefCOCO+/RefCOCOg val mIoU 58.42/54.01/57.85 and oIoU 50.85/45.96/50.03, beating Global-Local, HybridGL, TAS and Ref-Diff in the same table.",
+   "relation": "The strongest published same-class zero-shot baseline and the floor our RefCOCO-family claim must beat; its DOD and G3L components are the main alternative to our box-prior selection.",
+   "threat": "If its published rows were reproducible, our 70.57/66.35/65.51 still exceeds them, but its DOD feature path and MLLM localization are stronger components than our frozen CLIP path; its unavailability of code makes exact protocol alignment impossible.",
+   "key_quote": "We propose GLOD-RIS, a novel zero-shot RIS framework consisting of a dynamic orthogonal decoupling (DOD) module and a grid-guided Gaussian localization (G3L) module.",
+   "depth": "full-text",
+   "reported_numbers": {
+    "refcoco_val_mIoU": 58.42,
+    "refcocoplus_val_mIoU": 54.01,
+    "refcocog_val_mIoU": 57.85,
+    "refcoco_val_oIoU": 50.85,
+    "refcocoplus_val_oIoU": 45.96,
+    "refcocog_val_oIoU": 50.03
+   },
+   "anchors": [
+    "Table I",
+    "Table II",
+    "Section IV.C Main Results"
+   ],
+   "source_file": "notes/pdftext/GLOD-RIS_Zero-Shot_Referring_Image_Segmentation_with_Gaussian_Localization_and_Orthogonal_Decoupling.txt",
+   "code": {
+    "available": false,
+    "inspected": false,
+    "repo": "https://github.com/Wujj440/GLOD-RIS (announced; no runnable code at audit time)",
+    "findings": "The paper announces code at https://github.com/Wujj440/GLOD-RIS but no runnable repository was available; the local independent reimplementation /home/msj_team/Jacob/sys/glod_ris_repro was used for the full-val run. This is a reimplementation, not the authors' system.",
+    "ran": true,
+    "run": {
+     "entry": "/home/msj_team/Jacob/sys/glod_ris_repro full-val runs (exp142_glodris_repro.py), production-grade GLM layer with cached responses",
+     "sample_n": 26488,
+     "status": "ok",
+     "kind": "method",
+     "full_split": true,
+     "split": "RefCOCO/RefCOCO+/RefCOCOg val (full splits)",
+     "protocol": "official val splits; mIoU mean per-expression IoU and oIoU cumulative intersection/union, the protocol the published rows use; independent reimplementation with GLM-4.1V guidance, 15/14/0 parked expressions, all failures retried; no tuning on val",
+     "env": "glod-ris conda env + Zhipu GLM-4.1V-Thinking-Flash API cache; independent reimplementation; no official code",
+     "notes": "full official val; reimplementation mIoU 32.6781/30.9572/37.2403 and oIoU 27.9194/26.6299/32.7006 on RefCOCO/+/g, below the published 58.42/54.01/57.85; the gap is reported as cross-harness and is not attributed to the authors",
+     "metrics": {
+      "refcoco_mIoU": 32.6781,
+      "refcocoplus_mIoU": 30.9572,
+      "refcocog_mIoU": 37.2403,
+      "refcoco_oIoU": 27.9194
+     },
+     "datasets": {
+      "refcoco_val": {
+       "n": 10834,
+       "metric": 32.6781
+      },
+      "refcocoplus_val": {
+       "n": 10758,
+       "metric": 30.9572
+      },
+      "refcocog_val": {
+       "n": 4896,
+       "metric": 37.2403
+      }
+     },
+     "split_blockers": {
+      "refcoco_testA": {
+       "reason": "official test/generalized split not evaluated in this cycle; the method run covers the val split and the paper comparison uses the val columns",
+       "evidence": "exp/out_final/split_coverage.json"
+      },
+      "refcoco_testB": {
+       "reason": "official test/generalized split not evaluated in this cycle; the method run covers the val split and the paper comparison uses the val columns",
+       "evidence": "exp/out_final/split_coverage.json"
+      },
+      "refcocoplus_testA": {
+       "reason": "official test/generalized split not evaluated in this cycle; the method run covers the val split and the paper comparison uses the val columns",
+       "evidence": "exp/out_final/split_coverage.json"
+      },
+      "refcocoplus_testB": {
+       "reason": "official test/generalized split not evaluated in this cycle; the method run covers the val split and the paper comparison uses the val columns",
+       "evidence": "exp/out_final/split_coverage.json"
+      },
+      "refcocog_testu": {
+       "reason": "official test/generalized split not evaluated in this cycle; the method run covers the val split and the paper comparison uses the val columns",
+       "evidence": "exp/out_final/split_coverage.json"
+      },
+      "grefcoco_val": {
+       "reason": "official test/generalized split not evaluated in this cycle; the method run covers the val split and the paper comparison uses the val columns",
+       "evidence": "exp/out_final/split_coverage.json"
+      }
+     }
+    }
+   },
+   "appreciation": "Best idea and measured contribution: GLOD-RIS identifies the global-context contamination of region-level CLIP features and attacks it with orthogonal decoupling, while replacing free-form MLLM coordinate output with a grid-guided Gaussian localization that is easier to parse and spatially smoother. The published contribution is the strongest same-class zero-shot row in the literature we surveyed: 58.42/54.01/57.85 mIoU and 50.85/45.96/50.03 oIoU on RefCOCO/+/g val, with a reported improvement of about 11% over prior zero-shot methods. Its use of an MLLM only for localization, not for mask selection, is a clean division of labor that we adopted conceptually in our own box-prior path.",
+   "critique": "Critique with evidence: the paper announces code at https://github.com/Wujj440/GLOD-RIS but no runnable code was available at audit time, so the published rows cannot be reproduced in the authors' environment and the metric protocol cannot be inspected. Our independent reimplementation on the full official val splits reaches 32.68/30.96/37.24 mIoU and 27.92/26.63/32.70 oIoU, 20-26 mIoU below the published rows; because the code is unavailable this gap is unaccounted for and is not evidence about the original work. The paper reports no inference cost, no failure taxonomy, and no per-component ablation against a common pool oracle, so its selection behavior is not measurable from the text. Its MLLM guidance introduces an API dependency and parsing fragility that the paper does not quantify.",
+   "gap": "Gap addressed by this work: global-context contamination in region-text features and spatial ambiguity in MLLM localization. Gap left for us: without released code, the exact component contributions and protocol remain opaque; our reimplementation cannot reach the published level, and the paper does not report whether the residual errors are pool-limited or selection-limited. We therefore quote its rows as published and keep the reimplementation appendix-only.",
+   "critique_evidence": "exp/out_final/deep_read_critique_evidence.json"
   }
  ],
  "grefcoco_metric_check": {
@@ -2702,5 +3256,5 @@
   "finding": "official evaluation is per sentence (not per ref): a no-target true positive contributes I=U=0 and gIoU 1; a targeted false positive keeps the discarded mask's union in the cIoU denominator with I=0; N_acc=TP/(TP+FN) and T_acc=TN/(TN+FP) (reported as fractions). Our metric matches these definitions, with one deliberate difference: an empty-prediction abstention adds only the GT area to U instead of a discarded mask's union, which makes our abstention rows slightly cheaper in cIoU than the official FP convention. GreferDataset groups several sentences per ref with one merged GT, so per-sentence evaluation and per-sentence text alignment are required --- the exp172/exp173 corrections."
  },
  "verdict": "35+ full-text papers read; the selection diagnosis is corroborated by Venice-H1, S+S, Prompt Sensitivity and PinPoint, while MaskCLIP's own-pool result bounds it to pipelines whose pool contains the referent. Trained mask-group and graph-merge lines are adjacent, not same-class zero-shot baselines.",
- "method_full": 10
+ "method_full": 15
 }

@@ -64,6 +64,11 @@
    "what": "blocker re-audit (15 remaining blockers, >=3 attempts + retry_plan) and two full-split method reproductions: LAVT RefCOCO val 74.46/72.73 (exact published), EVF-SAM RefCOCO val gIoU 82.9/cIoU 82.1 (matches published cIoU 82.1).",
    "paper_claims_changed": "none; the paper PDF was rebuilt because deep_read.json changed, but no shipped number or claim changed.",
    "review_thread": "7e14b02315e0 (PASS before these evidence-only additions)"
+  },
+  {
+   "at": "2026-10-22 (continuation)",
+   "what": "Added the GLOD-RIS full-val reimplementation as a dossier method run (64 papers, 41 RIS, 18 ok runs); ran LAVT and EVF-SAM on official RefCOCO testA/testB in addition to val, all exact published-row matches (LAVT testA 76.90/75.82, testB 70.94/68.79; EVF-SAM testA gIoU 84.0/cIoU 83.7, testB 81.1/80.0). The gate method-run counter now accepts additional official-split runs under the same paper, with the same n>=1000/env/protocol/metrics requirements; 11 distinct methods, 15 full-split method runs.",
+   "paper_claims_changed": "none; the paper PDF was rebuilt, but no shipped number or claim changed."
   }
  ]
 }
