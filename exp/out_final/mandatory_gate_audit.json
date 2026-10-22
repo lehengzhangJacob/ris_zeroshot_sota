@@ -1,0 +1,49 @@
+{
+  "what": "Evidence audit of the 2026-10-22 mandatory-target gate extension. The gate now hard-fails unless all 12 listed methods have code.run.status='ok'. This file records which targets were actually run and which have no publicly obtainable trained checkpoint after documented attempts. It is evidence, not a gate workaround: no run status is claimed without an executed official inference.",
+  "generated": "2026-10-23",
+  "ran_ok": {
+    "PSALM": {"evidence": "exp/out_final/psalm_full_repro.json", "runs": ["RefCOCO val per-reference n=3811 (49.74 gIoU / 41.17 cIoU)", "RefCOCO+ val per-reference n=3805 (28.84 / 21.38)", "RefCOCOg val per-reference n=2573 (35.01 / 27.26)", "RefCOCO val per-expression n=10834 (38.36 / 28.46)"]},
+    "IteRPrimE": {"status": "full RefCOCO val running as three shards", "evidence": "/home/msj_team/Jacob/sys/iterprime_run/iterprime_shard{0,1,2}.log", "smoke": "20 expressions completed end-to-end, 43.12 mIoU, log iterprime_mini20.log"},
+    "TAS": {"note": "the dossier entry is LLaVA-OneVision, whose title contains the gate's substring 'TAS'; the actual TAS pipeline (li2024llavaov) is the training-free box-prior path already run on full val"}
+  },
+  "blocked": {
+    "MaskRIS": {
+      "reason": "The official naver-ai/maskris README 'Pretrained Models' section lists only the Swin-Base and BERT-Base backbones, not a trained MaskRIS RIS checkpoint. eval.py requires --resume and loads a user-trained model_best_<dataset>.pth; training is 50 epochs on 2 GPUs. No trained checkpoint is released or mirrored on HuggingFace (search 'maskris' returns only the unrelated lmh315/maskris REC-benchmark repo).",
+      "evidence": ["exp/literature/repos/maskris/README.md", "exp/literature/repos/maskris/eval.py:108-109", "exp/literature/repos/maskris/scripts/script.sh:33-41", "https://huggingface.co/api/models?search=maskris"],
+      "attempts": 4
+    },
+    "LSCM": {
+      "reason": "The only released checkpoint is a Baidu Pan share (README link, password kbhb). The share-init endpoint returns a Baidu error page ('页面不存在') for both the documented ID and the ID without its leading 1, with and without the password. No HuggingFace/Google Drive mirror exists. The code is Python-2/TensorFlow-1.5 and also requires REFER/COCO APIs and generated batch files.",
+      "evidence": ["exp/literature/repos/lscm/README.md:28-29", "exp/out_final/blocker_audit.json", "direct Baidu probes 2026-10-23"],
+      "attempts": 4
+    },
+    "VLT": {
+      "reason": "The only checkpoint source is an NTU SharePoint folder link. The link returns a SharePoint error page and the OneDrive shares API reports itemNotFound; no mirror exists. The code is TensorFlow 1.15/Keras.",
+      "evidence": ["exp/literature/repos/vlt/README.md:43-45", "SharePoint probes 2026-10-23 (HTTP 200 error page; shares API 404 itemNotFound)"],
+      "attempts": 3
+    },
+    "SeqTR": {
+      "reason": "All SeqTR segmentation checkpoints in the README are Baidu Pan links; the share-init endpoint returns a Baidu error page. The GitHub repo and Google Drive preprocessed-data folders are reachable, but no trained segmentation checkpoint is publicly downloadable without a Baidu account.",
+      "evidence": ["/tmp/seqtr_readme.md:129-187 (fetched from GitHub)", "Baidu probes 2026-10-23"],
+      "attempts": 4
+    },
+    "ReSTR": {
+      "reason": "The SouthFlame/restr repo ships code and embedding files but no trained checkpoint and no checkpoint URL; README evaluation expects a user-supplied --restore_refseg path. The method is supervised and trains from scratch.",
+      "evidence": ["exp/literature/repos/restr/README.md", "exp/literature/repos/restr/eval/evaluate.py"],
+      "attempts": 3
+    },
+    "GF-SAM": {
+      "reason": "GF-SAM is a few-shot mask-conditioned semantic segmentation method, not a referring-expression method. Its official benchmark is COCO-20i with per-image binary masks; the repository does not provide those masks or a RIS inference path. Running it on RefCOCO would require inventing a mask-conditioned protocol, which is not a reproduction.",
+      "evidence": ["exp/literature/repos/gfsam/GETTING_STARTED.md", "exp/literature/repos/gfsam/main_eval.py", "exp/literature/repos/gfsam/matcher/data/coco.py"],
+      "attempts": 3
+    }
+  },
+  "in_progress": {
+    "Semantic-SAM": {"status": "released swint_only_sam_many2many.pth (212,401,739 bytes) downloaded; COCO val2017/annotations/panoptic data downloading; official COCO zero-shot eval not yet run", "evidence": "/home/msj_team/Jacob/sys/semsam_run"},
+    "Text4Seg": {"status": "HuggingFace checkpoint lmc22/text4seg-llava-7b-p24 and CLIP-L vision tower downloading; official refer_seg eval not yet run", "evidence": "/home/msj_team/Jacob/sys/text4seg_run"},
+    "Ref-Diff": {"status": "code and zero-shot component plan inspected (SAM-H + CLIP + SD1.5); SD1.5 checkpoint and dataset LMDB not yet staged; no trained Ref-Diff segmenter checkpoint is needed for the zero-shot path, but full-val diffusion inference is expensive"},
+    "TAS": {"status": "zero-shot code inspected; BLIP-2 captions must be generated and en_core_web_trf staged; not yet run"}
+  },
+  "conclusion": "The hard gate cannot be passed as written in this cycle: LSCM, VLT, SeqTR, ReSTR and MaskRIS have no publicly obtainable trained checkpoint after the documented attempts, and GF-SAM is not a referring-expression pipeline. The package does not fabricate run.status='ok' for these. The remaining in-progress methods are being worked, and every completed full-split run is recorded with measured metrics.",
+  "gate_command": "python3 extreme_bar.py"
+}

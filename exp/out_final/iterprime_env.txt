@@ -1,0 +1,12 @@
+IteRPrimE reproduction environment (2026-10-23)
+- conda env: glod-ris (Python 3.10.18, torch 2.2.1+cu121, transformers 4.49.0, numpy 1.26.4, timm 0.6.13)
+- detectron2 main built editable with CC=/usr/bin/gcc-12 CXX=/usr/bin/g++-12 FORCE_CUDA=1 TORCH_CUDA_ARCH_LIST=8.9
+- Mask2Former MultiScaleDeformableAttention built with the same gcc-12 flags
+- extra pip: imgaug==0.4.0, stanza==1.8.1, kornia
+- checkpoints:
+  - checkpoints/model_final_f07440.pkl (Mask2Former Swin-L COCO panoptic, 866,223,934 bytes) from dl.fbaipublicfiles.com
+  - checkpoints/ALBEF.pth (3,493,862,125 bytes) from storage.googleapis.com/sfr-pcl-data-research/ALBEF
+  - checkpoints/bert-base-uncased -> exp/literature/repos/lavt/bert_base_local
+  - checkpoints/pweight (Stanza en tokenize/pos/constituency resources incl. conll17.pt, forward/backward charlm)
+- data: data/coco/{refcoco,refcoco+,refcocog}/instances_*_*.json built from data/refer/*/val_psalm.json; train2014 symlink
+- code patches: exp/out_final/iterprime_patches.diff (tokenizer get_vocab guard, mask2former data import guard, tuple-return predictor, numpy gradcam, stanza processors, per-shard scratch/annotation overrides)

@@ -1,0 +1,13 @@
+{
+  "what": "Protocol diagnostic for the PSALM reproduction. The released referring_segmentation.py evaluates one entry per REFER reference, concatenating all sentences of that reference into one prompt. The standard RefCOCO benchmark instead averages per expression. On the same 20 references (59 sentences) the two protocols differ sharply, so the reproduction must use PSALM's own per-reference protocol; per-expression results are reported separately as a cross-protocol sensitivity check.",
+  "model": "EnmingZhang/PSALM released checkpoint",
+  "local_checkpoint": "/home/msj_team/Jacob/sys/glod_ris_repro/checkpoints/psalm",
+  "evidence": "exp/literature/repos/psalm/psalm/eval/referring_segmentation.py",
+  "same_20_refs": {
+    "per_reference_concat": {"n": 20, "gIoU": 0.6207, "cIoU": 0.5552, "log": "/home/msj_team/Jacob/sys/iterprime_run/psalm_mini20_refs.log"},
+    "per_expression": {"n": 59, "gIoU": 0.3292, "cIoU": 0.2007, "log": "/home/msj_team/Jacob/sys/iterprime_run/psalm_mini59_persent.log"}
+  },
+  "full_val_per_expression": {"dataset": "refcoco", "n": 10834, "gIoU": 0.3836, "cIoU": 0.2846, "log": "/home/msj_team/Jacob/sys/iterprime_run/psalm_refcoco_val.log", "note": "cross-protocol sensitivity; not the published protocol"},
+  "decision": "Reproduce PSALM under its own per-reference protocol (n=3811/3805/2573) and label that protocol in the dossier. Keep this cross-protocol row visible; do not compare the per-expression PSALM number against published per-reference numbers.",
+  "generated": "2026-10-22"
+}

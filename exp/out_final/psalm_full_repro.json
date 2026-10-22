@@ -1,0 +1,17 @@
+{
+  "what": "Full official-val reproduction of the released PSALM checkpoint (EnmingZhang/PSALM) under PSALM's own per-reference evaluation protocol, plus a per-expression cross-protocol run. Values are measured, not published rows.",
+  "model": "EnmingZhang/PSALM",
+  "local_checkpoint": "/home/msj_team/Jacob/sys/glod_ris_repro/checkpoints/psalm",
+  "repo": "https://github.com/zamling/PSALM",
+  "env": "glod-ris conda env (Python 3.10, torch 2.2.1+cu121, transformers 4.49); detectron2 inference shims exp/psalm_stubs for missing detectron2 surfaces; stanza not used",
+  "protocol_primary": "PSALM released psalm/eval/referring_segmentation.py; one entry per REFER reference, all sentences of a reference concatenated in the prompt; mIoU = mean per-entry IoU (giou), oIoU = pooled IoU (ciou); n = 3811/3805/2573",
+  "protocol_crosscheck": "same model/checkpoint evaluated with one entry per expression (10,834/10,758/4,896); reported separately because it is not the protocol PSALM's published rows use",
+  "datasets": {
+    "refcoco": {"protocol": "per-reference (PSALM official)", "n": 3811, "gIoU": 0.4974, "cIoU": 0.4117, "log": "/home/msj_team/Jacob/sys/iterprime_run/psalm_refcoco_val_refprotocol.log"},
+    "refcocoplus": {"protocol": "per-reference (PSALM official)", "n": 3805, "gIoU": 0.2884, "cIoU": 0.2138, "log": "/home/msj_team/Jacob/sys/iterprime_run/psalm_refcocop_val_refprotocol.log"},
+    "refcocog": {"protocol": "per-reference (PSALM official)", "n": 2573, "gIoU": 0.3501, "cIoU": 0.2726, "log": "/home/msj_team/Jacob/sys/iterprime_run/psalm_refcocog_val_refprotocol.log"},
+    "refcoco_per_expression": {"protocol": "per-expression (cross-protocol check)", "n": 10834, "gIoU": 0.3836, "cIoU": 0.2846, "log": "/home/msj_team/Jacob/sys/iterprime_run/psalm_refcoco_val.log"}
+  },
+  "published_row_note": "PSALM's paper Table 8 reports RefCOCO/+/g cIoU 83.6/72.9/73.8 for a model trained with RefCOCO data (Segmentation Data C, RC, CI). The released checkpoint measured here does not reach that row; the gap is recorded as a reproduction/checkpoint-provenance gap, not as a verdict on the original work. All comparisons in the paper continue to quote the published rows as published.",
+  "generated": "2026-10-23"
+}

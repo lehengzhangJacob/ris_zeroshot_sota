@@ -1,0 +1,191 @@
+diff --git a/dataset/refexp.py b/dataset/refexp.py
+index b4a5724..607c5de 100644
+--- a/dataset/refexp.py
++++ b/dataset/refexp.py
+@@ -192,6 +192,11 @@ def build(dataset_file, image_set, args):
+     }
+ 
+     img_folder, ann_file = PATHS[image_set]
++    # Allow a subset/alternate annotation file for smoke tests without touching
++    # the released split layout.
++    override = os.environ.get("ITERPRIME_ANN_OVERRIDE")
++    if override:
++        ann_file = Path(override)
+     dataset = ModulatedDetection(
+         img_folder,
+         ann_file,
+diff --git a/demo/IteRPrimE.py b/demo/IteRPrimE.py
+index e764c74..6c88972 100644
+--- a/demo/IteRPrimE.py
++++ b/demo/IteRPrimE.py
+@@ -221,7 +221,7 @@ def iter_select(demo, engine, path, caption, iter_num, sam = None):
+         if "top" in string: return True 
+         if "bottom" in string: return True 
+         return False
+-    mask_iter_path = './mask_iter_img/'
++    mask_iter_path = os.environ.get('ITERPRIME_TMP', './mask_iter_img') + '/'
+     os.makedirs(os.path.dirname(mask_iter_path), exist_ok=True)
+     print(f'Now check : {path} | Caption : {caption}')
+     
+diff --git a/demo/itergradcam.py b/demo/itergradcam.py
+index aa1d1c4..cdd065f 100644
+--- a/demo/itergradcam.py
++++ b/demo/itergradcam.py
+@@ -15,6 +15,12 @@ def mySig(x, a = 20, b = 0.5):
+     return sig_x
+ 
+ def getAttMap(img, attMap, blur = False, overlap = True):
++    if hasattr(attMap, 'detach'):
++        attMap = attMap.detach().cpu().numpy()
++    attMap = np.asarray(attMap)
++    if hasattr(img, 'detach'):
++        img = img.detach().cpu().numpy()
++    img = np.asarray(img)
+     attMap -= attMap.min()
+     if attMap.max() > 0:
+         attMap /= attMap.max()
+@@ -60,8 +66,11 @@ def show_groundvlp(image_path,query,gradcam,save_path = None):
+         plt.savefig(save_path)
+ 
+ 
+-def IterGradCAM(engine,img_path,query,iter_num,path = './erase_imgs',vis = False,lmbda = 0.8):
++def IterGradCAM(engine,img_path,query,iter_num,path = None,vis = False,lmbda = 0.8):
+     # Iterative机制
++    if path is None:
++        # per-process scratch dir when running sharded evaluations
++        path = os.environ.get('ITERPRIME_ERASE', './erase_imgs')
+     gradcam = None
+     if os.path.exists(path):
+         shutil.rmtree(path)
+diff --git a/demo/predictor.py b/demo/predictor.py
+index c6d64d5..114b1d7 100644
+--- a/demo/predictor.py
++++ b/demo/predictor.py
+@@ -14,6 +14,26 @@ from detectron2.utils.video_visualizer import VideoVisualizer
+ from detectron2.utils.visualizer import ColorMode, Visualizer
+ 
+ 
++class _Mask2FormerPredictor(DefaultPredictor):
++    """DefaultPredictor that preserves the released model's (predictions, bin_mask)
++    return contract; the upstream DefaultPredictor keeps only element [0]."""
++
++    def __call__(self, original_image):
++        import torch
++        with torch.no_grad():
++            if self.input_format == "RGB":
++                original_image = original_image[:, :, ::-1]
++            height, width = original_image.shape[:2]
++            image = self.aug.get_transform(original_image).apply_image(original_image)
++            image = torch.as_tensor(image.astype("float32").transpose(2, 0, 1))
++            inputs = {"image": image, "height": height, "width": width}
++            outputs = self.model([inputs])
++            if isinstance(outputs, tuple):
++                preds, bin_mask = outputs
++                return preds[0], bin_mask
++            return outputs[0], None
++
++
+ class VisualizationDemo(object):
+     def __init__(self, cfg, instance_mode=ColorMode.IMAGE, parallel=False):
+         """
+@@ -34,7 +54,7 @@ class VisualizationDemo(object):
+             num_gpu = torch.cuda.device_count()
+             self.predictor = AsyncPredictor(cfg, num_gpus=num_gpu)
+         else:
+-            self.predictor = DefaultPredictor(cfg)
++            self.predictor = _Mask2FormerPredictor(cfg)
+ 
+     def run_on_image(self, image):
+         """
+@@ -47,6 +67,9 @@ class VisualizationDemo(object):
+         """
+         vis_output = None
+         predictions, bin_mask = self.predictor(image)
++        # IteRPrimE only consumes bin_mask; drawing panoptic colours needs the
++        # COCO panoptic metadata, which this inference-only run does not register.
++        return predictions, vis_output, bin_mask
+         # Convert image from OpenCV BGR format to Matplotlib RGB format.
+         image = image[:, :, ::-1]
+         visualizer = Visualizer(image, self.metadata, instance_mode=self.instance_mode)
+diff --git a/mask2former/__init__.py b/mask2former/__init__.py
+index 9b405c8..86c4d61 100644
+--- a/mask2former/__init__.py
++++ b/mask2former/__init__.py
+@@ -1,26 +1,12 @@
+ # Copyright (c) Facebook, Inc. and its affiliates.
+-from . import data  # register all new datasets
++# The released IteRPrimE snapshot omits mask2former/data (and its dataset
++# mappers). Inference only needs the model and config, so the mapper imports
++# are not executed here.
+ from . import modeling
+ 
+ # config
+ from .config import add_maskformer2_config
+ 
+-# dataset loading
+-from .data.dataset_mappers.coco_instance_new_baseline_dataset_mapper import COCOInstanceNewBaselineDatasetMapper
+-from .data.dataset_mappers.coco_panoptic_new_baseline_dataset_mapper import COCOPanopticNewBaselineDatasetMapper
+-from .data.dataset_mappers.mask_former_instance_dataset_mapper import (
+-    MaskFormerInstanceDatasetMapper,
+-)
+-from .data.dataset_mappers.mask_former_panoptic_dataset_mapper import (
+-    MaskFormerPanopticDatasetMapper,
+-)
+-from .data.dataset_mappers.mask_former_semantic_dataset_mapper import (
+-    MaskFormerSemanticDatasetMapper,
+-)
+-
+ # models
+ from .maskformer_model import MaskFormer
+ from .test_time_augmentation import SemanticSegmentorWithTTA
+-
+-# evaluation
+-from .evaluation.instance_evaluation import InstanceSegEvaluator
+diff --git a/models/albef/VL_Transformer_ITM.py b/models/albef/VL_Transformer_ITM.py
+index d07a235..46b8f90 100644
+--- a/models/albef/VL_Transformer_ITM.py
++++ b/models/albef/VL_Transformer_ITM.py
+@@ -121,6 +121,14 @@ class VL_Transformer_ITM(nn.Module):
+ 
+ 
+ def getAttMap(img, attMap, blur = True, overlap = True):
++    # newer torch/numpy/skimage combinations no longer let skimage accept a
++    # torch tensor directly; the original environment returned numpy here.
++    if hasattr(attMap, 'detach'):
++        attMap = attMap.detach().cpu().numpy()
++    attMap = np.asarray(attMap)
++    if hasattr(img, 'detach'):
++        img = img.detach().cpu().numpy()
++    img = np.asarray(img)
+     attMap -= attMap.min()
+     if attMap.max() > 0:
+         attMap /= attMap.max()
+diff --git a/models/albef/models/tokenization_bert.py b/models/albef/models/tokenization_bert.py
+index ff14fbd..41a5150 100644
+--- a/models/albef/models/tokenization_bert.py
++++ b/models/albef/models/tokenization_bert.py
+@@ -213,7 +213,9 @@ class BertTokenizer(PreTrainedTokenizer):
+         return len(self.vocab)
+ 
+     def get_vocab(self):
+-        return dict(self.vocab, **self.added_tokens_encoder)
++        # transformers>=4.32 calls get_vocab() inside super().__init__ before
++        # this subclass has loaded self.vocab; tolerate that call.
++        return dict(getattr(self, "vocab", {}), **self.added_tokens_encoder)
+ 
+     def _tokenize(self, text):
+         split_tokens = []
+diff --git a/util/stanza_utils.py b/util/stanza_utils.py
+index 9475f27..eb1a74d 100644
+--- a/util/stanza_utils.py
++++ b/util/stanza_utils.py
+@@ -5,7 +5,8 @@ import os
+ from torch.nn import functional as F
+ 
+ 
+-nlp = stanza.Pipeline('en', dir = "../checkpoints/pweight", download_method=None)
++nlp = stanza.Pipeline('en', dir="../checkpoints/pweight", download_method=None,
++                      processors='tokenize,pos,constituency')
+ 
+ MAIN_POS = ['NOUN', 'VERB', 'ADJ', 'PROPN', 'NUM']
+ 

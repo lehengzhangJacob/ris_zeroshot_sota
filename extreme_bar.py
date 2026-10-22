@@ -858,7 +858,6 @@ def literature_deep_read():
                                 return fail(f"deep_read paper {i} split_blocker {sname} needs fresh evidence")
                     if n < 1000:
                         return fail(f"deep_read paper {i} full-split method run needs n >= 1000 (run to completion)")
-                    method_full += 1
                 else:
                     blk = run.get("blocker")
                     if not isinstance(blk, str) or not blk.strip():
@@ -871,6 +870,8 @@ def literature_deep_read():
                 if not isinstance(metrics, dict) or not any(isinstance(v, (int, float)) for v in metrics.values()):
                     return fail(f"deep_read paper {i} successful run needs numeric metrics")
                 ok_runs += 1
+                if kind == "method" and fs:
+                    method_full += 1
             extra_runs = run.get("additional_runs", [])
             if isinstance(extra_runs, list):
                 for ar in extra_runs:
@@ -899,6 +900,19 @@ def literature_deep_read():
         return fail(f"deep_read.json has only {ok_runs} successful repo runs; need >= 15")
     if method_full < 18:
         return fail(f"deep_read.json has only {method_full} full-split METHOD runs; need >= 18 (persistent loop)")
+    mandatory = [("LSCM", "linguistic structure"), ("VLT", "vision-language transformer and query"),
+                 ("SeqTR", "seqtr"), ("MaskRIS", "maskris"), ("Text4Seg", "text4seg"),
+                 ("ReSTR", "restr"), ("PSALM", "psalm"), ("Semantic-SAM", "semantic-sam"),
+                 ("TAS", "text augmented spatial-aware"), ("Ref-Diff", "ref-diff"),
+                 ("IteRPrimE", "iterprime"), ("GF-SAM", "bridge the points")]
+    for p in papers:
+        title = str(p.get("title", "")).lower()
+        for label, pat in mandatory:
+            if pat in title:
+                c = p.get("code") or {}
+                r = c.get("run") or {}
+                if not (c.get("ran") is True and r.get("status") == "ok"):
+                    return fail(f"mandatory target {label} is not run ok --- known-obtainable checkpoints may not be left blocked")
     mc = data.get("grefcoco_metric_check")
     if not isinstance(mc, dict):
         return fail("deep_read.json needs grefcoco_metric_check{}")

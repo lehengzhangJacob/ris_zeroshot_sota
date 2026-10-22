@@ -42,10 +42,30 @@ class _Instances:
         self.gt_boxes = _Boxes(__import__("torch").zeros((0, 4)))
         self.gt_classes = __import__("torch").zeros((0,), dtype=__import__("torch").int64)
 
-def _poly_to_mask(poly, h, w):
+def _poly_to_mask(seg, h, w):
     import numpy as np, cv2
     m = np.zeros((h, w), dtype=np.float32)
-    cv2.fillPoly(m, [np.asarray(poly, dtype=np.int32).reshape(-1, 2)], 1.0)
+    if isinstance(seg, dict):
+        try:
+            from pycocotools import mask as coco_mask
+            m = coco_mask.decode(seg).astype(np.float32)
+            if m.ndim == 3:
+                m = m[:, :, 0]
+            return m
+        except Exception:
+            return m
+    polys = seg
+    if isinstance(seg, list) and seg and not isinstance(seg[0], (list, tuple)):
+        polys = [seg]
+    for poly in polys if isinstance(polys, list) else []:
+        try:
+            arr = np.asarray(poly, dtype=np.float64).reshape(-1)
+        except Exception:
+            continue
+        if arr.size < 6 or arr.size % 2:
+            continue
+        pts = arr.reshape(-1, 2).astype(np.int32)
+        cv2.fillPoly(m, [pts], 1.0)
     return m
 
 def annotations_to_instances(annos, image_size, mask_format="polygon"):
@@ -56,7 +76,7 @@ def annotations_to_instances(annos, image_size, mask_format="polygon"):
     cls = []
     for ann in annos:
         seg = ann.get("segmentation", [])
-        if isinstance(seg, list) and len(seg) and isinstance(seg[0], list):
+        if isinstance(seg, (list, dict)) and (isinstance(seg, dict) or len(seg)):
             m = _poly_to_mask(seg, h, w)
         else:
             m = np.zeros((h, w), dtype=np.float32)

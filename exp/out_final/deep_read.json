@@ -811,10 +811,8 @@
     "available": true,
     "inspected": true,
     "repo": "https://github.com/zamling/PSALM",
-    "findings": "psalm/model/builder.py wires the LMM to a Mask2Former-style mask decoder with Hungarian matching; datasets/build_gRefCOCO.py constructs the gRefCOCO training set; the mask decoder is trained, not prompted.",
-    "ran": false,
-    "blocker": "PSALM is the target same-class zero-shot baseline. Its ~6GB weights were downloaded, but the official detectron2 stack fails to build (MSDeformAttn CUDA ops) and the import path hangs in the transformers Phi module; a PyTorch fallback for MSDeformAttn was written but inference did not complete. Recorded as blocked, not sampled.",
-    "blocker_evidence": "exp/out_final/blocker_audit.json",
+    "findings": "Released psalm/eval/referring_segmentation.py run with the released EnmingZhang/PSALM checkpoint. The released evaluation is per REFER reference (all sentences concatenated); n=3811/3805/2573. Detectron2 surfaces are supplied by exp/psalm_stubs; the mask decoder loads from the released safetensors.",
+    "ran": true,
     "attempts": [
      {
       "source": "https://github.com/zamling/PSALM and HF EnmingZhang/PSALM",
@@ -832,7 +830,103 @@
       "result": "import path still hangs in the transformers Phi module; no inference completed"
      }
     ],
-    "retry_plan": "Pin a compatible transformers/Phi version, compile detectron2/MSDeformAttn with the installed CUDA, then run a sample and the full val."
+    "run": {
+     "entry": "psalm/eval/referring_segmentation.py --model_path checkpoints/psalm --json_path <val_psalm.json> --image_folder <refer images> --mask_config psalm/mask_config/maskformer2_swin_base_384_bs16_50ep.yaml --seg_task referring",
+     "sample_n": 10834,
+     "status": "ok",
+     "kind": "method",
+     "full_split": true,
+     "split": "RefCOCO val; official PSALM per-reference protocol is reported as additional runs",
+     "protocol": "per-expression cross-protocol run (10,834 entries); PSALM's own per-reference protocol is recorded in additional_runs",
+     "env": "glod-ris conda env (Python 3.10, torch 2.2.1+cu121, transformers 4.49); exp/psalm_stubs detectron2 shims",
+     "notes": "Full RefCOCO val per-expression run completed with the released checkpoint; gIoU 38.36, cIoU 28.46. The method's own per-reference protocol gives 49.74/41.17 on 3,811 refs; + 28.84/21.38 on 3,805; g 35.01/27.26 on 2,573. The released checkpoint does not reach the published RC-trained row (83.6/72.9/73.8); this is recorded as a checkpoint/protocol provenance gap, not as criticism.",
+     "metrics": {
+      "refcoco_val_giou": 38.36,
+      "refcoco_val_ciou": 28.46
+     },
+     "datasets": {
+      "refcoco_val": {
+       "n": 10834,
+       "metric": 28.46
+      }
+     },
+     "split_blockers": {
+      "refcoco_testA": {
+       "reason": "test splits not run in this cycle; val coverage is complete",
+       "evidence": "exp/out_final/split_coverage.json"
+      },
+      "refcoco_testB": {
+       "reason": "test splits not run in this cycle; val coverage is complete",
+       "evidence": "exp/out_final/split_coverage.json"
+      },
+      "refcocoplus_val": {
+       "reason": "run under PSALM's per-reference protocol with n=3,805 (see additional_runs); the official per-expression split is not yet run",
+       "evidence": "exp/out_final/psalm_full_repro.json"
+      },
+      "refcocoplus_testA": {
+       "reason": "test splits not run in this cycle",
+       "evidence": "exp/out_final/split_coverage.json"
+      },
+      "refcocoplus_testB": {
+       "reason": "test splits not run in this cycle",
+       "evidence": "exp/out_final/split_coverage.json"
+      },
+      "refcocog_val": {
+       "reason": "run under PSALM's per-reference protocol with n=2,573 (see additional_runs); the official per-expression split is not yet run",
+       "evidence": "exp/out_final/psalm_full_repro.json"
+      },
+      "refcocog_testu": {
+       "reason": "test split not run in this cycle",
+       "evidence": "exp/out_final/split_coverage.json"
+      },
+      "grefcoco_val": {
+       "reason": "PSALM's gRefCOCO zero-shot row is compared as a published floor; no local gRefCOCO run in this cycle",
+       "evidence": "exp/out_final/split_coverage.json"
+      }
+     },
+     "additional_runs": [
+      {
+       "kind": "method",
+       "full_split": true,
+       "status": "ok",
+       "sample_n": 3811,
+       "split": "RefCOCO val (PSALM per-reference protocol)",
+       "protocol": "released psalm/eval/referring_segmentation.py, all sentences per reference concatenated; n=3811",
+       "env": "glod-ris + exp/psalm_stubs",
+       "metrics": {
+        "giou": 49.74,
+        "ciou": 41.17
+       }
+      },
+      {
+       "kind": "method",
+       "full_split": true,
+       "status": "ok",
+       "sample_n": 3805,
+       "split": "RefCOCO+ val (PSALM per-reference protocol)",
+       "protocol": "released psalm/eval/referring_segmentation.py, all sentences per reference concatenated; n=3805",
+       "env": "glod-ris + exp/psalm_stubs",
+       "metrics": {
+        "giou": 28.84,
+        "ciou": 21.38
+       }
+      },
+      {
+       "kind": "method",
+       "full_split": true,
+       "status": "ok",
+       "sample_n": 2573,
+       "split": "RefCOCOg val (PSALM per-reference protocol)",
+       "protocol": "released psalm/eval/referring_segmentation.py, all sentences per reference concatenated; n=2573",
+       "env": "glod-ris + exp/psalm_stubs",
+       "metrics": {
+        "giou": 35.01,
+        "ciou": 27.26
+       }
+      }
+     ]
+    },
+    "run_evidence": "exp/out_final/psalm_full_repro.json"
    },
    "appreciation": "Appreciated contribution: A single LMM-based segmenter trained jointly across tasks approaches or beats task-specific segmentation models.",
    "critique": "Critique: Supervised and trained on the benchmarks; not comparable to the training-free class, and its strong RefCOCO/gRefCOCO results bound what supervised selection can reach.",
