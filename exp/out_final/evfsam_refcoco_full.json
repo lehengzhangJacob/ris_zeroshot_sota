@@ -1,0 +1,14 @@
+{
+ "dataset": "refcoco",
+ "split": "val",
+ "n": 10834,
+ "gIoU": 82.9,
+ "cIoU": 82.1,
+ "protocol": "official REFER val through released EVF-SAM eval.py; all expressions grouped by image; released YxZhang/evf-sam weights; gIoU/cIoU from the released evaluator; no tuning",
+ "entry": "exp/literature/repos/evfsam/eval.py",
+ "log": "exp/out_final/evfsam_refcoco_val.log",
+ "published": {
+  "cIoU": 82.1
+ },
+ "note": "matches the published EVF-SAM RefCOCO val cIoU 82.1; gIoU is the released evaluator value"
+}

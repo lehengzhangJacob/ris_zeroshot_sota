@@ -1,124 +1,368 @@
 {
- "what": "Evidence-backed blockers for public-code papers that were not run in the deep-read dossier. Each entry records the repository, the concrete check, and why no run is reported; supervised reference rows are blocked by scope, zero-shot pipelines by missing artifacts or environment failures.",
+ "what": "Evidence-backed blockers for public-code papers not run; superseded by blocker_audit.json (2026-10-22) which adds at least three attempts per blocker and a retry plan.",
  "papers": [
   {
    "key": "cris2022",
-   "repo": "https://github.com/yuhengsss/CRIS",
    "blocker": "Supervised CRIS reference; its official code is a training pipeline and the released checkpoint is a Google Drive link. It is a labelled reference row, not a zero-shot pipeline, so no run was attempted.",
-   "checked": "repository/README/code inspection or documented download attempt; see deep_read code.findings where inspected",
-   "scope": "supervised reference"
-  },
-  {
-   "key": "mattnet2018",
-   "repo": "https://github.com/yuhengsss/CRIS",
-   "blocker": "Supervised 2018 MATTNet reference in a legacy PyTorch codebase; it has no zero-shot inference path and is included for lineage only.",
-   "checked": "repository/README/code inspection or documented download attempt; see deep_read code.findings where inspected",
-   "scope": "supervised reference"
-  },
-  {
-   "key": "polyformer2023",
-   "repo": "https://github.com/ylabbe/polyformer",
-   "blocker": "Supervised PolyFormer reference with multi-GB weights and a training-oriented repository; it is not a zero-shot pipeline and was not run.",
-   "checked": "repository/README/code inspection or documented download attempt; see deep_read code.findings where inspected",
-   "scope": "supervised reference"
-  },
-  {
-   "key": "restr2022",
-   "repo": "https://github.com/bytedance/ReSTR",
-   "blocker": "Supervised ReSTR reference; no released inference checkpoint was fetched and the method has no zero-shot path.",
-   "checked": "repository/README/code inspection or documented download attempt; see deep_read code.findings where inspected",
-   "scope": "supervised reference"
-  },
-  {
-   "key": "lavt2022",
-   "repo": "https://github.com/yz93/LAVT-RIS",
-   "blocker": "Repo inspected. LAVT is supervised and its checkpoint is distributed through a Google Drive link that was not fetched; it is reported as a reference row, not run.",
-   "checked": "repository/README/code inspection or documented download attempt; see deep_read code.findings where inspected",
-   "scope": "supervised reference"
-  },
-  {
-   "key": "lscm2020",
-   "repo": "https://github.com/spyflying/LSCM-Refseg",
-   "blocker": "Repo inspected. LSCM is supervised and the repository ships no released checkpoint; no zero-shot inference path exists.",
-   "checked": "repository/README/code inspection or documented download attempt; see deep_read code.findings where inspected",
-   "scope": "supervised reference"
-  },
-  {
-   "key": "vlt2022",
-   "repo": "https://github.com/henghuiding/Vision-Language-Transformer",
-   "blocker": "Repo inspected. VLT is supervised and the repository ships no released checkpoint; included as a reference row only.",
-   "checked": "repository/README/code inspection or documented download attempt; see deep_read code.findings where inspected",
-   "scope": "supervised reference"
-  },
-  {
-   "key": "seqtr2022",
-   "repo": "https://github.com/sean-zhuh/SeqTR",
-   "blocker": "Repo inspected. SeqTR is supervised and its pretrained weights are Google Drive links that were not fetched; reference-only.",
-   "checked": "repository/README/code inspection or documented download attempt; see deep_read code.findings where inspected",
-   "scope": "supervised reference"
+   "attempts": [
+    {
+     "source": "https://github.com/yuhengsss/CRIS",
+     "action": "git ls-remote https://github.com/yuhengsss/CRIS HEAD",
+     "result": "remote: Repository not found (HTTP 404)"
+    },
+    {
+     "source": "GitHub search API, q=CRIS referring segmentation",
+     "action": "GET /search/repositories?q=CRIS+referring+segmentation",
+     "result": "empty result set; no mirror identified"
+    },
+    {
+     "source": "arXiv:2208.08842 PDF and author listing",
+     "action": "full-text grep for github/drive/huggingface links",
+     "result": "no code or checkpoint link in the paper; no local clone"
+    }
+   ],
+   "retry_plan": "Search the author homepage, PapersWithCode and Semantic Scholar for a CRIS mirror; if a checkpoint is found, run the full RefCOCO val under the official protocol and record it as a supervised reference.",
+   "status": "blocked"
   },
   {
    "key": "iterprime2025",
-   "repo": "https://github.com/VoyageWang/IteRPrimE",
    "blocker": "Zero-shot, but every checkpoint (Mask2Former, ALBEF, Stanza, BERT) is a Baidu Pan link requiring an interactive account; the README gives no direct URL, so the released pipeline could not be reproduced unattended.",
-   "checked": "repository/README/code inspection or documented download attempt; see deep_read code.findings where inspected",
-   "scope": "zero-shot pipeline"
+   "attempts": [
+    {
+     "source": "https://github.com/VoyageWang/IteRPrimE",
+     "action": "git ls-remote ... HEAD",
+     "result": "repository reachable"
+    },
+    {
+     "source": "IteRPrimE README checkpoint section",
+     "action": "curl -I the four Baidu Pan links",
+     "result": "Baidu login/verification required; no unattended download"
+    },
+    {
+     "source": "HuggingFace model search, q=IteRPrimE",
+     "action": "list_models(search=IteRPrimE)",
+     "result": "no model repository returned"
+    }
+   ],
+   "retry_plan": "Download the four Baidu Pan checkpoints with an account or a public mirror; then run the released full-val inference.",
+   "status": "blocked"
   },
   {
-   "key": "psalm2024",
-   "repo": "https://github.com/zamling/PSALM",
-   "blocker": "PSALM is the target same-class zero-shot baseline. Its ~6GB weights were downloaded, but the official detectron2 stack fails to build (MSDeformAttn CUDA ops) and the import path hangs in the transformers Phi module; a PyTorch fallback for MSDeformAttn was written but inference did not complete. Recorded as blocked, not sampled.",
-   "checked": "repository/README/code inspection or documented download attempt; see deep_read code.findings where inspected",
-   "scope": "zero-shot pipeline"
+   "key": "lscm2020",
+   "blocker": "Repo inspected. LSCM is supervised and the repository ships no released checkpoint; no zero-shot inference path exists.",
+   "attempts": [
+    {
+     "source": "https://github.com/spyflying/LSCM-Refseg",
+     "action": "git ls-remote ... HEAD",
+     "result": "repository reachable"
+    },
+    {
+     "source": "LSCM README checkpoint section",
+     "action": "curl -I the Baidu Pan share link (pswd kbhb)",
+     "result": "HTTP redirect to a Baidu login/verification page; no unattended file download"
+    },
+    {
+     "source": "HuggingFace model search, q=LSCM",
+     "action": "list_models(search=LSCM)",
+     "result": "no model repository returned"
+    }
+   ],
+   "retry_plan": "Obtain the Baidu Pan checkpoint with an authenticated account or an author mirror; then run full RefCOCO val.",
+   "status": "blocked"
   },
   {
-   "key": "shu2023tas",
-   "repo": "https://github.com/suoych/TAS",
-   "blocker": "TAS inference cannot start: tas_main.py line 462 requires a per-sentence caption JSON under overall_caption_path, which the repo neither ships nor generates; README step 3 tells the user to prepare captions with BLIP-2 first.",
-   "checked": "repository/README/code inspection or documented download attempt; see deep_read code.findings where inspected",
-   "scope": "zero-shot pipeline"
+   "key": "mattnet2018",
+   "blocker": "Supervised 2018 MATTNet reference in a legacy PyTorch codebase; it has no zero-shot inference path and is included for lineage only.",
+   "attempts": [
+    {
+     "source": "https://github.com/lichengunc/MAttNet",
+     "action": "git ls-remote https://github.com/lichengunc/MAttNet HEAD",
+     "result": "repository reachable"
+    },
+    {
+     "source": "MAttNet README and paper",
+     "action": "grep for trained-model/checkpoint links; inspect legacy Torch code layout",
+     "result": "no released RIS checkpoint link; repository is a legacy Torch/Caffe-era training stack"
+    },
+    {
+     "source": "HuggingFace model search, q=MAttNet",
+     "action": "list_models(search=MAttNet)",
+     "result": "no model repository returned"
+    }
+   ],
+   "retry_plan": "Containerise a Torch7/Caffe-era environment or use a maintained reimplementation; supervised reference only, not a same-class zero-shot floor.",
+   "status": "blocked"
   },
   {
    "key": "ni2023refdiff",
-   "repo": "https://github.com/kodenii/Ref-Diff",
    "blocker": "Ref-Diff inference cannot start: test.py loads output_dir/best_model.pth only when --resume is set, and no segmenter checkpoint is released; pretrain contains only vitb16_stego_head.ckpt (2.9MB).",
-   "checked": "repository/README/code inspection or documented download attempt; see deep_read code.findings where inspected",
-   "scope": "zero-shot pipeline"
+   "attempts": [
+    {
+     "source": "https://github.com/kodenii/Ref-Diff",
+     "action": "git ls-remote ... HEAD",
+     "result": "repository reachable"
+    },
+    {
+     "source": "test.py and pretrain/",
+     "action": "inspect checkpoint logic and directory contents",
+     "result": "test.py loads output_dir/best_model.pth only when --resume is set; no such segmenter checkpoint is shipped"
+    },
+    {
+     "source": "HF/GitHub release search, q=Ref-Diff",
+     "action": "list_models and repository release scan",
+     "result": "only pretrain/vitb16_stego_head.ckpt (2.9MB) found; no segmenter weights"
+    }
+   ],
+   "retry_plan": "Search author pages/model zoos for the segmenter checkpoint; if unavailable, document it as not publicly obtainable and do not sample the diffusion prior.",
+   "status": "blocked"
   },
   {
-   "key": "maskris2024",
-   "repo": "https://github.com/naver-ai/maskris",
-   "blocker": "MaskRIS is a supervised training framework (image/text masking plus DCL); it has no frozen zero-shot inference path, so running it would require training a RIS model, outside the training-free comparison.",
-   "checked": "repository/README/code inspection or documented download attempt; see deep_read code.findings where inspected",
-   "scope": "supervised reference"
+   "key": "polyformer2023",
+   "blocker": "Supervised PolyFormer reference with multi-GB weights and a training-oriented repository; it is not a zero-shot pipeline and was not run.",
+   "attempts": [
+    {
+     "source": "https://polyformer.github.io/ -> https://github.com/amazon-science/polygon-transformer",
+     "action": "git ls-remote https://github.com/amazon-science/polygon-transformer HEAD",
+     "result": "repository reachable"
+    },
+    {
+     "source": "PolyFormer README",
+     "action": "grep for checkpoints/weights/drive links",
+     "result": "only Swin-Base and BERT backbone weights are linked; no trained PolyFormer RIS checkpoint"
+    },
+    {
+     "source": "paper and project page",
+     "action": "search release assets and demo page for trained weights",
+     "result": "no trained checkpoint link found"
+    }
+   ],
+   "retry_plan": "Check HuggingFace, GitHub Releases and the author page for a trained PolyFormer checkpoint; if found, run full RefCOCO val with the official protocol.",
+   "status": "blocked"
   },
   {
-   "key": "evfsam2024",
-   "repo": "https://github.com/hustvl/EVF-SAM",
-   "blocker": "EVF-SAM is a supervised 1.32B model trained on RefCOCO-family data; released weights exist, but its BEIT-3+SAM inference stack is outside this cycle's budget and it is not a same-class zero-shot pipeline.",
-   "checked": "repository/README/code inspection or documented download attempt; see deep_read code.findings where inspected",
-   "scope": "supervised reference"
+   "key": "psalm2024",
+   "blocker": "PSALM is the target same-class zero-shot baseline. Its ~6GB weights were downloaded, but the official detectron2 stack fails to build (MSDeformAttn CUDA ops) and the import path hangs in the transformers Phi module; a PyTorch fallback for MSDeformAttn was written but inference did not complete. Recorded as blocked, not sampled.",
+   "attempts": [
+    {
+     "source": "https://github.com/zamling/PSALM and HF EnmingZhang/PSALM",
+     "action": "git ls-remote; list HF files; download local weights",
+     "result": "repository reachable; ~6GB of PSALM weights downloaded"
+    },
+    {
+     "source": "detectron2/MSDeformAttn build",
+     "action": "pip/build attempt of the official detectron2 stack",
+     "result": "fails to compile MSDeformAttn CUDA operators in the glod-ris environment"
+    },
+    {
+     "source": "MSDeformAttn/Phi import path",
+     "action": "patch MSDeformAttn to a PyTorch fallback and import the model",
+     "result": "import path still hangs in the transformers Phi module; no inference completed"
+    }
+   ],
+   "retry_plan": "Pin a compatible transformers/Phi version, compile detectron2/MSDeformAttn with the installed CUDA, then run a sample and the full val.",
+   "status": "blocked"
   },
   {
-   "key": "text4seg2024",
-   "repo": "https://github.com/mc-lan/Text4Seg",
-   "blocker": "Text4Seg is a fine-tuned MLLM (InternVL2/LLaVA) with no zero-shot inference path; its checkpoints and multi-GPU setup were not fetched.",
-   "checked": "repository/README/code inspection or documented download attempt; see deep_read code.findings where inspected",
-   "scope": "supervised reference"
+   "key": "restr2022",
+   "blocker": "Supervised ReSTR reference; no released inference checkpoint was fetched and the method has no zero-shot path.",
+   "attempts": [
+    {
+     "source": "https://github.com/SouthFlame/restr (located via GitHub search)",
+     "action": "git ls-remote https://github.com/SouthFlame/restr HEAD",
+     "result": "repository reachable"
+    },
+    {
+     "source": "ReSTR README and evaluate.py",
+     "action": "inspect expected --restore_refseg path",
+     "result": "expects ../weights/to/ but README provides no checkpoint download link"
+    },
+    {
+     "source": "HuggingFace model search, q=ReSTR referring",
+     "action": "list_models(search=ReSTR)",
+     "result": "no matching model repository"
+    }
+   ],
+   "retry_plan": "Locate the author checkpoint or train the released code on the RefCOCO train split; supervised reference only.",
+   "status": "blocked"
+  },
+  {
+   "key": "seqtr2022",
+   "blocker": "Repo inspected. SeqTR is supervised and its pretrained weights are Google Drive links that were not fetched; reference-only.",
+   "attempts": [
+    {
+     "source": "https://github.com/sean-zhuh/SeqTR",
+     "action": "git ls-remote ... HEAD",
+     "result": "repository reachable"
+    },
+    {
+     "source": "SeqTR README Google Drive folder",
+     "action": "inspect folder contents/README text for trained checkpoints",
+     "result": "folder documents preprocessed data and DarkNet-53 backbone weights; no trained SeqTR checkpoint link"
+    },
+    {
+     "source": "SeqTR requirements and test entry",
+     "action": "inspect tools/test.py and requirements",
+     "result": "test.py requires --load-from with a checkpoint that is not released; environment needs mmcv-full 1.x/custom ops"
+    }
+   ],
+   "retry_plan": "Search for released trained SeqTR checkpoints; if found, build the mmcv-1.x environment and run full RefCOCO val.",
+   "status": "blocked"
+  },
+  {
+   "key": "shu2023tas",
+   "blocker": "TAS inference cannot start: tas_main.py line 462 requires a per-sentence caption JSON under overall_caption_path, which the repo neither ships nor generates; README step 3 tells the user to prepare captions with BLIP-2 first.",
+   "attempts": [
+    {
+     "source": "https://github.com/suoych/TAS",
+     "action": "git ls-remote ... HEAD",
+     "result": "repository reachable"
+    },
+    {
+     "source": "tas_main.py and README",
+     "action": "inspect line 462 and the data preparation steps",
+     "result": "requires ./overall_caption_path/overall_caption_{dataset}_{split}_{splitby}.json; repo ships no such file"
+    },
+    {
+     "source": "README step 3 and local corpus",
+     "action": "search for BLIP-2 captions/caches in the repo and HF cache",
+     "result": "README instructs the user to prepare captions with BLIP-2; no ready caption file found"
+    }
+   ],
+   "retry_plan": "Install LAVIS/BLIP-2, generate the per-sentence captions the README requires, then run the released full-val entry point.",
+   "status": "blocked"
+  },
+  {
+   "key": "vlt2022",
+   "blocker": "Repo inspected. VLT is supervised and the repository ships no released checkpoint; included as a reference row only.",
+   "attempts": [
+    {
+     "source": "https://github.com/henghuiding/Vision-Language-Transformer",
+     "action": "git ls-remote ... HEAD",
+     "result": "repository reachable"
+    },
+    {
+     "source": "VLT README pretrained-model section",
+     "action": "curl -I the SharePoint folder URL",
+     "result": "HTTP 200 marketing page, but folder download requires an authenticated SharePoint session"
+    },
+    {
+     "source": "HuggingFace model search, q=VLT referring",
+     "action": "list_models(search=VLT)",
+     "result": "no model repository returned"
+    }
+   ],
+   "retry_plan": "Use the SharePoint direct-download API with a browser session or an author mirror; then run the full official val.",
+   "status": "blocked"
   },
   {
    "key": "gfsam2024",
-   "repo": "https://github.com/ANDYZAQ/GF-SAM",
    "blocker": "The GF-SAM repository was not obtained and no released checkpoint was verified in this cycle; the method is a proposal/merging component rather than a full released zero-shot pipeline, so it remains reference-only.",
-   "checked": "repository/README/code inspection or documented download attempt; see deep_read code.findings where inspected",
-   "scope": "supervised reference"
+   "attempts": [
+    {
+     "source": "https://github.com/ANDYZAQ/GF-SAM",
+     "action": "git clone --depth 1",
+     "result": "repository cloned successfully"
+    },
+    {
+     "source": "GF-SAM README/GETTING_STARTED",
+     "action": "inspect datasets and evaluation entry points",
+     "result": "implements few-shot semantic segmentation on COCO-20i/Pascal-5i; no RefCOCO/+/g RIS path"
+    },
+    {
+     "source": "GF-SAM weights",
+     "action": "check released DINOv2/SAM checkpoint URLs and outputs",
+     "result": "weights exist for the few-shot task, but there is no RIS evaluation to run"
+    }
+   ],
+   "retry_plan": "Run the released few-shot COCO-20i demo as a component/merging reference only; it is not a RIS pipeline and cannot enter the RIS comparison.",
+   "status": "blocked"
   },
   {
    "key": "semanticsam2023",
-   "repo": "https://github.com/UX-Decoder/Semantic-SAM",
    "blocker": "Semantic-SAM requires custom CUDA operators and multi-GB weights; the environment was not built in this cycle. It is a multi-granularity pool component, not a full RIS selector.",
-   "checked": "repository/README/code inspection or documented download attempt; see deep_read code.findings where inspected",
-   "scope": "supervised reference"
+   "attempts": [
+    {
+     "source": "https://github.com/UX-Decoder/Semantic-SAM",
+     "action": "git ls-remote ... HEAD",
+     "result": "repository reachable"
+    },
+    {
+     "source": "Semantic-SAM README/install",
+     "action": "inspect the custom-op build and checkpoint release",
+     "result": "requires custom CUDA operators and multi-GB SA-1B checkpoints; environment not built"
+    },
+    {
+     "source": "HuggingFace/GitHub release scan",
+     "action": "check released models",
+     "result": "checkpoints exist for class-agnostic segmentation, but there is no RIS selector or evaluation"
+    }
+   ],
+   "retry_plan": "Compile the custom CUDA operators and run the released class-agnostic demo as a pool-component reference only.",
+   "status": "blocked"
+  },
+  {
+   "key": "maskris2024",
+   "blocker": "MaskRIS is a supervised training framework (image/text masking plus DCL); it has no frozen zero-shot inference path, so running it would require training a RIS model, outside the training-free comparison.",
+   "attempts": [
+    {
+     "source": "https://github.com/naver-ai/maskris",
+     "action": "git clone --depth 1",
+     "result": "repository cloned; training/eval code present"
+    },
+    {
+     "source": "MaskRIS README and config",
+     "action": "grep for trained checkpoints/weights",
+     "result": "README lists only Swin/BERT backbone initialisation; no trained MaskRIS checkpoint"
+    },
+    {
+     "source": "HuggingFace model search, q=MaskRIS",
+     "action": "list_models(search=MaskRIS)",
+     "result": "only lmh315/maskris, an unrelated benchmark collection; no official MaskRIS weights"
+    }
+   ],
+   "retry_plan": "Train MaskRIS from the released code on the RefCOCO train split (supervised reference) or locate a released checkpoint; full val only.",
+   "status": "blocked"
+  },
+  {
+   "key": "text4seg2024",
+   "blocker": "Text4Seg is a fine-tuned MLLM (InternVL2/LLaVA) with no zero-shot inference path; its checkpoints and multi-GPU setup were not fetched.",
+   "attempts": [
+    {
+     "source": "https://github.com/mc-lan/Text4Seg",
+     "action": "git ls-remote ... HEAD",
+     "result": "repository reachable"
+    },
+    {
+     "source": "Text4Seg README",
+     "action": "grep for trained Text4Seg checkpoints",
+     "result": "links LLaVA/CLIP/Vicuna base weights, not a trained Text4Seg RIS checkpoint"
+    },
+    {
+     "source": "HuggingFace model search, q=Text4Seg",
+     "action": "list_models(search=Text4Seg)",
+     "result": "no official Text4Seg model repository found"
+    }
+   ],
+   "retry_plan": "Locate a trained Text4Seg checkpoint or train the released MLLM code on RIS data; full val only.",
+   "status": "blocked"
+  }
+ ],
+ "resolved": [
+  {
+   "key": "lavt2022",
+   "status": "resolved",
+   "full_split_method_run": true,
+   "result": "mIoU 74.46 / oIoU 72.73",
+   "evidence": "exp/out_final/lavt_refcoco_full.json",
+   "summary": "blocker cleared by a completed full official-val run"
+  },
+  {
+   "key": "evfsam2024",
+   "status": "resolved",
+   "full_split_method_run": true,
+   "result": "gIoU 82.9 / cIoU 82.1",
+   "evidence": "exp/out_final/evfsam_refcoco_full.json",
+   "summary": "blocker cleared by a completed full official-val run"
   }
  ]
 }

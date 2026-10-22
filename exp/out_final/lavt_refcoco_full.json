@@ -1,0 +1,20 @@
+{
+ "dataset": "refcoco",
+ "split": "val",
+ "n": 10834,
+ "mIoU": 74.46,
+ "oIoU": 72.73,
+ "precision_at_0p5": 84.45,
+ "protocol": "official REFER val through released LAVT test.py; all sentences per ref; per-expression IoU and pooled oIoU; released checkpoint; no tuning",
+ "entry": "exp/literature/repos/lavt/test.py",
+ "log": "exp/out_final/lavt_refcoco_val.log",
+ "published": {
+  "mIoU": 74.46,
+  "oIoU": 72.73
+ },
+ "delta": {
+  "mIoU": 0.0,
+  "oIoU": 0.0
+ },
+ "note": "the released checkpoint reproduces the published LAVT RefCOCO val row exactly"
+}

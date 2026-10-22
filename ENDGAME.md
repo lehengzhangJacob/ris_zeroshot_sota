@@ -859,3 +859,37 @@ labelled it "not shipped" in the appendix provenance.
 Review (2026-10-21, current package): cross-family review PASS, thread
 7e14b02315e0 (glm-5.3 / deepseek-flash), must-fix none after the four fixes
 above; recorded in review_attempt.json. `python3 extreme_bar.py` = PASS.
+
+## 2026-10-22 — blocker re-audit and full-split method reproductions (10)
+
+The 2026-10-22 directive reclassifies blockers as work items. Every one of the
+16 public-code papers that was not run now carries `attempts[]` >= 3 (source,
+action, result) and a `retry_plan`, recorded in `exp/out_final/deep_read.json`
+and `exp/out_final/blocker_audit.json`; `code_blockers.json` mirrors the audit
+and marks resolved blockers. Two blockers were cleared with completed full
+official-val method runs:
+
+- **LAVT** (RefCOCO val, full 10,834 expressions): released checkpoint from the
+  README Google Drive link (gdown), in-repo mmcv/mmseg import shims for missing
+  checkpoint-I/O helpers, local BERT weights converted from the HF safetensors
+  snapshot, `--window12 --ddp_trained_weights`, and a REFER image symlink.
+  Result: **mIoU 74.46 / oIoU 72.73**, exactly the published LAVT RefCOCO val
+  row (74.46/72.73), P@0.5 84.45. Evidence
+  `lavt_refcoco_full.json` + `lavt_refcoco_val.log`.
+- **EVF-SAM** (RefCOCO val, full 10,834 expressions grouped by image):
+  released `YxZhang/evf-sam` weights (first download was corrupt; clean
+  re-download SHA-256 verified, 1,569 tensors), `torchscale` installed,
+  REFER dataset adapter symlinked, single-GPU torchrun. Result:
+  **gIoU 82.9 / cIoU 82.1**, matching the published EVF-SAM RefCOCO val cIoU
+  82.1. Evidence `evfsam_refcoco_full.json` + `evfsam_refcoco_val.log`.
+
+This raises the dossier to 17 successful runs and **10 full-split METHOD runs**
+(>= 10 required): HybridGL, S+S reverse, Global-Local, LLaVA-OneVision box
+rule, Qwen2.5-VL, plain CLIP, MaskCLIP, GEM-only, LAVT, EVF-SAM. The 15
+remaining blockers each have three recorded attempts and a concrete retry
+plan; notable standing blockers are TAS (missing BLIP-2 caption file),
+Ref-Diff (no segmenter checkpoint), PSALM (detectron2/MSDeformAttn + Phi import
+hang), IteRPrimE/LSCM/VLT (Baidu/SharePoint weights), CRIS (published repo 404),
+SeqTR (no trained checkpoint link), and GF-SAM/Semantic-SAM (not RIS pipelines).
+The gate passes and the PDF is rebuilt. No shipped number or paper claim
+changed; these are evidence-only additions.

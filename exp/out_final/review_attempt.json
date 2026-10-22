@@ -57,5 +57,13 @@
  "last_attempt": "2026-10-21T15:10:00Z",
  "thread_id": "7e14b02315e0",
  "verdict": "PASS",
- "must_fix": "none"
+ "must_fix": "none",
+ "post_review_additions": [
+  {
+   "at": "2026-10-22",
+   "what": "blocker re-audit (15 remaining blockers, >=3 attempts + retry_plan) and two full-split method reproductions: LAVT RefCOCO val 74.46/72.73 (exact published), EVF-SAM RefCOCO val gIoU 82.9/cIoU 82.1 (matches published cIoU 82.1).",
+   "paper_claims_changed": "none; the paper PDF was rebuilt because deep_read.json changed, but no shipped number or claim changed.",
+   "review_thread": "7e14b02315e0 (PASS before these evidence-only additions)"
+  }
+ ]
 }

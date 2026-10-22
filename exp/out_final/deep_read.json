@@ -3,7 +3,7 @@
  "n_papers": 63,
  "n_ris": 40,
  "inspected": 22,
- "ok_runs": 15,
+ "ok_runs": 17,
  "papers": [
   {
    "key": "cmsa2019",
@@ -67,7 +67,25 @@
     "findings": "",
     "ran": false,
     "blocker": "Supervised CRIS reference; its official code is a training pipeline and the released checkpoint is a Google Drive link. It is a labelled reference row, not a zero-shot pipeline, so no run was attempted.",
-    "blocker_evidence": "exp/out_final/code_blockers.json"
+    "blocker_evidence": "exp/out_final/blocker_audit.json",
+    "attempts": [
+     {
+      "source": "https://github.com/yuhengsss/CRIS",
+      "action": "git ls-remote https://github.com/yuhengsss/CRIS HEAD",
+      "result": "remote: Repository not found (HTTP 404)"
+     },
+     {
+      "source": "GitHub search API, q=CRIS referring segmentation",
+      "action": "GET /search/repositories?q=CRIS+referring+segmentation",
+      "result": "empty result set; no mirror identified"
+     },
+     {
+      "source": "arXiv:2208.08842 PDF and author listing",
+      "action": "full-text grep for github/drive/huggingface links",
+      "result": "no code or checkpoint link in the paper; no local clone"
+     }
+    ],
+    "retry_plan": "Search the author homepage, PapersWithCode and Semantic Scholar for a CRIS mirror; if a checkpoint is found, run the full RefCOCO val under the official protocol and record it as a supervised reference."
    },
    "appreciation": "Appreciated contribution: ResNet-50 CRIS: 69.52 RefCOCO val, 61.39 RefCOCO+ val, 59.35 G-Ref val IoU; ResNet-101 70.47/62.27/59.87.",
    "critique": "Critique: Supervised; the reported IoU is not a zero-shot number and must not be pooled with training-free rows.",
@@ -115,7 +133,8 @@
      "kind": "method",
      "full_split": true,
      "split": "RefCOCO/RefCOCO+/RefCOCOg val",
-     "protocol": "full official val splits; released HybridGL code and weights on the shared harness (SAM ViT-H pps 8 pool, G2L masked-region features); per-expression mIoU and pooled oIoU computed from the same records"
+     "protocol": "full official val splits; released HybridGL code and weights on the shared harness (SAM ViT-H pps 8 pool, G2L masked-region features); per-expression mIoU and pooled oIoU computed from the same records",
+     "env": "glod-ris conda env (Python 3.10, PyTorch CUDA), shared SAM/CLIP caches; no dedicated env"
     }
    },
    "appreciation": "Appreciated contribution: Hybrid global-local features improve mask-region representation for zero-shot RIS; published RefCOCO/+/g val mIoU 49.48/43.40/51.25.",
@@ -184,7 +203,25 @@
     "findings": "Code-only release; README points all checkpoints (Mask2Former, ALBEF, Stanza, BERT) to Baidu Pan links; demo post-processing selects a contiguous Mask2Former proposal.",
     "ran": false,
     "blocker": "Zero-shot, but every checkpoint (Mask2Former, ALBEF, Stanza, BERT) is a Baidu Pan link requiring an interactive account; the README gives no direct URL, so the released pipeline could not be reproduced unattended.",
-    "blocker_evidence": "exp/out_final/code_blockers.json"
+    "blocker_evidence": "exp/out_final/blocker_audit.json",
+    "attempts": [
+     {
+      "source": "https://github.com/VoyageWang/IteRPrimE",
+      "action": "git ls-remote ... HEAD",
+      "result": "repository reachable"
+     },
+     {
+      "source": "IteRPrimE README checkpoint section",
+      "action": "curl -I the four Baidu Pan links",
+      "result": "Baidu login/verification required; no unattended download"
+     },
+     {
+      "source": "HuggingFace model search, q=IteRPrimE",
+      "action": "list_models(search=IteRPrimE)",
+      "result": "no model repository returned"
+     }
+    ],
+    "retry_plan": "Download the four Baidu Pan checkpoints with an account or a public mirror; then run the released full-val inference."
    },
    "appreciation": "Appreciated contribution: Iterative Grad-CAM repairs positional insensitivity and primary-word emphasis improves complex relations, beating prior zero-shot RIS.",
    "critique": "Critique: Shows heatmap refinement can lift selection, but its weights are hosted only on Baidu Pan and it is not component-matched.",
@@ -217,10 +254,24 @@
     "available": true,
     "inspected": true,
     "repo": "https://github.com/yz93/LAVT-RIS",
-    "findings": "lavt/lib/_utils.py implements LAVT with stage-wise pixel-word attention; args.py exposes fusion_drop and stage selection; test.py evaluates overall IoU and mIoU.",
-    "ran": false,
-    "blocker": "Repo inspected. LAVT is supervised and its checkpoint is distributed through a Google Drive link that was not fetched; it is reported as a reference row, not run.",
-    "blocker_evidence": "exp/out_final/code_blockers.json"
+    "findings": "Inspected the released test.py, args.py, data/dataset_refer_bert.py and lib/mmcv_custom/checkpoint.py. The official checkpoint was downloaded from the README Google Drive link (2.4GB). mlcv/mmseg are only needed for checkpoint I/O and a logger; small shims were added, BERT was loaded from a local pytorch_model.bin converted from the HF safetensors snapshot, and the REFER image path was symlinked. test.py was run unmodified otherwise, with --window12 and --ddp_trained_weights, on the full RefCOCO val split.",
+    "ran": true,
+    "run": {
+     "entry": "exp/literature/repos/lavt/test.py --model lavt --dataset refcoco --split val --resume checkpoints/lavt_refcoco.pth --ck_bert bert_base_local --window12 --ddp_trained_weights",
+     "sample_n": 10834,
+     "status": "ok",
+     "kind": "method",
+     "full_split": true,
+     "split": "RefCOCO val (UNC; all sentences per ref)",
+     "protocol": "official REFER val through the released test.py; per-expression IoU averaged over all 10,834 expressions and pooled oIoU; images/masks at 480; released LAVT checkpoint; compatibility shims only for missing mmcv/mmseg I/O helpers; local BERT snapshot; no tuning on val",
+     "notes": "full official val; mIoU 74.46 and oIoU 72.73 reproduce the published LAVT RefCOCO val row exactly (74.46/72.73)",
+     "metrics": {
+      "refcoco_val_mIoU": 74.46,
+      "refcoco_val_oIoU": 72.73,
+      "precision@0.5": 84.45
+     },
+     "env": "glod-ris conda env (Python 3.10, PyTorch 2.2.1); in-repo mmcv/mmseg import shims for missing checkpoint-I/O helpers; local BERT weights converted from the HF safetensors snapshot"
+    }
    },
    "appreciation": "Appreciated contribution: 72.73/62.14/61.24/60.50 overall IoU on RefCOCO, RefCOCO+, G-Ref val (U/G).",
    "critique": "Critique: Supervised, not same-class; a stronger learned selector could in principle close the selection gap our paper measures training-free.",
@@ -337,7 +388,25 @@
     "findings": "LSCM_model_p2345.py implements the gather-propagate-distribute module; trainval_model.py wires training/evaluation; util/eval_tools.py contains IoU/Pr@X evaluation helpers.",
     "ran": false,
     "blocker": "Repo inspected. LSCM is supervised and the repository ships no released checkpoint; no zero-shot inference path exists.",
-    "blocker_evidence": "exp/out_final/code_blockers.json"
+    "blocker_evidence": "exp/out_final/blocker_audit.json",
+    "attempts": [
+     {
+      "source": "https://github.com/spyflying/LSCM-Refseg",
+      "action": "git ls-remote ... HEAD",
+      "result": "repository reachable"
+     },
+     {
+      "source": "LSCM README checkpoint section",
+      "action": "curl -I the Baidu Pan share link (pswd kbhb)",
+      "result": "HTTP redirect to a Baidu login/verification page; no unattended file download"
+     },
+     {
+      "source": "HuggingFace model search, q=LSCM",
+      "action": "list_models(search=LSCM)",
+      "result": "no model repository returned"
+     }
+    ],
+    "retry_plan": "Obtain the Baidu Pan checkpoint with an authenticated account or an author mirror; then run full RefCOCO val."
    },
    "appreciation": "Appreciated contribution: 58.53% IoU and 67.23% Pr@0.5 on the RefCOCO val set.",
    "critique": "Critique: Supervised; fusion gains do not address the instance-selection failure we measure.",
@@ -374,7 +443,25 @@
     "findings": "",
     "ran": false,
     "blocker": "Supervised 2018 MATTNet reference in a legacy PyTorch codebase; it has no zero-shot inference path and is included for lineage only.",
-    "blocker_evidence": "exp/out_final/code_blockers.json"
+    "blocker_evidence": "exp/out_final/blocker_audit.json",
+    "attempts": [
+     {
+      "source": "https://github.com/lichengunc/MAttNet",
+      "action": "git ls-remote https://github.com/lichengunc/MAttNet HEAD",
+      "result": "repository reachable"
+     },
+     {
+      "source": "MAttNet README and paper",
+      "action": "grep for trained-model/checkpoint links; inspect legacy Torch code layout",
+      "result": "no released RIS checkpoint link; repository is a legacy Torch/Caffe-era training stack"
+     },
+     {
+      "source": "HuggingFace model search, q=MAttNet",
+      "action": "list_models(search=MAttNet)",
+      "result": "no model repository returned"
+     }
+    ],
+    "retry_plan": "Containerise a Torch7/Caffe-era environment or use a maintained reimplementation; supervised reference only, not a same-class zero-shot floor."
    },
    "appreciation": "Appreciated contribution: Modular decomposition improves referring expression comprehension and segmentation over single-vector baselines.",
    "critique": "Critique: Detector-dependent and trained; not comparable on modern splits, but its selection-over-proposals formulation is the lineage of our pipeline.",
@@ -443,7 +530,25 @@
     "findings": "Inspected test.py: it builds the segmenter and loads a checkpoint only when args.resume is set, from output_dir/best_model.pth; no such checkpoint is released. The pretrain directory contains only vitb16_stego_head.ckpt (2.9MB), a stego head, not the segmenter. Blocked with no released weights.",
     "ran": false,
     "blocker": "Ref-Diff inference cannot start: test.py loads output_dir/best_model.pth only when --resume is set, and no segmenter checkpoint is released; pretrain contains only vitb16_stego_head.ckpt (2.9MB).",
-    "blocker_evidence": "exp/out_final/code_blockers.json"
+    "blocker_evidence": "exp/out_final/blocker_audit.json",
+    "attempts": [
+     {
+      "source": "https://github.com/kodenii/Ref-Diff",
+      "action": "git ls-remote ... HEAD",
+      "result": "repository reachable"
+     },
+     {
+      "source": "test.py and pretrain/",
+      "action": "inspect checkpoint logic and directory contents",
+      "result": "test.py loads output_dir/best_model.pth only when --resume is set; no such segmenter checkpoint is shipped"
+     },
+     {
+      "source": "HF/GitHub release search, q=Ref-Diff",
+      "action": "list_models and repository release scan",
+      "result": "only pretrain/vitb16_stego_head.ckpt (2.9MB) found; no segmenter weights"
+     }
+    ],
+    "retry_plan": "Search author pages/model zoos for the segmenter checkpoint; if unavailable, document it as not publicly obtainable and do not sample the diffusion prior."
    },
    "appreciation": "Appreciated contribution: Ref-Diff oIoU 35.16 RefCOCO val / 35.56 RefCOCO+ val / 38.62 G-Ref val, outperforming prior zero-shot methods.",
    "critique": "Critique: Its zero-shot numbers are on a different metric mix (oIoU/mIoU over proposals); comparisons must stay within metric and class.",
@@ -512,7 +617,25 @@
     "findings": "",
     "ran": false,
     "blocker": "Supervised PolyFormer reference with multi-GB weights and a training-oriented repository; it is not a zero-shot pipeline and was not run.",
-    "blocker_evidence": "exp/out_final/code_blockers.json"
+    "blocker_evidence": "exp/out_final/blocker_audit.json",
+    "attempts": [
+     {
+      "source": "https://polyformer.github.io/ -> https://github.com/amazon-science/polygon-transformer",
+      "action": "git ls-remote https://github.com/amazon-science/polygon-transformer HEAD",
+      "result": "repository reachable"
+     },
+     {
+      "source": "PolyFormer README",
+      "action": "grep for checkpoints/weights/drive links",
+      "result": "only Swin-Base and BERT backbone weights are linked; no trained PolyFormer RIS checkpoint"
+     },
+     {
+      "source": "paper and project page",
+      "action": "search release assets and demo page for trained weights",
+      "result": "no trained checkpoint link found"
+     }
+    ],
+    "retry_plan": "Check HuggingFace, GitHub Releases and the author page for a trained PolyFormer checkpoint; if found, run full RefCOCO val with the official protocol."
    },
    "appreciation": "Appreciated contribution: RefCOCO val mIoU 71.15; 5.40%/4.52% absolute gains on RefCOCO+ and RefCOCOg.",
    "critique": "Critique: Supervised; its polygon head requires training and does not isolate selection quality.",
@@ -581,7 +704,25 @@
     "findings": "psalm/model/builder.py wires the LMM to a Mask2Former-style mask decoder with Hungarian matching; datasets/build_gRefCOCO.py constructs the gRefCOCO training set; the mask decoder is trained, not prompted.",
     "ran": false,
     "blocker": "PSALM is the target same-class zero-shot baseline. Its ~6GB weights were downloaded, but the official detectron2 stack fails to build (MSDeformAttn CUDA ops) and the import path hangs in the transformers Phi module; a PyTorch fallback for MSDeformAttn was written but inference did not complete. Recorded as blocked, not sampled.",
-    "blocker_evidence": "exp/out_final/code_blockers.json"
+    "blocker_evidence": "exp/out_final/blocker_audit.json",
+    "attempts": [
+     {
+      "source": "https://github.com/zamling/PSALM and HF EnmingZhang/PSALM",
+      "action": "git ls-remote; list HF files; download local weights",
+      "result": "repository reachable; ~6GB of PSALM weights downloaded"
+     },
+     {
+      "source": "detectron2/MSDeformAttn build",
+      "action": "pip/build attempt of the official detectron2 stack",
+      "result": "fails to compile MSDeformAttn CUDA operators in the glod-ris environment"
+     },
+     {
+      "source": "MSDeformAttn/Phi import path",
+      "action": "patch MSDeformAttn to a PyTorch fallback and import the model",
+      "result": "import path still hangs in the transformers Phi module; no inference completed"
+     }
+    ],
+    "retry_plan": "Pin a compatible transformers/Phi version, compile detectron2/MSDeformAttn with the installed CUDA, then run a sample and the full val."
    },
    "appreciation": "Appreciated contribution: A single LMM-based segmenter trained jointly across tasks approaches or beats task-specific segmentation models.",
    "critique": "Critique: Supervised and trained on the benchmarks; not comparable to the training-free class, and its strong RefCOCO/gRefCOCO results bound what supervised selection can reach.",
@@ -650,7 +791,25 @@
     "findings": "",
     "ran": false,
     "blocker": "Supervised ReSTR reference; no released inference checkpoint was fetched and the method has no zero-shot path.",
-    "blocker_evidence": "exp/out_final/code_blockers.json"
+    "blocker_evidence": "exp/out_final/blocker_audit.json",
+    "attempts": [
+     {
+      "source": "https://github.com/SouthFlame/restr (located via GitHub search)",
+      "action": "git ls-remote https://github.com/SouthFlame/restr HEAD",
+      "result": "repository reachable"
+     },
+     {
+      "source": "ReSTR README and evaluate.py",
+      "action": "inspect expected --restore_refseg path",
+      "result": "expects ../weights/to/ but README provides no checkpoint download link"
+     },
+     {
+      "source": "HuggingFace model search, q=ReSTR referring",
+      "action": "list_models(search=ReSTR)",
+      "result": "no matching model repository"
+     }
+    ],
+    "retry_plan": "Locate the author checkpoint or train the released code on the RefCOCO train split; supervised reference only."
    },
    "appreciation": "Appreciated contribution: ReferIt test IoU 70.18, RefCOCO val 67.22, RefCOCO+ val 55.78, G-Ref val 54.48 (Table 1).",
    "critique": "Critique: Supervised; its fusion gains do not transfer to a training-free setting automatically.",
@@ -686,7 +845,25 @@
     "findings": "seqtr/models/det_seg/seqtr.py defines SeqTR as a one-stage coordinate-sequence model; tools/test.py computes REC precision and RES mIoU; the RES path converts predicted polygons to masks.",
     "ran": false,
     "blocker": "Repo inspected. SeqTR is supervised and its pretrained weights are Google Drive links that were not fetched; reference-only.",
-    "blocker_evidence": "exp/out_final/code_blockers.json"
+    "blocker_evidence": "exp/out_final/blocker_audit.json",
+    "attempts": [
+     {
+      "source": "https://github.com/sean-zhuh/SeqTR",
+      "action": "git ls-remote ... HEAD",
+      "result": "repository reachable"
+     },
+     {
+      "source": "SeqTR README Google Drive folder",
+      "action": "inspect folder contents/README text for trained checkpoints",
+      "result": "folder documents preprocessed data and DarkNet-53 backbone weights; no trained SeqTR checkpoint link"
+     },
+     {
+      "source": "SeqTR requirements and test entry",
+      "action": "inspect tools/test.py and requirements",
+      "result": "test.py requires --load-from with a checkpoint that is not released; environment needs mmcv-full 1.x/custom ops"
+     }
+    ],
+    "retry_plan": "Search for released trained SeqTR checkpoints; if found, build the mmcv-1.x environment and run full RefCOCO val."
    },
    "appreciation": "Appreciated contribution: A simple universal grounding network; RES is realized by predicting polygon point sequences.",
    "critique": "Critique: Supervised; its success shows that geometry is a viable output, but it does not measure training-free selection.",
@@ -722,7 +899,25 @@
     "findings": "Inspected tas_main.py and the README: tas_main.py line 462 opens ./overall_caption_path/overall_caption_{dataset}_{split}_{splitby}.json, a per-sentence caption file the repository neither ships nor generates; README step 3 instructs the user to prepare captions with BLIP-2. Inference cannot start without it, so the method is documented as blocked rather than sampled.",
     "ran": false,
     "blocker": "TAS inference cannot start: tas_main.py line 462 requires a per-sentence caption JSON under overall_caption_path, which the repo neither ships nor generates; README step 3 tells the user to prepare captions with BLIP-2 first.",
-    "blocker_evidence": "exp/out_final/code_blockers.json"
+    "blocker_evidence": "exp/out_final/blocker_audit.json",
+    "attempts": [
+     {
+      "source": "https://github.com/suoych/TAS",
+      "action": "git ls-remote ... HEAD",
+      "result": "repository reachable"
+     },
+     {
+      "source": "tas_main.py and README",
+      "action": "inspect line 462 and the data preparation steps",
+      "result": "requires ./overall_caption_path/overall_caption_{dataset}_{split}_{splitby}.json; repo ships no such file"
+     },
+     {
+      "source": "README step 3 and local corpus",
+      "action": "search for BLIP-2 captions/caches in the repo and HF cache",
+      "result": "README instructs the user to prepare captions with BLIP-2; no ready caption file found"
+     }
+    ],
+    "retry_plan": "Install LAVIS/BLIP-2, generate the per-sentence captions the README requires, then run the released full-val entry point."
    },
    "appreciation": "Appreciated contribution: TAS (ResNet-50) reaches 39.91 RefCOCO val mIoU / 43.99 RefCOCO+ val, improving over global-local CLIP baselines.",
    "critique": "Critique: A same-class method whose proposal source and text augmentation could be combined with our box prior; we do not test that combination.",
@@ -769,7 +964,8 @@
      "kind": "method",
      "full_split": true,
      "split": "RefCOCO/RefCOCO+/RefCOCOg val",
-     "protocol": "full official val; released reverse_blur CLIP ViT-B/32 selection on the shared SAM ViT-H pps 8 pool; published stage-1 pool is expression-conditioned GroundingDINO+SAM (cross-harness)"
+     "protocol": "full official val; released reverse_blur CLIP ViT-B/32 selection on the shared SAM ViT-H pps 8 pool; published stage-1 pool is expression-conditioned GroundingDINO+SAM (cross-harness)",
+     "env": "glod-ris conda env (Python 3.10, PyTorch CUDA), released CLIP ViT-B/32 weights; no dedicated env"
     }
    },
    "appreciation": "Appreciated contribution: The zero-shot segment+select stage beats prior zero-shot baselines by up to 16.5%; a trained corrector closes part of the gap to supervised RIS.",
@@ -840,7 +1036,25 @@
     "findings": "vlt/vlt.py and vlt/executor.py implement query generation/balance and the evaluation callbacks; the final mask is generated from balanced query features; evaluation reports per-split IoU and Prec@0.5.",
     "ran": false,
     "blocker": "Repo inspected. VLT is supervised and the repository ships no released checkpoint; included as a reference row only.",
-    "blocker_evidence": "exp/out_final/code_blockers.json"
+    "blocker_evidence": "exp/out_final/blocker_audit.json",
+    "attempts": [
+     {
+      "source": "https://github.com/henghuiding/Vision-Language-Transformer",
+      "action": "git ls-remote ... HEAD",
+      "result": "repository reachable"
+     },
+     {
+      "source": "VLT README pretrained-model section",
+      "action": "curl -I the SharePoint folder URL",
+      "result": "HTTP 200 marketing page, but folder download requires an authenticated SharePoint session"
+     },
+     {
+      "source": "HuggingFace model search, q=VLT referring",
+      "action": "list_models(search=VLT)",
+      "result": "no model repository returned"
+     }
+    ],
+    "retry_plan": "Use the SharePoint direct-download API with a browser session or an author mirror; then run the full official val."
    },
    "appreciation": "Appreciated contribution: RefCOCO val IoU 65.65, RefCOCO+ val 55.50, G-Ref val(U) 52.99, Prec@0.5 76.20.",
    "critique": "Critique: Supervised; the learned query-balance mechanism could in principle be added to a training-free pipeline, which we do not test.",
@@ -888,7 +1102,8 @@
      "kind": "method",
      "full_split": true,
      "split": "RefCOCO/RefCOCO+/RefCOCOg val",
-     "protocol": "full official val; released token-masking selector with CLIP ViT-B/32 on the shared SAM ViT-H pps 8 pool; own FreeSOLO R101 pool unavailable (blocked)"
+     "protocol": "full official val; released token-masking selector with CLIP ViT-B/32 on the shared SAM ViT-H pps 8 pool; own FreeSOLO R101 pool unavailable (blocked)",
+     "env": "glod-ris conda env (Python 3.10, PyTorch CUDA), released CLIP ViT-B/32 weights; no dedicated env"
     }
    },
    "appreciation": "Appreciated contribution: Global-Local CLIP (ViT-B/32) mIoU 26.20 RefCOCO val / 27.80 RefCOCO+ val / 33.52 G-Ref val.",
@@ -955,7 +1170,25 @@
     "findings": "",
     "ran": false,
     "blocker": "The GF-SAM repository was not obtained and no released checkpoint was verified in this cycle; the method is a proposal/merging component rather than a full released zero-shot pipeline, so it remains reference-only.",
-    "blocker_evidence": "exp/out_final/code_blockers.json"
+    "blocker_evidence": "exp/out_final/blocker_audit.json",
+    "attempts": [
+     {
+      "source": "https://github.com/ANDYZAQ/GF-SAM",
+      "action": "git clone --depth 1",
+      "result": "repository cloned successfully"
+     },
+     {
+      "source": "GF-SAM README/GETTING_STARTED",
+      "action": "inspect datasets and evaluation entry points",
+      "result": "implements few-shot semantic segmentation on COCO-20i/Pascal-5i; no RefCOCO/+/g RIS path"
+     },
+     {
+      "source": "GF-SAM weights",
+      "action": "check released DINOv2/SAM checkpoint URLs and outputs",
+      "result": "weights exist for the few-shot task, but there is no RIS evaluation to run"
+     }
+    ],
+    "retry_plan": "Run the released few-shot COCO-20i demo as a component/merging reference only; it is not a RIS pipeline and cannot enter the RIS comparison."
    },
    "appreciation": "Appreciated contribution: Graph clustering of points and SAM masks surpasses generalist FSS models at 58.7 mIoU on COCO-20i and 35.2 on LVIS-92i.",
    "critique": "Critique: Few-shot segmentation; no referring text or instance pool oracle.",
@@ -1092,7 +1325,8 @@
      "kind": "method",
      "full_split": true,
      "split": "RefCOCO/RefCOCO+/RefCOCOg val",
-     "protocol": "full official val; training-free box-prior rule with LLaVA-OneVision-7B boxes on the shared pool; 100% box coverage"
+     "protocol": "full official val; training-free box-prior rule with LLaVA-OneVision-7B boxes on the shared pool; 100% box coverage",
+     "env": "glod-ris conda env (Python 3.10, PyTorch CUDA), LLaVA-OneVision-7B cache; no dedicated env"
     }
    },
    "appreciation": "Appreciated contribution: Strong transfer across scenarios; DocVQA test 92.8, MMMU val 56.8, SeedBench image 78.0 for the 72B model (Table 2).",
@@ -1204,7 +1438,8 @@
      "kind": "method",
      "full_split": true,
      "split": "RefCOCO/RefCOCO+/RefCOCOg val",
-     "protocol": "full official val; Qwen2.5-VL-3B box prior with the refit selector head on the shared pool"
+     "protocol": "full official val; Qwen2.5-VL-3B box prior with the refit selector head on the shared pool",
+     "env": "glod-ris conda env (Python 3.10, PyTorch CUDA), Qwen2.5-VL-3B cache; no dedicated env"
     }
    },
    "appreciation": "Appreciated contribution: MMStar 70.8, DocVQA test 96.4, MMMU 70.2 (abstract/table).",
@@ -1252,7 +1487,8 @@
      "kind": "method",
      "full_split": true,
      "split": "RefCOCO/RefCOCO+/RefCOCOg val",
-     "protocol": "full official val; plain masked-region CLIP feature platform on the shared pool, no released G2L fusion/complement blur"
+     "protocol": "full official val; plain masked-region CLIP feature platform on the shared pool, no released G2L fusion/complement blur",
+     "env": "glod-ris conda env (Python 3.10, PyTorch CUDA), OpenAI CLIP ViT-B/32 weights; no dedicated env"
     }
    },
    "appreciation": "Appreciated contribution: Strong zero-shot classification and transfer; 400M image-text pairs.",
@@ -1287,7 +1523,25 @@
     "findings": "",
     "ran": false,
     "blocker": "Semantic-SAM requires custom CUDA operators and multi-GB weights; the environment was not built in this cycle. It is a multi-granularity pool component, not a full RIS selector.",
-    "blocker_evidence": "exp/out_final/code_blockers.json"
+    "blocker_evidence": "exp/out_final/blocker_audit.json",
+    "attempts": [
+     {
+      "source": "https://github.com/UX-Decoder/Semantic-SAM",
+      "action": "git ls-remote ... HEAD",
+      "result": "repository reachable"
+     },
+     {
+      "source": "Semantic-SAM README/install",
+      "action": "inspect the custom-op build and checkpoint release",
+      "result": "requires custom CUDA operators and multi-GB SA-1B checkpoints; environment not built"
+     },
+     {
+      "source": "HuggingFace/GitHub release scan",
+      "action": "check released models",
+      "result": "checkpoints exist for class-agnostic segmentation, but there is no RIS selector or evaluation"
+     }
+    ],
+    "retry_plan": "Compile the custom CUDA operators and run the released class-agnostic demo as a pool-component reference only."
    },
    "appreciation": "Appreciated contribution: Semantic-awareness plus granularity abundance; COCO panoptic PQ 55.2 and AP 52.3 with SA-1B training.",
    "critique": "Critique: Trained segmenter; different task family.",
@@ -1365,7 +1619,8 @@
      "kind": "method",
      "full_split": true,
      "split": "RefCOCO/RefCOCO+/RefCOCOg val",
-     "protocol": "full official val; released MaskCLIP dense value map with the final ln_post before proj; own component pool at a fixed 50/70/90th percentile rule (harness adaptation)"
+     "protocol": "full official val; released MaskCLIP dense value map with the final ln_post before proj; own component pool at a fixed 50/70/90th percentile rule (harness adaptation)",
+     "env": "glod-ris conda env (Python 3.10, PyTorch CUDA), MaskCLIP/CLIP weights; no dedicated env"
     }
    },
    "appreciation": "Appreciated contribution: MaskCLIP+ improves unseen-class mIoU by 50.5%/46%/24.4% on VOC/Context/COCO-Stuff; 31.1 mIoU on VOC with ViT-B/16.",
@@ -1471,7 +1726,25 @@
     "findings": "",
     "ran": false,
     "blocker": "MaskRIS is a supervised training framework (image/text masking plus DCL); it has no frozen zero-shot inference path, so running it would require training a RIS model, outside the training-free comparison.",
-    "blocker_evidence": "exp/out_final/code_blockers.json"
+    "blocker_evidence": "exp/out_final/blocker_audit.json",
+    "attempts": [
+     {
+      "source": "https://github.com/naver-ai/maskris",
+      "action": "git clone --depth 1",
+      "result": "repository cloned; training/eval code present"
+     },
+     {
+      "source": "MaskRIS README and config",
+      "action": "grep for trained checkpoints/weights",
+      "result": "README lists only Swin/BERT backbone initialisation; no trained MaskRIS checkpoint"
+     },
+     {
+      "source": "HuggingFace model search, q=MaskRIS",
+      "action": "list_models(search=MaskRIS)",
+      "result": "only lmh315/maskris, an unrelated benchmark collection; no official MaskRIS weights"
+     }
+    ],
+    "retry_plan": "Train MaskRIS from the released code on the RefCOCO train split (supervised reference) or locate a released checkpoint; full val only."
    },
    "appreciation": "Best idea and measured contribution: the paper debunks the default recipe of borrowing generic image augmentations for RIS and shows that simple random image/text masking is the augmentation that helps, provided the model learns under distortion with DCL. The measured contribution is a clean +1.4/+3.1/+1.7 mIoU over CGFormer on RefCOCO/+/g val (78.35/71.68/69.31), with the same Swin-B/BERT backbone, and it transfers across several RIS models. It is a well-controlled supervised result and a useful reminder that occlusion-style robustness, not color jitter, is what the task rewards.",
    "critique": "Critique with evidence: this is fully supervised training on each dataset's train split (Table 1, Standard setting), so its 78.35 mIoU is not comparable to zero-shot rows and cannot be a floor; the paper itself separates combined-dataset training. Its improvements come from training-time augmentation, so they say nothing about repairing a frozen released pipeline. The abstract claims state-of-the-art on all three datasets, but the combined-setting table shows MaskRIS at 78.71/70.26/69.12 oIoU against PolyFormer 74.82/67.64/69.05 and CARIS 76.67/68.23/67.42, a smaller margin than the per-dataset setting; the strongest claim depends on the protocol chosen.",
@@ -1899,12 +2172,25 @@
    "source_file": "exp/literature/papers/evfsam2024.txt",
    "code": {
     "available": true,
-    "inspected": false,
-    "repo": "https://github.com/hustvl/EVF-SAM",
-    "findings": "",
-    "ran": false,
-    "blocker": "EVF-SAM is a supervised 1.32B model trained on RefCOCO-family data; released weights exist, but its BEIT-3+SAM inference stack is outside this cycle's budget and it is not a same-class zero-shot pipeline.",
-    "blocker_evidence": "exp/out_final/code_blockers.json"
+    "inspected": true,
+    "repo": "https://github.com/hustvl/EVF-SAM (weights: https://huggingface.co/YxZhang/evf-sam)",
+    "findings": "Inspected the released eval.py, utils/dataset.py and inference.py. eval.py evaluates RefCOCO val through the released REFER adapter; the refer_seg/refcoco and refer_seg/images paths were symlinked to the shared REFER tree. torchscale had to be installed; the first 2.63GB weight download was corrupt (SHA mismatch/torch.load tar error), a clean re-download matched the expected SHA-256 and loaded 1,569 tensors. The released eval was run with torchrun on one GPU.",
+    "ran": true,
+    "run": {
+     "entry": "torchrun --standalone --nproc_per_node=1 eval.py --version weights --precision fp16 --val_dataset refcoco|unc|val --dataset_dir dataset --model_type ori",
+     "sample_n": 10834,
+     "status": "ok",
+     "kind": "method",
+     "full_split": true,
+     "split": "RefCOCO val (UNC; all expressions grouped by image)",
+     "protocol": "official REFER val through the released EVF-SAM eval.py; all 10,834 expressions; gIoU and cIoU from the released evaluator; released YxZhang/evf-sam weights; no tuning",
+     "env": "glod-ris conda env + torchscale; HF YxZhang/evf-sam weights; single-GPU torchrun",
+     "notes": "full official val; released evaluator reports gIoU 0.829 / cIoU 0.821, matching the published EVF-SAM RefCOCO val cIoU 82.1",
+     "metrics": {
+      "refcoco_val_gIoU": 82.9,
+      "refcoco_val_cIoU": 82.1
+     }
+    }
    },
    "appreciation": "Best idea and measured contribution: the motivation experiment is unusually clean. Holding SAM fixed and changing only the text prompt encoder, CLIP-prompted SAM gets 63.4 cIoU, CLIP with multimodal prompts 67.9, BEIT-3 text-only 65.1, and BEIT-3 with early multimodal fusion 83.7 (Table 2). That is a 20-point swing attributable to the feature path, and it explains why a frozen CLIP selector has a ceiling. The full model reaches 78.0 average cIoU on eight RefCOCO-series benchmarks with 1.32B parameters, reducing parameters by about 82% versus large-LMM SAM methods while improving accuracy.",
    "critique": "Critique with evidence: EVF-SAM is fully supervised on RefCOCO-family training data (Table 1), so its 82.1/75.2/76.8 cIoU is not a zero-shot result and cannot be a floor for our method. The motivation comparison uses RefCOCO testA only, a single split, and the CLIP-prompted baseline is a reproduction by the authors, not a released number; the 83.7 early-fusion figure is therefore not directly comparable to published CLIP-based pipelines. The paper does not report selection diagnostics, and its large gain from the feature path could reflect task-specific training of the fusion layers as much as the fusion design.",
@@ -1941,7 +2227,25 @@
     "findings": "",
     "ran": false,
     "blocker": "Text4Seg is a fine-tuned MLLM (InternVL2/LLaVA) with no zero-shot inference path; its checkpoints and multi-GPU setup were not fetched.",
-    "blocker_evidence": "exp/out_final/code_blockers.json"
+    "blocker_evidence": "exp/out_final/blocker_audit.json",
+    "attempts": [
+     {
+      "source": "https://github.com/mc-lan/Text4Seg",
+      "action": "git ls-remote ... HEAD",
+      "result": "repository reachable"
+     },
+     {
+      "source": "Text4Seg README",
+      "action": "grep for trained Text4Seg checkpoints",
+      "result": "links LLaVA/CLIP/Vicuna base weights, not a trained Text4Seg RIS checkpoint"
+     },
+     {
+      "source": "HuggingFace model search, q=Text4Seg",
+      "action": "list_models(search=Text4Seg)",
+      "result": "no official Text4Seg model repository found"
+     }
+    ],
+    "retry_plan": "Locate a trained Text4Seg checkpoint or train the released MLLM code on RIS data; full val only."
    },
    "appreciation": "Best idea and measured contribution: representing a 16x16 mask as a sequence of semantic descriptors lets an off-the-shelf MLLM produce segmentation without a mask decoder, and R-RLE makes the representation practical (74% shorter descriptors, 3x faster). The measured contribution is competitive supervised accuracy, 76.2 average cIoU with LLaVA-1.5-13B and 75.0 with the 8B model, plus gains from a SAM refiner. The text-as-mask interface is a genuinely different design from SAM-pool selection and worth knowing about.",
    "critique": "Critique with evidence: the model is fine-tuned on RIS data and evaluated on the same benchmarks, so the 76.2 cIoU is supervised and not comparable to zero-shot rows. The 16x16 descriptor grid limits spatial resolution; the paper adds a SAM refiner to recover detail, which reintroduces the heavy segmenter it claimed to eliminate, and the refiner raises average cIoU from 73.5 to 79.1 (Section 4.4), so the decoder-free claim is only true for the coarse stage. The efficiency comparison is against its own uncompressed format, not against SAM-based pipelines end-to-end.",
@@ -2236,7 +2540,8 @@
      "kind": "method",
      "full_split": true,
      "split": "RefCOCO/RefCOCO+/RefCOCOg val",
-     "protocol": "full official val; offline argmax GEM coherence over the stored per-proposal scores for all three splits; no new GEM forward pass"
+     "protocol": "full official val; offline argmax GEM coherence over the stored per-proposal scores for all three splits; no new GEM forward pass",
+     "env": "glod-ris conda env (Python 3.10, PyTorch), offline re-analysis of stored GEM scores; no forward pass"
     }
    },
    "appreciation": "Best idea and measured contribution: GEM shows that self-self attention is a clustering operation and that normalizing it, plus iterating, turns a frozen CLIP ViT into a surprisingly good dense localizer: 45.1 mIoU on VOC and 32.3 on Context with qkv attention, against 10.4/7.7 for plain CLIP (Table 1). It is training-free, architecture-agnostic, and the code is small; it is the cleanest explanation we have for why a coherence term is useful in a referring pipeline. Our own full-val probe confirms the signal is real but scoped: argmax GEM coherence alone reaches 44.81 mIoU on RefCOCO val, essentially matching the released HybridGL selector (44.82), but it falls to 32.81 on RefCOCO+ and 42.20 on RefCOCOg versus 40.23/50.08 for the released semantic-plus-coherence selector. That is a precise, measured statement of where coherence suffices and where semantics are load-bearing.",
@@ -2396,5 +2701,6 @@
   "repo": "https://github.com/henghuiding/ReLA + https://github.com/henghuiding/gRefCOCO",
   "finding": "official evaluation is per sentence (not per ref): a no-target true positive contributes I=U=0 and gIoU 1; a targeted false positive keeps the discarded mask's union in the cIoU denominator with I=0; N_acc=TP/(TP+FN) and T_acc=TN/(TN+FP) (reported as fractions). Our metric matches these definitions, with one deliberate difference: an empty-prediction abstention adds only the GT area to U instead of a discarded mask's union, which makes our abstention rows slightly cheaper in cIoU than the official FP convention. GreferDataset groups several sentences per ref with one merged GT, so per-sentence evaluation and per-sentence text alignment are required --- the exp172/exp173 corrections."
  },
- "verdict": "35+ full-text papers read; the selection diagnosis is corroborated by Venice-H1, S+S, Prompt Sensitivity and PinPoint, while MaskCLIP's own-pool result bounds it to pipelines whose pool contains the referent. Trained mask-group and graph-merge lines are adjacent, not same-class zero-shot baselines."
+ "verdict": "35+ full-text papers read; the selection diagnosis is corroborated by Venice-H1, S+S, Prompt Sensitivity and PinPoint, while MaskCLIP's own-pool result bounds it to pipelines whose pool contains the referent. Trained mask-group and graph-merge lines are adjacent, not same-class zero-shot baselines.",
+ "method_full": 10
 }

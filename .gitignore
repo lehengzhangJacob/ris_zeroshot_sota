@@ -22,3 +22,9 @@ __pycache__/
 .aris/
 env_backup_glodris.txt
 aris_stopped.txt
+
+# 2026-10-22 reproduction clones and weights (redownloadable; code/recipes in exp/out_final)
+exp/literature/repos/lavt/
+exp/literature/repos/evfsam/
+exp/literature/repos/gfsam/
+exp/literature/repos/maskris/

@@ -1,0 +1,60 @@
+/home/msj_team/.conda/envs/glod-ris/lib/python3.10/site-packages/torch/functional.py:507: UserWarning: torch.meshgrid: in an upcoming release, it will be required to pass the indexing argument. (Triggered internally at ../aten/src/ATen/native/TensorShape.cpp:3549.)
+  return _VF.meshgrid(tensors, **kwargs)  # type: ignore[attr-defined]
+Image size: 480
+loading dataset refcoco into memory...
+creating index...
+index created.
+DONE (t=6.53s)
+lavt
+Window size 12!
+Randomly initialize Multi-modal Swin Transformer weights.
+Test:  [   0/3811]  eta: 1:07:42    time: 1.0661  data: 0.2538  max mem: 1061
+Test:  [ 100/3811]  eta: 0:11:22    time: 0.1843  data: 0.0017  max mem: 1062
+Test:  [ 200/3811]  eta: 0:10:51    time: 0.1807  data: 0.0016  max mem: 1062
+Test:  [ 300/3811]  eta: 0:10:38    time: 0.1795  data: 0.0014  max mem: 1062
+Test:  [ 400/3811]  eta: 0:10:13    time: 0.1760  data: 0.0019  max mem: 1062
+Test:  [ 500/3811]  eta: 0:09:54    time: 0.1795  data: 0.0018  max mem: 1062
+Test:  [ 600/3811]  eta: 0:09:39    time: 0.1892  data: 0.0016  max mem: 1062
+Test:  [ 700/3811]  eta: 0:09:21    time: 0.1832  data: 0.0015  max mem: 1062
+Test:  [ 800/3811]  eta: 0:09:04    time: 0.1934  data: 0.0014  max mem: 1062
+Test:  [ 900/3811]  eta: 0:08:47    time: 0.1808  data: 0.0015  max mem: 1062
+Test:  [1000/3811]  eta: 0:08:29    time: 0.1822  data: 0.0015  max mem: 1062
+Test:  [1100/3811]  eta: 0:08:12    time: 0.1858  data: 0.0014  max mem: 1062
+Test:  [1200/3811]  eta: 0:07:53    time: 0.1790  data: 0.0014  max mem: 1062
+Test:  [1300/3811]  eta: 0:07:35    time: 0.1878  data: 0.0014  max mem: 1062
+Test:  [1400/3811]  eta: 0:07:16    time: 0.1781  data: 0.0016  max mem: 1062
+Test:  [1500/3811]  eta: 0:06:58    time: 0.1784  data: 0.0015  max mem: 1062
+Test:  [1600/3811]  eta: 0:06:40    time: 0.1763  data: 0.0015  max mem: 1062
+Test:  [1700/3811]  eta: 0:06:22    time: 0.1776  data: 0.0014  max mem: 1062
+Test:  [1800/3811]  eta: 0:06:03    time: 0.1735  data: 0.0014  max mem: 1062
+Test:  [1900/3811]  eta: 0:05:44    time: 0.1775  data: 0.0015  max mem: 1062
+Test:  [2000/3811]  eta: 0:05:25    time: 0.1727  data: 0.0014  max mem: 1062
+Test:  [2100/3811]  eta: 0:05:07    time: 0.1746  data: 0.0014  max mem: 1062
+Test:  [2200/3811]  eta: 0:04:49    time: 0.1820  data: 0.0014  max mem: 1062
+Test:  [2300/3811]  eta: 0:04:31    time: 0.1779  data: 0.0021  max mem: 1062
+Test:  [2400/3811]  eta: 0:04:13    time: 0.1842  data: 0.0014  max mem: 1062
+Test:  [2500/3811]  eta: 0:03:55    time: 0.1799  data: 0.0015  max mem: 1062
+Test:  [2600/3811]  eta: 0:03:37    time: 0.1829  data: 0.0014  max mem: 1062
+Test:  [2700/3811]  eta: 0:03:19    time: 0.1838  data: 0.0014  max mem: 1062
+Test:  [2800/3811]  eta: 0:03:01    time: 0.1801  data: 0.0014  max mem: 1062
+Test:  [2900/3811]  eta: 0:02:44    time: 0.1881  data: 0.0015  max mem: 1062
+Test:  [3000/3811]  eta: 0:02:25    time: 0.1856  data: 0.0014  max mem: 1062
+Test:  [3100/3811]  eta: 0:02:07    time: 0.1799  data: 0.0015  max mem: 1062
+Test:  [3200/3811]  eta: 0:01:49    time: 0.1816  data: 0.0014  max mem: 1062
+Test:  [3300/3811]  eta: 0:01:31    time: 0.1792  data: 0.0015  max mem: 1062
+Test:  [3400/3811]  eta: 0:01:13    time: 0.1807  data: 0.0014  max mem: 1062
+Test:  [3500/3811]  eta: 0:00:55    time: 0.1800  data: 0.0014  max mem: 1062
+Test:  [3600/3811]  eta: 0:00:37    time: 0.1812  data: 0.0013  max mem: 1062
+Test:  [3700/3811]  eta: 0:00:19    time: 0.1732  data: 0.0014  max mem: 1062
+Test:  [3800/3811]  eta: 0:00:01    time: 0.1839  data: 0.0013  max mem: 1062
+Test: Total time: 0:11:26
+Final results:
+Mean IoU is 74.46
+
+    precision@0.5 = 84.45
+    precision@0.6 = 80.89
+    precision@0.7 = 75.27
+    precision@0.8 = 64.71
+    precision@0.9 = 34.31
+    overall IoU = 72.73
+

@@ -31,8 +31,9 @@
   "n_papers_full_text": 63,
   "n_ris_or_same_class": 40,
   "n_repos_inspected": 21,
-  "n_repo_runs_ok": 15,
-  "scope_note": "Full texts were read from exp/literature/papers/*.txt; the dossier covers CVPR/ICCV/ECCV/NeurIPS/AAAI/ICML and arXiv, with 40 RIS/same-class papers and 21 RIS/adjacent, plus 15 successful repo runs (full val where the pipeline is released, explicit small batteries otherwise)."
+  "n_repo_runs_ok": 17,
+  "scope_note": "Full texts were read from exp/literature/papers/*.txt; the dossier covers CVPR/ICCV/ECCV/NeurIPS/AAAI/ICML and arXiv, with 40 RIS/same-class papers and 21 RIS/adjacent, plus 17 successful repo runs, including 10 full-split method runs (LAVT and EVF-SAM added as exact full-val reproductions) (full val where the pipeline is released, explicit small batteries otherwise).",
+  "n_method_full_runs": 10
  },
  "ideas": [
   {

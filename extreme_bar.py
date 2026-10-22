@@ -781,6 +781,19 @@ def literature_deep_read():
             bev = code.get("blocker_evidence")
             if not isinstance(bev, str) or not newer(bev):
                 return fail(f"deep_read paper {i}: blocker needs fresh blocker_evidence")
+            attempts = code.get("attempts")
+            if not isinstance(attempts, list) or len(attempts) < 3:
+                return fail(f"deep_read paper {i}: a blocker is a work item --- needs attempts[] >= 3 (source, action, result)")
+            for j, at in enumerate(attempts):
+                if not isinstance(at, dict):
+                    return fail(f"deep_read paper {i} attempt {j} is not an object")
+                for field in ("source", "action", "result"):
+                    v = at.get(field)
+                    if not isinstance(v, str) or not v.strip():
+                        return fail(f"deep_read paper {i} attempt {j} needs a non-empty {field}")
+            rp = code.get("retry_plan")
+            if not isinstance(rp, str) or not rp.strip():
+                return fail(f"deep_read paper {i}: blocker needs a non-empty retry_plan")
         ran = code.get("ran", False)
         if not isinstance(ran, bool):
             return fail(f"deep_read paper {i} code.ran must be bool")
@@ -814,6 +827,9 @@ def literature_deep_read():
                     pr = run.get("protocol")
                     if not isinstance(pr, str) or not pr.strip():
                         return fail(f"deep_read paper {i} method run needs a non-empty protocol")
+                    envs = run.get("env")
+                    if not isinstance(envs, str) or not envs.strip():
+                        return fail(f"deep_read paper {i} full-split method run needs a non-empty env spec (dedicated envs allowed and expected)")
                     if n < 1000:
                         return fail(f"deep_read paper {i} full-split method run needs n >= 1000 (run to completion)")
                     method_full += 1
@@ -835,8 +851,8 @@ def literature_deep_read():
         return fail(f"deep_read.json has only {inspected} source-code inspections; need >= 20")
     if ok_runs < 15:
         return fail(f"deep_read.json has only {ok_runs} successful repo runs; need >= 15")
-    if method_full < 6:
-        return fail(f"deep_read.json has only {method_full} full-split METHOD runs; need >= 6 (run to completion, not samples)")
+    if method_full < 10:
+        return fail(f"deep_read.json has only {method_full} full-split METHOD runs; need >= 10 (run to completion, not samples)")
     mc = data.get("grefcoco_metric_check")
     if not isinstance(mc, dict):
         return fail("deep_read.json needs grefcoco_metric_check{}")
