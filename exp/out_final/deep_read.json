@@ -240,10 +240,8 @@
     "available": true,
     "repo": "https://github.com/VoyageWang/IteRPrimE",
     "inspected": true,
-    "findings": "Code-only release; README points all checkpoints (Mask2Former, ALBEF, Stanza, BERT) to Baidu Pan links; demo post-processing selects a contiguous Mask2Former proposal.",
-    "ran": false,
-    "blocker": "Zero-shot, but every checkpoint (Mask2Former, ALBEF, Stanza, BERT) is a Baidu Pan link requiring an interactive account; the README gives no direct URL, so the released pipeline could not be reproduced unattended.",
-    "blocker_evidence": "exp/out_final/blocker_audit.json",
+    "findings": "Released demo run end-to-end. Checkpoints were sourced from public mirrors rather than the README's Baidu links: Mask2Former Swin-L panoptic model_final_f07440.pkl from dl.fbaipublicfiles.com, ALBEF.pth 14M from the official Google storage bucket, bert-base-uncased from the local HF snapshot, and Stanza 1.8.1 English resources from HuggingFace. detectron2 and Mask2Former's MultiScaleDeformableAttention were compiled with gcc-12; small compatibility patches (tokenizer get_vocab guard, missing mask2former.data import, tuple-return predictor, numpy Grad-CAM) are in exp/out_final/iterprime_patches.diff.",
+    "ran": true,
     "attempts": [
      {
       "source": "https://github.com/VoyageWang/IteRPrimE",
@@ -261,7 +259,63 @@
       "result": "no model repository returned"
      }
     ],
-    "retry_plan": "Download the four Baidu Pan checkpoints with an account or a public mirror; then run the released full-val inference."
+    "run": {
+     "entry": "demo/IteRPrimE.py --data-set refcoco --image-set val --num-workers 0 --iter-num 3 (run as three disjoint annotation shards and merged exactly)",
+     "sample_n": 10834,
+     "status": "ok",
+     "kind": "method",
+     "full_split": true,
+     "split": "RefCOCO val (UNC); one entry per expression",
+     "protocol": "released per-expression demo: Mask2Former panoptic proposals at 0.35, ALBEF Grad-CAM, iterative selection (3 iterations); mIoU = mean per-expression IoU, oIoU = sum(I)/sum(U); no tuning",
+     "env": "glod-ris (Python 3.10, torch 2.2.1+cu121); detectron2 0.6 + MultiScaleDeformableAttention built with gcc-12; ALBEF 14M checkpoint; stanza 1.8.1; patches in exp/out_final/iterprime_patches.diff",
+     "notes": "Full 10,834-expression val completed (three shards, merged exactly from per-expression logs). Measured mIoU 40.1845, oIoU 31.4385, precision@0.5 43.28. Recorded as a cross-harness reproduction row; the released pipeline does not match the paper's own reported level in this environment.",
+     "metrics": {
+      "refcoco_val_mIoU": 40.1845,
+      "refcoco_val_oIoU": 31.4385,
+      "precision@0.5": 43.2804
+     },
+     "datasets": {
+      "refcoco_val": {
+       "n": 10834,
+       "metric": 40.1845
+      }
+     },
+     "split_blockers": {
+      "refcoco_testA": {
+       "reason": "test split not run in this cycle; full val is complete",
+       "evidence": "exp/out_final/iterprime_refcoco_val.json"
+      },
+      "refcoco_testB": {
+       "reason": "test split not run in this cycle; full val is complete",
+       "evidence": "exp/out_final/iterprime_refcoco_val.json"
+      },
+      "refcocoplus_val": {
+       "reason": "RefCOCO+ split not run in this cycle",
+       "evidence": "exp/out_final/iterprime_refcoco_val.json"
+      },
+      "refcocoplus_testA": {
+       "reason": "test split not run in this cycle",
+       "evidence": "exp/out_final/iterprime_refcoco_val.json"
+      },
+      "refcocoplus_testB": {
+       "reason": "test split not run in this cycle",
+       "evidence": "exp/out_final/iterprime_refcoco_val.json"
+      },
+      "refcocog_val": {
+       "reason": "RefCOCOg split not run in this cycle",
+       "evidence": "exp/out_final/iterprime_refcoco_val.json"
+      },
+      "refcocog_testu": {
+       "reason": "test split not run in this cycle",
+       "evidence": "exp/out_final/iterprime_refcoco_val.json"
+      },
+      "grefcoco_val": {
+       "reason": "gRefCOCO not supported by this referring-only released demo",
+       "evidence": "exp/out_final/iterprime_refcoco_val.json"
+      }
+     }
+    },
+    "run_evidence": "exp/out_final/iterprime_refcoco_val.json"
    },
    "appreciation": "Appreciated contribution: Iterative Grad-CAM repairs positional insensitivity and primary-word emphasis improves complex relations, beating prior zero-shot RIS.",
    "critique": "Critique: Shows heatmap refinement can lift selection, but its weights are hosted only on Baidu Pan and it is not component-matched.",
