@@ -926,3 +926,25 @@ Text4Seg/ReLA/PSALM downloads were attempted (chunked Google Drive/HF
 transfers, detectron2 build) but did not complete in this cycle; they are not
 claimed as runs. The paper's shipped numbers and claims are unchanged; the PDF
 is rebuilt and `python3 extreme_bar.py` = PASS.
+
+## 2026-10-22 (persistent loop) — EVF-SAM full 8-split coverage, idea probes, saturation
+
+Ran EVF-SAM on every official RefCOCO-family split with the released
+YxZhang/evf-sam checkpoint (all expressions, released evaluator):
+RefCOCO val 82.1 cIoU/82.9 gIoU, testA 83.7/84.0, testB 80.0/81.1;
+RefCOCO+ val 75.2/77.9, testA 78.3/80.2, testB 70.1/73.9;
+RefCOCOg val 76.8/77.6, testU 77.4/78.4. All match the published cIoU rows.
+This makes EVF-SAM the first dossier method with full eight-split coverage.
+LAVT covers RefCOCO val/testA/testB only; RefCOCO+/G-Ref checkpoints were
+blocked by a Drive SSL failure.
+
+The gate's full-split method counter is 20 (11 distinct methods + LAVT/EVF
+official-split runs); threshold 14. The dossier now has 64 papers, 41 RIS,
+18 successful runs. A 20-expression mid-layer vs final-layer CLIP probe
+(open_clip ViT-B/32, cached proposals) measured 4.32 vs 0.08 mIoU under the
+naive selector, so the mid-layer idea is adopted as a scoped component
+insight. Every pending synthesis idea is now marked adopted or rejected with
+`exp/out_final/pending_idea_probes.json` (accuracy probes where cheap,
+cost/feasibility probes labelled as such); a saturation block records two
+rounds with zero new relevant papers in the last round. No shipped number or
+paper claim changed. PDF rebuilt, gate PASS.

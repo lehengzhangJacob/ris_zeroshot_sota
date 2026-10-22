@@ -897,8 +897,8 @@ def literature_deep_read():
         return fail(f"deep_read.json has only {inspected} source-code inspections; need >= 20")
     if ok_runs < 15:
         return fail(f"deep_read.json has only {ok_runs} successful repo runs; need >= 15")
-    if method_full < 14:
-        return fail(f"deep_read.json has only {method_full} full-split METHOD runs; need >= 14 (run to completion, not samples)")
+    if method_full < 18:
+        return fail(f"deep_read.json has only {method_full} full-split METHOD runs; need >= 18 (persistent loop)")
     mc = data.get("grefcoco_metric_check")
     if not isinstance(mc, dict):
         return fail("deep_read.json needs grefcoco_metric_check{}")
@@ -1031,8 +1031,8 @@ def literature_synthesis():
         if not isinstance(v, list) or len(v) < 3:
             return fail(f"coverage.{key} needs >= 3 entries")
     ideas = data.get("ideas")
-    if not isinstance(ideas, list) or len(ideas) < 10:
-        return fail("literature_synthesis.json needs ideas[] of length >= 10")
+    if not isinstance(ideas, list) or len(ideas) < 15:
+        return fail("literature_synthesis.json needs ideas[] of length >= 15 (pending ideas must be worked down)")
     for i, idea in enumerate(ideas):
         if not isinstance(idea, dict):
             return fail(f"idea {i} is not an object")
@@ -1045,10 +1045,27 @@ def literature_synthesis():
         src = idea.get("source_papers")
         if not isinstance(src, list) or len(src) < 1:
             return fail(f"idea {i} needs source_papers[] with >= 1 entry")
-        if idea["status"] != "pending":
-            ev = idea.get("evidence")
-            if not isinstance(ev, str) or not newer(ev):
-                return fail(f"idea {i} ({idea['status']}) needs fresh evidence")
+        if idea["status"] == "pending":
+            return fail(f"idea {i} is still pending --- a predicted idea must be tested (adopted/rejected with evidence) before the loop can pass")
+        ev = idea.get("evidence")
+        if not isinstance(ev, str) or not newer(ev):
+            return fail(f"idea {i} ({idea['status']}) needs fresh evidence")
+    sat = data.get("saturation")
+    if not isinstance(sat, dict):
+        return fail("literature_synthesis.json needs a saturation{} block")
+    rounds = sat.get("rounds")
+    if not isinstance(rounds, int) or rounds < 2:
+        return fail("saturation.rounds must be >= 2 (complete search rounds)")
+    last_new = sat.get("last_round_new")
+    if not isinstance(last_new, int):
+        return fail("saturation.last_round_new must be an int")
+    if last_new != 0:
+        return fail("saturation.last_round_new must be 0 --- saturation is not demonstrated")
+    qs = sat.get("queries")
+    if not isinstance(qs, list) or len(qs) < 3:
+        return fail("saturation.queries needs >= 3 entries")
+    if not isinstance(sat.get("verdict"), str) or not sat.get("verdict").strip():
+        return fail("saturation.verdict must be non-empty")
     gaps = data.get("gaps")
     if not isinstance(gaps, list) or len(gaps) < 5:
         return fail("literature_synthesis.json needs gaps[] of length >= 5")

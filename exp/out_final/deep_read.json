@@ -2608,6 +2608,94 @@
         "gIoU": 81.1,
         "cIoU": 80.0
        }
+      },
+      {
+       "entry": "exp/literature/repos/evfsam/eval.py --val_dataset refcoco+|unc|val",
+       "sample_n": 10758,
+       "status": "ok",
+       "kind": "method",
+       "full_split": true,
+       "split": "RefCOCO+ val",
+       "protocol": "official REFER split through the released EVF-SAM evaluator; all expressions grouped by image; released gIoU/cIoU; released YxZhang/evf-sam weights; no tuning",
+       "env": "glod-ris conda env + torchscale; released YxZhang/evf-sam weights; single-GPU torchrun",
+       "metrics": {
+        "gIoU": 77.9,
+        "cIoU": 75.2
+       },
+       "datasets": {
+        "refcocoplus_val": {
+         "n": 10758,
+         "metric": 75.2
+        }
+       }
+      },
+      {
+       "entry": "exp/literature/repos/evfsam/eval.py --val_dataset refcoco+|unc|testA",
+       "sample_n": 5726,
+       "status": "ok",
+       "kind": "method",
+       "full_split": true,
+       "split": "RefCOCO+ testA",
+       "protocol": "official REFER split through the released EVF-SAM evaluator; all expressions grouped by image; released gIoU/cIoU; released YxZhang/evf-sam weights; no tuning",
+       "env": "glod-ris conda env + torchscale; released YxZhang/evf-sam weights; single-GPU torchrun",
+       "metrics": {
+        "gIoU": 80.2,
+        "cIoU": 78.3
+       },
+       "datasets": {
+        "refcocoplus_testa": {
+         "n": 5726,
+         "metric": 78.3
+        }
+       }
+      },
+      {
+       "entry": "exp/literature/repos/evfsam/eval.py --val_dataset refcoco+|unc|testB",
+       "sample_n": 4889,
+       "status": "ok",
+       "kind": "method",
+       "full_split": true,
+       "split": "RefCOCO+ testB",
+       "protocol": "official REFER split through the released EVF-SAM evaluator; all expressions grouped by image; released gIoU/cIoU; released YxZhang/evf-sam weights; no tuning",
+       "env": "glod-ris conda env + torchscale; released YxZhang/evf-sam weights; single-GPU torchrun",
+       "metrics": {
+        "gIoU": 73.9,
+        "cIoU": 70.1
+       },
+       "datasets": {
+        "refcocoplus_testb": {
+         "n": 4889,
+         "metric": 70.1
+        }
+       }
+      },
+      {
+       "entry": "exp/literature/repos/evfsam/eval.py --val_dataset refcocog|umd|val",
+       "sample_n": 4896,
+       "status": "ok",
+       "kind": "method",
+       "full_split": true,
+       "split": "RefCOCOg val",
+       "protocol": "official REFER split through the released EVF-SAM evaluator; all expressions grouped by image; released gIoU/cIoU; released YxZhang/evf-sam weights; no tuning",
+       "env": "glod-ris conda env + torchscale; released YxZhang/evf-sam weights; single-GPU torchrun",
+       "metrics": {
+        "gIoU": 77.6,
+        "cIoU": 76.8
+       }
+      },
+      {
+       "entry": "exp/literature/repos/evfsam/eval.py --val_dataset refcocog|umd|test",
+       "sample_n": 9602,
+       "status": "ok",
+       "kind": "method",
+       "full_split": true,
+       "split": "RefCOCOg test",
+       "protocol": "official REFER split through the released EVF-SAM evaluator; all expressions grouped by image; released gIoU/cIoU; released YxZhang/evf-sam weights; no tuning",
+       "env": "glod-ris conda env + torchscale; released YxZhang/evf-sam weights; single-GPU torchrun",
+       "metrics": {
+        "gIoU": 78.4,
+        "cIoU": 77.4
+       }
       }
      ]
     }
@@ -3256,5 +3344,5 @@
   "finding": "official evaluation is per sentence (not per ref): a no-target true positive contributes I=U=0 and gIoU 1; a targeted false positive keeps the discarded mask's union in the cIoU denominator with I=0; N_acc=TP/(TP+FN) and T_acc=TN/(TN+FP) (reported as fractions). Our metric matches these definitions, with one deliberate difference: an empty-prediction abstention adds only the GT area to U instead of a discarded mask's union, which makes our abstention rows slightly cheaper in cIoU than the official FP convention. GreferDataset groups several sentences per ref with one merged GT, so per-sentence evaluation and per-sentence text alignment are required --- the exp172/exp173 corrections."
  },
  "verdict": "35+ full-text papers read; the selection diagnosis is corroborated by Venice-H1, S+S, Prompt Sensitivity and PinPoint, while MaskCLIP's own-pool result bounds it to pipelines whose pool contains the referent. Trained mask-group and graph-merge lines are adjacent, not same-class zero-shot baselines.",
- "method_full": 15
+ "method_full": 20
 }

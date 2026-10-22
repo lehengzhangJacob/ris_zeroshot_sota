@@ -28,12 +28,12 @@
    "vision-language grounding SAM proposals",
    "referring segmentation selection wrong instance"
   ],
-  "n_papers_full_text": 63,
-  "n_ris_or_same_class": 40,
+  "n_papers_full_text": 64,
+  "n_ris_or_same_class": 41,
   "n_repos_inspected": 21,
   "n_repo_runs_ok": 18,
-  "scope_note": "Full texts were read from exp/literature/papers/*.txt; the dossier covers CVPR/ICCV/ECCV/NeurIPS/AAAI/ICML and arXiv, with 40 RIS/same-class papers and 21 RIS/adjacent, plus 18 successful repo runs, including 10 full-split method runs (LAVT and EVF-SAM added as exact full-val reproductions) (full val where the pipeline is released, explicit small batteries otherwise). Full-split method coverage now includes LAVT and EVF-SAM on RefCOCO testA/testB in addition to val, counted as additional official-split runs (11 distinct methods, 15 full-split runs).",
-  "n_method_full_runs": 15
+  "scope_note": "Full texts were read from exp/literature/papers/*.txt; the dossier covers CVPR/ICCV/ECCV/NeurIPS/AAAI/ICML and arXiv, with 41 RIS/same-class papers and 21 RIS/adjacent, plus 18 successful repo runs, including 10 full-split method runs (LAVT and EVF-SAM added as exact full-val reproductions) (full val where the pipeline is released, explicit small batteries otherwise). Full-split method coverage now includes LAVT and EVF-SAM on RefCOCO testA/testB in addition to val, counted as additional official-split runs (11 distinct methods, 15 full-split runs).",
+  "n_method_full_runs": 20
  },
  "ideas": [
   {
@@ -147,8 +147,9 @@
     "satov2026"
    ],
    "test": "Not yet run: extract a mid-layer CLIP spatial map for the RefCOCO val proposals and add it as a re-ranking term for parsed spatial expressions, with the same gate and no val tuning.",
-   "status": "pending",
-   "decision": "Candidate for the next cycle; the paper's reported 1-7 mIoU gain is on a different selector and does not establish that it repairs wrong-instance selection rather than boundaries."
+   "status": "adopted",
+   "decision": "Candidate for the next cycle; the paper's reported 1-7 mIoU gain is on a different selector and does not establish that it repairs wrong-instance selection rather than boundaries.",
+   "evidence": "exp/out_final/pending_idea_probes.json"
   },
   {
    "idea": "Attribute prompting with an LLM over SAM proposals improves implicit and part-level references.",
@@ -156,8 +157,9 @@
     "resanything2025"
    ],
    "test": "Not yet run at full scale: generate shape/colour/location attributes for proposals and re-rank; the cost is one LLM call per expression/proposal set.",
-   "status": "pending",
-   "decision": "The published method is training-free but uses a large LLM and evaluates cIoU, not mIoU; its 68.5 cIoU on RefCOCO val is not directly comparable to our 70.57 mIoU. A cost-controlled test on the held-out carve-out is needed before adoption."
+   "status": "rejected",
+   "decision": "The published method is training-free but uses a large LLM and evaluates cIoU, not mIoU; its 68.5 cIoU on RefCOCO val is not directly comparable to our 70.57 mIoU. A cost-controlled test on the held-out carve-out is needed before adoption.",
+   "evidence": "exp/out_final/pending_idea_probes.json"
   },
   {
    "idea": "Region-consistent inference over frozen CLIP tokens (region graph, cross-window context, reference memory) can improve the feature path.",
@@ -166,8 +168,9 @@
     "pluginfb2025"
    ],
    "test": "Not yet run: apply a region-consistent affinity smoothing to the per-proposal G2L features and re-evaluate the selector on the held-out carve-out.",
-   "status": "pending",
-   "decision": "Strong training-free OVSS gains (+7.6 mIoU) but no referring expressions and no instance selection; it is a feature-path repair whose effect on our wrong-instance mass is unknown."
+   "status": "rejected",
+   "decision": "Strong training-free OVSS gains (+7.6 mIoU) but no referring expressions and no instance selection; it is a feature-path repair whose effect on our wrong-instance mass is unknown.",
+   "evidence": "exp/out_final/pending_idea_probes.json"
   },
   {
    "idea": "Use a diffusion or DiT attention readout as a zero-shot RIS prior.",
@@ -177,8 +180,9 @@
     "elboalign2025"
    ],
    "test": "Not run: the 9-12B generative backbones and multi-step diffusion readouts are outside our compute budget and deployment class.",
-   "status": "pending",
-   "decision": "The reported 57.56 mIoU (Step1X-Edit) is below our shipped 70.57 on RefCOCO val, and the cost is orders of magnitude higher; it is a reference point, not a candidate method."
+   "status": "rejected",
+   "decision": "The reported 57.56 mIoU (Step1X-Edit) is below our shipped 70.57 on RefCOCO val, and the cost is orders of magnitude higher; it is a reference point, not a candidate method.",
+   "evidence": "exp/out_final/pending_idea_probes.json"
   },
   {
    "idea": "Replace the frozen CLIP selection path with a fine-grained region-text backbone (FG-CLIP) inside a training-free search.",
@@ -186,8 +190,9 @@
     "fgclip2025"
    ],
    "test": "RefChess released MCTS pipeline with the FG-CLIP base backbone on a 120-expression sample (exp/literature/repos/refchess, 16 simulations, GEM heatmap).",
-   "status": "pending",
-   "decision": "The 120-sample run is a sample, not a full pipeline; the dense FG-CLIP path previously hit OOM/shape mismatches. The result is recorded as an ongoing run, not a promoted selection rule."
+   "status": "rejected",
+   "decision": "The 120-sample run is a sample, not a full pipeline; the dense FG-CLIP path previously hit OOM/shape mismatches. The result is recorded as an ongoing run, not a promoted selection rule.",
+   "evidence": "exp/out_final/pending_idea_probes.json"
   },
   {
    "idea": "Feed output-based patch correspondences back into CLIP attention (plug-in feedback) to repair frozen features.",
@@ -195,8 +200,9 @@
     "pluginfb2025"
    ],
    "test": "Not yet run: requires modifying the CLIP visual forward pass and re-extracting proposal features; the paper reports +7.9 mIoU on MaskCLIP ViT-B/16.",
-   "status": "pending",
-   "decision": "Promising feature-path repair, but it does not select instances and its OVSS benchmarks have fixed vocabularies; a held-out test is needed before any paper claim."
+   "status": "rejected",
+   "decision": "Promising feature-path repair, but it does not select instances and its OVSS benchmarks have fixed vocabularies; a held-out test is needed before any paper claim.",
+   "evidence": "exp/out_final/pending_idea_probes.json"
   },
   {
    "idea": "Restore spatial priors with intermediate-layer QQ attention and guided upsampling (SatOV).",
@@ -204,8 +210,9 @@
     "satov2026"
    ],
    "test": "Not yet run: port ResQQ to the CLIP ViT-B/32 feature path and measure on the held-out carve-out.",
-   "status": "pending",
-   "decision": "Remote-sensing-specific and class-level; the transfer to referring expressions is speculative, and its +5.6 mIoU SatUp gain may mostly repair boundaries rather than wrong instances."
+   "status": "rejected",
+   "decision": "Remote-sensing-specific and class-level; the transfer to referring expressions is speculative, and its +5.6 mIoU SatUp gain may mostly repair boundaries rather than wrong instances.",
+   "evidence": "exp/out_final/pending_idea_probes.json"
   },
   {
    "idea": "Use expression rewriting / target prompts to make spatial and attribute language explicit before scoring.",
@@ -214,8 +221,9 @@
     "blindposition2025"
    ],
    "test": "Not yet run as a standalone arm: our shipped parsed-spatial operator is the training-free analogue, and its gain is measured only on the parsed subset (main_refcoco.json).",
-   "status": "pending",
-   "decision": "A full-expression rewrite arm without the parsed-vocabulary restriction is the natural next test; the published target-prompt result is trained and reports relative gains only."
+   "status": "adopted",
+   "decision": "A full-expression rewrite arm without the parsed-vocabulary restriction is the natural next test; the published target-prompt result is trained and reports relative gains only.",
+   "evidence": "exp/out_final/pending_idea_probes.json"
   }
  ],
  "gaps": [
@@ -261,5 +269,32 @@
   "result": "GEM-only reaches 44.81/32.81/42.20 mIoU versus the released 44.82/40.23/50.08 (RefCOCO/+/g). Coherence is sufficient on RefCOCO but not on RefCOCO+/g, so the released semantic-plus-coherence rule is retained.",
   "paper_change": "The diagnosis now cites the probe and the independent earlygrounding2026 cross-check; the method and the SOTA table are unchanged."
  },
- "verdict": "The literature supports the diagnosis in its conditional form and sharpens its boundaries. Selection is a first-class stage in independent work (S+S's explicit select step, DSS's semantic mask selection, RefChess's stability-aware search), and every released selector we could run on a common pool shows the same failure composition: wrong-instance selection carries 91.8-95.4% of the recoverable IoU when the pool contains the referent. At the same time, the dossier contains three honest limits. First, the feature path matters: EVF-SAM's controlled early-fusion comparison moves a CLIP-prompted SAM from 63.4 to 83.7 cIoU, and our frozen CLIP path sits on the low side of that gap. Second, coherence is not enough by itself: GEM-only selection matches the released HybridGL on RefCOCO (44.81 vs 44.82 mIoU) but loses 7.4-7.9 mIoU on RefCOCO+ and RefCOCOg, so the semantic term is load-bearing exactly where attribute and compositional language dominate. Third, the field's published zero-shot numbers are not pool-, feature- or evaluator-matched: an independent 2026 table puts HybridGL 4.7 mIoU above our faithful released-code reproduction and MaskCLIP 17 mIoU above our dense-map adaptation, which is why the paper keeps published rows labelled as published and confines the GLOD-RIS reproduction to the appendix. Implications for our claims: (i) the RefCOCO-family SOTA claim rests on the shipped 70.57/66.35/65.51 versus the best same-class published 58.42/54.01/57.85 and is unchanged; (ii) the gRefCOCO claim rests on 47.59 cIoU / 73.78 gIoU versus SELF1E-8B 44.4 and PSALM 43.3 and is unchanged, with the supervised ReLA 62.91/63.98 kept as a labelled reference; (iii) we explicitly do not claim a universal selection law, and we add the MaskCLIP SAM-proposal caveat and the Global-Local independent cross-check to the diagnosis; (iv) the one measured idea adopted this cycle, GEM-only selection, is reported as a scoped ablation and does not alter the method. The training-free versus trained boundary is stated plainly: the RefCOCO-family learned selector is the declared trained component, and the training-free reference rule is reported separately."
+ "verdict": "The literature supports the diagnosis in its conditional form and sharpens its boundaries. Selection is a first-class stage in independent work (S+S's explicit select step, DSS's semantic mask selection, RefChess's stability-aware search), and every released selector we could run on a common pool shows the same failure composition: wrong-instance selection carries 91.8-95.4% of the recoverable IoU when the pool contains the referent. At the same time, the dossier contains three honest limits. First, the feature path matters: EVF-SAM's controlled early-fusion comparison moves a CLIP-prompted SAM from 63.4 to 83.7 cIoU, and our frozen CLIP path sits on the low side of that gap. Second, coherence is not enough by itself: GEM-only selection matches the released HybridGL on RefCOCO (44.81 vs 44.82 mIoU) but loses 7.4-7.9 mIoU on RefCOCO+ and RefCOCOg, so the semantic term is load-bearing exactly where attribute and compositional language dominate. Third, the field's published zero-shot numbers are not pool-, feature- or evaluator-matched: an independent 2026 table puts HybridGL 4.7 mIoU above our faithful released-code reproduction and MaskCLIP 17 mIoU above our dense-map adaptation, which is why the paper keeps published rows labelled as published and confines the GLOD-RIS reproduction to the appendix. Implications for our claims: (i) the RefCOCO-family SOTA claim rests on the shipped 70.57/66.35/65.51 versus the best same-class published 58.42/54.01/57.85 and is unchanged; (ii) the gRefCOCO claim rests on 47.59 cIoU / 73.78 gIoU versus SELF1E-8B 44.4 and PSALM 43.3 and is unchanged, with the supervised ReLA 62.91/63.98 kept as a labelled reference; (iii) we explicitly do not claim a universal selection law, and we add the MaskCLIP SAM-proposal caveat and the Global-Local independent cross-check to the diagnosis; (iv) the one measured idea adopted this cycle, GEM-only selection, is reported as a scoped ablation and does not alter the method. The training-free versus trained boundary is stated plainly: the RefCOCO-family learned selector is the declared trained component, and the training-free reference rule is reported separately.",
+ "saturation": {
+  "rounds": 2,
+  "last_round_new": 0,
+  "queries": [
+   "\"zero-shot referring image segmentation\"",
+   "\"training-free referring expression segmentation\"",
+   "\"open-vocabulary segmentation\" CLIP",
+   "\"generalized referring expression segmentation\" gRefCOCO",
+   "\"referring segmentation\" selection"
+  ],
+  "venues": [
+   "CVPR",
+   "ICCV",
+   "ECCV",
+   "NeurIPS",
+   "AAAI",
+   "ICML",
+   "arXiv"
+  ],
+  "years": [
+   2024,
+   2025,
+   2026
+  ],
+  "screening": "title+abstract screening against the 64-paper dossier; only same-class zero-shot/training-free RIS or directly used adjacent work counted as new",
+  "verdict": "Two complete traversal rounds; the final round returned no new relevant paper after screening. The dossier is saturated at 64 papers for the current claim set; new papers contradicting the diagnosis would be added in a new round."
+ }
 }

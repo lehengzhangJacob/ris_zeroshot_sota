@@ -1,0 +1,7 @@
+{
+  "n": 20,
+  "protocol": "20 RefCOCO val expressions; cached SAM proposals; open_clip ViT-B/32 patch-token pooling; text = full sentence; argmax cosine; selected IoU averaged",
+  "mid_layer_6_mIoU": 4.324585893446056,
+  "final_layer_11_mIoU": 0.07883144018705934,
+  "source": "blindposition2025 mid-layer idea; component probe, not a RIS method reproduction"
+}

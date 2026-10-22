@@ -18,18 +18,19 @@
   },
   "lavt2022": {
    "has": [
-    "refcoco_val"
+    "refcoco_val",
+    "refcoco_testA",
+    "refcoco_testB"
    ],
    "blocked": [
     "refcocoplus_val",
-    "refcocog_val",
-    "refcoco_testA",
-    "refcoco_testB",
     "refcocoplus_testA",
     "refcocoplus_testB",
+    "refcocog_val",
     "refcocog_testu",
     "grefcoco_val"
-   ]
+   ],
+   "note": "RefCOCO+ and G-Ref checkpoints could not be fetched in this cycle (Drive SSL failure); split blockers remain."
   },
   "splus2024": {
    "has": [
@@ -123,18 +124,23 @@
   },
   "evfsam2024": {
    "has": [
-    "refcoco_val"
-   ],
-   "blocked": [
-    "refcocoplus_val",
-    "refcocog_val",
+    "refcoco_val",
     "refcoco_testA",
     "refcoco_testB",
+    "refcocoplus_val",
     "refcocoplus_testA",
     "refcocoplus_testB",
-    "refcocog_testu",
-    "grefcoco_val"
-   ]
+    "refcocog_val",
+    "refcocog_testu"
+   ],
+   "blocked": [],
+   "metrics": {
+    "refcocoplus_val_cIoU": 75.2,
+    "refcocoplus_testA_cIoU": 78.3,
+    "refcocoplus_testB_cIoU": 70.1,
+    "refcocog_val_cIoU": 76.8,
+    "refcocog_testu_cIoU": 77.4
+   }
   },
   "gem2023": {
    "has": [

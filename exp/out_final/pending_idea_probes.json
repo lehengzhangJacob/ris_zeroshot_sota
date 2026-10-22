@@ -1,0 +1,69 @@
+{
+ "what": "Measured probes for every pending literature-synthesis idea (2026-10-22 persistent-loop directive). Accuracy probes were run where the idea was cheap and cache-compatible; cost/feasibility probes are labelled as such and do not claim an accuracy result.",
+ "probes": [
+  {
+   "idea": "mid-layer spatial maps",
+   "status": "adopted",
+   "test": "20 RefCOCO val expressions, cached SAM proposals, open_clip ViT-B/32 patch-token pooling under each proposal, full-sentence text, argmax cosine; compare block 6 vs final block 11",
+   "result": "mid-layer 4.32 mIoU vs final 0.08 mIoU under the naive selector (+4.25 mIoU); mid-layer features carry more usable region signal, but the absolute level is far below the shipped selector",
+   "evidence": "exp/out_final/midlayer_probe.json",
+   "decision": "adopted as a scoped component insight, not a shipped change"
+  },
+  {
+   "idea": "attribute prompting with an LLM over proposals",
+   "status": "rejected",
+   "test": "measured component cost: LLaVA-OneVision-7B latency from complexity.json (37.7 s/query warm under contention; 0.6-1.8 s/expression historical) extrapolated to 26,488 expressions with 8 proposals/expression",
+   "result": "~277 h at the measured warm latency for the full three-val family, plus one LLM call per proposal; not feasible within the shared budget",
+   "evidence": "exp/out_final/complexity.json",
+   "decision": "rejected on measured cost; no accuracy claim"
+  },
+  {
+   "idea": "region-consistent inference over frozen CLIP tokens",
+   "status": "rejected",
+   "test": "feasibility probe: the shipped cache stores proposal scores/masks, not the token graph or reference memory; re-extracting per-image token graphs costs a fresh CLIP forward per image (complexity.json feature-path cost) and the method has no referring-expression conditioning",
+   "result": "requires a new feature-extraction pass and does not select among same-class proposals; not adopted in this cycle",
+   "evidence": "exp/out_final/complexity.json",
+   "decision": "rejected on feasibility/scope, not accuracy"
+  },
+  {
+   "idea": "diffusion or DiT attention readout",
+   "status": "rejected",
+   "test": "cost probe from the dossier: earlygrounding2026 uses a 9-12B editing DiT; MAVISEG uses a diffusion transformer; our frozen path is ~0.4B CLIP + SAM and the public rows are 57.56 mIoU (earlygrounding), below the shipped 70.57 RefCOCO val",
+   "result": "10-30x parameter cost with no zero-shot SOTA gain over the shipped row; not adopted",
+   "evidence": "exp/out_final/deep_read_critique_evidence.json",
+   "decision": "rejected on measured cost and published level"
+  },
+  {
+   "idea": "FG-CLIP/RefChess full search",
+   "status": "rejected",
+   "test": "120-expression RefChess run with FG-CLIP base + GEM (16 sims): 54.13 mIoU / 52.60 oIoU / acc@0.5 62.5; full split would take ~5.3 h/dataset; no full-split result",
+   "result": "sample-level only; not adopted as a full pipeline",
+   "evidence": "exp/literature/repos/refchess/out_mcts/exp12_13_120.json",
+   "decision": "rejected at full-scale (sample insufficient for a paper method number)"
+  },
+  {
+   "idea": "plug-in output-feedback attention",
+   "status": "rejected",
+   "test": "feasibility probe: requires modifying the CLIP visual forward pass and re-extracting every proposal feature; the paper reports OVSS class maps, not instance selection, and our wrong-instance gap is a selection failure",
+   "result": "no training-free path to apply it without a full feature re-extraction; not adopted",
+   "evidence": "exp/out_final/deep_read_critique_evidence.json",
+   "decision": "rejected on scope/feasibility"
+  },
+  {
+   "idea": "SatOV spatial-prior restoration",
+   "status": "rejected",
+   "test": "dossier review: SatOV is remote-sensing OVSS with fixed class vocabularies and DOTA/UDD/LoveDA/Vaihingen benchmarks; no RefCOCO-family or expression-conditioned evaluation",
+   "result": "domain/task mismatch; its +5.6 mIoU SatUp gain is not transferable to referring selection",
+   "evidence": "exp/out_final/deep_read_critique_evidence.json",
+   "decision": "rejected on scope"
+  },
+  {
+   "idea": "expression rewriting / target prompts",
+   "status": "adopted",
+   "test": "cached full-sentence vs noun-phrase box-prior comparison on 1,500 rows (wild_ideas.json): sentence 68.321 vs noun 53.843 mIoU, delta +14.478; paraphrase test changed 0/608 selections",
+   "result": "the full-sentence text form is already the shipped box-prior protocol; expression rewriting is adopted in that limited form",
+   "evidence": "exp/out_final/wild_ideas.json",
+   "decision": "adopted (shipped text protocol)"
+  }
+ ]
+}
