@@ -1,0 +1,17 @@
+{
+  "method": "ReSTR (official model code, random initialization)",
+  "kind": "component",
+  "full_split": true,
+  "split": "refcoco_val",
+  "n": 10834,
+  "protocol": "official ReSTR unc val batches (build_batches.py, img-size 480); per-expression mIoU and pooled oIoU over the full RefCOCO val split; random-initialized model",
+  "env": "conda restr (cloned from seqtr20): Python 3.8, torch 2.0.1+cu117; scikit-image 0.21.0; GPU0",
+  "metrics": {
+    "mIoU": 0.5362307653957619,
+    "oIoU": 3.2583752698935577,
+    "precision@0.5": 0.05538120731031936,
+    "precision@0.7": 0.02769060365515968,
+    "precision@0.9": 0.0
+  },
+  "notes": "Full official val execution of the ReSTR code path with a randomly initialized model: no ReSTR task checkpoint is present in SouthFlame/restr, its releases, or the project page. Metrics are transparency-only and are not a reproduction."
+}

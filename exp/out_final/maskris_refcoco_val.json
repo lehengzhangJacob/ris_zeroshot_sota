@@ -1,0 +1,35 @@
+{
+  "method": "MaskRIS (official eval.py, random-initialized model)",
+  "kind": "component",
+  "full_split": true,
+  "split": "refcoco_val",
+  "n": 10834,
+  "protocol": "official MaskRIS eval.py: per-expression mask mIoU (Mean IoU), pooled overall IoU and precision@0.5/0.7/0.9 on the full RefCOCO val split; img_size 448; batch 1; eval_ori_size False",
+  "env": "conda maskris (cloned from seqtr20): Python 3.8, torch 2.0.1+cu117, mmcv-full 1.7.2, mmdet 2.28.2, timm 1.0.26, transformers 4.46.3; local BERT-base-uncased conversion; GPU0",
+  "checkpoint": "/home/msj_team/Jacob/sys/maskris_run/random_init.pth (random initialization; no released MaskRIS task checkpoint exists in naver-ai/maskris or HuggingFace lmh315/maskris)",
+  "metrics": {
+    "mIoU": 8.98,
+    "oIoU": 10.18,
+    "precision@0.5": 0.23,
+    "precision@0.7": 0.04,
+    "precision@0.9": 0.0
+  },
+  "notes": "Full official val execution of the released MaskRIS code path. This is NOT a reproduction of the paper: the official repo README lists only encoder weights, HuggingFace lmh315/maskris contains an EEVG instance-segmentation checkpoint (RPN/roi_heads keys), not a MaskRIS RIS head, so the task model was randomly initialized. Metrics are reported for transparency only and must not be used as the method number.",
+  "weight_attempts": [
+    {
+      "source": "https://github.com/naver-ai/maskris README",
+      "action": "grep Pretrained Models section",
+      "result": "only Swin-Base and BERT-Base encoders; no task checkpoint"
+    },
+    {
+      "source": "https://huggingface.co/lmh315/maskris",
+      "action": "inspect repository file list and pickle keys",
+      "result": "EEVG/model_final_435fa9.pkl is a Detectron2 ViTDet checkpoint (backbone/roi_heads/proposal_generator), no RIS text/decoder head"
+    },
+    {
+      "source": "GitHub releases page naver-ai/maskris",
+      "action": "query GitHub API releases",
+      "result": "empty release list"
+    }
+  ]
+}

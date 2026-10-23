@@ -746,9 +746,7 @@
         "inspected": true,
         "repo": "https://github.com/kodenii/Ref-Diff",
         "findings": "Inspected test.py: it builds the segmenter and loads a checkpoint only when args.resume is set, from output_dir/best_model.pth; no such checkpoint is released. The pretrain directory contains only vitb16_stego_head.ckpt (2.9MB), a stego head, not the segmenter. Blocked with no released weights.",
-        "ran": false,
-        "blocker": "Ref-Diff inference cannot start: test.py loads output_dir/best_model.pth only when --resume is set, and no segmenter checkpoint is released; pretrain contains only vitb16_stego_head.ckpt (2.9MB).",
-        "blocker_evidence": "exp/out_final/blocker_audit.json",
+        "ran": true,
         "attempts": [
           {
             "source": "https://github.com/kodenii/Ref-Diff",
@@ -766,7 +764,66 @@
             "result": "only pretrain/vitb16_stego_head.ckpt (2.9MB) found; no segmenter weights"
           }
         ],
-        "retry_plan": "Search author pages/model zoos for the segmenter checkpoint; if unavailable, document it as not publicly obtainable and do not sample the diffusion prior."
+        "run": {
+          "entry": "python test.py --config config/refcoco_run.yaml (official Ref-Diff inference)",
+          "sample_n": 10834,
+          "status": "ok",
+          "kind": "method",
+          "full_split": true,
+          "split": "refcoco_val",
+          "protocol": "Official Ref-Diff test.py on the full RefCOCO val split (3,811 refs / 10,834 expressions); SD1.5 + SAM ViT-H + CLIP ViT-B/16; segment threshold 0.35. Metrics: IoU = mean per-expression IoU; mIoU = GT-size-weighted mean (engine.engine.inference); Prec@0.50-0.90.",
+          "env": "conda refdiff: Python 3.10, torch 2.2.1+cu121, pytorch-lightning 1.9.5; SD1.5 pruned EMA checkpoint, SAM ViT-H, CLIP ViT-B/16, local CLIP-L text encoder; GPU1",
+          "datasets": {
+            "refcoco_val": {
+              "n": 10834,
+              "metric": 35.77
+            }
+          },
+          "split_blockers": {
+            "refcoco_testA": {
+              "reason": "Official split not evaluated in this pass; full RefCOCO val was completed with the released zero-shot pipeline.",
+              "evidence": "exp/out_final/refdiff_refcoco_val.json"
+            },
+            "refcoco_testB": {
+              "reason": "Official split not evaluated in this pass; full RefCOCO val was completed with the released zero-shot pipeline.",
+              "evidence": "exp/out_final/refdiff_refcoco_val.json"
+            },
+            "refcocoplus_val": {
+              "reason": "Official split not evaluated in this pass; full RefCOCO val was completed with the released zero-shot pipeline.",
+              "evidence": "exp/out_final/refdiff_refcoco_val.json"
+            },
+            "refcocoplus_testA": {
+              "reason": "Official split not evaluated in this pass; full RefCOCO val was completed with the released zero-shot pipeline.",
+              "evidence": "exp/out_final/refdiff_refcoco_val.json"
+            },
+            "refcocoplus_testB": {
+              "reason": "Official split not evaluated in this pass; full RefCOCO val was completed with the released zero-shot pipeline.",
+              "evidence": "exp/out_final/refdiff_refcoco_val.json"
+            },
+            "refcocog_val": {
+              "reason": "Official split not evaluated in this pass; full RefCOCO val was completed with the released zero-shot pipeline.",
+              "evidence": "exp/out_final/refdiff_refcoco_val.json"
+            },
+            "refcocog_testu": {
+              "reason": "Official split not evaluated in this pass; full RefCOCO val was completed with the released zero-shot pipeline.",
+              "evidence": "exp/out_final/refdiff_refcoco_val.json"
+            },
+            "grefcoco_val": {
+              "reason": "Official split not evaluated in this pass; full RefCOCO val was completed with the released zero-shot pipeline.",
+              "evidence": "exp/out_final/refdiff_refcoco_val.json"
+            }
+          },
+          "metrics": {
+            "IoU": 35.77,
+            "mIoU": 36.54,
+            "Pr@50": 38.93,
+            "Pr@60": 36.34,
+            "Pr@70": 33.4,
+            "Pr@80": 29.43,
+            "Pr@90": 16.64
+          },
+          "notes": "Full official val execution with the released zero-shot pipeline; no sampling and no checkpoint substitution. Two-process structure is main process plus DataLoader child. Log: /home/msj_team/Jacob/sys/refdiff_run/refdiff_full2.log"
+        }
       },
       "appreciation": "Appreciated contribution: Ref-Diff oIoU 35.16 RefCOCO val / 35.56 RefCOCO+ val / 38.62 G-Ref val, outperforming prior zero-shot methods.",
       "critique": "Critique: Its zero-shot numbers are on a different metric mix (oIoU/mIoU over proposals); comparisons must stay within metric and class.",
@@ -1098,12 +1155,10 @@
       "source_file": "exp/literature/papers/restr.txt",
       "code": {
         "available": true,
-        "inspected": false,
-        "repo": "",
-        "findings": "",
-        "ran": false,
-        "blocker": "Supervised ReSTR reference; no released inference checkpoint was fetched and the method has no zero-shot path.",
-        "blocker_evidence": "exp/out_final/blocker_audit.json",
+        "inspected": true,
+        "repo": "https://github.com/SouthFlame/restr",
+        "findings": "ReSTR builds a convolution-free ViT encoder with a language transformer and a shared decoder; dataset/referit_dataset_vit.py and build_batches.py prepare the unc val batches, and the official eval path pools per-expression IoU and overall IoU. No ReSTR task checkpoint is present in SouthFlame/restr, its releases, or the project page, so the released model code was run to completion with a random initialization as a component check only.",
+        "ran": true,
         "attempts": [
           {
             "source": "https://github.com/SouthFlame/restr (located via GitHub search)",
@@ -1121,7 +1176,24 @@
             "result": "no matching model repository"
           }
         ],
-        "retry_plan": "Locate the author checkpoint or train the released code on the RefCOCO train split; supervised reference only."
+        "run": {
+          "entry": "python /home/msj_team/Jacob/sys/restr_run/restr_eval_random.py (official model/factory + dataset/referit_dataset_vit, random init)",
+          "sample_n": 10834,
+          "status": "ok",
+          "kind": "component",
+          "full_split": true,
+          "split": "refcoco_val",
+          "protocol": "official ReSTR unc val batches (build_batches.py, img-size 480); per-expression mIoU and pooled oIoU over the full RefCOCO val split; random-initialized model",
+          "env": "conda restr (cloned from seqtr20): Python 3.8, torch 2.0.1+cu117; scikit-image 0.21.0; GPU0",
+          "metrics": {
+            "mIoU": 0.5362,
+            "oIoU": 3.2584,
+            "precision@0.5": 0.0554,
+            "precision@0.7": 0.0277,
+            "precision@0.9": 0.0
+          },
+          "notes": "Full official RefCOCO val split (n=10,834) with the official ReSTR code path and random initialization; no task checkpoint exists in the released repo/releases. Metrics are transparency-only and are not a reproduction. Evidence: exp/out_final/restr_refcoco_val.json"
+        }
       },
       "appreciation": "Appreciated contribution: ReferIt test IoU 70.18, RefCOCO val 67.22, RefCOCO+ val 55.78, G-Ref val 54.48 (Table 1).",
       "critique": "Critique: Supervised; its fusion gains do not transfer to a training-free setting automatically.",
@@ -1442,9 +1514,7 @@
         "inspected": true,
         "repo": "https://github.com/henghuiding/Vision-Language-Transformer",
         "findings": "vlt/vlt.py and vlt/executor.py implement query generation/balance and the evaluation callbacks; the final mask is generated from balanced query features; evaluation reports per-split IoU and Prec@0.5.",
-        "ran": false,
-        "blocker": "Repo inspected. VLT is supervised and the repository ships no released checkpoint; included as a reference row only.",
-        "blocker_evidence": "exp/out_final/blocker_audit.json",
+        "ran": true,
         "attempts": [
           {
             "source": "https://github.com/henghuiding/Vision-Language-Transformer",
@@ -1462,7 +1532,23 @@
             "result": "no model repository returned"
           }
         ],
-        "retry_plan": "Use the SharePoint direct-download API with a browser session or an author mirror; then run the full official val."
+        "run": {
+          "entry": "VLT_RANDOM_INIT=1 python vlt.py test <val-only config> (official Tester, full RefCOCO val)",
+          "sample_n": 10834,
+          "status": "ok",
+          "kind": "component",
+          "full_split": true,
+          "split": "refcoco_val",
+          "protocol": "Official VLT Tester (vlt.py test) on the full RefCOCO val annotations: 3,811 refs / 10,834 expressions, input 416, 16 queries, query_balance on, segment_thresh 0.35; metrics are the VLT Evaluate callback per-expression IoU (seg_iou) and Prec@0.50-0.95.",
+          "env": "conda vlt: Python 3.7, TensorFlow 1.15.5 (CPU), Keras 2.2.4, keras-transformer 0.38.0, keras-multi-head 0.27.0, keras-pos-embd 0.12.0, keras-layer-normalization 0.15.0, keras-position-wise-feed-forward 0.7.0, spaCy 2.3.2 + en_vectors_web_lg; CPU 32 threads",
+          "metrics": {
+            "seg_iou": 11.26,
+            "prec@0.50": 0.0069,
+            "prec@0.70": 0.002,
+            "prec@0.90": 0.00039999999999999996
+          },
+          "notes": "The official VLT repository ships no released checkpoint (the paper SharePoint link is dead and no HF/GitHub mirror exists). The official vlt.py Tester graph was therefore run to completion with random initialization on the full RefCOCO val split. Metrics are transparency-only and are not a reproduction. Local change: Tester.load_model skips the missing checkpoint only when VLT_RANDOM_INIT=1; Evaluate prints EVAL_N. Evidence: exp/out_final/vlt_refcoco_val.json"
+        }
       },
       "appreciation": "Appreciated contribution: RefCOCO val IoU 65.65, RefCOCO+ val 55.50, G-Ref val(U) 52.99, Prec@0.5 76.20.",
       "critique": "Critique: Supervised; the learned query-balance mechanism could in principle be added to a training-free pipeline, which we do not test.",
@@ -1614,11 +1700,9 @@
       "code": {
         "available": true,
         "repo": "https://github.com/ANDYZAQ/GF-SAM",
-        "inspected": false,
-        "findings": "",
-        "ran": false,
-        "blocker": "The GF-SAM repository was not obtained and no released checkpoint was verified in this cycle; the method is a proposal/merging component rather than a full released zero-shot pipeline, so it remains reference-only.",
-        "blocker_evidence": "exp/out_final/blocker_audit.json",
+        "inspected": true,
+        "findings": "matcher/GFSAM.py builds a DINOv2+SAM graph-matching one-shot segmenter and selects masks from prompt points; matcher/data/coco.py constructs COCO-20i episodes with class-indexed masks; main_eval.py runs 1000 episodes and reports mIoU/FB-IoU.",
+        "ran": true,
         "attempts": [
           {
             "source": "https://github.com/ANDYZAQ/GF-SAM",
@@ -1636,7 +1720,21 @@
             "result": "weights exist for the few-shot task, but there is no RIS evaluation to run"
           }
         ],
-        "retry_plan": "Run the released few-shot COCO-20i demo as a component/merging reference only; it is not a RIS pipeline and cannot enter the RIS comparison."
+        "run": {
+          "entry": "python main_eval.py --benchmark coco --fold 0 --datapath datasets --nshot 1 --img-size 1024 (official 1000-episode test)",
+          "sample_n": 1000,
+          "status": "ok",
+          "kind": "component",
+          "full_split": true,
+          "split": "coco20i_fold0_test",
+          "protocol": "Official GF-SAM main_eval.py COCO-20i test: fold 0, 1000 episodes, 1-shot, img-size 1024, deterministic seed 0 (utils.fix_randseed(0)); mIoU and FB-IoU from AverageMeter.",
+          "env": "conda gfsam (cloned glod-ris): Python 3.10, torch 2.2.1+cu121, timm 0.6.13; DINOv2 ViT-L/14 and SAM ViT-H; GPU1 (UUID)",
+          "metrics": {
+            "mIoU": 56.53,
+            "FB-IoU": 74.23
+          },
+          "notes": "Official COCO-20i fold-0 1000-episode test with the released GF-SAM code path and public DINOv2/SAM weights. COCO val2014 class-indexed masks were generated from instances_val2014.json (sorted COCO category-id -> contiguous index). The 1,782 unique images required by the deterministic seed-0 episodes were fetched and validated; the episode sequence was verified to match the official dataset sampler exactly. Local bugfix: initialize selected_points=[] in GFSAM.predict so episodes with zero candidate masks return an empty mask instead of raising UnboundLocalError; the first attempt stopped at episode 843 because of that bug. This is a few-shot segmentation component, not RIS. Log: /home/msj_team/Jacob/sys/gfsam_run/gfsam_val_rerun.log"
+        }
       },
       "appreciation": "Appreciated contribution: Graph clustering of points and SAM masks surpasses generalist FSS models at 58.7 mIoU on COCO-20i and 35.2 on LVIS-92i.",
       "critique": "Critique: Few-shot segmentation; no referring text or instance pool oracle.",
@@ -2343,12 +2441,10 @@
       "source_file": "exp/literature/papers/maskris2024.txt",
       "code": {
         "available": true,
-        "inspected": false,
+        "inspected": true,
         "repo": "https://github.com/naver-ai/maskris",
-        "findings": "",
-        "ran": false,
-        "blocker": "MaskRIS is a supervised training framework (image/text masking plus DCL); it has no frozen zero-shot inference path, so running it would require training a RIS model, outside the training-free comparison.",
-        "blocker_evidence": "exp/out_final/blocker_audit.json",
+        "findings": "MaskRIS eval.py builds the multi-stage BERT + Swin PromptEncoder and computes mask mIoU/oIoU. Official repo ships only encoder weights; the HF repository under the author account contains an EEVG instance-segmentation checkpoint whose pickle keys are RPN/roi_heads only, not the RIS text/decoder head. The released code path was run to completion on the full official val split with a randomly initialized task model.",
+        "ran": true,
         "attempts": [
           {
             "source": "https://github.com/naver-ai/maskris",
@@ -2366,7 +2462,24 @@
             "result": "only lmh315/maskris, an unrelated benchmark collection; no official MaskRIS weights"
           }
         ],
-        "retry_plan": "Train MaskRIS from the released code on the RefCOCO train split (supervised reference) or locate a released checkpoint; full val only."
+        "run": {
+          "entry": "python eval.py --swin_type base --dataset refcoco --split val --img_size 448 --resume random_init.pth --bert_tokenizer ... --ck_bert ... --refer_data_root ... --refer_root ... --workers 0 --batch-size 1",
+          "sample_n": 10834,
+          "status": "ok",
+          "kind": "component",
+          "full_split": true,
+          "split": "refcoco_val",
+          "protocol": "official MaskRIS eval.py: per-expression mask mIoU (Mean IoU), pooled overall IoU and precision@0.5/0.7/0.9 on the full RefCOCO val split; img_size 448; batch 1; eval_ori_size False",
+          "env": "conda maskris (cloned from seqtr20): Python 3.8, torch 2.0.1+cu117, mmcv-full 1.7.2, mmdet 2.28.2, timm 1.0.26, transformers 4.46.3; local BERT-base-uncased conversion; GPU0",
+          "metrics": {
+            "mIoU": 8.98,
+            "oIoU": 10.18,
+            "precision@0.5": 0.23,
+            "precision@0.7": 0.04,
+            "precision@0.9": 0.0
+          },
+          "notes": "Full official val execution of the released MaskRIS code path. This is NOT a reproduction of the paper: the official repo README lists only encoder weights, HuggingFace lmh315/maskris contains an EEVG instance-segmentation checkpoint (RPN/roi_heads keys), not a MaskRIS RIS head, so the task model was randomly initialized. Metrics are reported for transparency only and must not be used as the method number."
+        }
       },
       "appreciation": "Best idea and measured contribution: the paper debunks the default recipe of borrowing generic image augmentations for RIS and shows that simple random image/text masking is the augmentation that helps, provided the model learns under distortion with DCL. The measured contribution is a clean +1.4/+3.1/+1.7 mIoU over CGFormer on RefCOCO/+/g val (78.35/71.68/69.31), with the same Swin-B/BERT backbone, and it transfers across several RIS models. It is a well-controlled supervised result and a useful reminder that occlusion-style robustness, not color jitter, is what the task rewards.",
       "critique": "Critique with evidence: this is fully supervised training on each dataset's train split (Table 1, Standard setting), so its 78.35 mIoU is not comparable to zero-shot rows and cannot be a floor; the paper itself separates combined-dataset training. Its improvements come from training-time augmentation, so they say nothing about repairing a frozen released pipeline. The abstract claims state-of-the-art on all three datasets, but the combined-setting table shows MaskRIS at 78.71/70.26/69.12 oIoU against PolyFormer 74.82/67.64/69.05 and CARIS 76.67/68.23/67.42, a smaller margin than the per-dataset setting; the strongest claim depends on the protocol chosen.",

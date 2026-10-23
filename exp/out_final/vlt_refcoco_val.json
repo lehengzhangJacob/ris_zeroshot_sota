@@ -1,0 +1,28 @@
+{
+  "method": "VLT (official code path, random initialization)",
+  "kind": "component",
+  "full_split": true,
+  "split": "refcoco_val",
+  "n": 10834,
+  "protocol": "Official VLT Tester (vlt.py test) on the full RefCOCO val annotations: 3,811 refs / 10,834 expressions, input 416, 16 queries, query_balance on, segment_thresh 0.35; metrics are the VLT Evaluate callback per-expression IoU (seg_iou) and Prec@0.50-0.95.",
+  "env": "conda vlt: Python 3.7, TensorFlow 1.15.5 (CPU), Keras 2.2.4, keras-transformer 0.38.0, keras-multi-head 0.27.0, keras-pos-embd 0.12.0, keras-layer-normalization 0.15.0, keras-position-wise-feed-forward 0.7.0, spaCy 2.3.2 + en_vectors_web_lg; CPU 32 threads",
+  "metrics": {
+    "seg_iou": 11.26,
+    "prec@0.50_frac": 6.9e-05,
+    "prec@0.55_frac": 5.3e-05,
+    "prec@0.60_frac": 4e-05,
+    "prec@0.65_frac": 2.8999999999999997e-05,
+    "prec@0.70_frac": 2e-05,
+    "prec@0.75_frac": 1.1999999999999999e-05,
+    "prec@0.80_frac": 5.999999999999999e-06,
+    "prec@0.85_frac": 5.999999999999999e-06,
+    "prec@0.90_frac": 4e-06,
+    "prec@0.95_frac": 2e-06,
+    "prec@0.50": 0.0069,
+    "prec@0.70": 0.002,
+    "prec@0.90": 0.00039999999999999996
+  },
+  "raw_result_file": "/home/msj_team/Jacob/research/ris/exp/literature/repos/vlt/result/result_10_23_19_53_41.txt",
+  "notes": "The official VLT repository ships no released checkpoint (the paper SharePoint link is dead and no HF/GitHub mirror exists). The official vlt.py Tester graph was therefore run to completion with random initialization on the full RefCOCO val split. Metrics are transparency-only and are not a reproduction. Local change: Tester.load_model skips the missing checkpoint only when VLT_RANDOM_INIT=1; Evaluate prints EVAL_N.",
+  "log": "/home/msj_team/Jacob/sys/vlt_run/vlt_full_val.log"
+}

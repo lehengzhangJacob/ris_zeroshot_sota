@@ -1,0 +1,20 @@
+{
+  "method": "Ref-Diff (official zero-shot code)",
+  "kind": "method",
+  "full_split": true,
+  "split": "refcoco_val",
+  "n": 10834,
+  "protocol": "Official Ref-Diff test.py on the full RefCOCO val split (3,811 refs / 10,834 expressions); SD1.5 + SAM ViT-H + CLIP ViT-B/16; segment threshold 0.35. Metrics: IoU = mean per-expression IoU; mIoU = GT-size-weighted mean (engine.engine.inference); Prec@0.50-0.90.",
+  "env": "conda refdiff: Python 3.10, torch 2.2.1+cu121, pytorch-lightning 1.9.5; SD1.5 pruned EMA checkpoint, SAM ViT-H, CLIP ViT-B/16, local CLIP-L text encoder; GPU1",
+  "metrics": {
+    "IoU": 35.77,
+    "mIoU": 36.54,
+    "Pr@50": 38.93,
+    "Pr@60": 36.34,
+    "Pr@70": 33.4,
+    "Pr@80": 29.43,
+    "Pr@90": 16.64
+  },
+  "notes": "Full official val execution with the released zero-shot pipeline; no sampling and no checkpoint substitution. Two-process structure is main process plus DataLoader child. Log: /home/msj_team/Jacob/sys/refdiff_run/refdiff_full2.log",
+  "log": "/home/msj_team/Jacob/sys/refdiff_run/refdiff_full2.log"
+}

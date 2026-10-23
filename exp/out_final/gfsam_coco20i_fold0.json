@@ -1,0 +1,15 @@
+{
+  "method": "GF-SAM (official one-shot COCO-20i fold 0 test)",
+  "kind": "component",
+  "full_split": true,
+  "split": "coco20i_fold0_test",
+  "n": 1000,
+  "protocol": "Official GF-SAM main_eval.py COCO-20i test: fold 0, 1000 episodes, 1-shot, img-size 1024, deterministic seed 0 (utils.fix_randseed(0)); mIoU and FB-IoU from AverageMeter.",
+  "env": "conda gfsam (cloned glod-ris): Python 3.10, torch 2.2.1+cu121, timm 0.6.13; DINOv2 ViT-L/14 and SAM ViT-H; GPU1 (UUID)",
+  "metrics": {
+    "mIoU": 56.53,
+    "FB-IoU": 74.23
+  },
+  "notes": "Official COCO-20i fold-0 1000-episode test with the released GF-SAM code path and public DINOv2/SAM weights. COCO val2014 class-indexed masks were generated from instances_val2014.json (sorted COCO category-id -> contiguous index). The 1,782 unique images required by the deterministic seed-0 episodes were fetched and validated; the episode sequence was verified to match the official dataset sampler exactly. Local bugfix: initialize selected_points=[] in GFSAM.predict so episodes with zero candidate masks return an empty mask instead of raising UnboundLocalError; the first attempt stopped at episode 843 because of that bug. This is a few-shot segmentation component, not RIS. Log: /home/msj_team/Jacob/sys/gfsam_run/gfsam_val_rerun.log",
+  "log": "/home/msj_team/Jacob/sys/gfsam_run/gfsam_val_rerun.log"
+}
