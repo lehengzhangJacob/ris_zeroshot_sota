@@ -1,0 +1,18 @@
+{
+  "kind": "component",
+  "method": "Semantic-SAM (SwinT, released SA-1B checkpoint)",
+  "full_split": true,
+  "split": "refcoco_val",
+  "protocol": "class-agnostic multi-granularity masks from the released interactive predictor with an ORACLE point at the ground-truth box center; per-expression oracle best-of-6 mask IoU (upper bound) and predicted-IoU-selected mask IoU (text-free lower bound). This is a component/mask-ceiling measurement, not a referring-method comparison.",
+  "env": "conda semantic-sam: Python 3.10, torch 2.2.1+cu121, detectron2 (official), MultiScaleDeformableAttention, kornia 0.6.4",
+  "checkpoint": "swint_only_sam_many2many.pth (official Semantic-SAM release, 212,401,739 B)",
+  "n_refs": 3811,
+  "n_sentences": 10834,
+  "n_images": 1500,
+  "elapsed_s": 785.8796803951263,
+  "oracle_mIoU": 78.36558302803736,
+  "oracle_hit50": 0.8803765922097102,
+  "oracle_hit70": 0.8333025659959387,
+  "oracle_hit90": 0.4337271552519845,
+  "prediou_mIoU": 63.643546728298595
+}

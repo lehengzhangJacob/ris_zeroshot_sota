@@ -1,0 +1,89 @@
+{
+  "n": 10834,
+  "shards": [
+    {
+      "shard": 0,
+      "setname": "s00",
+      "start": 0,
+      "end": 902,
+      "n": 903
+    },
+    {
+      "shard": 1,
+      "setname": "s01",
+      "start": 903,
+      "end": 1805,
+      "n": 903
+    },
+    {
+      "shard": 2,
+      "setname": "s02",
+      "start": 1806,
+      "end": 2708,
+      "n": 903
+    },
+    {
+      "shard": 3,
+      "setname": "s03",
+      "start": 2709,
+      "end": 3611,
+      "n": 903
+    },
+    {
+      "shard": 4,
+      "setname": "s04",
+      "start": 3612,
+      "end": 4514,
+      "n": 903
+    },
+    {
+      "shard": 5,
+      "setname": "s05",
+      "start": 4515,
+      "end": 5417,
+      "n": 903
+    },
+    {
+      "shard": 6,
+      "setname": "s06",
+      "start": 5418,
+      "end": 6320,
+      "n": 903
+    },
+    {
+      "shard": 7,
+      "setname": "s07",
+      "start": 6321,
+      "end": 7223,
+      "n": 903
+    },
+    {
+      "shard": 8,
+      "setname": "s08",
+      "start": 7224,
+      "end": 8126,
+      "n": 903
+    },
+    {
+      "shard": 9,
+      "setname": "s09",
+      "start": 8127,
+      "end": 9029,
+      "n": 903
+    },
+    {
+      "shard": 10,
+      "setname": "s10",
+      "start": 9030,
+      "end": 9931,
+      "n": 902
+    },
+    {
+      "shard": 11,
+      "setname": "s11",
+      "start": 9932,
+      "end": 10833,
+      "n": 902
+    }
+  ]
+}
