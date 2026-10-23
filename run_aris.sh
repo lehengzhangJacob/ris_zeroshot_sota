@@ -126,6 +126,11 @@ EOF
 short_fails=0
 while true; do
   t0=$(date +%s)
+  if ! python3 /home/msj_team/Jacob/research/aris_budget_guard.py --limit 10 --reserve 2 >> "$LOG" 2>&1; then
+    echo "{\"type\":\"supervisor\",\"event\":\"budget_pause\",\"reason\":\"daily_spend_cap\"}" >> "$LOG"
+    sleep 900
+    continue
+  fi
   if [ -s "$SESSION_FILE" ]; then
     SESSION=$(cat "$SESSION_FILE")
     claude -p --resume "$SESSION" \
