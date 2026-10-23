@@ -1,1 +1,1 @@
-log /home/msj_team/Jacob/sys/lscm_run/official_eval.log LSCM_OFFICIAL_DONE 3600
+log /home/msj_team/Jacob/sys/refdiff_run/refdiff_full2.log REFDIFF_FULL2_EXIT 14400

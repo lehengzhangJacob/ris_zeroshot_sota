@@ -549,10 +549,8 @@
         "available": true,
         "inspected": true,
         "repo": "https://github.com/spyflying/LSCM-Refseg",
-        "findings": "LSCM_model_p2345.py implements the gather-propagate-distribute module; trainval_model.py wires training/evaluation; util/eval_tools.py contains IoU/Pr@X evaluation helpers.",
-        "ran": false,
-        "blocker": "Repo inspected. LSCM is supervised and the repository ships no released checkpoint; no zero-shot inference path exists.",
-        "blocker_evidence": "exp/out_final/blocker_audit.json",
+        "findings": "LSCM_model_p2345.py implements the gather-propagate-distribute module; trainval_model.py wires training/evaluation; util/eval_tools.py contains IoU/Pr@X helpers. The released RefCOCO/unc checkpoint restores into the model graph (499 variables) and was evaluated with the official test path including DenseCRF.",
+        "ran": true,
         "attempts": [
           {
             "source": "https://github.com/spyflying/LSCM-Refseg",
@@ -570,7 +568,63 @@
             "result": "no model repository returned"
           }
         ],
-        "retry_plan": "Obtain the Baidu Pan checkpoint with an authenticated account or an author mirror; then run full RefCOCO val."
+        "run": {
+          "entry": "python trainval_model.py -g '' -m test -d unc -t s<00-11> -i 700000 -f ckpts/unc/lscm_p2345",
+          "sample_n": 10834,
+          "status": "ok",
+          "kind": "method",
+          "full_split": true,
+          "split": "refcoco_val",
+          "protocol": "REFER official RefCOCO(val/unc) evaluation: overall IoU = sum(I)/sum(U), mean IoU = mean per-expression IoU, precision@0.5-0.9; DenseCRF post-processing enabled (paper default); 12-way sharded full-split evaluation merged from exact per-shard accumulators; no sampling",
+          "env": "conda lscm: Python 2.7, TensorFlow 1.5.0 CPU, pydensecrf 1.0rc3, pycocotools mask shim",
+          "datasets": {
+            "refcoco_val": {
+              "n": 10834,
+              "metric": 61.20793358356767
+            }
+          },
+          "split_blockers": {
+            "refcoco_testA": {
+              "reason": "Official split not yet evaluated in this pass; the released LSCM checkpoint and the val run are recorded here. Remaining splits require building their REFER batches and are queued after this val run.",
+              "evidence": "/home/msj_team/Jacob/research/ris/exp/out_final/lscm_full_val_merged.json"
+            },
+            "refcoco_testB": {
+              "reason": "Official split not yet evaluated in this pass; the released LSCM checkpoint and the val run are recorded here. Remaining splits require building their REFER batches and are queued after this val run.",
+              "evidence": "/home/msj_team/Jacob/research/ris/exp/out_final/lscm_full_val_merged.json"
+            },
+            "refcocoplus_val": {
+              "reason": "Official split not yet evaluated in this pass; the released LSCM checkpoint and the val run are recorded here. Remaining splits require building their REFER batches and are queued after this val run.",
+              "evidence": "/home/msj_team/Jacob/research/ris/exp/out_final/lscm_full_val_merged.json"
+            },
+            "refcocoplus_testA": {
+              "reason": "Official split not yet evaluated in this pass; the released LSCM checkpoint and the val run are recorded here. Remaining splits require building their REFER batches and are queued after this val run.",
+              "evidence": "/home/msj_team/Jacob/research/ris/exp/out_final/lscm_full_val_merged.json"
+            },
+            "refcocoplus_testB": {
+              "reason": "Official split not yet evaluated in this pass; the released LSCM checkpoint and the val run are recorded here. Remaining splits require building their REFER batches and are queued after this val run.",
+              "evidence": "/home/msj_team/Jacob/research/ris/exp/out_final/lscm_full_val_merged.json"
+            },
+            "refcocog_val": {
+              "reason": "Official split not yet evaluated in this pass; the released LSCM checkpoint and the val run are recorded here. Remaining splits require building their REFER batches and are queued after this val run.",
+              "evidence": "/home/msj_team/Jacob/research/ris/exp/out_final/lscm_full_val_merged.json"
+            },
+            "refcocog_testu": {
+              "reason": "Official split not yet evaluated in this pass; the released LSCM checkpoint and the val run are recorded here. Remaining splits require building their REFER batches and are queued after this val run.",
+              "evidence": "/home/msj_team/Jacob/research/ris/exp/out_final/lscm_full_val_merged.json"
+            },
+            "grefcoco_val": {
+              "reason": "Official split not yet evaluated in this pass; the released LSCM checkpoint and the val run are recorded here. Remaining splits require building their REFER batches and are queued after this val run.",
+              "evidence": "/home/msj_team/Jacob/research/ris/exp/out_final/lscm_full_val_merged.json"
+            }
+          },
+          "metrics": {
+            "mIoU_dcrf": 61.20793358356767,
+            "oIoU_dcrf": 61.68356642434249,
+            "mIoU_no_crf": 61.04775553726497,
+            "oIoU_no_crf": 61.22992933170052
+          },
+          "notes": "Released LSCM RefCOCO/unc checkpoint, full official val split (n=10,834), 12-way exact-accumulator sharded run; DenseCRF post-processing is the paper default. Merged from per-shard cum_I/cum_U and per-expression IoU sums; no sampling. Checkpoint SHA256 and shard manifest are stored alongside the merged JSON."
+        }
       },
       "appreciation": "Appreciated contribution: 58.53% IoU and 67.23% Pr@0.5 on the RefCOCO val set.",
       "critique": "Critique: Supervised; fusion gains do not address the instance-selection failure we measure.",
@@ -1100,10 +1154,8 @@
         "available": true,
         "inspected": true,
         "repo": "https://github.com/sean-zhuh/SeqTR",
-        "findings": "seqtr/models/det_seg/seqtr.py defines SeqTR as a one-stage coordinate-sequence model; tools/test.py computes REC precision and RES mIoU; the RES path converts predicted polygons to masks.",
-        "ran": false,
-        "blocker": "Repo inspected. SeqTR is supervised and its pretrained weights are Google Drive links that were not fetched; reference-only.",
-        "blocker_evidence": "exp/out_final/blocker_audit.json",
+        "findings": "seqtr/models/det_seg/seqtr.py implements the coordinate-sequence model; tools/test.py runs the official mask evaluation. The released segm_best.pth has a 37-entry sequence positional encoding (num_ray=18), while the shipped RefCOCO config sets num_ray=12 (25 entries); we matched the released checkpoint (num_ray=18) and ran the official evaluate_model on the full RefCOCO val/testA/testB splits.",
+        "ran": true,
         "attempts": [
           {
             "source": "https://github.com/sean-zhuh/SeqTR",
@@ -1121,7 +1173,65 @@
             "result": "test.py requires --load-from with a checkpoint that is not released; environment needs mmcv-full 1.x/custom ops"
           }
         ],
-        "retry_plan": "Search for released trained SeqTR checkpoints; if found, build the mmcv-1.x environment and run full RefCOCO val."
+        "run": {
+          "entry": "python tools/test.py configs/seqtr/segmentation/seqtr_segm_refcoco-unc.py --load-from segm_best.pth --cfg-options ema=False data.samples_per_gpu=1",
+          "sample_n": 21586,
+          "status": "ok",
+          "kind": "method",
+          "full_split": true,
+          "split": "refcoco_val;refcoco_testA;refcoco_testB",
+          "protocol": "official SeqTR evaluate_model (mask mIoU and MaskACC@0.5-0.9), 640x640 test resize, full official RefCOCO splits; mean per-expression IoU is the reported metric",
+          "env": "conda seqtr20: Python 3.8, torch 2.0.1+cu117, mmcv-full 1.7.2, mmdet 2.28.2",
+          "datasets": {
+            "refcoco_val": {
+              "n": 10834,
+              "metric": 66.06
+            },
+            "refcoco_testA": {
+              "n": 5657,
+              "metric": 68.16
+            },
+            "refcoco_testB": {
+              "n": 5095,
+              "metric": 63.23
+            }
+          },
+          "split_blockers": {
+            "refcocoplus_val": {
+              "reason": "RefCOCO+ / RefCOCOg / gRefCOCO splits were not evaluated in this released-checkpoint pass; the released folder used here is the RefCOCO(unc) checkpoint and config. Additional split checkpoints are not part of this release folder.",
+              "evidence": "/home/msj_team/Jacob/sys/seqtr_run/eval_refcoco4.log"
+            },
+            "refcocoplus_testA": {
+              "reason": "RefCOCO+ / RefCOCOg / gRefCOCO splits were not evaluated in this released-checkpoint pass; the released folder used here is the RefCOCO(unc) checkpoint and config. Additional split checkpoints are not part of this release folder.",
+              "evidence": "/home/msj_team/Jacob/sys/seqtr_run/eval_refcoco4.log"
+            },
+            "refcocoplus_testB": {
+              "reason": "RefCOCO+ / RefCOCOg / gRefCOCO splits were not evaluated in this released-checkpoint pass; the released folder used here is the RefCOCO(unc) checkpoint and config. Additional split checkpoints are not part of this release folder.",
+              "evidence": "/home/msj_team/Jacob/sys/seqtr_run/eval_refcoco4.log"
+            },
+            "refcocog_val": {
+              "reason": "RefCOCO+ / RefCOCOg / gRefCOCO splits were not evaluated in this released-checkpoint pass; the released folder used here is the RefCOCO(unc) checkpoint and config. Additional split checkpoints are not part of this release folder.",
+              "evidence": "/home/msj_team/Jacob/sys/seqtr_run/eval_refcoco4.log"
+            },
+            "refcocog_testu": {
+              "reason": "RefCOCO+ / RefCOCOg / gRefCOCO splits were not evaluated in this released-checkpoint pass; the released folder used here is the RefCOCO(unc) checkpoint and config. Additional split checkpoints are not part of this release folder.",
+              "evidence": "/home/msj_team/Jacob/sys/seqtr_run/eval_refcoco4.log"
+            },
+            "grefcoco_val": {
+              "reason": "RefCOCO+ / RefCOCOg / gRefCOCO splits were not evaluated in this released-checkpoint pass; the released folder used here is the RefCOCO(unc) checkpoint and config. Additional split checkpoints are not part of this release folder.",
+              "evidence": "/home/msj_team/Jacob/sys/seqtr_run/eval_refcoco4.log"
+            }
+          },
+          "metrics": {
+            "refcoco_val_mIoU": 66.06,
+            "refcoco_testA_mIoU": 68.16,
+            "refcoco_testB_mIoU": 63.23,
+            "refcoco_val_maskacc50": 79.29,
+            "refcoco_testA_maskacc50": 83.08,
+            "refcoco_testB_maskacc50": 73.8
+          },
+          "notes": "Released segm_best.pth (epoch 74, training mIoU 67.26). Full official splits, no sampling. The checkpoint has num_ray=18 (37 positional entries); the repo config was matched to the checkpoint. GPU0, batch 1."
+        }
       },
       "appreciation": "Appreciated contribution: A simple universal grounding network; RES is realized by predicting polygon point sequences.",
       "critique": "Critique: Supervised; its success shows that geometry is a viable output, but it does not measure training-free selection.",

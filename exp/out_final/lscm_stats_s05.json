@@ -1,0 +1,1 @@
+{"cum_U_dcrf": 35319908.0, "setname": "s05", "cum_U": 35856515.0, "eval_seg_iou_list": [0.5, 0.6, 0.7, 0.8, 0.9], "dataset": "unc", "cum_I": 21496109.0, "cum_I_dcrf": 21337594.0, "iter": 700000, "mean_IoU_sum": 530.2952357268169, "seg_correct_dcrf": [621, 563, 463, 323, 89], "seg_correct": [625, 555, 441, 303, 68], "mean_dcrf_IoU_sum": 529.3984439905147, "seg_total": 903}

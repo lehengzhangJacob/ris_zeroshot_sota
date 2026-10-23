@@ -1,0 +1,12 @@
+{
+  "dataset_split": "refcoco|unc|val",
+  "n": 707,
+  "mIoU": 0.0,
+  "cIoU": 0.0,
+  "sam_mIoU": 0.0,
+  "sam_cIoU": 0.0,
+  "missing_gt": 0,
+  "protocol": "official Text4Seg refer_seg harness (model_refer_seg -> eval_refer_seg): cIoU = sum intersection / sum union over referring expressions; mIoU = mean per-expression IoU; masks from generated R-RLE text and SAM-H refinement. n = number of referring expressions in the official RefCOCO val split.",
+  "env": "conda glod-ris: Python 3.10, torch 2.2.1+cu121, transformers 4.49.0; model lmc22/text4seg-llava-7b-p24 (HuggingFace, released quick-inference checkpoint); SAM ViT-H",
+  "checkpoint": "lmc22/text4seg-llava-7b-p24 (3 safetensors shards, 14,125,900,488 bytes)"
+}

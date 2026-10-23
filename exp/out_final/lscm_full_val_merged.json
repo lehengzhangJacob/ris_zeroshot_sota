@@ -1,0 +1,154 @@
+{
+  "n_shards": 12, 
+  "protocol": "REFER official RefCOCO(val/unc) evaluation: overall IoU = sum(I)/sum(U), mean IoU = mean per-expression IoU, precision@0.5-0.9; DenseCRF post-processing enabled (paper default); 12-way sharded full-split evaluation merged from exact per-shard accumulators; no sampling", 
+  "cum_U_dcrf": 415837718.0, 
+  "cum_I_dcrf": 256503535.0, 
+  "mean_IoU_sum": 6613.913834907287, 
+  "seg_correct_dcrf": [
+    7728, 
+    6950, 
+    5850, 
+    4116, 
+    1359
+  ], 
+  "mIoU": 61.04775553726497, 
+  "oIoU_dcrf": 61.68356642434249, 
+  "mIoU_dcrf": 61.20793358356767, 
+  "checkpoint": "/home/msj_team/Jacob/sys/lscm_run/ckpt/unc_iter_700000.tfmodel (released LSCM RefCOCO/unc checkpoint)", 
+  "env": "conda lscm: Python 2.7, TensorFlow 1.5.0 CPU, pydensecrf 1.0rc3, pycocotools mask shim", 
+  "cum_U": 420236941.0, 
+  "precision": [
+    0.717002030644268, 
+    0.6408528705925789, 
+    0.5272290935942403, 
+    0.35287059257891823, 
+    0.09811703895144915
+  ], 
+  "eval_seg_iou_list": [
+    0.5, 
+    0.6, 
+    0.7, 
+    0.8, 
+    0.9
+  ], 
+  "cum_I": 257310782.0, 
+  "seg_correct": [
+    7768, 
+    6943, 
+    5712, 
+    3823, 
+    1063
+  ], 
+  "mean_dcrf_IoU_sum": 6631.267524443721, 
+  "checkpoint_sha256": {
+    "index": {
+      "sha256": "c4076273fb3ee9cdf7dc0d49dc83b5e82d7a2a8e290a3ec0ad632eaf257047da", 
+      "bytes": 42184
+    }, 
+    "meta": {
+      "sha256": "7eeec06879dfe9bd9b906e383a17cf40a8894cbec61dd44dbbb7a8f1483275f5", 
+      "bytes": 32796436
+    }, 
+    "data-00000-of-00001": {
+      "sha256": "1515b8e0035062aec2b17d4d26fd37936ae7bafe7f369a979a5e91b0baa4d00c", 
+      "bytes": 1229843288
+    }
+  }, 
+  "precision_dcrf": [
+    0.7133099501569135, 
+    0.6414989846778659, 
+    0.5399667712756138, 
+    0.37991508214879083, 
+    0.12543843455787337
+  ], 
+  "splits": {
+    "refcoco_val": {
+      "oIoU": 61.22992933170052, 
+      "mIoU_dcrf": 61.20793358356767, 
+      "oIoU_dcrf": 61.68356642434249, 
+      "mIoU": 61.04775553726497, 
+      "n": 10834
+    }
+  }, 
+  "shards": [
+    {
+      "cum_I": 21954515.0, 
+      "cum_U": 35008369.0, 
+      "setname": "s00", 
+      "n": 903
+    }, 
+    {
+      "cum_I": 22102174.0, 
+      "cum_U": 37214500.0, 
+      "setname": "s01", 
+      "n": 903
+    }, 
+    {
+      "cum_I": 22405114.0, 
+      "cum_U": 34047147.0, 
+      "setname": "s02", 
+      "n": 903
+    }, 
+    {
+      "cum_I": 18915802.0, 
+      "cum_U": 31841759.0, 
+      "setname": "s03", 
+      "n": 903
+    }, 
+    {
+      "cum_I": 21637988.0, 
+      "cum_U": 36088883.0, 
+      "setname": "s04", 
+      "n": 903
+    }, 
+    {
+      "cum_I": 21496109.0, 
+      "cum_U": 35856515.0, 
+      "setname": "s05", 
+      "n": 903
+    }, 
+    {
+      "cum_I": 20799230.0, 
+      "cum_U": 36352709.0, 
+      "setname": "s06", 
+      "n": 903
+    }, 
+    {
+      "cum_I": 21835450.0, 
+      "cum_U": 33864434.0, 
+      "setname": "s07", 
+      "n": 903
+    }, 
+    {
+      "cum_I": 22134940.0, 
+      "cum_U": 35373508.0, 
+      "setname": "s08", 
+      "n": 903
+    }, 
+    {
+      "cum_I": 21922088.0, 
+      "cum_U": 36023561.0, 
+      "setname": "s09", 
+      "n": 903
+    }, 
+    {
+      "cum_I": 20096484.0, 
+      "cum_U": 33754475.0, 
+      "setname": "s10", 
+      "n": 902
+    }, 
+    {
+      "cum_I": 22010888.0, 
+      "cum_U": 34811081.0, 
+      "setname": "s11", 
+      "n": 902
+    }
+  ], 
+  "n": 10834, 
+  "published": {
+    "oIoU": 50.85, 
+    "note": "LSCM published RefCOCO val row as quoted in GLOD-RIS Table I", 
+    "mIoU": 58.42
+  }, 
+  "oIoU": 61.22992933170052
+}
