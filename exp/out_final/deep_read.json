@@ -1179,7 +1179,7 @@
         "run": {
           "entry": "python /home/msj_team/Jacob/sys/restr_run/restr_eval_random.py (official model/factory + dataset/referit_dataset_vit, random init)",
           "sample_n": 10834,
-          "status": "ok",
+          "status": "partial",
           "kind": "component",
           "full_split": true,
           "split": "refcoco_val",
@@ -1192,7 +1192,10 @@
             "precision@0.7": 0.0277,
             "precision@0.9": 0.0
           },
-          "notes": "Full official RefCOCO val split (n=10,834) with the official ReSTR code path and random initialization; no task checkpoint exists in the released repo/releases. Metrics are transparency-only and are not a reproduction. Evidence: exp/out_final/restr_refcoco_val.json"
+          "notes": "Full official RefCOCO val split (n=10,834) with the official ReSTR code path and random initialization; no task checkpoint exists in the released repo/releases. Metrics are transparency-only and are not a reproduction. Evidence: exp/out_final/restr_refcoco_val.json",
+          "blocker": "No ReSTR task checkpoint in SouthFlame/restr, its releases, or the project page; evaluate.py expects --restore_refseg but no weights are released. The official code path was run with random initialization as a component check, not a reproduction.",
+          "blocker_evidence": "exp/out_final/restr_refcoco_val.json",
+          "retry_plan": "Locate the author-released ReSTR checkpoint (project page/HF/issue tracker); rerun the official unc val evaluation with released weights. Until then the record stays partial and does not count."
         }
       },
       "appreciation": "Appreciated contribution: ReferIt test IoU 70.18, RefCOCO val 67.22, RefCOCO+ val 55.78, G-Ref val 54.48 (Table 1).",
@@ -1336,10 +1339,8 @@
         "available": true,
         "inspected": true,
         "repo": "https://github.com/suoych/TAS",
-        "findings": "Inspected tas_main.py and the README: tas_main.py line 462 opens ./overall_caption_path/overall_caption_{dataset}_{split}_{splitby}.json, a per-sentence caption file the repository neither ships nor generates; README step 3 instructs the user to prepare captions with BLIP-2. Inference cannot start without it, so the method is documented as blocked rather than sampled.",
-        "ran": false,
-        "blocker": "TAS inference cannot start: tas_main.py line 462 requires a per-sentence caption JSON under overall_caption_path, which the repo neither ships nor generates; README step 3 tells the user to prepare captions with BLIP-2 first.",
-        "blocker_evidence": "exp/out_final/blocker_audit.json",
+        "findings": "TAS implements a training-free pipeline: SAM ViT-H automatic masks, BLIP-2 captions for crops, CLIP image/text scoring with spaCy noun-chunk heuristics and spatial rectification. The released entry point expects a per-sentence caption file; we generate it with BLIP-2 and run the official inference loop on the full RefCOCO val split.",
+        "ran": true,
         "attempts": [
           {
             "source": "https://github.com/suoych/TAS",
@@ -1357,7 +1358,66 @@
             "result": "README instructs the user to prepare captions with BLIP-2; no ready caption file found"
           }
         ],
-        "retry_plan": "Install LAVIS/BLIP-2, generate the per-sentence captions the README requires, then run the released full-val entry point."
+        "run": {
+          "entry": "python tas_main_hf.py --config config/refcoco/refcoco_val_run.yaml (official test path)",
+          "sample_n": 10834,
+          "status": "ok",
+          "kind": "method",
+          "full_split": true,
+          "split": "refcoco_val",
+          "protocol": "Official TAS test.py path on the full RefCOCO val split (3,811 refs / 10,834 expressions): SAM ViT-H automatic masks, BLIP-2 OPT-2.7B captions, CLIP ViT-B/32 scoring plus spaCy/heuristic spatial rectification. mIoU = mean per-expression IoU; oIoU = pooled intersection/union; Pr@k as logged.",
+          "env": "conda tas: Python 3.10, torch 2.2.1+cu121, transformers 4.35.2, BLIP-2 OPT-2.7B (HF safetensors), SAM ViT-H, CLIP ViT-B/32, spaCy 3.7 + en_core_web_trf, NLTK wordnet/punkt/averaged_perceptron_tagger; GPU1",
+          "datasets": {
+            "refcoco_val": {
+              "n": 10834,
+              "metric": 39.5
+            }
+          },
+          "split_blockers": {
+            "refcoco_testA": {
+              "reason": "Official split not evaluated in this pass; the full RefCOCO val split was run end-to-end.",
+              "evidence": "/home/msj_team/Jacob/research/ris/exp/out_final/tas_refcoco_val.json"
+            },
+            "refcoco_testB": {
+              "reason": "Official split not evaluated in this pass; the full RefCOCO val split was run end-to-end.",
+              "evidence": "/home/msj_team/Jacob/research/ris/exp/out_final/tas_refcoco_val.json"
+            },
+            "refcocoplus_val": {
+              "reason": "Official split not evaluated in this pass; the full RefCOCO val split was run end-to-end.",
+              "evidence": "/home/msj_team/Jacob/research/ris/exp/out_final/tas_refcoco_val.json"
+            },
+            "refcocoplus_testA": {
+              "reason": "Official split not evaluated in this pass; the full RefCOCO val split was run end-to-end.",
+              "evidence": "/home/msj_team/Jacob/research/ris/exp/out_final/tas_refcoco_val.json"
+            },
+            "refcocoplus_testB": {
+              "reason": "Official split not evaluated in this pass; the full RefCOCO val split was run end-to-end.",
+              "evidence": "/home/msj_team/Jacob/research/ris/exp/out_final/tas_refcoco_val.json"
+            },
+            "refcocog_val": {
+              "reason": "Official split not evaluated in this pass; the full RefCOCO val split was run end-to-end.",
+              "evidence": "/home/msj_team/Jacob/research/ris/exp/out_final/tas_refcoco_val.json"
+            },
+            "refcocog_testu": {
+              "reason": "Official split not evaluated in this pass; the full RefCOCO val split was run end-to-end.",
+              "evidence": "/home/msj_team/Jacob/research/ris/exp/out_final/tas_refcoco_val.json"
+            },
+            "grefcoco_val": {
+              "reason": "Official split not evaluated in this pass; the full RefCOCO val split was run end-to-end.",
+              "evidence": "/home/msj_team/Jacob/research/ris/exp/out_final/tas_refcoco_val.json"
+            }
+          },
+          "metrics": {
+            "mIoU": 39.5,
+            "oIoU": 29.16,
+            "Pr@50": 44.05,
+            "Pr@60": 42.22,
+            "Pr@70": 39.49,
+            "Pr@80": 34.5,
+            "Pr@90": 20.14
+          },
+          "notes": "Full official RefCOCO val execution. Captions were generated by us with BLIP-2 (the repo does not ship the per-sentence caption file); local fixes: HF Blip2Processor with use_fast=False because the released tokenizer.json is not accepted by the fast tokenizer, and an empty non-synonym noun-chunk guard so the negative-text term is dropped instead of launching a zero-batch CLIP kernel on CUDA. Log: /home/msj_team/Jacob/sys/tas_run/tas_val_main2.log"
+        }
       },
       "appreciation": "Appreciated contribution: TAS (ResNet-50) reaches 39.91 RefCOCO val mIoU / 43.99 RefCOCO+ val, improving over global-local CLIP baselines.",
       "critique": "Critique: A same-class method whose proposal source and text augmentation could be combined with our box prior; we do not test that combination.",
@@ -1535,7 +1595,7 @@
         "run": {
           "entry": "VLT_RANDOM_INIT=1 python vlt.py test <val-only config> (official Tester, full RefCOCO val)",
           "sample_n": 10834,
-          "status": "ok",
+          "status": "partial",
           "kind": "component",
           "full_split": true,
           "split": "refcoco_val",
@@ -1547,7 +1607,10 @@
             "prec@0.70": 0.002,
             "prec@0.90": 0.00039999999999999996
           },
-          "notes": "The official VLT repository ships no released checkpoint (the paper SharePoint link is dead and no HF/GitHub mirror exists). The official vlt.py Tester graph was therefore run to completion with random initialization on the full RefCOCO val split. Metrics are transparency-only and are not a reproduction. Local change: Tester.load_model skips the missing checkpoint only when VLT_RANDOM_INIT=1; Evaluate prints EVAL_N. Evidence: exp/out_final/vlt_refcoco_val.json"
+          "notes": "The official VLT repository ships no released checkpoint (the paper SharePoint link is dead and no HF/GitHub mirror exists). The official vlt.py Tester graph was therefore run to completion with random initialization on the full RefCOCO val split. Metrics are transparency-only and are not a reproduction. Local change: Tester.load_model skips the missing checkpoint only when VLT_RANDOM_INIT=1; Evaluate prints EVAL_N. Evidence: exp/out_final/vlt_refcoco_val.json",
+          "blocker": "No released VLT task checkpoint: the official SharePoint folder requires an authenticated session and no HuggingFace/GitHub mirror exists. The only executable run is a random-initialization component check, not a reproduction.",
+          "blocker_evidence": "exp/out_final/vlt_refcoco_val.json",
+          "retry_plan": "Re-check the author SharePoint folder with an authenticated session or locate an author-released checkpoint; rerun the official Tester with released weights. Until then the record stays partial and does not count."
         }
       },
       "appreciation": "Appreciated contribution: RefCOCO val IoU 65.65, RefCOCO+ val 55.50, G-Ref val(U) 52.99, Prec@0.5 76.20.",
@@ -2465,7 +2528,7 @@
         "run": {
           "entry": "python eval.py --swin_type base --dataset refcoco --split val --img_size 448 --resume random_init.pth --bert_tokenizer ... --ck_bert ... --refer_data_root ... --refer_root ... --workers 0 --batch-size 1",
           "sample_n": 10834,
-          "status": "ok",
+          "status": "partial",
           "kind": "component",
           "full_split": true,
           "split": "refcoco_val",
@@ -2478,7 +2541,10 @@
             "precision@0.7": 0.04,
             "precision@0.9": 0.0
           },
-          "notes": "Full official val execution of the released MaskRIS code path. This is NOT a reproduction of the paper: the official repo README lists only encoder weights, HuggingFace lmh315/maskris contains an EEVG instance-segmentation checkpoint (RPN/roi_heads keys), not a MaskRIS RIS head, so the task model was randomly initialized. Metrics are reported for transparency only and must not be used as the method number."
+          "notes": "Full official val execution of the released MaskRIS code path. This is NOT a reproduction of the paper: the official repo README lists only encoder weights, HuggingFace lmh315/maskris contains an EEVG instance-segmentation checkpoint (RPN/roi_heads keys), not a MaskRIS RIS head, so the task model was randomly initialized. Metrics are reported for transparency only and must not be used as the method number.",
+          "blocker": "The official MaskRIS repo ships only encoder weights; the HuggingFace lmh315/maskris checkpoint is an EEVG instance-segmentation checkpoint (RPN/roi_heads), not the RIS text/decoder head. The task model was randomly initialized, so the run is not a reproduction.",
+          "blocker_evidence": "exp/out_final/maskris_refcoco_val.json",
+          "retry_plan": "Locate an official MaskRIS RIS-head checkpoint (author repo/releases/HF); rerun the official eval.py with released weights. Until then the record stays partial and does not count."
         }
       },
       "appreciation": "Best idea and measured contribution: the paper debunks the default recipe of borrowing generic image augmentations for RIS and shows that simple random image/text masking is the augmentation that helps, provided the model learns under distortion with DCL. The measured contribution is a clean +1.4/+3.1/+1.7 mIoU over CGFormer on RefCOCO/+/g val (78.35/71.68/69.31), with the same Swin-B/BERT backbone, and it transfers across several RIS models. It is a well-controlled supervised result and a useful reminder that occlusion-style robustness, not color jitter, is what the task rewards.",
@@ -3115,12 +3181,10 @@
       "source_file": "exp/literature/papers/text4seg2024.txt",
       "code": {
         "available": true,
-        "inspected": false,
+        "inspected": true,
         "repo": "https://github.com/mc-lan/Text4Seg",
-        "findings": "",
-        "ran": false,
-        "blocker": "Text4Seg is a fine-tuned MLLM (InternVL2/LLaVA) with no zero-shot inference path; its checkpoints and multi-GPU setup were not fetched.",
-        "blocker_evidence": "exp/out_final/blocker_audit.json",
+        "findings": "llava/eval/model_refer_seg.py decodes the generated <seg> R-RLE text and refines the mask with SAM ViT-H; llava/eval/eval_refer_seg.py pools intersection/union over expressions (cIoU) and averages per-expression IoU (gIoU). The released quick-inference checkpoint is lmc22/text4seg-llava-7b-p24 on HuggingFace.",
+        "ran": true,
         "attempts": [
           {
             "source": "https://github.com/mc-lan/Text4Seg",
@@ -3138,7 +3202,63 @@
             "result": "no official Text4Seg model repository found"
           }
         ],
-        "retry_plan": "Locate a trained Text4Seg checkpoint or train the released MLLM code on RIS data; full val only."
+        "run": {
+          "entry": "python -m llava.eval.model_refer_seg_batched --dataset_split refcoco|unc|val (official Text4Seg harness)",
+          "sample_n": 10834,
+          "status": "ok",
+          "kind": "method",
+          "full_split": true,
+          "split": "refcoco_val",
+          "protocol": "official Text4Seg refer_seg harness (model_refer_seg -> eval_refer_seg): cIoU = sum intersection / sum union over referring expressions; mIoU = mean per-expression IoU; masks from generated R-RLE text and SAM-H refinement. n = number of referring expressions in the official RefCOCO val split.",
+          "env": "conda glod-ris: Python 3.10, torch 2.2.1+cu121, transformers 4.49.0; model lmc22/text4seg-llava-7b-p24 (HuggingFace, released quick-inference checkpoint); SAM ViT-H",
+          "datasets": {
+            "refcoco_val": {
+              "n": 10834,
+              "metric": 76.84573492480654
+            }
+          },
+          "split_blockers": {
+            "refcoco_testA": {
+              "reason": "Official split not evaluated in this pass; the full RefCOCO val split was run end-to-end.",
+              "evidence": "/home/msj_team/Jacob/research/ris/exp/out_final/text4seg_refcoco_val.json"
+            },
+            "refcoco_testB": {
+              "reason": "Official split not evaluated in this pass; the full RefCOCO val split was run end-to-end.",
+              "evidence": "/home/msj_team/Jacob/research/ris/exp/out_final/text4seg_refcoco_val.json"
+            },
+            "refcocoplus_val": {
+              "reason": "Official split not evaluated in this pass; the full RefCOCO val split was run end-to-end.",
+              "evidence": "/home/msj_team/Jacob/research/ris/exp/out_final/text4seg_refcoco_val.json"
+            },
+            "refcocoplus_testA": {
+              "reason": "Official split not evaluated in this pass; the full RefCOCO val split was run end-to-end.",
+              "evidence": "/home/msj_team/Jacob/research/ris/exp/out_final/text4seg_refcoco_val.json"
+            },
+            "refcocoplus_testB": {
+              "reason": "Official split not evaluated in this pass; the full RefCOCO val split was run end-to-end.",
+              "evidence": "/home/msj_team/Jacob/research/ris/exp/out_final/text4seg_refcoco_val.json"
+            },
+            "refcocog_val": {
+              "reason": "Official split not evaluated in this pass; the full RefCOCO val split was run end-to-end.",
+              "evidence": "/home/msj_team/Jacob/research/ris/exp/out_final/text4seg_refcoco_val.json"
+            },
+            "refcocog_testu": {
+              "reason": "Official split not evaluated in this pass; the full RefCOCO val split was run end-to-end.",
+              "evidence": "/home/msj_team/Jacob/research/ris/exp/out_final/text4seg_refcoco_val.json"
+            },
+            "grefcoco_val": {
+              "reason": "Official split not evaluated in this pass; the full RefCOCO val split was run end-to-end.",
+              "evidence": "/home/msj_team/Jacob/research/ris/exp/out_final/text4seg_refcoco_val.json"
+            }
+          },
+          "metrics": {
+            "mIoU": 70.16791876315092,
+            "cIoU": 71.85868179615666,
+            "sam_mIoU": 76.84573492480654,
+            "sam_cIoU": 75.81979753922346
+          },
+          "notes": "Full official RefCOCO val run with the released p24 checkpoint and SAM ViT-H refinement. Local harness fixes required to execute the released code as intended: the repo calls the one-argument translate_sequence that no longer exists (restored the official demo mapping), the SAM mask_input variable was undefined (now the predicted low-res mask, matching model_semantic_seg.py), and llava/eval/utils.py was missing torch/F imports. Generation was batched by image (group 8) as an implementation detail; outputs were smoke-validated against the sequential path. mIoU/cIoU are the generated-text masks; sam_* are the SAM-refined masks."
+        }
       },
       "appreciation": "Best idea and measured contribution: representing a 16x16 mask as a sequence of semantic descriptors lets an off-the-shelf MLLM produce segmentation without a mask decoder, and R-RLE makes the representation practical (74% shorter descriptors, 3x faster). The measured contribution is competitive supervised accuracy, 76.2 average cIoU with LLaVA-1.5-13B and 75.0 with the 8B model, plus gains from a SAM refiner. The text-as-mask interface is a genuinely different design from SAM-pool selection and worth knowing about.",
       "critique": "Critique with evidence: the model is fine-tuned on RIS data and evaluated on the same benchmarks, so the 76.2 cIoU is supervised and not comparable to zero-shot rows. The 16x16 descriptor grid limits spatial resolution; the paper adds a SAM refiner to recover detail, which reintroduces the heavy segmenter it claimed to eliminate, and the refiner raises average cIoU from 73.5 to 79.1 (Section 4.4), so the decoder-free claim is only true for the coarse stage. The efficiency comparison is against its own uncompressed format, not against SAM-based pipelines end-to-end.",
@@ -3728,6 +3848,6 @@
     "repo": "https://github.com/henghuiding/ReLA + https://github.com/henghuiding/gRefCOCO",
     "finding": "official evaluation is per sentence (not per ref): a no-target true positive contributes I=U=0 and gIoU 1; a targeted false positive keeps the discarded mask's union in the cIoU denominator with I=0; N_acc=TP/(TP+FN) and T_acc=TN/(TN+FP) (reported as fractions). Our metric matches these definitions, with one deliberate difference: an empty-prediction abstention adds only the GT area to U instead of a discarded mask's union, which makes our abstention rows slightly cheaper in cIoU than the official FP convention. GreferDataset groups several sentences per ref with one merged GT, so per-sentence evaluation and per-sentence text alignment are required --- the exp172/exp173 corrections."
   },
-  "verdict": "35+ full-text papers read; the selection diagnosis is corroborated by Venice-H1, S+S, Prompt Sensitivity and PinPoint, while MaskCLIP's own-pool result bounds it to pipelines whose pool contains the referent. Trained mask-group and graph-merge lines are adjacent, not same-class zero-shot baselines.",
+  "verdict": "35+ full-text papers read; the selection diagnosis is corroborated by Venice-H1, S+S, Prompt Sensitivity and PinPoint, while MaskCLIP's own-pool result bounds it to pipelines whose pool contains the referent. Trained mask-group and graph-merge lines are adjacent, not same-class zero-shot baselines. Integrity fix 2026-10-24: VLT, MaskRIS and ReSTR are partial random-initialization/checkpoint-blocked component runs, not reproductions; they do not count toward the mandatory targets. Full released-checkpoint reproductions remain required.",
   "method_full": 20
 }

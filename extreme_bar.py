@@ -813,6 +813,17 @@ def literature_deep_read():
             notes = run.get("notes")
             if not isinstance(notes, str) or not notes.strip():
                 return fail(f"deep_read paper {i} run.notes must be non-empty")
+            # Integrity: a run whose own notes/findings admit random init,
+            # transparency-only metrics, or a missing/wrong task checkpoint is
+            # NOT an ok reproduction. Keep it partial; partial does not count.
+            disq = ("random init", "random initialization", "randomly initialized",
+                    "not a reproduction", "transparency-only", "transparency only",
+                    "no task checkpoint", "no released checkpoint", "wrong checkpoint")
+            text = (notes + " " + str(code.get("findings", ""))).lower()
+            if status == "ok":
+                for phrase in disq:
+                    if phrase in text:
+                        return fail(f"deep_read paper {i} marks status=ok but its notes/findings say '{phrase}' --- mark it partial/blocked, not ok")
             kind = run.get("kind")
             if kind not in ("method", "component", "metric"):
                 return fail(f"deep_read paper {i} run.kind must be method/component/metric")
@@ -912,7 +923,15 @@ def literature_deep_read():
                 c = p.get("code") or {}
                 r = c.get("run") or {}
                 if not (c.get("ran") is True and r.get("status") == "ok"):
-                    return fail(f"mandatory target {label} is not run ok --- known-obtainable checkpoints may not be left blocked")
+                    return fail(f"mandatory target {label} is not a complete reproduction --- partial/random-init runs do not count; use a released checkpoint and the full split")
+                if r.get("full_split") is not True:
+                    return fail(f"mandatory target {label} is not full-split --- complete reproduction required")
+                sn = r.get("sample_n")
+                if not isinstance(sn, int) or sn < 1000:
+                    return fail(f"mandatory target {label} has n < 1000 --- complete reproduction required")
+                mm = r.get("metrics")
+                if not isinstance(mm, dict) or not any(isinstance(v, (int, float)) for v in mm.values()):
+                    return fail(f"mandatory target {label} needs numeric metrics --- complete reproduction required")
     mc = data.get("grefcoco_metric_check")
     if not isinstance(mc, dict):
         return fail("deep_read.json needs grefcoco_metric_check{}")

@@ -87,16 +87,15 @@ only on the parsed subset, and its gain is exactly there ---
 expressions on RefCOCO val, and zero elsewhere by construction --- which is
 why the cross-benchmark pattern below is the diagnostic's decisive test.
 
-Two further released same-class pipelines are documented as blocked rather
-than sampled, with the repo, reason and check in the evidence files.
-TAS~\cite{shu2023tas}'s entry point requires a per-sentence caption file that
-the repository neither ships nor generates (its README asks the user to
-prepare captions with BLIP-2 first), and Ref-Diff~\cite{ni2023refdiff}'s test
-entry loads a trained segmenter checkpoint that was not released (its config
-leaves \texttt{resume} empty and its pretrain directory holds only a stego
-head). The exact Global-Local~\cite{yu2023global} FreeSOLO pool is also
-blocked: its weight URL does not resolve and the repository vendors no
-FreeSOLO code. Neither blocker is a negative result about those methods.
+Two further released same-class pipelines, TAS~\cite{shu2023tas} and
+Ref-Diff~\cite{ni2023refdiff}, were subsequently run end-to-end on the full
+RefCOCO val split in the released-pipeline reproduction audit: TAS measures
+39.50 mIoU / 29.16 oIoU and Ref-Diff 35.77 mean IoU / 36.54 size-weighted
+mIoU, both below the shipped row and below the pool-oracle operating point.
+These are neutral measurements of the released pipelines, not floors or
+criticisms, and they are not pooled with our single-protocol runs. The exact
+Global-Local~\cite{yu2023global} FreeSOLO pool remains unavailable: its
+weight URL does not resolve and the repository vendors no FreeSOLO code.
 
 \begin{table*}[t]\centering\small
 \caption{Oracle-gap decomposition on additional released pipelines, full
@@ -114,10 +113,10 @@ rule; an independent 2026 table~\cite{earlygrounding2026} reports a
 SAM-proposal MaskCLIP at $25.62/27.49/30.13$\,mIoU, so this row is an
 adaptation of the dense-map component pool, not that method's strongest
 released route, while the same table's Global-Local ViT-B row
-($33.12/35.29/40.08$) agrees with ours to within $1.6$\,mIoU. The exact pools
-and the two remaining released RIS pipelines (TAS, Ref-Diff) are documented
-as blocked in \S\ref{sec:diagnosis}; per-pipeline oIoU and its published
-numbers are recorded in the artifact. All achieved/oracle cells here are
+($33.12/35.29/40.08$) agrees with ours to within $1.6$\,mIoU. The exact pools are documented
+in \S\ref{sec:diagnosis}; TAS and Ref-Diff are run separately in the
+released-pipeline reproduction audit and are not pooled here. Per-pipeline
+oIoU and its published numbers are recorded in the artifact. All achieved/oracle cells here are
 single-protocol (our unified official evaluator); published numbers are
 reported separately (Table~\ref{tab:sota}) and labelled as published
 (cross-harness), never pooled with these measurements.}

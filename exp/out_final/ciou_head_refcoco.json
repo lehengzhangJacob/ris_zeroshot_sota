@@ -1,0 +1,8 @@
+{
+  "dataset": "refcoco",
+  "kind": "reg",
+  "holdout_cIoU": 68.76060959096938,
+  "holdout_mIoU": 74.77826580275318,
+  "tune_rows": 54629,
+  "selected_on": "train-carved ref-id hash holdout; official val untouched"
+}
